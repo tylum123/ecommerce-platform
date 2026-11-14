@@ -19,5 +19,5 @@ export default async function CustomerSectionPage({
     redirect(`/dang-nhap?redirect=/khach-hang/${section}`);
   }
 
-  return <CustomerPortalView initialSection={section} />;
+  return <CustomerPortalView section={section} initialSection={section} />;
 }

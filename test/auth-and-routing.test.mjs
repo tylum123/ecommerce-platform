@@ -99,3 +99,15 @@ test("readRegisteredLocalUsers is exported and safe on SSR", () => {
   const result = readRegisteredLocalUsers();
   assert.ok(Array.isArray(result));
 });
+
+test("isStaffOrAdminRole accurately distinguishes privileged staff from customers", () => {
+  assert.equal(isStaffOrAdminRole("admin"), true);
+  assert.equal(isStaffOrAdminRole("store_manager"), true);
+  assert.equal(isStaffOrAdminRole("warehouse_staff"), true);
+  assert.equal(isStaffOrAdminRole("clinic_doctor"), true);
+  assert.equal(isStaffOrAdminRole("cs_agent"), true);
+  assert.equal(isStaffOrAdminRole("customer"), false);
+  assert.equal(isStaffOrAdminRole(undefined), false);
+  assert.equal(isStaffOrAdminRole(null), false);
+  assert.equal(isStaffOrAdminRole("hacker"), false);
+});

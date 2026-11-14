@@ -40,6 +40,7 @@ import { money } from "@/lib/catalog";
 import {
   readAuthSession,
   clearAuthSession,
+  fetchCurrentSession,
   AUTH_CHANGE_EVENT,
   isStaffOrAdminRole,
   type AuthSessionUser,
@@ -47,10 +48,12 @@ import {
 
 interface CustomerPortalViewProps {
   initialSection?: string;
+  section?: string;
 }
 
-export function CustomerPortalView({ initialSection = "tai-khoan" }: CustomerPortalViewProps) {
-  const [activeSection, setActiveSection] = useState<string>(initialSection);
+export function CustomerPortalView({ initialSection = "tai-khoan", section }: CustomerPortalViewProps) {
+  const currentSection = section || initialSection;
+  const [activeSection, setActiveSection] = useState<string>(currentSection);
   const [showLocationModal, setShowLocationModal] = useState<boolean>(false);
   const [userLocationShort, setUserLocationShort] = useState<string>("Chọn khu vực của bạn");
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -102,6 +105,21 @@ export function CustomerPortalView({ initialSection = "tai-khoan" }: CustomerPor
       }
     };
     syncData();
+    if (!readAuthSession()) {
+      fetchCurrentSession().then((u) => {
+        if (u) {
+          setAuthUser(u);
+          setProfile((prev) => ({
+            ...prev,
+            fullName: u.fullName || prev.fullName,
+            phone: u.phone || prev.phone,
+            email: u.email || prev.email,
+            gender: (u.gender as DemoUserProfile["gender"]) || prev.gender,
+            birthday: u.birthday || prev.birthday,
+          }));
+        }
+      });
+    }
     window.addEventListener(LOCATION_CHANGE_EVENT, syncData);
     window.addEventListener("demo-cart-change", syncData);
     window.addEventListener(AUTH_CHANGE_EVENT, handleAuthChange);

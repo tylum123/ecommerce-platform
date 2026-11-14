@@ -63,6 +63,12 @@ export function getSessionSecret(): string {
   return process.env.SESSION_SECRET || DEFAULT_SESSION_SECRET;
 }
 
+export async function hashPasswordWithSalt(password: string, salt: string): Promise<string> {
+  const enc = new TextEncoder();
+  const buffer = await crypto.subtle.digest("SHA-256", enc.encode(`${salt}:${password}`));
+  return Array.from(new Uint8Array(buffer)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 // ---------------------------------------------------------------------------
 // 2. Demo Accounts (1-Click Login for Evaluation & Testing)
 // ---------------------------------------------------------------------------
@@ -165,8 +171,16 @@ export const DEMO_AUTH_ACCOUNTS: Array<{
   },
 ];
 
-export function isStaffOrAdminRole(role?: AuthRole): boolean {
-  return role !== undefined && role !== "customer";
+const STAFF_OR_ADMIN_ROLES = new Set<string>([
+  "admin",
+  "store_manager",
+  "warehouse_staff",
+  "clinic_doctor",
+  "cs_agent",
+]);
+
+export function isStaffOrAdminRole(role?: string | null): boolean {
+  return typeof role === "string" && STAFF_OR_ADMIN_ROLES.has(role);
 }
 
 // ---------------------------------------------------------------------------
@@ -376,7 +390,8 @@ export function readRegisteredLocalUsers(): AuthSessionUser[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(AUTH_USERS_REGISTRY_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }

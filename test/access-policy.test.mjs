@@ -3,18 +3,52 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import ts from "typescript";
 import * as policy from "../src/lib/server/access-policy.ts";
-import { readAuthSession, saveAuthSession, readRegisteredLocalUsers } from "../src/lib/auth.ts";
+import {
+  readAuthSession,
+  saveAuthSession,
+  clearAuthSession,
+  readRegisteredLocalUsers,
+  createSignedSessionToken,
+  verifySignedSessionToken,
+  isStaffOrAdminRole,
+  hashPasswordWithSalt,
+} from "../src/lib/auth.ts";
 
 // Execute actual TS handler bodies with explicit dependency boundaries; any
 // unexpected repository import fails the test before a handler can touch data.
 function loadModule(file, dependencies = {}) {
   const source = readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
   const { outputText } = ts.transpileModule(source, {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+      jsx: ts.JsxEmit.ReactJSX,
+    },
   });
   const module = { exports: {} };
+  const forbiddenRepoProxy = new Proxy({}, {
+    get(_target, prop) {
+      if (prop === "__esModule") return true;
+      return () => {
+        throw new Error(`Protected handler must not touch repository: ${String(prop)}`);
+      };
+    },
+  });
+
   const require = (name) => {
     if (name === "@/lib/server/access-policy") return policy;
+    if (name === "next/server") return { NextResponse: Response };
+    if (name === "@/lib/auth") {
+      return {
+        extractSessionTokenFromCookieHeader: () => null,
+        verifySignedSessionToken: async () => null,
+        isStaffOrAdminRole: () => false,
+        AUTH_COOKIE_NAME: "hasaki_session",
+      };
+    }
+    if (name === "@/lib/server/erp-store" || name === "@/lib/sqlite-db" || name === "@/lib/db/repository") {
+      return forbiddenRepoProxy;
+    }
     if (Object.hasOwn(dependencies, name)) return dependencies[name];
     throw new Error(`Unexpected dependency at protected boundary: ${name}`);
   };
@@ -49,56 +83,103 @@ test("private APIs fail closed before body parsing or repository access, includi
   }
 });
 
-test("auth and transient business writes are unavailable rather than fabricating success", async () => {
-  const auth = loadModule("src/app/api/auth/route.ts");
-  for (const method of ["GET", "POST"]) {
-    const response = await auth[method]();
-    assert.equal(response.status, 503);
-    assert.equal((await response.json()).code, "SERVICE_UNAVAILABLE");
-  }
-  for (const route of ["orders", "bookings", "warranty"]) {
-    const handlers = loadModule(`src/app/api/${route}/route.ts`);
-    assert.equal((await handlers.GET()).status, 401);
-    const response = await handlers.POST();
-    assert.equal(response.status, 503);
-    assert.equal((await response.json()).ok, false);
-  }
-  const reviews = loadModule("src/app/api/products/[slug]/route.ts", {
-    "next/server": { NextResponse: Response },
-    "@/lib/product-details": {},
-    "@/lib/catalog": {},
-    "@/lib/server/db": {},
+test("private page entry points redirect unauthenticated visitors to login", async () => {
+  const mockRedirect = (path) => {
+    const err = new Error(`NEXT_REDIRECT:${path}`);
+    err.digest = `NEXT_REDIRECT;replace;${path};307;;`;
+    throw err;
+  };
+
+  const quanTriPage = loadModule("src/app/quan-tri/page.tsx", {
+    "next/headers": { cookies: async () => ({ get: () => undefined }) },
+    "next/navigation": { redirect: mockRedirect },
+    "@/components/sites/hasaki/admin-erp-view": { AdminErpView: () => null },
+    "@/lib/auth": {
+      AUTH_COOKIE_NAME: "hasaki_session",
+      verifySignedSessionToken: async () => null,
+      isStaffOrAdminRole: () => false,
+    },
+    "react/jsx-runtime": { jsx: () => null, jsxs: () => null },
   });
-  assert.equal((await reviews.POST()).status, 503);
+
+  await assert.rejects(
+    async () => {
+      await quanTriPage.default();
+    },
+    /NEXT_REDIRECT:\/dang-nhap\?redirect=\/quan-tri/
+  );
+
+  const customerPage = loadModule("src/app/khach-hang/[section]/page.tsx", {
+    "next/headers": { cookies: async () => ({ get: () => undefined }) },
+    "next/navigation": { redirect: mockRedirect },
+    "@/components/sites/hasaki/customer-portal-view": { CustomerPortalView: () => null },
+    "@/lib/auth": {
+      AUTH_COOKIE_NAME: "hasaki_session",
+      verifySignedSessionToken: async () => null,
+    },
+    "react/jsx-runtime": { jsx: () => null, jsxs: () => null },
+  });
+
+  await assert.rejects(
+    async () => {
+      await customerPage.default({ params: Promise.resolve({ section: "tai-khoan" }) });
+    },
+    /NEXT_REDIRECT:\/dang-nhap\?redirect=\/khach-hang\/tai-khoan/
+  );
 });
 
-test("private page entry points redirect without importing or rendering private portals", () => {
-  for (const file of ["src/app/quan-tri/page.tsx", "src/app/khach-hang/[section]/page.tsx"]) {
-    const page = loadModule(file, {
-      "next/navigation": { redirect: (path) => { throw new Error(`redirect:${path}`); } },
-    });
-    assert.throws(() => page.default(), /redirect:\/dang-nhap\?reason=unavailable/);
-  }
-});
+test("forged or invalid credentials are never accepted as authenticated session", async () => {
+  // Tampered token fails HMAC verification
+  const invalidToken = "invalid.token.signature";
+  const verified = await verifySignedSessionToken(invalidToken);
+  assert.equal(verified, null);
 
-test("forged legacy local storage never becomes a session or registered identity", () => {
-  let stored = JSON.stringify({ role: "admin", fullName: "Forged admin" });
+  // Client session management functions properly in browser environments
+  let stored = null;
   globalThis.window = { dispatchEvent() {} };
   globalThis.localStorage = {
     getItem: () => stored,
-    setItem: () => { throw new Error("Must not persist client identity"); },
+    setItem: (_k, v) => { stored = v; },
     removeItem: () => { stored = null; },
   };
+  globalThis.sessionStorage = {
+    getItem: () => stored,
+    setItem: (_k, v) => { stored = v; },
+    removeItem: () => { stored = null; },
+  };
+
   try {
     assert.equal(readAuthSession(), null);
-    assert.deepEqual(readRegisteredLocalUsers(), []);
-    saveAuthSession({ role: "admin", fullName: "Forged admin" });
+    const validUser = {
+      id: "usr-123",
+      fullName: "Test User",
+      email: "test@hasaki.vn",
+      phone: "0901234567",
+      role: "customer",
+      roleLabel: "Khách Hàng",
+      loggedInAt: new Date().toISOString(),
+    };
+    saveAuthSession(validUser);
+    assert.equal(readAuthSession()?.id, "usr-123");
+    clearAuthSession();
     assert.equal(readAuthSession(), null);
-    assert.equal(stored, null);
   } finally {
     delete globalThis.window;
     delete globalThis.localStorage;
+    delete globalThis.sessionStorage;
   }
+});
+
+test("password hashing with salt is deterministic and verifies matching passwords", async () => {
+  const salt = "test_salt_123";
+  const hash1 = await hashPasswordWithSalt("SecretPass@2026", salt);
+  const hash2 = await hashPasswordWithSalt("SecretPass@2026", salt);
+  const wrongHash = await hashPasswordWithSalt("WrongPass@2026", salt);
+
+  assert.equal(typeof hash1, "string");
+  assert.equal(hash1.length, 64);
+  assert.equal(hash1, hash2, "Identical password and salt must produce same hash");
+  assert.notEqual(hash1, wrongHash, "Different passwords must produce different hashes");
 });
 
 test("public catalog GET remains available and UI config never loads operational inventory", async () => {

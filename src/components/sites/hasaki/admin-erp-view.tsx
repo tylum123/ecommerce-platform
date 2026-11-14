@@ -47,6 +47,7 @@ import {
   readAuthSession,
   saveAuthSession,
   clearAuthSession,
+  fetchCurrentSession,
   DEMO_AUTH_ACCOUNTS,
   AUTH_CHANGE_EVENT,
   type AuthSessionUser,
@@ -142,6 +143,11 @@ export function AdminErpView() {
     const handleAuthChange = () => {
       setAuthSession(readAuthSession());
     };
+    if (!readAuthSession()) {
+      fetchCurrentSession().then((u) => {
+        if (u) setAuthSession(u);
+      });
+    }
     window.addEventListener(AUTH_CHANGE_EVENT, handleAuthChange);
     window.addEventListener("storage", handleAuthChange);
     return () => {

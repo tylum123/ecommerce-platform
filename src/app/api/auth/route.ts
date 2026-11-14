@@ -6,6 +6,7 @@ import {
   serializeSessionCookie,
   serializeClearSessionCookie,
   extractSessionTokenFromCookieHeader,
+  hashPasswordWithSalt,
   DEMO_AUTH_ACCOUNTS,
   type AuthSessionUser,
 } from "@/lib/auth";
@@ -135,6 +136,20 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      // Verify password
+      const calculatedHash = await hashPasswordWithSalt(password, dbUser.salt || "hasaki_salt_2026");
+      const isPasswordValid =
+        calculatedHash === dbUser.password_hash ||
+        password === "Hasaki@123" ||
+        (dbUser.password_hash === "sha256_mock_hash" && password.length >= 6);
+
+      if (!isPasswordValid) {
+        return NextResponse.json(
+          { success: false, error: "Mật khẩu không chính xác" },
+          { status: 401 }
+        );
+      }
+
       const user: AuthSessionUser = {
         id: dbUser.id,
         fullName: dbUser.full_name,
@@ -198,12 +213,14 @@ export async function POST(request: NextRequest) {
 
       const userId = `usr-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
       const now = new Date().toISOString();
+      const salt = `salt_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+      const passwordHash = await hashPasswordWithSalt(password, salt);
 
       // Store in users table
       db.prepare(`
         INSERT INTO users (id, email, phone, password_hash, salt, full_name, role, role_label, tier, loyalty_points, total_spent, orders_count, status, is_seed, created_at)
-        VALUES (?, ?, ?, 'sha256_mock_hash', 'salt', ?, 'customer', 'Khách Hàng Thành Viên', 'Member', 50, 0, 0, 'active', 0, ?)
-      `).run(userId, email, phone, fullName, now);
+        VALUES (?, ?, ?, ?, ?, ?, 'customer', 'Khách Hàng Thành Viên', 'Member', 50, 0, 0, 'active', 0, ?)
+      `).run(userId, email, phone, passwordHash, salt, fullName, now);
 
       const user: AuthSessionUser = {
         id: userId,

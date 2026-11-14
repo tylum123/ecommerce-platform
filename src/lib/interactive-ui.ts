@@ -262,12 +262,6 @@ export function computeGiftBillPromo(product: {
 function normalizeInternalHref(href: string): string {
   if (!href) return "/";
   const stripped = href.replace(/^https?:\/\/(www\.)?hasaki\.vn/i, "").split("?")[0];
-  if (stripped.startsWith("/campaign/") && stripped !== "/campaign/wow") {
-    return "/campaign/wow";
-  }
-  if (stripped.startsWith("/cam-nang/")) {
-    return "/cam-nang.html";
-  }
   return stripped || "/";
 }
 

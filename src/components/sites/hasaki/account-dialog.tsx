@@ -7,6 +7,7 @@ import {
   readAuthSession,
   saveAuthSession,
   clearAuthSession,
+  fetchCurrentSession,
   isStaffOrAdminRole,
   AUTH_CHANGE_EVENT,
   type AuthSessionUser,
@@ -46,6 +47,11 @@ export function AccountDialog({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     const handleAuthChange = () => setAuthUser(readAuthSession());
     window.addEventListener(AUTH_CHANGE_EVENT, handleAuthChange);
+    if (!readAuthSession()) {
+      fetchCurrentSession().then((u) => {
+        if (u) setAuthUser(u);
+      });
+    }
     return () => window.removeEventListener(AUTH_CHANGE_EVENT, handleAuthChange);
   }, []);
 

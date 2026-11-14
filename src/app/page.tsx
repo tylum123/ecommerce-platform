@@ -8,9 +8,35 @@ import { ProductCard } from "@/components/sites/hasaki/product-card";
 import Link from "next/link";
 import { categories as categoryRoutes, products as productRoutes, categoryProducts, money, type Product } from "@/lib/catalog";
 import { readCart } from "@/lib/cart";
-import { ShoppingCart, UserRound, MapPin, ChevronLeft, ChevronRight, Gift, Heart, X } from "lucide-react";
+import {
+  ShoppingCart,
+  UserRound,
+  MapPin,
+  ChevronLeft,
+  ChevronRight,
+  Gift,
+  Heart,
+  X,
+  TrendingUp,
+  Crown,
+  Smartphone,
+  Headphones,
+  Home as HomeIcon,
+  ShoppingBag,
+  CalendarCheck,
+} from "lucide-react";
 
 const quick = ["Bán Chạy", "Sản Phẩm Cao Cấp", "Phụ Kiện Điện Thoại", "Thiết Bị Âm Thanh", "Vệ Sinh Nhà Cửa", "Balo & Túi Xách", "Sản Phẩm Cho Bé", "Đặt Hẹn"];
+const quickIcons = [
+  <TrendingUp key="0" size={24} />,
+  <Crown key="1" size={24} />,
+  <Smartphone key="2" size={24} />,
+  <Headphones key="3" size={24} />,
+  <HomeIcon key="4" size={24} />,
+  <ShoppingBag key="5" size={24} />,
+  <Heart key="6" size={24} />,
+  <CalendarCheck key="7" size={24} />,
+];
 const quickDestinations = [
   "/san-pham-ban-chay.html?sort=topsale",
   "/tag/dai-tiec-hang-hieu.html",
@@ -184,7 +210,7 @@ export default function Home() {
         <div className="quick-links">
           {quick.map((q, i) => (
             <Link href={quickDestinations[i]} key={q}>
-              <span className={`quick-icon q${i}`}>{["✦", "♛", "▣", "♫", "✿", "▤", "♡", "▦"][i]}</span>
+              <span className={`quick-icon q${i}`}>{quickIcons[i]}</span>
               {q}
             </Link>
           ))}

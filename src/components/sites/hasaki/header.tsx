@@ -23,6 +23,7 @@ import { LocationDialog } from "@/components/sites/hasaki/location-dialog";
 import { readLocation, formatLocationShort } from "@/lib/campaigns-location";
 import {
   readAuthSession,
+  fetchCurrentSession,
   AUTH_CHANGE_EVENT,
   isStaffOrAdminRole,
   type AuthSessionUser,
@@ -87,6 +88,11 @@ export function Header() {
   useEffect(() => {
     const refreshAuth = () => setAuthUser(readAuthSession());
     refreshAuth();
+    if (!readAuthSession()) {
+      fetchCurrentSession().then((u) => {
+        if (u) setAuthUser(u);
+      });
+    }
     window.addEventListener(AUTH_CHANGE_EVENT, refreshAuth);
     window.addEventListener("storage", refreshAuth);
     return () => {
