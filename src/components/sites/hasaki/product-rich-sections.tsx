@@ -37,7 +37,7 @@ export function ProductRichSections({
 
       const fallbackSpecs: ProductSpecRow[] = [
         { label: "Thương hiệu", value: catalogItem.brand },
-        { label: "Xuất xứ thương hiệu", value: "Chính hãng phân phối tại Hasaki" },
+        { label: "Xuất xứ thương hiệu", value: "Chính hãng phân phối tại Nari Home" },
         { label: "Danh mục", value: matchedCategoryName },
         { label: "Quy cách đóng gói", value: "Theo tiêu chuẩn nhà sản xuất" },
         { label: "Loại da phù hợp", value: "Mọi loại da, kể cả da nhạy cảm" },
@@ -60,7 +60,7 @@ export function ProductRichSections({
         description:
           catalogItem.description ||
           `Sản phẩm ${catalogItem.name} chính hãng từ thương hiệu ${catalogItem.brand}.`,
-        overviewHtml: `<div class="rich-overview"><p><strong>${catalogItem.name}</strong> là sản phẩm làm đẹp &amp; chăm sóc cá nhân chính hãng từ thương hiệu uy tín <strong>${catalogItem.brand}</strong>, được phân phối chính thức tại hệ thống Hasaki.vn.</p><p>Hasaki cam kết cung cấp sản phẩm 100% chính hãng với đầy đủ tem phụ tiếng Việt và hóa đơn VAT điện tử. Hỗ trợ giao nhanh NowFree 2H tại các khu vực trung tâm và miễn phí đổi trả lên đến 30 ngày.</p><ul><li>Thương hiệu uy tín: <strong>${catalogItem.brand}</strong></li><li>Hạn sử dụng: Mới nhất theo lô sản xuất nhập khẩu</li><li>Bảo quản nơi khô ráo, thoáng mát, tránh ánh nắng trực tiếp</li></ul></div>`,
+        overviewHtml: `<div class="rich-overview"><p><strong>${catalogItem.name}</strong> là sản phẩm làm đẹp &amp; chăm sóc cá nhân chính hãng từ thương hiệu uy tín <strong>${catalogItem.brand}</strong>, được phân phối chính thức tại hệ thống Nari Home.</p><p>Nari Home cam kết cung cấp sản phẩm 100% chính hãng với đầy đủ tem phụ tiếng Việt và hóa đơn VAT điện tử. Hỗ trợ giao nhanh NariNow 2H tại các khu vực trung tâm và miễn phí đổi trả lên đến 30 ngày.</p><ul><li>Thương hiệu uy tín: <strong>${catalogItem.brand}</strong></li><li>Hạn sử dụng: Mới nhất theo lô sản xuất nhập khẩu</li><li>Bảo quản nơi khô ráo, thoáng mát, tránh ánh nắng trực tiếp</li></ul></div>`,
         ingredientsText: `<p>Thành phần chi tiết được in rõ trên bao bì sản phẩm từ nhà sản xuất. Vui lòng tham khảo bao bì thực tế của lô sản xuất mới nhất để biết đầy đủ danh mục thành phần chi tiết và tỷ lệ nồng độ.</p>`,
         usageText: `<ol style="padding-left: 20px; line-height: 1.8;"><li>Làm sạch da hoặc vùng cần chăm sóc trước khi sử dụng.</li><li>Lấy một lượng sản phẩm vừa đủ và thoa đều theo hướng dẫn của nhà sản xuất.</li><li>Sử dụng đều đặn mỗi ngày (sáng và/hoặc tối) để đạt hiệu quả tối ưu.</li><li>Đậy kín nắp sau khi sử dụng và để xa tầm tay trẻ em.</li></ol>`,
         rating: catalogItem.rating ?? 4.9,
@@ -80,15 +80,15 @@ export function ProductRichSections({
               id: `rev-${slug}-1`,
               author: "Nguyễn Thu Hà",
               rating: 5,
-              comment: "Sản phẩm chính hãng dùng rất thích, đóng gói cẩn thận và giao nhanh NowFree 2H.",
+              comment: "Sản phẩm chính hãng dùng rất thích, đóng gói cẩn thận và giao nhanh NariNow 2H.",
               createdAt: "2026-11-11T10:00:00.000Z",
-              answer: "Hasaki cảm ơn bạn đã tin tưởng ủng hộ sản phẩm chính hãng tại Hasaki!",
+              answer: "Nari Home cảm ơn bạn đã tin tưởng ủng hộ sản phẩm chính hãng tại Nari Home!",
             },
             {
               id: `rev-${slug}-2`,
               author: "Trần Minh Quân",
               rating: 5,
-              comment: "Chất lượng đúng như mô tả, date mới và tem phụ tiếng Việt đầy đủ. Sẽ tiếp tục ủng hộ Hasaki.",
+              comment: "Chất lượng đúng như mô tả, date mới và tem phụ tiếng Việt đầy đủ. Sẽ tiếp tục ủng hộ Nari Home.",
               createdAt: "2026-11-08T14:30:00.000Z",
             },
             {
@@ -110,15 +110,15 @@ export function ProductRichSections({
             replies: [
               {
                 id: `rep-${slug}-1`,
-                author: "Dược sĩ Hasaki",
-                content: "Chào bạn, sản phẩm chính hãng với công thức dịu nhẹ phù hợp cho nhiều loại da. Tại các khu vực hỗ trợ NowFree 2H (như TP.HCM, Hà Nội), đơn hàng sẽ được giao nhanh trong vòng 2 giờ ạ!",
+                author: "Dược sĩ Nari Home",
+                content: "Chào bạn, sản phẩm chính hãng với công thức dịu nhẹ phù hợp cho nhiều loại da. Tại các khu vực hỗ trợ NariNow 2H (như TP.HCM, Hà Nội), đơn hàng sẽ được giao nhanh trong vòng 2 giờ ạ!",
                 createdAt: "2026-10-29T11:20:00.000Z",
                 isAdmin: true,
               },
             ],
           },
         ],
-        sourceUrl: `https://hasaki.vn/san-pham/${catalogItem.slug}`,
+        sourceUrl: `https://Nari Home/san-pham/${catalogItem.slug}`,
         isSample: false,
       };
     }
@@ -127,18 +127,18 @@ export function ProductRichSections({
     return {
       slug,
       name: cleanName,
-      brand: "Hasaki",
+      brand: "Nari Home",
       category: "my-pham",
       price: 0,
       old: 0,
       sale: 0,
       images: [],
       specs: [
-        { label: "Thương hiệu", value: "Hasaki" },
+        { label: "Thương hiệu", value: "Nari Home" },
         { label: "Danh mục", value: "Mỹ phẩm chính hãng" },
       ],
-      description: `Sản phẩm ${cleanName} chính hãng phân phối tại Hasaki.`,
-      overviewHtml: `<p>Sản phẩm <strong>${cleanName}</strong> chính hãng phân phối tại hệ thống siêu thị và phòng khám Hasaki.</p>`,
+      description: `Sản phẩm ${cleanName} chính hãng phân phối tại Nari Home.`,
+      overviewHtml: `<p>Sản phẩm <strong>${cleanName}</strong> chính hãng phân phối tại hệ thống siêu thị và phòng khám Nari Home.</p>`,
       ratingSummary: {
         average: 5.0,
         totalCount: 3,
@@ -152,7 +152,7 @@ export function ProductRichSections({
         reviews: [
           {
             id: `rev-${slug}-1`,
-            author: "Khách hàng Hasaki",
+            author: "Khách hàng Nari Home",
             rating: 5,
             comment: "Sản phẩm tốt, giao hàng nhanh và tư vấn nhiệt tình.",
             createdAt: "2026-11-10T08:00:00.000Z",
@@ -160,13 +160,13 @@ export function ProductRichSections({
         ],
       },
       comments: [],
-      sourceUrl: `https://hasaki.vn/san-pham/${slug}`,
+      sourceUrl: `https://Nari Home/san-pham/${slug}`,
       isSample: false,
     };
   })();
 
   const name = productName || detail.name;
-  const officialUrl = sourceUrl || detail.sourceUrl || `https://hasaki.vn/san-pham/${slug}`;
+  const officialUrl = sourceUrl || detail.sourceUrl || `https://Nari Home/san-pham/${slug}`;
   const specs = detail.specs || [];
 
   // State
@@ -338,10 +338,10 @@ export function ProductRichSections({
                   padding: "10px 16px",
                   fontSize: 14,
                   fontWeight: activeTab === "desc" ? "bold" : "normal",
-                  color: activeTab === "desc" ? "#326e51" : "#6b7280",
+                  color: activeTab === "desc" ? "#3d2e24" : "#6b7280",
                   border: "none",
                   background: "none",
-                  borderBottom: activeTab === "desc" ? "2px solid #326e51" : "2px solid transparent",
+                  borderBottom: activeTab === "desc" ? "2px solid #3d2e24" : "2px solid transparent",
                   marginBottom: -2,
                   cursor: "pointer",
                 }}
@@ -357,10 +357,10 @@ export function ProductRichSections({
                   padding: "10px 16px",
                   fontSize: 14,
                   fontWeight: activeTab === "ingredients" ? "bold" : "normal",
-                  color: activeTab === "ingredients" ? "#326e51" : "#6b7280",
+                  color: activeTab === "ingredients" ? "#3d2e24" : "#6b7280",
                   border: "none",
                   background: "none",
-                  borderBottom: activeTab === "ingredients" ? "2px solid #326e51" : "2px solid transparent",
+                  borderBottom: activeTab === "ingredients" ? "2px solid #3d2e24" : "2px solid transparent",
                   marginBottom: -2,
                   cursor: "pointer",
                 }}
@@ -376,10 +376,10 @@ export function ProductRichSections({
                   padding: "10px 16px",
                   fontSize: 14,
                   fontWeight: activeTab === "guide" ? "bold" : "normal",
-                  color: activeTab === "guide" ? "#326e51" : "#6b7280",
+                  color: activeTab === "guide" ? "#3d2e24" : "#6b7280",
                   border: "none",
                   background: "none",
-                  borderBottom: activeTab === "guide" ? "2px solid #326e51" : "2px solid transparent",
+                  borderBottom: activeTab === "guide" ? "2px solid #3d2e24" : "2px solid transparent",
                   marginBottom: -2,
                   cursor: "pointer",
                 }}
@@ -475,9 +475,9 @@ export function ProductRichSections({
                 type="button"
                 onClick={() => setShowReviewForm(!showReviewForm)}
                 style={{
-                  background: showReviewForm ? "#f3f4f6" : "#326e51",
+                  background: showReviewForm ? "#f3f4f6" : "#3d2e24",
                   color: showReviewForm ? "#374151" : "#ffffff",
-                  border: "1px solid #326e51",
+                  border: "1px solid #3d2e24",
                   padding: "7px 16px",
                   borderRadius: 6,
                   fontSize: 13,
@@ -496,12 +496,12 @@ export function ProductRichSections({
                 rel="noopener noreferrer"
                 style={{
                   fontSize: 12,
-                  color: "#ff6c1a",
+                  color: "#b86b4b",
                   fontWeight: 500,
                   textDecoration: "underline",
                 }}
               >
-                Hasaki.vn ↗
+                Nari Home ↗
               </a>
             </div>
           </div>
@@ -622,7 +622,7 @@ export function ProductRichSections({
                     padding: "7px 20px",
                     borderRadius: 6,
                     border: "none",
-                    background: "#326e51",
+                    background: "#3d2e24",
                     color: "#fff",
                     fontSize: 13,
                     fontWeight: 600,
@@ -732,7 +732,7 @@ export function ProductRichSections({
                 borderRadius: 16,
                 fontSize: 12,
                 border: "1px solid #ddd",
-                background: selectedStarFilter === null ? "#326e51" : "#fff",
+                background: selectedStarFilter === null ? "#3d2e24" : "#fff",
                 color: selectedStarFilter === null ? "#fff" : "#374151",
                 cursor: "pointer",
               }}
@@ -751,7 +751,7 @@ export function ProductRichSections({
                     borderRadius: 16,
                     fontSize: 12,
                     border: "1px solid #ddd",
-                    background: selectedStarFilter === star ? "#326e51" : "#fff",
+                    background: selectedStarFilter === star ? "#3d2e24" : "#fff",
                     color: selectedStarFilter === star ? "#fff" : "#374151",
                     cursor: "pointer",
                   }}
@@ -801,13 +801,13 @@ export function ProductRichSections({
                         marginTop: 10,
                         padding: 10,
                         background: "#f0fdf4",
-                        borderLeft: "3px solid #326e51",
+                        borderLeft: "3px solid #3d2e24",
                         borderRadius: 4,
                         fontSize: 12,
                         color: "#166534",
                       }}
                     >
-                      <strong style={{ display: "block", marginBottom: 2 }}>Phản hồi từ Hasaki:</strong>
+                      <strong style={{ display: "block", marginBottom: 2 }}>Phản hồi từ Nari Home:</strong>
                       <div dangerouslySetInnerHTML={{ __html: review.answer }} />
                     </div>
                   )}
@@ -841,9 +841,9 @@ export function ProductRichSections({
               type="button"
               onClick={() => setShowQaForm(!showQaForm)}
               style={{
-                background: showQaForm ? "#f3f4f6" : "#326e51",
+                background: showQaForm ? "#f3f4f6" : "#3d2e24",
                 color: showQaForm ? "#374151" : "#ffffff",
-                border: "1px solid #326e51",
+                border: "1px solid #3d2e24",
                 padding: "7px 16px",
                 borderRadius: 6,
                 fontSize: 13,
@@ -862,12 +862,12 @@ export function ProductRichSections({
               rel="noopener noreferrer"
               style={{
                 fontSize: 12,
-                color: "#ff6c1a",
+                color: "#b86b4b",
                 fontWeight: 500,
                 textDecoration: "underline",
               }}
             >
-              Hasaki.vn ↗
+              Nari Home ↗
             </a>
           </div>
         </div>
@@ -956,7 +956,7 @@ export function ProductRichSections({
                   padding: "7px 20px",
                   borderRadius: 6,
                   border: "none",
-                  background: "#326e51",
+                  background: "#3d2e24",
                   color: "#fff",
                   fontSize: 13,
                   fontWeight: 600,
@@ -1024,7 +1024,7 @@ export function ProductRichSections({
                         style={{
                           padding: "10px 12px",
                           background: reply.isAdmin ? "#f0fdf4" : "#f9fafb",
-                          borderLeft: reply.isAdmin ? "3px solid #326e51" : "3px solid #d1d5db",
+                          borderLeft: reply.isAdmin ? "3px solid #3d2e24" : "3px solid #d1d5db",
                           borderRadius: 4,
                           fontSize: 12,
                         }}
@@ -1036,7 +1036,7 @@ export function ProductRichSections({
                           {reply.isAdmin && (
                             <span
                               style={{
-                                background: "#326e51",
+                                background: "#3d2e24",
                                 color: "#fff",
                                 fontSize: 10,
                                 padding: "1px 6px",

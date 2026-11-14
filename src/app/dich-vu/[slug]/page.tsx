@@ -15,7 +15,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         slug: rich.slug,
         price: `${new Intl.NumberFormat("vi-VN").format(rich.price)} ₫`,
         image: rich.images[0] || clinicServices[0].image,
-        url: rich.sourceUrl || `https://hasaki.vn/dich-vu/${slug}`,
+        url: rich.sourceUrl || `https://Nari Home/dich-vu/${slug}`,
       };
     })();
   return <ServiceView service={matched} />;

@@ -3,7 +3,6 @@ import type { NextRequest } from "next/server";
 import {
   AUTH_COOKIE_NAME,
   verifySignedSessionToken,
-  isStaffOrAdminRole,
 } from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
@@ -26,12 +25,9 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    if (!isStaffOrAdminRole(session.role)) {
-      const customerUrl = new URL("/khach-hang/tai-khoan", request.url);
-      customerUrl.searchParams.set("error", "access_denied_admin_only");
-      return NextResponse.redirect(customerUrl);
-    }
-
+    // Authenticated users proceed to /quan-tri:
+    // - Staff & Admin roles render the full AdminErpView.
+    // - Customer role renders AdminAccessDenied with Permission Matrix and 1-Click Role Switcher.
     return NextResponse.next();
   }
 

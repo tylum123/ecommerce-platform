@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
     const recipientName = (body.recipientName || body.customerName || body.name || "").trim();
     const recipientPhone = (body.recipientPhone || body.customerPhone || body.phone || "").trim();
     const shippingAddress = (body.shippingAddress || body.address || "").trim();
-    const deliveryType = body.deliveryType === "Tiêu chuẩn" ? "Tiêu chuẩn" : "NowFree 2H";
+    const deliveryType = body.deliveryType === "Tiêu chuẩn" ? "Tiêu chuẩn" : "NariNow 2H";
     const paymentMethod = body.paymentMethod || "Thanh toán khi nhận hàng (COD)";
     const rawItems: Array<{ sku?: string; slug?: string; quantity?: number; price?: number; name?: string }> = body.items || [];
 
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
     let targetBranch = branches.find((b) => b.id === body.branchId);
 
     if (!targetBranch) {
-      if (deliveryType === "NowFree 2H") {
+      if (deliveryType === "NariNow 2H") {
         targetBranch = branches.find((b) => b.supportsNowFree2H) || branches[0];
       } else {
         targetBranch = branches[0];

@@ -47,7 +47,7 @@ function buildSearchCatalog(): SearchCatalogItem[] {
     map.set(item.slug, {
       slug: item.slug,
       name: item.name,
-      brand: item.brand || "Hasaki",
+      brand: item.brand || "Nari Home",
       category: item.category || "",
       categoryName: catName,
       price: item.price,
@@ -71,7 +71,7 @@ function buildSearchCatalog(): SearchCatalogItem[] {
       map.set(item.slug, {
         slug: item.slug,
         name: item.name,
-        brand: item.brand || "Hasaki",
+        brand: item.brand || "Nari Home",
         category: "hang-moi-ve",
         categoryName: "Hàng Mới Về",
         price: item.numericPrice,
@@ -208,7 +208,7 @@ export function SearchView({ query, sort }: { query: string; sort: string }) {
                       type="button"
                       style={{
                         fontSize: 12,
-                        color: "#326e51",
+                        color: "#3d2e24",
                         background: "none",
                         border: "none",
                         cursor: "pointer",
@@ -272,7 +272,7 @@ export function SearchView({ query, sort }: { query: string; sort: string }) {
                   type="button"
                   style={{
                     fontSize: 12,
-                    color: "#326e51",
+                    color: "#3d2e24",
                     background: "none",
                     border: "none",
                     cursor: "pointer",
@@ -420,7 +420,7 @@ export function SearchView({ query, sort }: { query: string; sort: string }) {
                           width: "100%",
                           padding: "7px 12px",
                           borderRadius: 4,
-                          background: addedSlugs[item.slug] ? "#166534" : "#326e51",
+                          background: addedSlugs[item.slug] ? "#166534" : "#3d2e24",
                           color: "#ffffff",
                           border: "none",
                           fontSize: 12,

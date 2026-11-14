@@ -1,6 +1,11 @@
-import services from "../../docs/research/hasaki/clinic-services-2026-11-13.json";
-import details from "../../docs/research/hasaki/clinic-service-details-2026-11-13.json";
-import clinicRichRaw from "../../docs/research/hasaki/clinic-rich-details-2026-11-13.json";
+import rawServices from "../../docs/research/hasaki/clinic-services-2026-11-13.json";
+import rawDetails from "../../docs/research/hasaki/clinic-service-details-2026-11-13.json";
+import rawClinicRich from "../../docs/research/hasaki/clinic-rich-details-2026-11-13.json";
+import { brandDeep } from "@/lib/brand-config";
+
+const services = brandDeep(rawServices);
+const details = brandDeep(rawDetails);
+const clinicRichRaw = brandDeep(rawClinicRich);
 
 export interface ClinicSpec {
   key?: string;
@@ -199,7 +204,7 @@ export function getClinicServiceRichDetail(slug: string): ClinicServiceRichDetai
     raw?.sku ||
     (base?.booking ? new URLSearchParams(base.booking.split("?")[1] || "").get("sku") || "" : "");
   const sku = rawSku || "900130001";
-  const name = base?.name || raw?.name || "Dịch vụ Hasaki Clinic & Spa";
+  const name = base?.name || raw?.name || "Dịch vụ Nari Clinic & Spa";
   const categoryName = categorizeClinicService(name);
 
   // Parse price safely
@@ -265,9 +270,9 @@ export function getClinicServiceRichDetail(slug: string): ClinicServiceRichDetai
       ? raw.overviewHtml
       : `
 <div class="clinic-rich-overview">
-  <p><strong>${name}</strong> tại <strong>Hasaki Clinic &amp; Spa</strong> là liệu trình thẩm mỹ da chuẩn y khoa, ứng dụng trang thiết bị hiện đại được nhập khẩu chính ngạch từ các tập đoàn y tế hàng đầu thế giới (Hoa Kỳ, Đức, Ý, Hàn Quốc) đạt chuẩn chứng nhận an toàn FDA Hoa Kỳ và CE Châu Âu.</p>
+  <p><strong>${name}</strong> tại <strong>Nari Clinic & Spa &amp; Spa</strong> là liệu trình thẩm mỹ da chuẩn y khoa, ứng dụng trang thiết bị hiện đại được nhập khẩu chính ngạch từ các tập đoàn y tế hàng đầu thế giới (Hoa Kỳ, Đức, Ý, Hàn Quốc) đạt chuẩn chứng nhận an toàn FDA Hoa Kỳ và CE Châu Âu.</p>
   
-  <h3>Ưu điểm vượt trội khi trải nghiệm tại Hasaki Clinic</h3>
+  <h3>Ưu điểm vượt trội khi trải nghiệm tại Nari Clinic & Spa</h3>
   <ul>
     <li><strong>Khám da miễn phí 100%:</strong> Bác sĩ chuyên khoa Da Liễu trực tiếp thăm khám, soi da và xây dựng phác đồ điều trị cá nhân hóa phù hợp cho từng loại da.</li>
     <li><strong>Trang thiết bị chính hãng:</strong> Sở hữu công nghệ ${getTechnologyForService(name)} mang lại hiệu quả rõ rệt, rút ngắn thời gian điều trị mà không gây đau rát hay tổn thương mô xung quanh.</li>
@@ -286,7 +291,7 @@ export function getClinicServiceRichDetail(slug: string): ClinicServiceRichDetai
       ? raw.usageHtml
       : `
 <div class="clinic-rich-usage">
-  <h3>Quy trình thực hiện chuẩn Y khoa tại Hasaki Clinic</h3>
+  <h3>Quy trình thực hiện chuẩn Y khoa tại Nari Clinic & Spa</h3>
   <ol class="clinic-steps-list">
     <li><strong>Bước 1: Thăm khám và soi da</strong> - Bác sĩ chuyên khoa Da Liễu khám lâm sàng, phân tích tình trạng da và tư vấn phác đồ điều trị tối ưu.</li>
     <li><strong>Bước 2: Làm sạch chuyên sâu</strong> - Tẩy trang và rửa mặt bằng dược mỹ phẩm dịu nhẹ chính hãng phù hợp với từng loại da.</li>
@@ -306,7 +311,7 @@ export function getClinicServiceRichDetail(slug: string): ClinicServiceRichDetai
           .filter(r => r.comment && r.comment.trim().length > 0)
           .map(r => ({
             id: r.id,
-            author: r.author || "Khách hàng Hasaki",
+            author: r.author || "Khách hàng Nari Home",
             rating: typeof r.rating === "number" ? r.rating : 5,
             comment: r.comment.replace(/<[^>]*>?/gm, "").trim(),
             createdAt: r.createdAt || "Tháng 10, 2026",
@@ -356,7 +361,7 @@ export function getClinicServiceRichDetail(slug: string): ClinicServiceRichDetai
     reviews: validReviews,
   };
 
-  // Q&A Comments & Hasaki Care Replies
+  // Q&A Comments & Nari Home Care Replies
   const rawComments = raw?.comments || [];
   const processedComments: ClinicComment[] =
     rawComments.length > 0
@@ -365,7 +370,7 @@ export function getClinicServiceRichDetail(slug: string): ClinicServiceRichDetai
             c.replies && c.replies.length > 0
               ? c.replies.map(rep => ({
                   id: rep.id,
-                  author: rep.author || "Hasaki Clinic & Spa Care",
+                  author: rep.author || "Nari Clinic & Spa Care",
                   content: rep.content || "",
                   createdAt: rep.createdAt || c.createdAt,
                   isStaff: true,
@@ -373,9 +378,9 @@ export function getClinicServiceRichDetail(slug: string): ClinicServiceRichDetai
               : [
                   {
                     id: (c.id || idx + 1) * 100,
-                    author: "Bác sĩ Da Liễu - Hasaki Clinic Care",
+                    author: "Bác sĩ Da Liễu - Nari Clinic & Spa Care",
                     content:
-                      "Dạ Hasaki Clinic xin chào bạn! Đối với dịch vụ này, bạn sẽ được Bác sĩ Da Liễu trực tiếp thăm khám và soi da miễn phí để đánh giá độ dày và cấu trúc nang lông/tình trạng da trước khi tiến hành. Để đặt hẹn giữ chỗ khung giờ thuận tiện, bạn vui lòng bấm 'Đặt hẹn' hoặc liên hệ hotline 1800 6324 (nhấn phím 2) để được hỗ trợ chu đáo nhất ạ!",
+                      "Dạ Nari Clinic & Spa xin chào bạn! Đối với dịch vụ này, bạn sẽ được Bác sĩ Da Liễu trực tiếp thăm khám và soi da miễn phí để đánh giá độ dày và cấu trúc nang lông/tình trạng da trước khi tiến hành. Để đặt hẹn giữ chỗ khung giờ thuận tiện, bạn vui lòng bấm 'Đặt hẹn' hoặc liên hệ hotline 1800 6324 (nhấn phím 2) để được hỗ trợ chu đáo nhất ạ!",
                     createdAt: c.createdAt,
                     isStaff: true,
                   },
@@ -400,9 +405,9 @@ export function getClinicServiceRichDetail(slug: string): ClinicServiceRichDetai
             replies: [
               {
                 id: 2011,
-                author: "Bác sĩ Da Liễu - Hasaki Clinic Care",
+                author: "Bác sĩ Da Liễu - Nari Clinic & Spa Care",
                 content:
-                  "Dạ chào Thanh Hằng! Liệu trình chuẩn y khoa tại Hasaki không xâm lấn nên sau khi thực hiện bạn có thể sinh hoạt bình thường mà không cần nghỉ dưỡng. Bác sĩ khuyến nghị bạn tránh nước nóng trong 2 giờ đầu và duy trì thoa kem chống nắng kỹ lưỡng để da phục hồi tối ưu nhé ạ!",
+                  "Dạ chào Thanh Hằng! Liệu trình chuẩn y khoa tại Nari Home không xâm lấn nên sau khi thực hiện bạn có thể sinh hoạt bình thường mà không cần nghỉ dưỡng. Bác sĩ khuyến nghị bạn tránh nước nóng trong 2 giờ đầu và duy trì thoa kem chống nắng kỹ lưỡng để da phục hồi tối ưu nhé ạ!",
                 createdAt: "2026-10-15T10:15:00.000Z",
                 isStaff: true,
               },
@@ -417,9 +422,9 @@ export function getClinicServiceRichDetail(slug: string): ClinicServiceRichDetai
             replies: [
               {
                 id: 2021,
-                author: "Hasaki Clinic Care",
+                author: "Nari Clinic & Spa Care",
                 content:
-                  "Dạ chào Ngọc Mai! Chi nhánh Nguyễn Trãi vào cuối tuần thường có lượng khách khá đông, do đó bạn nên đặt lịch trước qua website hoặc gọi 1800 6324 (phím 2) để Hasaki sắp xếp bác sĩ và kỹ thuật viên đón tiếp bạn chu đáo nhất mà không cần chờ đợi lâu nhé ạ!",
+                  "Dạ chào Ngọc Mai! Chi nhánh Nguyễn Trãi vào cuối tuần thường có lượng khách khá đông, do đó bạn nên đặt lịch trước qua website hoặc gọi 1800 6324 (phím 2) để Nari Home sắp xếp bác sĩ và kỹ thuật viên đón tiếp bạn chu đáo nhất mà không cần chờ đợi lâu nhé ạ!",
                 createdAt: "2026-10-18T15:00:00.000Z",
                 isStaff: true,
               },
@@ -432,7 +437,7 @@ export function getClinicServiceRichDetail(slug: string): ClinicServiceRichDetai
     slug,
     sku,
     name,
-    brand: raw?.brand || "Hasaki Clinic",
+    brand: raw?.brand || "Nari Clinic & Spa",
     price,
     old: oldPrice,
     sale,
@@ -443,6 +448,6 @@ export function getClinicServiceRichDetail(slug: string): ClinicServiceRichDetai
     usageHtml,
     ratingSummary,
     comments: processedComments,
-    sourceUrl: raw?.sourceUrl || base?.url || `https://hasaki.vn/dich-vu/${slug}`,
+    sourceUrl: raw?.sourceUrl || base?.url || `https://Nari Home/dich-vu/${slug}`,
   };
 }

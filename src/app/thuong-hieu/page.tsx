@@ -61,10 +61,10 @@ export default function BrandsPage() {
         {/* Featured Brands Strip */}
         <section aria-label="Thương hiệu nổi bật" style={{ margin: "16px 0 28px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-            <h2 style={{ fontSize: 16, fontWeight: "bold", margin: 0, color: "#326e51", textTransform: "uppercase", letterSpacing: 0.5 }}>
+            <h2 style={{ fontSize: 16, fontWeight: "bold", margin: 0, color: "#3d2e24", textTransform: "uppercase", letterSpacing: 0.5 }}>
               Thương hiệu nổi bật
             </h2>
-            <span style={{ fontSize: 12, color: "#888" }}>Cập nhật theo dữ liệu thực tế Hasaki</span>
+            <span style={{ fontSize: 12, color: "#888" }}>Cập nhật theo dữ liệu thực tế Nari Home</span>
           </div>
           <div
             style={{
@@ -111,7 +111,7 @@ export default function BrandsPage() {
                       style={{ objectFit: "contain", maxHeight: 48, maxWidth: "100%" }}
                     />
                   ) : (
-                    <span style={{ fontWeight: "bold", color: "#326e51", fontSize: 13 }}>{b.name}</span>
+                    <span style={{ fontWeight: "bold", color: "#3d2e24", fontSize: 13 }}>{b.name}</span>
                   )}
                 </div>
                 <strong style={{ fontSize: 12, color: "#1f2937", lineHeight: 1.2 }}>{b.name}</strong>

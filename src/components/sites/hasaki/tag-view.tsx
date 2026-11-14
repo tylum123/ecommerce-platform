@@ -143,7 +143,7 @@ export function TagView({ slug }: { slug: string }) {
               <span style={{ margin: "0 8px", color: "#9ca3af" }}>›</span>
               <span style={{ color: "#6b7280" }}>Tag</span>
               <span style={{ margin: "0 8px", color: "#9ca3af" }}>›</span>
-              <span style={{ color: "#326e51", fontWeight: 600 }}>{tagData.heading}</span>
+              <span style={{ color: "#3d2e24", fontWeight: 600 }}>{tagData.heading}</span>
             </nav>
           </div>
         </div>
@@ -179,7 +179,7 @@ export function TagView({ slug }: { slug: string }) {
                 }}
               >
                 {isDaiTiec ? <Crown size={15} /> : <Tag size={14} />}
-                <span>{isDaiTiec ? "SPECIAL LUXURY SELECTION" : "HASAKI CAMPAIGN TAG"}</span>
+                <span>{isDaiTiec ? "SPECIAL LUXURY SELECTION" : "NARI HOME CAMPAIGN TAG"}</span>
               </div>
 
               <h1
@@ -226,7 +226,7 @@ export function TagView({ slug }: { slug: string }) {
                     gap: "5px",
                   }}
                 >
-                  <Zap size={14} color="#e85029" /> NOWFREE 2H NỘI THÀNH
+                  <Zap size={14} color="#e85029" /> NARINOW 2H NỘI THÀNH
                 </span>
                 <a
                   href={tagData.url}
@@ -243,7 +243,7 @@ export function TagView({ slug }: { slug: string }) {
                     marginLeft: "8px",
                   }}
                 >
-                  Xem tag gốc trên hasaki.vn
+                  Xem tag gốc trên Nari Home
                   <ExternalLink size={12} />
                 </a>
               </div>
@@ -278,7 +278,7 @@ export function TagView({ slug }: { slug: string }) {
                     padding: "5px 12px",
                     fontSize: "12px",
                     borderRadius: "16px",
-                    border: selectedBrand === brand ? "1px solid #326e51" : "1px solid #e5e7eb",
+                    border: selectedBrand === brand ? "1px solid #3d2e24" : "1px solid #e5e7eb",
                     backgroundColor: selectedBrand === brand ? "#e8f4ed" : "#f9fafb",
                     color: selectedBrand === brand ? "#23553e" : "#4b5563",
                     fontWeight: selectedBrand === brand ? 700 : 500,
@@ -309,7 +309,7 @@ export function TagView({ slug }: { slug: string }) {
                     padding: "5px 12px",
                     fontSize: "12px",
                     borderRadius: "16px",
-                    border: selectedPriceRange === p.id ? "1px solid #326e51" : "1px solid #e5e7eb",
+                    border: selectedPriceRange === p.id ? "1px solid #3d2e24" : "1px solid #e5e7eb",
                     backgroundColor: selectedPriceRange === p.id ? "#e8f4ed" : "#f9fafb",
                     color: selectedPriceRange === p.id ? "#23553e" : "#4b5563",
                     fontWeight: selectedPriceRange === p.id ? 700 : 500,
@@ -461,7 +461,7 @@ export function TagView({ slug }: { slug: string }) {
                           position: "absolute",
                           bottom: "8px",
                           left: "8px",
-                          backgroundColor: "#326e51",
+                          backgroundColor: "#3d2e24",
                           color: "#ffffff",
                           fontSize: "10px",
                           fontWeight: 700,
@@ -472,7 +472,7 @@ export function TagView({ slug }: { slug: string }) {
                           gap: "3px",
                         }}
                       >
-                        <Zap size={11} /> NowFree 2H
+                        <Zap size={11} /> NariNow 2H
                       </div>
                     </Link>
 
@@ -528,9 +528,9 @@ export function TagView({ slug }: { slug: string }) {
                             padding: "8px 12px",
                             fontSize: "12px",
                             fontWeight: 600,
-                            border: isJustAdded ? "1px solid #16a34a" : "1px solid #326e51",
+                            border: isJustAdded ? "1px solid #16a34a" : "1px solid #3d2e24",
                             backgroundColor: isJustAdded ? "#16a34a" : "#ffffff",
-                            color: isJustAdded ? "#ffffff" : "#326e51",
+                            color: isJustAdded ? "#ffffff" : "#3d2e24",
                             borderRadius: "4px",
                             cursor: "pointer",
                             display: "flex",
@@ -583,7 +583,7 @@ export function TagView({ slug }: { slug: string }) {
                 }}
                 style={{
                   padding: "8px 18px",
-                  backgroundColor: "#326e51",
+                  backgroundColor: "#3d2e24",
                   color: "#ffffff",
                   border: "none",
                   borderRadius: "4px",

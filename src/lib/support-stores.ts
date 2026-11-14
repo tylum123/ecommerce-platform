@@ -5,7 +5,10 @@
 
 import type { StoreBranchInfo, SupportTopic } from "@/lib/backend-contracts";
 export type { StoreBranchInfo, SupportTopic };
-import supportFooterData from "../../docs/research/hasaki/support-footer-2026-11-13.json";
+import rawSupportFooterData from "../../docs/research/hasaki/support-footer-2026-11-13.json";
+import { brandDeep } from "@/lib/brand-config";
+
+const supportFooterData = brandDeep(rawSupportFooterData);
 
 export interface WarrantyPolicySection {
   title: string;
@@ -86,55 +89,55 @@ export interface FooterData {
 const defaultBranches: StoreBranchInfo[] = [
   {
     id: "3",
-    name: "Hasaki Beauty & Clinic Hoàng Hoa Thám",
+    name: "Nari Home Beauty & Clinic Hoàng Hoa Thám",
     address: "71 Hoàng Hoa Thám, P.Tân Bình, Thành phố Hồ Chí Minh",
     city: "Hồ Chí Minh",
     district: "Quận Tân Bình",
     phone: "1800 6324",
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: true,
-    image: "https://hasaki.vn/images/71-Hoang-Hoa-Tham.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+71+Ho%C3%A0ng+Hoa+Th%C3%A1m"
+    image: "https://Nari Home/images/71-Hoang-Hoa-Tham.jpg",
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+71+Ho%C3%A0ng+Hoa+Th%C3%A1m"
   },
   {
     id: "5",
-    name: "Hasaki Beauty & Clinic Đường 3 Tháng 2",
+    name: "Nari Home Beauty & Clinic Đường 3 Tháng 2",
     address: "555 Đường 3 Tháng 2, P.Diên Hồng, Thành phố Hồ Chí Minh",
     city: "Hồ Chí Minh",
     district: "Quận 10",
     phone: "1800 6324",
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: true,
-    image: "https://hasaki.vn/images/555-bathanghai.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+555+Du%CC%9Bong+3+Thang+2"
+    image: "https://Nari Home/images/555-bathanghai.jpg",
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+555+Du%CC%9Bong+3+Thang+2"
   },
   {
     id: "7",
-    name: "Hasaki Beauty & Clinic Phan Đăng Lưu",
+    name: "Nari Home Beauty & Clinic Phan Đăng Lưu",
     address: "176 Phan Đăng Lưu, P.4, Q.Phú Nhuận, TP.HCM",
     city: "Hồ Chí Minh",
     district: "Quận Phú Nhuận",
     phone: "1800 6324",
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: true,
-    image: "https://hasaki.vn/images/176-Phandangluu.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+176+Phan+Dang+Luu"
+    image: "https://Nari Home/images/176-Phandangluu.jpg",
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+176+Phan+Dang+Luu"
   },
   {
     id: "9",
-    name: "Hasaki Beauty & Clinic Lê Văn Việt",
+    name: "Nari Home Beauty & Clinic Lê Văn Việt",
     address: "94 Lê Văn Việt, P.Tăng Nhơn Phú, Thành phố Hồ Chí Minh",
     city: "Hồ Chí Minh",
     district: "TP. Thủ Đức",
     phone: "1800 6324",
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: true,
-    image: "https://hasaki.vn/images/graphics/cuahang-4.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+94+Le+Van+Viet"
+    image: "https://Nari Home/images/graphics/cuahang-4.jpg",
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+94+Le+Van+Viet"
   },
   {
     id: "11",
-    name: "Hasaki Beauty & Clinic Nguyễn Gia Trí",
+    name: "Nari Home Beauty & Clinic Nguyễn Gia Trí",
     address: "119-121 Nguyễn Gia Trí (D2 cũ), P.Thạnh Mỹ Tây, Thành phố Hồ Chí Minh",
     city: "Hồ Chí Minh",
     district: "Quận Bình Thạnh",
@@ -142,23 +145,23 @@ const defaultBranches: StoreBranchInfo[] = [
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: true,
     image: "https://media.hcdn.vn/hsk/store/CN5.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+119+Nguyen+Gia+Tri"
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+119+Nguyen+Gia+Tri"
   },
   {
     id: "16",
-    name: "Hasaki Beauty & Clinic Quang Trung",
+    name: "Nari Home Beauty & Clinic Quang Trung",
     address: "657B Quang Trung, P.Thông Tây Hội, Thành phố Hồ Chí Minh",
     city: "Hồ Chí Minh",
     district: "Quận Gò Vấp",
     phone: "1800 6324",
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: true,
-    image: "https://hasaki.vn/images/graphics/cuahang-6.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+657B+Quang+Trung"
+    image: "https://Nari Home/images/graphics/cuahang-6.jpg",
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+657B+Quang+Trung"
   },
   {
     id: "19",
-    name: "Hasaki Beauty & Clinic Nguyễn Thị Thập",
+    name: "Nari Home Beauty & Clinic Nguyễn Thị Thập",
     address: "468A Nguyễn Thị Thập, P.Tân Hưng, Thành phố Hồ Chí Minh",
     city: "Hồ Chí Minh",
     district: "Quận 7",
@@ -166,11 +169,11 @@ const defaultBranches: StoreBranchInfo[] = [
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: true,
     image: "https://media.hcdn.vn/hsk/store/468NTT.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+468A+Nguyen+Thi+Thap"
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+468A+Nguyen+Thi+Thap"
   },
   {
     id: "23",
-    name: "Hasaki Beauty & Clinic Nguyễn Ảnh Thủ",
+    name: "Nari Home Beauty & Clinic Nguyễn Ảnh Thủ",
     address: "6M-6M1 Nguyễn Ảnh Thủ, P.Trung Mỹ Tây, Thành phố Hồ Chí Minh",
     city: "Hồ Chí Minh",
     district: "Quận 12",
@@ -178,11 +181,11 @@ const defaultBranches: StoreBranchInfo[] = [
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: true,
     image: "https://media.hcdn.vn/hsk/store/CN-9-6M-6M1-Nguyen-Anh-Thu-Trung-My-Tay-%20Q12-TPHCM.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+Nguyen+Anh+Thu"
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+Nguyen+Anh+Thu"
   },
   {
     id: "677",
-    name: "Hasaki Beauty & Clinic Nguyễn Trãi",
+    name: "Nari Home Beauty & Clinic Nguyễn Trãi",
     address: "185 - 187 - 189 Nguyễn Trãi, P.Chợ Quán (Cũ: P2, Q.5), TP.HCM",
     city: "Hồ Chí Minh",
     district: "Quận 5",
@@ -190,11 +193,11 @@ const defaultBranches: StoreBranchInfo[] = [
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: true,
     image: "https://media.hcdn.vn/hsk/store/CN185-Nguyen-Trai.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+185+Nguyen+Trai"
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+185+Nguyen+Trai"
   },
   {
     id: "625",
-    name: "Hasaki Beauty & Clinic Hai Bà Trưng Q3",
+    name: "Nari Home Beauty & Clinic Hai Bà Trưng Q3",
     address: "189A-189B Hai Bà Trưng, P.Võ Thị Sáu, Q.3, TP.HCM",
     city: "Hồ Chí Minh",
     district: "Quận 3",
@@ -202,11 +205,11 @@ const defaultBranches: StoreBranchInfo[] = [
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: true,
     image: "https://media.hcdn.vn/hsk/store/CN254.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+189A+Hai+Ba+Trung"
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+189A+Hai+Ba+Trung"
   },
   {
     id: "779",
-    name: "Hasaki Beauty & Clinic Tân Hương",
+    name: "Nari Home Beauty & Clinic Tân Hương",
     address: "161-163 Tân Hương, P. Phú Thọ Hòa, TP. HCM",
     city: "Hồ Chí Minh",
     district: "Quận Tân Phú",
@@ -214,11 +217,11 @@ const defaultBranches: StoreBranchInfo[] = [
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: true,
     image: "https://media.hcdn.vn/hsk/store/1777954991931-cn-161-tan-huong-1777955050.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+161+Tan+Huong"
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+161+Tan+Huong"
   },
   {
     id: "793",
-    name: "Hasaki Beauty & Clinic Bờ Bao Tân Thắng",
+    name: "Nari Home Beauty & Clinic Bờ Bao Tân Thắng",
     address: "103E-103F Bờ Bao Tân Thắng, P. Tân Sơn Nhì, TP. HCM",
     city: "Hồ Chí Minh",
     district: "Quận Tân Phú",
@@ -226,11 +229,11 @@ const defaultBranches: StoreBranchInfo[] = [
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: true,
     image: "https://media.hcdn.vn/hsk/store/cn-103-bo-bao-tan-thang-1781521194.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+Bo+Bao+Tan+Thang"
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+Bo+Bao+Tan+Thang"
   },
   {
     id: "631",
-    name: "Hasaki Beauty & Clinic Cầu Giấy",
+    name: "Nari Home Beauty & Clinic Cầu Giấy",
     address: "321 - 323 Cầu Giấy, P.Cầu Giấy, Thành phố Hà Nội",
     city: "Hà Nội",
     district: "Quận Cầu Giấy",
@@ -238,35 +241,35 @@ const defaultBranches: StoreBranchInfo[] = [
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: true,
     image: "https://media.hcdn.vn/hsk/store/CN-Cau-Giay.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+321+Cau+Giay"
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+321+Cau+Giay"
   },
   {
     id: "632",
-    name: "Hasaki Beauty Hàng Bông",
+    name: "Nari Home Beauty Hàng Bông",
     address: "182 Hàng Bông, Phường Hàng Bông, Quận Hoàn Kiếm, Hà Nội",
     city: "Hà Nội",
     district: "Quận Hoàn Kiếm",
     phone: "1800 6324",
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: false,
-    image: "https://hasaki.vn/images/graphics/cuahang-4.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+182+Hang+Bong+Ha+Noi"
+    image: "https://Nari Home/images/graphics/cuahang-4.jpg",
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+182+Hang+Bong+Ha+Noi"
   },
   {
     id: "633",
-    name: "Hasaki Beauty Chùa Bộc",
+    name: "Nari Home Beauty Chùa Bộc",
     address: "235 Chùa Bộc, Phường Trung Liệt, Quận Đống Đa, Hà Nội",
     city: "Hà Nội",
     district: "Quận Đống Đa",
     phone: "1800 6324",
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: false,
-    image: "https://hasaki.vn/images/graphics/cuahang-6.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+235+Chua+Boc+Ha+Noi"
+    image: "https://Nari Home/images/graphics/cuahang-6.jpg",
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+235+Chua+Boc+Ha+Noi"
   },
   {
     id: "121",
-    name: "Hasaki Beauty & Clinic Lê Duẩn Đà Nẵng",
+    name: "Nari Home Beauty & Clinic Lê Duẩn Đà Nẵng",
     address: "393 Lê Duẩn, P.Chính Gián, Q.Thanh Khê, Đà Nẵng",
     city: "Đà Nẵng",
     district: "Quận Thanh Khê",
@@ -274,11 +277,11 @@ const defaultBranches: StoreBranchInfo[] = [
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: true,
     image: "https://media.hcdn.vn/hsk/store/CN51-Thanh-ke-da-nang.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+393+Le+Duan+Da+Nang"
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+393+Le+Duan+Da+Nang"
   },
   {
     id: "93",
-    name: "Hasaki Beauty & Clinic Đường 30 Tháng 4 Cần Thơ",
+    name: "Nari Home Beauty & Clinic Đường 30 Tháng 4 Cần Thơ",
     address: "189-197 đường 30 Tháng 4, P.Ninh Kiều, Thành phố Cần Thơ",
     city: "Cần Thơ",
     district: "Quận Ninh Kiều",
@@ -286,11 +289,11 @@ const defaultBranches: StoreBranchInfo[] = [
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: true,
     image: "https://media.hcdn.vn/hsk/store/189-197-30-4.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+189+30+Thang+4+Can+Tho"
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+189+30+Thang+4+Can+Tho"
   },
   {
     id: "81",
-    name: "Hasaki Beauty & Clinic Phạm Văn Thuận Biên Hòa",
+    name: "Nari Home Beauty & Clinic Phạm Văn Thuận Biên Hòa",
     address: "1519-1521 Phạm Văn Thuận, P.Trấn Biên, TP. Biên Hòa, Tỉnh Đồng Nai",
     city: "Đồng Nai",
     district: "TP. Biên Hòa",
@@ -298,11 +301,11 @@ const defaultBranches: StoreBranchInfo[] = [
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: true,
     image: "https://media.hcdn.vn/hsk/store/1519-PVT.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+1519+Pham+Van+Thuan+Dong+Nai"
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+1519+Pham+Van+Thuan+Dong+Nai"
   },
   {
     id: "97",
-    name: "Hasaki Beauty & Clinic Yersin Bình Dương",
+    name: "Nari Home Beauty & Clinic Yersin Bình Dương",
     address: "219 Yersin, Phường Phú Cường, TP. Thủ Dầu Một, Tỉnh Bình Dương",
     city: "Bình Dương",
     district: "TP. Thủ Dầu Một",
@@ -310,11 +313,11 @@ const defaultBranches: StoreBranchInfo[] = [
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: true,
     image: "https://media.hcdn.vn/hsk/store/219-YS.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+219+Yersin+Binh+Duong"
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+219+Yersin+Binh+Duong"
   },
   {
     id: "91",
-    name: "Hasaki Beauty & Clinic Ba Cu Vũng Tàu",
+    name: "Nari Home Beauty & Clinic Ba Cu Vũng Tàu",
     address: "177 Ba Cu, Phường 4, TP. Vũng Tàu, Tỉnh Bà Rịa - Vũng Tàu",
     city: "Bà Rịa - Vũng Tàu",
     district: "TP. Vũng Tàu",
@@ -322,11 +325,11 @@ const defaultBranches: StoreBranchInfo[] = [
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: true,
     image: "https://media.hcdn.vn/hsk/store/177-BC.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+177+Ba+Cu+Vung+Tau"
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+177+Ba+Cu+Vung+Tau"
   },
   {
     id: "141",
-    name: "Hasaki Beauty & Clinic Hai Bà Trưng Đà Lạt",
+    name: "Nari Home Beauty & Clinic Hai Bà Trưng Đà Lạt",
     address: "1-3 Hai Bà Trưng, Phường 6, TP. Đà Lạt, Tỉnh Lâm Đồng",
     city: "Lâm Đồng",
     district: "TP. Đà Lạt",
@@ -334,35 +337,35 @@ const defaultBranches: StoreBranchInfo[] = [
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: true,
     image: "https://media.hcdn.vn/hsk/store/cn-61-da-lat-1762167061.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+Hai+Ba+Trung+Da+Lat"
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+Hai+Ba+Trung+Da+Lat"
   },
   {
     id: "142",
-    name: "Hasaki Beauty Trần Phú Nha Trang",
+    name: "Nari Home Beauty Trần Phú Nha Trang",
     address: "88 Trần Phú, Phường Lộc Thọ, TP. Nha Trang, Tỉnh Khánh Hòa",
     city: "Khánh Hòa",
     district: "TP. Nha Trang",
     phone: "1800 6324",
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: false,
-    image: "https://hasaki.vn/images/graphics/cuahang-4.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+Nha+Trang"
+    image: "https://Nari Home/images/graphics/cuahang-4.jpg",
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+Nha+Trang"
   },
   {
     id: "143",
-    name: "Hasaki Beauty Hùng Vương Huế",
+    name: "Nari Home Beauty Hùng Vương Huế",
     address: "124 Hùng Vương, Phường Phú Nhuận, Thành phố Huế, Tỉnh Thừa Thiên Huế",
     city: "Thừa Thiên Huế",
     district: "TP. Huế",
     phone: "1800 6324",
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: false,
-    image: "https://hasaki.vn/images/graphics/cuahang-6.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+Hue"
+    image: "https://Nari Home/images/graphics/cuahang-6.jpg",
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+Hue"
   },
   {
     id: "144",
-    name: "Hasaki Beauty Lạch Tray Hải Phòng",
+    name: "Nari Home Beauty Lạch Tray Hải Phòng",
     address: "246 Lạch Tray, Quận Ngô Quyền, Thành phố Hải Phòng",
     city: "Hải Phòng",
     district: "Quận Ngô Quyền",
@@ -370,7 +373,7 @@ const defaultBranches: StoreBranchInfo[] = [
     hours: "08:00 - 22:00 (Mỗi ngày kể cả T7, CN)",
     hasClinic: false,
     image: "https://media.hcdn.vn/hsk/store/CN5.jpg",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Hasaki+Hai+Phong"
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Nari Home+Hai+Phong"
   }
 ];
 
@@ -462,12 +465,12 @@ export function searchSupportTopics(query: string): SupportTopic[] {
 // ----------------------------------------------------------------------
 
 const warrantyPolicyData: WarrantyPolicyData = {
-  title: "Trung Tâm Bảo Hành & Chính Sách Hậu Mãi Hasaki.vn",
+  title: "Trung Tâm Bảo Hành & Chính Sách Hậu Mãi Nari Home",
   hotline: "1800 6324 (Phím 1 hoặc gửi yêu cầu online)",
-  policySummary: "Hasaki cam kết phân phối 100% hàng chính hãng, đầy đủ hóa đơn chứng từ VAT và tem phụ tiếng Việt. Tất cả sản phẩm thiết bị làm đẹp, phụ kiện điện tử và đồ gia dụng do Hasaki phân phối đều được hưởng chế độ bảo hành chính hãng từ nhà sản xuất hoặc trung tâm bảo hành ủy quyền.",
+  policySummary: "Nari Home cam kết phân phối 100% hàng chính hãng, đầy đủ hóa đơn chứng từ VAT và tem phụ tiếng Việt. Tất cả sản phẩm thiết bị làm đẹp, phụ kiện điện tử và đồ gia dụng do Nari Home phân phối đều được hưởng chế độ bảo hành chính hãng từ nhà sản xuất hoặc trung tâm bảo hành ủy quyền.",
   generalTerms: [
-    "Thời hạn bảo hành được tính từ ngày xuất hóa đơn mua hàng thành công tại Hasaki.",
-    "Khách hàng có thể mang máy đến trực tiếp bất kỳ chi nhánh Hasaki nào trên toàn quốc hoặc gửi qua bưu điện/chuyển phát nhanh.",
+    "Thời hạn bảo hành được tính từ ngày xuất hóa đơn mua hàng thành công tại Nari Home.",
+    "Khách hàng có thể mang máy đến trực tiếp bất kỳ chi nhánh Nari Home nào trên toàn quốc hoặc gửi qua bưu điện/chuyển phát nhanh.",
     "Sản phẩm bảo hành cần có hóa đơn mua hàng / số điện thoại đặt hàng hoặc tem bảo hành, số Serial còn nguyên vẹn.",
     "Lỗi kỹ thuật từ nhà sản xuất trong vòng 30 ngày đầu được áp dụng chính sách 1 đổi 1 miễn phí."
   ],
@@ -521,7 +524,7 @@ const warrantyPolicyData: WarrantyPolicyData = {
     {
       step: 2,
       title: "Tiếp nhận và kiểm định thiết bị",
-      description: "Gửi sản phẩm tại cửa hàng Hasaki gần nhất hoặc gửi qua chuyển phát bưu điện về Trung tâm bảo hành."
+      description: "Gửi sản phẩm tại cửa hàng Nari Home gần nhất hoặc gửi qua chuyển phát bưu điện về Trung tâm bảo hành."
     },
     {
       step: 3,
@@ -539,7 +542,7 @@ export function lookupWarrantyDraft(query: string): WarrantyLookupResult {
   return {
     found: false,
     query: query.trim(),
-    message: "Chưa kết nối dữ liệu bảo hành đã xác minh. Không thể xác nhận bảo hành; vui lòng liên hệ trực tiếp Hasaki.",
+    message: "Chưa kết nối dữ liệu bảo hành đã xác minh. Không thể xác nhận bảo hành; vui lòng liên hệ trực tiếp Nari Home.",
   };
 }
 
@@ -558,7 +561,7 @@ export function getFooterData(): FooterData {
       },
       {
         title: "Giao nhanh miễn phí 2H",
-        description: "NowFree áp dụng đơn từ 90K tại TP.HCM & Cần Thơ",
+        description: "NariNow áp dụng đơn từ 90K tại TP.HCM & Cần Thơ",
         icon: "Truck"
       },
       {
@@ -578,18 +581,18 @@ export function getFooterData(): FooterData {
         links: [
           { name: "Hotline CSKH: 1800 6324 (Miễn phí)", href: "tel:18006324" },
           { name: "Hệ thống 350+ cửa hàng toàn quốc", href: "/he-thong-cua-hang" },
-          { name: "Trung tâm bảo hành Hasaki", href: "/bao-hanh" },
+          { name: "Trung tâm bảo hành Nari Home", href: "/bao-hanh" },
           { name: "Trung tâm hỗ trợ & FAQ", href: "/ho-tro" },
           { name: "Hướng dẫn đặt hàng", href: "/ho-tro/huong-dan-dat-hang" },
-          { name: "Giao nhanh 2H (NowFree)", href: "/ho-tro/giao-nhanh-2h" },
+          { name: "Giao nhanh 2H (NariNow)", href: "/ho-tro/giao-nhanh-2h" },
           { name: "Phương thức thanh toán", href: "/ho-tro/phuong-thuc-thanh-toan" },
           { name: "Chính sách đổi trả 30 ngày", href: "/ho-tro/chinh-sach-doi-tra" }
         ]
       },
       {
-        title: "VỀ HASAKI.VN",
+        title: "VỀ NARI HOME",
         links: [
-          { name: "Giới thiệu Hasaki.vn", href: "/ho-tro/gioi-thieu" },
+          { name: "Giới thiệu Nari Home", href: "/ho-tro/gioi-thieu" },
           { name: "Chính sách bảo mật thông tin", href: "/ho-tro/chinh-sach-bao-mat" },
           { name: "Điều khoản sử dụng", href: "/ho-tro/dieu-khoan-su-dung" },
           { name: "Thông tin liên hệ & Văn phòng", href: "/ho-tro/lien-he" },
@@ -600,7 +603,7 @@ export function getFooterData(): FooterData {
       {
         title: "HỢP TÁC & DỊCH VỤ",
         links: [
-          { name: "Hasaki Clinic & Spa", href: "/clinic" },
+          { name: "Nari Clinic & Spa", href: "/clinic" },
           { name: "Đặt hẹn khám da Clinic", href: "/booking" },
           { name: "Dermahair Chuyên sâu", href: "/danh-muc/dermahair-c2298.html" },
           { name: "Tra cứu hệ thống chi nhánh", href: "/he-thong-cua-hang" },
@@ -608,13 +611,13 @@ export function getFooterData(): FooterData {
         ]
       },
       {
-        title: "KẾT NỐI VỚI HASAKI",
+        title: "KẾT NỐI VỚI NARI HOME",
         links: [
           { name: "Hotline: 1800 6324 (Phím 1)", href: "tel:18006324" },
           { name: "Đặt lịch Clinic: 1800 6324 (Phím 2)", href: "tel:18006324" },
-          { name: "Tải ứng dụng Hasaki App (Android / iOS)", href: "https://hotro.hasaki.vn/app", isExternal: true },
-          { name: "Fanpage Hasaki Beauty & Clinic", href: "https://www.facebook.com/Hasaki.VN", isExternal: true },
-          { name: "Kênh Hasaki Clinic & Spa", href: "https://www.facebook.com/hasakiclinic", isExternal: true }
+          { name: "Tải ứng dụng Nari Home App (Android / iOS)", href: "https://hotro.Nari Home/app", isExternal: true },
+          { name: "Fanpage Nari Home Beauty & Clinic", href: "https://www.facebook.com/Nari Home", isExternal: true },
+          { name: "Kênh Nari Clinic & Spa", href: "https://www.facebook.com/hasakiclinic", isExternal: true }
         ]
       }
     ],
@@ -632,10 +635,10 @@ export function getFooterData(): FooterData {
       { name: "Anker", url: "/thuong-hieu/anker.html" }
     ],
     companyInfo: {
-      name: "Công ty Cổ phần Hasaki Beauty & Clinic",
+      name: "CÔNG TY CỔ PHẦN NARI HOME BEAUTY & CLINIC",
       license: "Giấy chứng nhận ĐKKD số 0313612829 do Sở Kế hoạch và Đầu tư TP.HCM cấp ngày 13/01/2016",
       address: "Trụ sở chính: 71 Hoàng Hoa Thám, Phường Tân Bình, Thành phố Hồ Chí Minh",
-      copyright: "Bản quyền © 2016 - 2026 Hasaki.vn. Bản dựng tham khảo giao diện Next.js App Router."
+      copyright: "Bản quyền © 2016 - 2026 Nari Home. Bản dựng tham khảo giao diện Next.js App Router."
     }
   };
 }

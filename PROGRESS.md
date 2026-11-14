@@ -1,4 +1,45 @@
-# Tiến độ dự án Hasaki Clone & Quản Trị Doanh Nghiệp
+# Tiến độ dự án E-Commerce Platform (Nari Home) & Quản Trị Doanh Nghiệp
+
+## Checkpoint Wave 10 (Chuyển Đổi Hoàn Tất Nhận Diện Thương Hiệu & Tone Màu **Nari Home — Phương Án A**) — 14/11/2026 [HOÀN TẤT & ĐÃ XÁC MINH]
+
+- **Tài liệu kế hoạch chi tiết**: [docs/NARI_HOME_REBRAND_PLAN.md](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/docs/NARI_HOME_REBRAND_PLAN.md)
+- **Nhận diện thương hiệu mới**: **Nari Home** — *"Khơi nguồn vẻ đẹp - Kiến tạo khí chất"* (áp dụng chính thức Phương án A — Header nền Kem Lụa Sáng `#F6ECE3`).
+- **5 Hạng mục chuyển đổi hoàn tất**:
+  1. **Hệ Thống Font Chữ & Metadata (`src/app/layout.tsx`)**:
+     - Nạp cặp font `Cormorant_Garamond` (`--font-display`, weight 500/600/700) và `Be_Vietnam_Pro` (`--font-sans`, weight 400/500/600/700) với `subsets: ["latin", "vietnamese"]`.
+     - Cập nhật title: `Nari Home — Khơi nguồn vẻ đẹp - Kiến tạo khí chất | Mỹ Phẩm & Clinic Chính Hãng`.
+  2. **Design Tokens & Bảng màu Luxury Silk & Pearl Champagne (`src/app/globals.css`)**:
+     - Cập nhật biến CSS `:root`: `--bg-page: #faf5f0;`, `--bg-surface-alt: #f6ece3;`, `--brand-green: #3d2e24;` (Deep Espresso), `--brand-accent: #9e7656;` (Champagne Bronze), `--orange: #b86b4b;` (Warm Terracotta), `--text: #1e1b18;` (Obsidian Charcoal), `--muted: #6e5a4f;` (Warm Taupe), `--line: #e6d5c5;` (Silk Border).
+     - Định kiểu Header Phương án A (`.header`, `.site-header`, `.header-main-bar`): Nền Kem Lụa Sáng gradient `linear-gradient(135deg, #faf5f0 0%, #f6ece3 52%, #efe2d4 100%)`, viền đáy vàng đồng `#e2ceba`, chữ đen charcoal `#1e1b18`, thanh thông báo Espresso `#3d2e24`, ô tìm kiếm viền `#d4beaa`, thanh điều hướng `#fdfaf7`.
+  3. **Component `<NariHomeLogo />` & Hero Banner Trang Chủ**:
+     - Tạo component SVG + Typography logo `src/components/sites/hasaki/nari-home-logo.tsx`.
+     - Thay thế logo Hasaki cũ trên Header, Footer, Giỏ hàng, Checkout bằng `<NariHomeLogo />`.
+     - Đặt banner chính thức `public/nari-home-banner.jpg` làm **Slide đầu tiên** của Hero Banner Carousel trang chủ (`src/app/page.tsx`).
+  4. **Thẻ Sản Phẩm, Footer & Các Màn Hình Con**:
+     - Thẻ sản phẩm (`src/components/sites/hasaki/product-card.tsx`): Giá & tag quà tặng chuyển sang Warm Terracotta `#b86b4b` và Deep Espresso `#3d2e24`.
+     - Footer (`src/components/sites/hasaki/footer.tsx`): Bản quyền © 2026 Nari Home Beauty & Clinic, hotline, email `hotro@narihome.vn`.
+     - Đăng nhập/Đăng ký (`/dang-nhap`, `/dang-ky`), Modal tài khoản: Đồng bộ bảng màu và nhãn Nari Home.
+  5. **Cập Nhật Theo Yêu Cầu Người Dùng & Hệ Thống Biến Thương Hiệu Tập Trung (`src/lib/brand-config.ts`)**:
+     - Tạo [src/lib/brand-config.ts](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/brand-config.ts) và [.env.example](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/.env.example) cung cấp `BRAND_CONFIG`, `brandText()`, `brandDeep()` để quản lý tập trung toàn bộ tên thương hiệu (`Nari Home` / `Nari`), slogan, dịch vụ (`Nari Deals`, `NariNow 2H`, `Nari Clinic & Spa`, `Nari Rewards`) tại 1 nơi duy nhất.
+     - Đấu nối `brandDeep()` vào toàn bộ các bộ đọc dữ liệu (`catalog.ts`, `interactive-ui.ts`, `campaigns-location.ts`, `support-stores.ts`, `clinic-services.ts`, `product-details.ts`, `deals-bestsellers.ts`) và đồng bộ **61 files** trong `src/` — kết quả kiểm toán tự động đạt **`Hasaki: 0`** và **`OldGreen: 0`** trên toàn bộ mã nguồn `src/`.
+     - Gỡ bỏ nhãn `"TOOL PLAYGROUND"` bên cạnh tab `"AI MCP & SEO Hub"` trong `src/components/sites/hasaki/admin-erp-view.tsx` (dòng 899-901).
+     - Khắc phục lỗi kiểu dữ liệu `handleAddToCartFromFav` trong `src/components/sites/hasaki/customer-portal-view.tsx`.
+- **Kiểm thử**: `npx tsc --noEmit --incremental false` pass 100% (0 lỗi), `node --test` 14/14 test pass.
+
+---
+
+## Checkpoint Wave 9 (Kiến Trúc White-Label O2O `/grill-me`, GitHub `ecommerce-platform`, Phân Quyền RBAC & Font Tiếng Việt) — 14/11/2026
+
+- **Kiến trúc Database & Backend White-Label (`/grill-me`)**:
+  - Xây dựng [src/lib/db/schema.sql](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/db/schema.sql), [src/lib/db/repository.ts](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/db/repository.ts) và tài liệu [docs/DATABASE_ARCHITECTURE.md](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/docs/DATABASE_ARCHITECTURE.md) hỗ trợ PostgreSQL (`DATABASE_URL`) + SQLite fallback, đa chi nhánh linh hoạt (`1..N` kho/cửa hàng) và công tắc bật/tắt hoặc xóa dữ liệu mẫu Hasaki (`ENABLE_HASAKI_SEED`).
+  - Bảo mật phiên đăng nhập bằng HTTP-only signed cookie (`hasaki_session`), middleware bảo vệ route ([src/middleware.ts](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/middleware.ts)), và cổng webhook thanh toán ([src/app/api/payments/webhook/route.ts](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/app/api/payments/webhook/route.ts)).
+- **Đổi tên Repo & Đẩy lên GitHub**:
+  - Đổi tên dự án trong [package.json](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/package.json) thành `ecommerce-platform` và đẩy toàn bộ code lên `https://github.com/tylum123/ecommerce-platform` (nhánh `main`).
+- **Phân quyền RBAC Route/Màn hình & Chuẩn hóa Font Tiếng Việt** *(Đang hoàn thiện & kiểm thử bởi subagent `DeepCoder`)*:
+  - Phân quyền hiển thị rõ ràng giữa 4 nhóm vai trò (`Guest`, `Customer`, `Staff - Kho/Bác sĩ`, `Super Admin`) trên Header, Account Dialog, `/khach-hang/[section]` và `/quan-tri`.
+  - Chuẩn hóa font Tiếng Việt (`subsets: ["latin", "vietnamese"]`) trong `src/app/layout.tsx` và `src/app/globals.css` để không bị lệch dấu hoặc nhảy font.
+
+---
 
 ## Checkpoint Wave 8 (Chuẩn Hóa Bố Cục 1:1, Khôi Phục Tailwind CSS v4 & Xóa Sạch 404 Toàn Hệ Thống) — 14/11/2026
 

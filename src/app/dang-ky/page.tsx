@@ -118,7 +118,7 @@ function RegisterForm() {
     <div className="mx-auto max-w-5xl py-8 px-4">
       {/* Breadcrumb */}
       <nav className="mb-6 text-sm text-gray-500">
-        <Link href="/" className="hover:text-[#326e51]">
+        <Link href="/" className="hover:text-[#b86b4b]">
           Trang chủ
         </Link>
         <span className="mx-2">›</span>
@@ -129,9 +129,9 @@ function RegisterForm() {
         {/* Left column: Registration form */}
         <div className="md:col-span-7 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-6 border-b border-gray-100 pb-4">
-            <h1 className="text-xl font-bold text-[#326e51]">ĐĂNG KÝ TÀI KHOẢN</h1>
+            <h1 className="text-xl font-bold text-[#3d2e24]">ĐĂNG KÝ TÀI KHOẢN</h1>
             <p className="mt-1 text-xs text-gray-500">
-              Tạo tài khoản Hasaki để nhận ngay 50 điểm thưởng Loyalty và ưu đãi NowFree 2H
+              Tạo tài khoản Nari Home để nhận ngay 50 điểm thưởng Loyalty và ưu đãi NariNow 2H
             </p>
           </div>
 
@@ -166,7 +166,7 @@ function RegisterForm() {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="Ví dụ: Nguyễn Văn An"
-                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm focus:border-[#326e51] focus:outline-none focus:ring-1 focus:ring-[#326e51]"
+                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm focus:border-[#3d2e24] focus:outline-none focus:ring-1 focus:ring-[#3d2e24]"
                   required
                 />
                 <UserRound className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -183,7 +183,7 @@ function RegisterForm() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="Ví dụ: 0901234567"
-                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm focus:border-[#326e51] focus:outline-none focus:ring-1 focus:ring-[#326e51]"
+                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm focus:border-[#3d2e24] focus:outline-none focus:ring-1 focus:ring-[#3d2e24]"
                   required
                 />
                 <Phone className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -200,7 +200,7 @@ function RegisterForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Ví dụ: an.nguyen@gmail.com"
-                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm focus:border-[#326e51] focus:outline-none focus:ring-1 focus:ring-[#326e51]"
+                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm focus:border-[#3d2e24] focus:outline-none focus:ring-1 focus:ring-[#3d2e24]"
                 />
                 <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
@@ -216,7 +216,7 @@ function RegisterForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)..."
-                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-10 text-sm focus:border-[#326e51] focus:outline-none focus:ring-1 focus:ring-[#326e51]"
+                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-10 text-sm focus:border-[#3d2e24] focus:outline-none focus:ring-1 focus:ring-[#3d2e24]"
                   required
                 />
                 <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -240,7 +240,7 @@ function RegisterForm() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Nhập lại mật khẩu..."
-                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm focus:border-[#326e51] focus:outline-none focus:ring-1 focus:ring-[#326e51]"
+                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm focus:border-[#3d2e24] focus:outline-none focus:ring-1 focus:ring-[#3d2e24]"
                   required
                 />
                 <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -250,7 +250,7 @@ function RegisterForm() {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full rounded-lg bg-[#326e51] py-2.5 text-sm font-semibold text-white transition hover:bg-[#25553e] disabled:opacity-50"
+              className="w-full rounded-lg bg-[#3d2e24] py-2.5 text-sm font-semibold text-white transition hover:bg-[#1e1b18] disabled:opacity-50"
             >
               {isPending ? "Đang xử lý đăng ký..." : "ĐĂNG KÝ TÀI KHOẢN"}
             </button>
@@ -259,7 +259,7 @@ function RegisterForm() {
           <div className="mt-6 border-t border-gray-100 pt-4 text-center">
             <p className="text-sm text-gray-600">
               Bạn đã có tài khoản?{" "}
-              <Link href="/dang-nhap" className="font-semibold text-[#326e51] hover:underline">
+              <Link href="/dang-nhap" className="font-semibold text-[#b86b4b] hover:underline">
                 Đăng nhập ngay tại đây
               </Link>
             </p>
@@ -267,7 +267,7 @@ function RegisterForm() {
         </div>
 
         {/* Right column: 1-Click Demo Accounts */}
-        <div className="md:col-span-5 rounded-xl border border-gray-200 bg-[#f8faf9] p-6 shadow-sm">
+        <div className="md:col-span-5 rounded-xl border border-gray-200 bg-[#fbf8f5] p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-2 border-b border-gray-200 pb-3">
             <Sparkles className="h-5 w-5 text-amber-500" />
             <h2 className="text-base font-bold text-gray-800">1-CLICK TÀI KHOẢN DEMO</h2>
@@ -288,7 +288,7 @@ function RegisterForm() {
                   type="button"
                   onClick={() => handleDemoClick(acc)}
                   disabled={isPending}
-                  className="w-full rounded-lg border border-gray-200 bg-white p-3 text-left transition hover:border-[#326e51] hover:shadow-sm"
+                  className="w-full rounded-lg border border-gray-200 bg-white p-3 text-left transition hover:border-[#3d2e24] hover:shadow-sm"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -299,7 +299,7 @@ function RegisterForm() {
                       ) : isCustomer ? (
                         <Sparkles className="h-4 w-4 text-amber-600" />
                       ) : (
-                        <Stethoscope className="h-4 w-4 text-emerald-600" />
+                        <Stethoscope className="h-4 w-4 text-[#3d2e24]" />
                       )}
                       <span className="text-xs font-bold text-gray-800">{acc.label}</span>
                     </div>
@@ -311,7 +311,7 @@ function RegisterForm() {
                             ? "bg-orange-100 text-orange-700"
                             : isCustomer
                               ? "bg-amber-100 text-amber-800"
-                              : "bg-emerald-100 text-emerald-700"
+                              : "bg-[#f6ece3] text-[#3d2e24]"
                       }`}
                     >
                       {acc.badge}
@@ -321,7 +321,7 @@ function RegisterForm() {
                     <span>
                       User: <b>{acc.username}</b>
                     </span>
-                    <span className="flex items-center gap-1 text-[#326e51] font-medium">
+                    <span className="flex items-center gap-1 text-[#b86b4b] font-medium">
                       Đăng nhập <ArrowRight className="h-3 w-3" />
                     </span>
                   </div>
@@ -330,12 +330,12 @@ function RegisterForm() {
             })}
           </div>
 
-          <div className="mt-6 rounded-lg bg-emerald-50 p-3 text-xs text-emerald-800">
+          <div className="mt-6 rounded-lg bg-[#faf5f0] p-3 text-xs text-[#2a1f18]">
             <div className="flex items-center gap-1.5 font-semibold">
               <ShieldCheck className="h-4 w-4" />
               <span>Bảo mật & Quyền riêng tư</span>
             </div>
-            <p className="mt-1 text-[11px] text-emerald-700">
+            <p className="mt-1 text-[11px] text-[#3d2e24]">
               Thông tin đăng ký được lưu trữ bảo mật trong cơ sở dữ liệu SQLite/PostgreSQL nội bộ, cấp quyền RBAC vai trò Thành Viên (Member) có điểm thưởng tích lũy.
             </p>
           </div>
@@ -349,7 +349,7 @@ export default function DangKyPage() {
   return (
     <>
       <Header />
-      <main className="min-h-[70vh] bg-[#f4f4f4] py-8">
+      <main className="min-h-[70vh] bg-[#faf5f0] py-8">
         <Suspense
           fallback={
             <div className="mx-auto max-w-5xl p-8 text-center text-sm text-gray-500">

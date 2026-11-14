@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   User,
   ShoppingBag,
@@ -16,6 +17,12 @@ import {
   ShieldCheck,
   LogOut,
   CheckCircle2,
+  Tag,
+  Heart,
+  HelpCircle,
+  Copy,
+  Send,
+  Crown,
 } from "lucide-react";
 import { Header } from "@/components/sites/hasaki/header";
 import { Footer } from "@/components/sites/hasaki/footer";
@@ -35,12 +42,14 @@ import {
   type DemoLoyaltySummary,
   type DemoUserProfile,
 } from "@/lib/campaigns-location";
-import { readCart, type CartItem } from "@/lib/cart";
+import { readCart, addToCart, type CartItem } from "@/lib/cart";
 import { money } from "@/lib/catalog";
 import {
   readAuthSession,
+  saveAuthSession,
   clearAuthSession,
   fetchCurrentSession,
+  DEMO_AUTH_ACCOUNTS,
   AUTH_CHANGE_EVENT,
   isStaffOrAdminRole,
   type AuthSessionUser,
@@ -52,8 +61,19 @@ interface CustomerPortalViewProps {
 }
 
 export function CustomerPortalView({ initialSection = "tai-khoan", section }: CustomerPortalViewProps) {
-  const currentSection = section || initialSection;
-  const [activeSection, setActiveSection] = useState<string>(currentSection);
+  const router = useRouter();
+  const targetSection = (section === "dia-chi" ? "so-dia-chi" : section) || initialSection;
+  const [activeSectionState, setActiveSectionState] = useState<string | null>(null);
+  const [prevTargetSection, setPrevTargetSection] = useState(targetSection);
+
+  if (targetSection !== prevTargetSection) {
+    setPrevTargetSection(targetSection);
+    setActiveSectionState(targetSection);
+  }
+
+  const activeSection = activeSectionState ?? targetSection;
+  const setActiveSection = (s: string) => setActiveSectionState(s);
+
   const [showLocationModal, setShowLocationModal] = useState<boolean>(false);
   const [userLocationShort, setUserLocationShort] = useState<string>("Chọn khu vực của bạn");
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -82,6 +102,172 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
   const [bookings] = useState<DemoBooking[]>(getDemoBookingHistory());
   const [loyalty] = useState<DemoLoyaltySummary>(getDemoLoyaltySummary());
   const [saveSuccessMsg, setSaveSuccessMsg] = useState<string>("");
+
+  // Additional sections state
+  const [copiedVoucher, setCopiedVoucher] = useState<string | null>(null);
+  const [faqOpen, setFaqOpen] = useState<number | null>(0);
+  const [supportSentMsg, setSupportSentMsg] = useState<string>("");
+  const [supportSubject, setSupportSubject] = useState<string>("");
+  const [supportContent, setSupportContent] = useState<string>("");
+
+  const faqs = useMemo(
+    () => [
+      {
+        q: "Chính sách giao hàng siêu tốc NariNow 2H của Nari Home là gì?",
+        a: "Dịch vụ NariNow 2H cam kết giao hàng tận nơi trong vòng 2 giờ cho các đơn hàng tại nội thành có sẵn tại chi nhánh gần bạn nhất. Đơn hàng từ 99.000₫ được hỗ trợ phí vận chuyển tối đa.",
+      },
+      {
+        q: "Làm thế nào để đặt lịch khám bác sĩ da liễu tại Nari Clinic & Spa?",
+        a: "Bạn có thể vào mục 'Lịch hẹn Clinic & Spa' hoặc bấm nút 'Đặt hẹn khám' trên thanh điều hướng. Sau đó chọn chi nhánh phòng khám, bác sĩ phụ trách, dịch vụ mong muốn và khung giờ phù hợp.",
+      },
+      {
+        q: "Chính sách bảo hành & đổi trả 14 ngày của Nari Home được quy định ra sao?",
+        a: "Nari Home cam kết đền bù 200% nếu phát hiện hàng giả. Khách hàng được đổi trả sản phẩm trong vòng 14 ngày nếu sản phẩm bị lỗi từ nhà sản xuất, dị ứng có xác nhận y tế hoặc hư hỏng do vận chuyển.",
+      },
+      {
+        q: "Điểm Nari Rewards được tích lũy và sử dụng thế nào?",
+        a: "Mỗi 10.000₫ chi tiêu tại cửa hàng hoặc phòng khám được tích 10 điểm thưởng. Điểm có thể dùng để khấu trừ trực tiếp vào đơn hàng tiếp theo (1 điểm = 10₫) hoặc đổi các voucher giảm giá đặc quyền.",
+      },
+    ],
+    []
+  );
+
+  const [favorites, setFavorites] = useState([
+    {
+      sku: "102959",
+      name: "Sữa Rửa Mặt CeraVe Sạch Sâu Cho Da Thường Đến Da Dầu 473ml",
+      brand: "CeraVe",
+      price: 395000,
+      originalPrice: 470000,
+      discount: "-16%",
+      slug: "sua-rua-mat-cerave-sach-sau-cho-da-thuong-den-da-dau-473ml-102959.html",
+      rating: 4.9,
+      reviews: 1420,
+      stock: "Còn hàng (NariNow 2H)",
+    },
+    {
+      sku: "103112",
+      name: "Kem Chống Nắng La Roche-Posay Anthelios Oil Correct SPF50+ 50ml",
+      brand: "La Roche-Posay",
+      price: 435000,
+      originalPrice: 535000,
+      discount: "-19%",
+      slug: "kem-chong-nang-la-roche-posay-kiem-dau-50ml.html",
+      rating: 4.8,
+      reviews: 890,
+      stock: "Còn hàng (NariNow 2H)",
+    },
+    {
+      sku: "104520",
+      name: "Nước Tẩy Trang Bioderma Sensibio H2O Cho Da Nhạy Cảm 500ml",
+      brand: "Bioderma",
+      price: 365000,
+      originalPrice: 495000,
+      discount: "-26%",
+      slug: "nuoc-tay-trang-bioderma-sensibio-h2o-500ml.html",
+      rating: 4.9,
+      reviews: 2150,
+      stock: "Còn hàng (NariNow 2H)",
+    },
+  ]);
+
+  const vouchers = [
+    {
+      code: "NARI50K",
+      title: "Giảm 50.000₫ cho đơn mỹ phẩm từ 299.000₫",
+      minSpend: 299000,
+      discount: "50.000 ₫",
+      expiry: "31/12/2026",
+      badge: "Hot Deal",
+      desc: "Áp dụng toàn bộ danh mục Chăm sóc da mặt, Cơ thể và Trang điểm",
+    },
+    {
+      code: "NARINOW 2H",
+      title: "Miễn phí vận chuyển NariNow 2H toàn quốc",
+      minSpend: 99000,
+      discount: "Free Ship",
+      expiry: "31/12/2026",
+      badge: "NariNow 2H",
+      desc: "Giao hàng hỏa tốc trong 2 giờ tại tất cả các quận nội thành",
+    },
+    {
+      code: "CLINIC150K",
+      title: "Giảm 150.000₫ dịch vụ Nari Clinic & Spa",
+      minSpend: 500000,
+      discount: "150.000 ₫",
+      expiry: "31/12/2026",
+      badge: "Clinic & Spa",
+      desc: "Áp dụng cho dịch vụ Trị mụn chuẩn y khoa, Lấy nhân mụn và Laser CO2",
+    },
+    {
+      code: "DIAMONDVIP",
+      title: "Đặc quyền Hội viên VIP Diamond - Giảm 10%",
+      minSpend: 350000,
+      discount: "Giảm 10%",
+      expiry: "Vô thời hạn",
+      badge: "VIP Only",
+      desc: "Dành riêng cho khách hàng đạt hạng thẻ Diamond trở lên",
+    },
+  ];
+
+  const handleCopyCode = (code: string) => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(code);
+    }
+    setCopiedVoucher(code);
+    setTimeout(() => {
+      setCopiedVoucher((prev) => (prev === code ? null : prev));
+    }, 2500);
+  };
+
+  const handleAddToCartFromFav = (fav: typeof favorites[0]) => {
+    addToCart(fav.slug, 1);
+    setSaveSuccessMsg(`Đã thêm "${fav.name}" vào giỏ hàng`);
+    setTimeout(() => setSaveSuccessMsg(""), 3000);
+  };
+
+  const handleRemoveFavorite = (sku: string) => {
+    setFavorites((prev) => prev.filter((item) => item.sku !== sku));
+    setSaveSuccessMsg("Đã xóa sản phẩm khỏi danh sách yêu thích");
+    setTimeout(() => setSaveSuccessMsg(""), 3000);
+  };
+
+  const handleSendSupport = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!supportSubject.trim() || !supportContent.trim()) return;
+    setSupportSentMsg("Yêu cầu hỗ trợ đã được gửi thành công! Tổng đài viên CSKH 1800 6324 sẽ liên hệ bạn sớm nhất.");
+    setSupportSubject("");
+    setSupportContent("");
+    setTimeout(() => setSupportSentMsg(""), 5000);
+  };
+
+  const handleQuickRoleSwitch = async (acc: (typeof DEMO_AUTH_ACCOUNTS)[number]) => {
+    try {
+      await fetch("/api/auth?action=login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: acc.username,
+          password: acc.passwordHint,
+        }),
+      });
+    } catch {
+      // Ignore
+    }
+    saveAuthSession({
+      ...acc.user,
+      loggedInAt: new Date().toISOString(),
+    });
+    setAuthUser({
+      ...acc.user,
+      loggedInAt: new Date().toISOString(),
+    });
+    if (isStaffOrAdminRole(acc.user.role)) {
+      router.push("/quan-tri");
+    } else {
+      router.refresh();
+    }
+  };
 
   // Sync user location & cart items & auth changes
   useEffect(() => {
@@ -169,7 +355,7 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
               <span style={{ margin: "0 8px", color: "#9ca3af" }}>›</span>
               <span style={{ color: "#6b7280" }}>Khách hàng</span>
               <span style={{ margin: "0 8px", color: "#9ca3af" }}>›</span>
-              <span style={{ color: "#326e51", fontWeight: 600 }}>
+              <span style={{ color: "#3d2e24", fontWeight: 600 }}>
                 {menuLinks.find((m) => m.key === activeSection)?.label || "Tài khoản"}
               </span>
             </nav>
@@ -238,7 +424,7 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                   <Link
                     href="/quan-tri"
                     style={{
-                      backgroundColor: "#326e51",
+                      backgroundColor: "#3d2e24",
                       color: "#ffffff",
                       borderRadius: "4px",
                       padding: "8px 14px",
@@ -313,7 +499,7 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                 <AlertCircle size={20} color="#d97706" style={{ flexShrink: 0 }} />
                 <div>
                   <strong style={{ color: "#92400e", fontSize: "13px" }}>
-                    Chưa đăng nhập tài khoản Hasaki
+                    Chưa đăng nhập tài khoản Nari Home
                   </strong>
                   <p style={{ margin: "2px 0 0", fontSize: "12px", color: "#78350f" }}>
                     Bạn đang xem dữ liệu hồ sơ mẫu (Gold Member). Đăng nhập để xem điểm thưởng thật, đơn hàng và lịch hẹn cá nhân.
@@ -325,7 +511,7 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                 <Link
                   href="/dang-nhap"
                   style={{
-                    backgroundColor: "#326e51",
+                    backgroundColor: "#3d2e24",
                     color: "#ffffff",
                     borderRadius: "4px",
                     padding: "8px 14px",
@@ -375,7 +561,7 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                 margin: "0 auto",
               }}
             >
-              <User size={40} color="#326e51" style={{ margin: "0 auto 12px" }} />
+              <User size={40} color="#3d2e24" style={{ margin: "0 auto 12px" }} />
               <h1 style={{ fontSize: "18px", fontWeight: 700, color: "#111827", margin: "0 0 8px" }}>
                 Vui lòng đăng nhập để truy cập tài khoản
               </h1>
@@ -386,7 +572,7 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                 <Link
                   href="/dang-nhap"
                   style={{
-                    backgroundColor: "#326e51",
+                    backgroundColor: "#3d2e24",
                     color: "#ffffff",
                     borderRadius: "4px",
                     padding: "10px 18px",
@@ -402,8 +588,8 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                   onClick={handleOpenLoginModal}
                   style={{
                     backgroundColor: "#ffffff",
-                    color: "#326e51",
-                    border: "1px solid #326e51",
+                    color: "#3d2e24",
+                    border: "1px solid #3d2e24",
                     borderRadius: "4px",
                     padding: "10px 18px",
                     fontSize: "13px",
@@ -443,7 +629,7 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                     width: "48px",
                     height: "48px",
                     borderRadius: "50%",
-                    backgroundColor: "#326e51",
+                    backgroundColor: "#3d2e24",
                     color: "#ffffff",
                     display: "grid",
                     placeItems: "center",
@@ -503,10 +689,10 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                         gap: "12px",
                         padding: "12px 18px",
                         fontSize: "13px",
-                        color: isActive ? "#326e51" : "#4b5563",
+                        color: isActive ? "#3d2e24" : "#4b5563",
                         backgroundColor: isActive ? "#e8f4ed" : "transparent",
                         fontWeight: isActive ? 700 : 500,
-                        borderLeft: isActive ? "4px solid #326e51" : "4px solid transparent",
+                        borderLeft: isActive ? "4px solid #3d2e24" : "4px solid transparent",
                         transition: "background-color 0.15s ease",
                       }}
                     >
@@ -514,28 +700,31 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                       {item.key === "don-hang" && <ShoppingBag size={18} />}
                       {item.key === "lich-hen" && <Calendar size={18} />}
                       {item.key === "so-dia-chi" && <MapPin size={18} />}
+                      {item.key === "uu-dai" && <Tag size={18} />}
+                      {item.key === "yeu-thich" && <Heart size={18} />}
+                      {item.key === "hoi-dap" && <HelpCircle size={18} />}
                       {item.key === "diem-thuong" && <Award size={18} />}
                       <span style={{ flex: 1 }}>{item.label}</span>
-                      <ChevronRight size={14} color={isActive ? "#326e51" : "#9ca3af"} />
+                      <ChevronRight size={14} color={isActive ? "#3d2e24" : "#9ca3af"} />
                     </Link>
                   );
                 })}
               </nav>
 
-              {/* Quick Actions in Sidebar */}
-              <div style={{ padding: "14px 16px", borderTop: "1px solid #f3f4f6", display: "flex", flexDirection: "column", gap: "8px" }}>
+              {/* Quick Role Switcher in Sidebar */}
+              <div style={{ padding: "14px 16px", borderTop: "1px solid #f3f4f6", display: "flex", flexDirection: "column", gap: "10px" }}>
                 {isStaff && (
                   <Link
                     href="/quan-tri"
                     style={{
                       width: "100%",
-                      padding: "8px 12px",
-                      backgroundColor: "#ecfdf5",
-                      color: "#065f46",
-                      border: "1px solid #a7f3d0",
-                      borderRadius: "4px",
+                      padding: "9px 12px",
+                      backgroundColor: "#f5f3ff",
+                      color: "#6d28d9",
+                      border: "1px solid #ddd6fe",
+                      borderRadius: "6px",
                       fontSize: "12px",
-                      fontWeight: 600,
+                      fontWeight: 700,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -543,10 +732,45 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                       textDecoration: "none",
                     }}
                   >
-                    <ShieldCheck size={14} />
-                    Vào Quản Trị ERP
+                    <Crown size={15} />
+                    Hệ Thống Quản Trị ERP (/quan-tri)
                   </Link>
                 )}
+
+                <div style={{ fontSize: "11px", fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  Chuyển vai trò nhanh (Demo):
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
+                  {DEMO_AUTH_ACCOUNTS.map((acc) => {
+                    const isCur = authUser?.role === acc.user.role && (authUser?.email === acc.user.email || authUser?.phone === acc.user.phone);
+                    return (
+                      <button
+                        key={acc.username}
+                        type="button"
+                        onClick={() => handleQuickRoleSwitch(acc)}
+                        disabled={isCur}
+                        style={{
+                          padding: "6px 8px",
+                          borderRadius: "4px",
+                          border: isCur ? "1px solid #3d2e24" : "1px solid #e5e7eb",
+                          backgroundColor: isCur ? "#e8f4ed" : "#ffffff",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          color: isCur ? "#3d2e24" : "#374151",
+                          cursor: isCur ? "default" : "pointer",
+                          textAlign: "left",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "4px",
+                        }}
+                      >
+                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {acc.badge}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
                 {authUser ? (
                   <>
                     <Link
@@ -599,7 +823,7 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                     style={{
                       width: "100%",
                       padding: "8px 12px",
-                      backgroundColor: "#326e51",
+                      backgroundColor: "#3d2e24",
                       color: "#ffffff",
                       border: "none",
                       borderRadius: "4px",
@@ -771,7 +995,7 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                       <button
                         type="submit"
                         style={{
-                          backgroundColor: "#326e51",
+                          backgroundColor: "#3d2e24",
                           color: "#ffffff",
                           border: "none",
                           borderRadius: "4px",
@@ -824,7 +1048,7 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                           fontSize: "12px",
                           fontWeight: 700,
                           color: "#ffffff",
-                          backgroundColor: "#326e51",
+                          backgroundColor: "#3d2e24",
                           padding: "6px 14px",
                           borderRadius: "4px",
                         }}
@@ -873,9 +1097,9 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                               style={{
                                 fontSize: "11px",
                                 fontWeight: 700,
-                                backgroundColor: order.deliveryType === "NowFree 2H" ? "#ecfdf5" : "#f3f4f6",
-                                color: order.deliveryType === "NowFree 2H" ? "#047857" : "#4b5563",
-                                border: order.deliveryType === "NowFree 2H" ? "1px solid #a7f3d0" : "1px solid #d1d5db",
+                                backgroundColor: order.deliveryType === "NariNow 2H" ? "#ecfdf5" : "#f3f4f6",
+                                color: order.deliveryType === "NariNow 2H" ? "#047857" : "#4b5563",
+                                border: order.deliveryType === "NariNow 2H" ? "1px solid #a7f3d0" : "1px solid #d1d5db",
                                 padding: "2px 8px",
                                 borderRadius: "4px",
                               }}
@@ -967,7 +1191,7 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", flexWrap: "wrap", gap: "8px" }}>
                     <div>
                       <h2 style={{ fontSize: "18px", fontWeight: 700, margin: "0 0 4px", color: "#1e4d36" }}>
-                        Lịch hẹn Hasaki Clinic & Spa
+                        Lịch hẹn Nari Clinic & Spa
                       </h2>
                       <p style={{ margin: 0, fontSize: "13px", color: "#6b7280" }}>
                         Xem lịch hẹn điều trị da, tái khám bác sĩ và đặt lịch hẹn mới
@@ -977,7 +1201,7 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                     <Link
                       href="/booking"
                       style={{
-                        backgroundColor: "#326e51",
+                        backgroundColor: "#3d2e24",
                         color: "#ffffff",
                         padding: "8px 14px",
                         borderRadius: "4px",
@@ -1004,7 +1228,7 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                         }}
                       >
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                          <span style={{ fontSize: "12px", fontWeight: 700, color: "#326e51" }}>
+                          <span style={{ fontSize: "12px", fontWeight: 700, color: "#3d2e24" }}>
                             Mã phiếu: {b.code}
                           </span>
                           <span
@@ -1058,7 +1282,7 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                         Sổ địa chỉ nhận hàng
                       </h2>
                       <p style={{ margin: 0, fontSize: "13px", color: "#6b7280" }}>
-                        Quản lý địa chỉ giao hàng mặc định cho giao NowFree 2H và toàn quốc
+                        Quản lý địa chỉ giao hàng mặc định cho giao NariNow 2H và toàn quốc
                       </p>
                     </div>
 
@@ -1066,7 +1290,7 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                       type="button"
                       onClick={() => setShowLocationModal(true)}
                       style={{
-                        backgroundColor: "#326e51",
+                        backgroundColor: "#3d2e24",
                         color: "#ffffff",
                         padding: "8px 14px",
                         border: "none",
@@ -1122,8 +1346,8 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                           padding: "6px 12px",
                           fontSize: "12px",
                           backgroundColor: "#ffffff",
-                          color: "#326e51",
-                          border: "1px solid #326e51",
+                          color: "#3d2e24",
+                          border: "1px solid #3d2e24",
                           borderRadius: "4px",
                           cursor: "pointer",
                           fontWeight: 600,
@@ -1159,10 +1383,10 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
               {activeSection === "diem-thuong" && (
                 <div>
                   <h2 style={{ fontSize: "18px", fontWeight: 700, margin: "0 0 4px", color: "#1e4d36" }}>
-                    Điểm thưởng Hasaki Rewards
+                    Điểm thưởng Nari Rewards
                   </h2>
                   <p style={{ margin: "0 0 16px", fontSize: "13px", color: "#6b7280" }}>
-                    Tích lũy điểm khi mua sắm mỹ phẩm và sử dụng dịch vụ Hasaki Clinic
+                    Tích lũy điểm khi mua sắm mỹ phẩm và sử dụng dịch vụ Nari Clinic & Spa
                   </p>
 
                   {/* Loyalty Membership Card */}
@@ -1179,7 +1403,7 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                       <div>
                         <span style={{ fontSize: "11px", letterSpacing: "1px", opacity: 0.85 }}>
-                          THẺ THÀNH VIÊN HASAKI REWARDS
+                          THẺ THÀNH VIÊN Nari Rewards
                         </span>
                         <h3 style={{ margin: "4px 0 0", fontSize: "22px", fontWeight: 800 }}>
                           {currentTier} Member
@@ -1267,6 +1491,380 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                   </div>
                 </div>
               )}
+
+              {/* SECTION 6: ƯU ĐÃI & MÃ GIẢM GIÁ */}
+              {activeSection === "uu-dai" && (
+                <div>
+                  <h2 style={{ fontSize: "18px", fontWeight: 700, margin: "0 0 4px", color: "#1e4d36" }}>
+                    Mã giảm giá & Khuyến mãi của tôi
+                  </h2>
+                  <p style={{ margin: "0 0 16px", fontSize: "13px", color: "#6b7280" }}>
+                    Các ưu đãi độc quyền dành cho đơn hàng mỹ phẩm và dịch vụ Nari Clinic & Spa
+                  </p>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "14px" }}>
+                    {vouchers.map((v) => (
+                      <div
+                        key={v.code}
+                        style={{
+                          border: "1px dashed #3d2e24",
+                          borderRadius: "8px",
+                          backgroundColor: "#f9fcf9",
+                          padding: "16px",
+                          position: "relative",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <div>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                            <span
+                              style={{
+                                backgroundColor: "#f6ece3",
+                                color: "#226c47",
+                                padding: "2px 8px",
+                                borderRadius: "4px",
+                                fontSize: "11px",
+                                fontWeight: 700,
+                              }}
+                            >
+                              {v.badge}
+                            </span>
+                            <span style={{ fontSize: "11px", color: "#6b7280" }}>HSD: {v.expiry}</span>
+                          </div>
+                          <h4 style={{ fontSize: "14px", fontWeight: 700, color: "#111827", margin: "0 0 4px" }}>
+                            {v.title}
+                          </h4>
+                          <p style={{ fontSize: "12px", color: "#6b7280", margin: "0 0 12px", lineHeight: "1.4" }}>
+                            {v.desc}
+                          </p>
+                        </div>
+
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid #e5e7eb", paddingTop: "12px" }}>
+                          <span style={{ fontFamily: "monospace", fontSize: "13px", fontWeight: 700, color: "#3d2e24", letterSpacing: "1px" }}>
+                            {v.code}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyCode(v.code)}
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "4px",
+                              backgroundColor: copiedVoucher === v.code ? "#16a34a" : "#3d2e24",
+                              color: "#ffffff",
+                              border: "none",
+                              borderRadius: "4px",
+                              padding: "6px 12px",
+                              fontSize: "12px",
+                              fontWeight: 600,
+                              cursor: "pointer",
+                              transition: "background-color 0.2s",
+                            }}
+                          >
+                            {copiedVoucher === v.code ? <Check size={14} /> : <Copy size={14} />}
+                            {copiedVoucher === v.code ? "Đã sao chép" : "Sao chép"}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* SECTION 7: SẢN PHẨM YÊU THÍCH */}
+              {activeSection === "yeu-thich" && (
+                <div>
+                  <h2 style={{ fontSize: "18px", fontWeight: 700, margin: "0 0 4px", color: "#1e4d36" }}>
+                    Danh sách sản phẩm yêu thích
+                  </h2>
+                  <p style={{ margin: "0 0 16px", fontSize: "13px", color: "#6b7280" }}>
+                    Lưu trữ các sản phẩm bạn quan tâm để dễ dàng theo dõi giá và đặt mua nhanh
+                  </p>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "14px" }}>
+                    {favorites.map((fav) => (
+                      <div
+                        key={fav.sku}
+                        style={{
+                          border: "1px solid #e5e7eb",
+                          borderRadius: "8px",
+                          backgroundColor: "#ffffff",
+                          padding: "14px",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <div>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                            <span style={{ fontSize: "11px", fontWeight: 700, color: "#3d2e24", textTransform: "uppercase" }}>
+                              {fav.brand}
+                            </span>
+                            <span style={{ fontSize: "11px", color: "#ef4444", fontWeight: 700, backgroundColor: "#fee2e2", padding: "1px 6px", borderRadius: "3px" }}>
+                              {fav.discount}
+                            </span>
+                          </div>
+                          <Link
+                            href={`/san-pham/${fav.slug}`}
+                            style={{
+                              fontSize: "13px",
+                              fontWeight: 600,
+                              color: "#111827",
+                              textDecoration: "none",
+                              lineHeight: "1.4",
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                              marginBottom: "8px",
+                            }}
+                          >
+                            {fav.name}
+                          </Link>
+                          <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "6px" }}>
+                            <strong style={{ fontSize: "15px", color: "#e85029" }}>
+                              {money(fav.price)}
+                            </strong>
+                            <del style={{ fontSize: "11px", color: "#9ca3af" }}>
+                              {money(fav.originalPrice)}
+                            </del>
+                          </div>
+                          <span style={{ fontSize: "11px", color: "#059669", display: "block", marginBottom: "12px" }}>
+                            {fav.stock}
+                          </span>
+                        </div>
+
+                        <div style={{ display: "flex", gap: "6px" }}>
+                          <button
+                            type="button"
+                            onClick={() => handleAddToCartFromFav(fav)}
+                            style={{
+                              flex: 1,
+                              padding: "8px 12px",
+                              backgroundColor: "#3d2e24",
+                              color: "#ffffff",
+                              border: "none",
+                              borderRadius: "4px",
+                              fontSize: "12px",
+                              fontWeight: 700,
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "6px",
+                            }}
+                          >
+                            <ShoppingBag size={14} />
+                            Thêm vào giỏ
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveFavorite(fav.sku)}
+                            title="Xóa khỏi yêu thích"
+                            style={{
+                              padding: "8px 10px",
+                              backgroundColor: "#f3f4f6",
+                              color: "#6b7280",
+                              border: "1px solid #d1d5db",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                              fontSize: "11px",
+                            }}
+                          >
+                            Xóa
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* SECTION 8: HỎI ĐÁP & HỖ TRỢ */}
+              {activeSection === "hoi-dap" && (
+                <div>
+                  <h2 style={{ fontSize: "18px", fontWeight: 700, margin: "0 0 4px", color: "#1e4d36" }}>
+                    Hỏi đáp & Hỗ trợ khách hàng
+                  </h2>
+                  <p style={{ margin: "0 0 16px", fontSize: "13px", color: "#6b7280" }}>
+                    Trung tâm giải đáp thắc mắc và gửi phản hồi đến bộ phận Chăm sóc khách hàng Nari Home
+                  </p>
+
+                  {/* Hotline Banner */}
+                  <div
+                    style={{
+                      border: "1px solid #bbf7d0",
+                      backgroundColor: "#f0fdf4",
+                      borderRadius: "8px",
+                      padding: "16px",
+                      marginBottom: "20px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      flexWrap: "wrap",
+                      gap: "12px",
+                    }}
+                  >
+                    <div>
+                      <h4 style={{ fontSize: "14px", fontWeight: 700, color: "#166534", margin: "0 0 2px" }}>
+                        Tổng đài hỗ trợ miễn cước 1800 6324
+                      </h4>
+                      <p style={{ fontSize: "12px", color: "#15803d", margin: 0 }}>
+                        Thời gian hoạt động từ 08:00 - 22:00 tất cả các ngày trong tuần (kể cả Thứ 7 & CN)
+                      </p>
+                    </div>
+                    <a
+                      href="tel:18006324"
+                      style={{
+                        padding: "8px 16px",
+                        backgroundColor: "#16a34a",
+                        color: "#ffffff",
+                        borderRadius: "6px",
+                        fontSize: "13px",
+                        fontWeight: 700,
+                        textDecoration: "none",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      Gọi tổng đài ngay
+                    </a>
+                  </div>
+
+                  {/* FAQ Accordion */}
+                  <div style={{ marginBottom: "24px" }}>
+                    <h3 style={{ fontSize: "15px", fontWeight: 700, color: "#111827", marginBottom: "12px" }}>
+                      Câu hỏi thường gặp (FAQ)
+                    </h3>
+                    <div style={{ display: "grid", gap: "8px" }}>
+                      {faqs.map((faq, idx) => {
+                        const isOpen = faqOpen === idx;
+                        return (
+                          <div
+                            key={idx}
+                            style={{
+                              border: "1px solid #e5e7eb",
+                              borderRadius: "6px",
+                              overflow: "hidden",
+                              backgroundColor: "#ffffff",
+                            }}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => setFaqOpen(isOpen ? null : idx)}
+                              style={{
+                                width: "100%",
+                                textAlign: "left",
+                                padding: "12px 16px",
+                                backgroundColor: isOpen ? "#f9fafb" : "#ffffff",
+                                border: "none",
+                                fontSize: "13px",
+                                fontWeight: 700,
+                                color: isOpen ? "#3d2e24" : "#1f2937",
+                                cursor: "pointer",
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                              }}
+                            >
+                              <span>{faq.q}</span>
+                              <ChevronRight
+                                size={16}
+                                style={{
+                                  transform: isOpen ? "rotate(90deg)" : "rotate(0deg)",
+                                  transition: "transform 0.2s",
+                                }}
+                              />
+                            </button>
+                            {isOpen && (
+                              <div style={{ padding: "12px 16px", fontSize: "13px", color: "#4b5563", lineHeight: "1.5", borderTop: "1px solid #f3f4f6" }}>
+                                {faq.a}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Contact Form */}
+                  <div style={{ border: "1px solid #e5e7eb", borderRadius: "8px", padding: "18px", backgroundColor: "#ffffff" }}>
+                    <h3 style={{ fontSize: "15px", fontWeight: 700, color: "#111827", margin: "0 0 12px" }}>
+                      Gửi yêu cầu hỗ trợ mới
+                    </h3>
+                    {supportSentMsg && (
+                      <div style={{ marginBottom: "12px", padding: "10px 12px", backgroundColor: "#ecfdf5", color: "#065f46", fontSize: "12px", borderRadius: "4px" }}>
+                        {supportSentMsg}
+                      </div>
+                    )}
+                    <form onSubmit={handleSendSupport} style={{ display: "grid", gap: "10px" }}>
+                      <div>
+                        <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#374151", marginBottom: "4px" }}>
+                          Chủ đề hỗ trợ
+                        </label>
+                        <input
+                          type="text"
+                          value={supportSubject}
+                          onChange={(e) => setSupportSubject(e.target.value)}
+                          placeholder="Ví dụ: Cần kiểm tra lộ trình giao hàng NariNow 2H"
+                          required
+                          style={{
+                            width: "100%",
+                            padding: "8px 12px",
+                            border: "1px solid #d1d5db",
+                            borderRadius: "4px",
+                            fontSize: "13px",
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#374151", marginBottom: "4px" }}>
+                          Nội dung yêu cầu chi tiết
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={supportContent}
+                          onChange={(e) => setSupportContent(e.target.value)}
+                          placeholder="Mô tả cụ thể mã đơn hàng, sản phẩm hoặc vấn đề bạn cần được hỗ trợ..."
+                          required
+                          style={{
+                            width: "100%",
+                            padding: "8px 12px",
+                            border: "1px solid #d1d5db",
+                            borderRadius: "4px",
+                            fontSize: "13px",
+                            fontFamily: "inherit",
+                          }}
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        style={{
+                          justifySelf: "start",
+                          padding: "8px 20px",
+                          backgroundColor: "#3d2e24",
+                          color: "#ffffff",
+                          border: "none",
+                          borderRadius: "4px",
+                          fontSize: "13px",
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <Send size={14} />
+                        Gửi yêu cầu hỗ trợ
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              )}
+
             </div>
           </div>
           )}

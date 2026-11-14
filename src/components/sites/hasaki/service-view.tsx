@@ -62,9 +62,9 @@ export function ServiceView({ service }: { service: Service }) {
   return (
     <>
       <Header />
-      <nav className="booking-clinic-nav" aria-label="Hasaki Clinic">
+      <nav className="booking-clinic-nav" aria-label="Nari Clinic & Spa">
         <div className="wrap">
-          <Link href="/danh-muc/hasaki-clinic-spa-c331.html">HASAKI CLINIC &amp; SPA</Link>
+          <Link href="/danh-muc/hasaki-clinic-spa-c331.html">Nari Clinic & Spa &amp; SPA</Link>
           <Link href="/ho-tro/gioi-thieu">GIỚI THIỆU</Link>
           <Link href="/danh-muc/hasaki-clinic-spa-c331.html">DỊCH VỤ</Link>
           <Link href="/bang-gia-dich-vu.html">BẢNG GIÁ</Link>
@@ -77,7 +77,7 @@ export function ServiceView({ service }: { service: Service }) {
       <main className="wrap snapshot-product service-page">
         <div className="breadcrumbs">
           <Link href="/">Trang chủ</Link> ›{" "}
-          <Link href="/danh-muc/hasaki-clinic-spa-c331.html">Hasaki Clinic &amp; Spa</Link> ›{" "}
+          <Link href="/danh-muc/hasaki-clinic-spa-c331.html">Nari Clinic & Spa &amp; Spa</Link> ›{" "}
           {service.name}
         </div>
 
@@ -113,7 +113,7 @@ export function ServiceView({ service }: { service: Service }) {
                     onClick={() => setActiveImageIndex(idx)}
                     style={{
                       border:
-                        activeImageIndex === idx ? "2px solid #326e51" : "1px solid #ddd",
+                        activeImageIndex === idx ? "2px solid #3d2e24" : "1px solid #ddd",
                       padding: "2px",
                       borderRadius: "4px",
                       background: "white",
@@ -142,7 +142,7 @@ export function ServiceView({ service }: { service: Service }) {
           <div className="snapshot-product-info">
             <h1>{service.name}</h1>
             {service.detail?.subtitle && (
-              <p style={{ color: "#326e51", fontWeight: 500, margin: "4px 0 10px" }}>
+              <p style={{ color: "#3d2e24", fontWeight: 500, margin: "4px 0 10px" }}>
                 {service.detail.subtitle}
               </p>
             )}
@@ -167,7 +167,7 @@ export function ServiceView({ service }: { service: Service }) {
               </Link>
             </div>
             <p style={{ fontSize: "12px", color: "#888", fontStyle: "italic" }}>
-              Lịch hẹn local là bản thử nghiệm và chưa gửi tới Hasaki.
+              Lịch hẹn local là bản thử nghiệm và chưa gửi tới Nari Home.
             </p>
 
             <div
@@ -182,7 +182,7 @@ export function ServiceView({ service }: { service: Service }) {
                 color: "#2f5c44",
               }}
             >
-              <div style={{ fontWeight: "bold", marginBottom: "4px" }}>CAM KẾT DỊCH VỤ TẠI HASAKI CLINIC:</div>
+              <div style={{ fontWeight: "bold", marginBottom: "4px" }}>CAM KẾT DỊCH VỤ TẠI Nari Clinic & Spa:</div>
               <div>✓ 100% Bác sĩ chuyên khoa Da Liễu trực tiếp thăm khám và tư vấn.</div>
               <div>✓ Mỗi khách hàng 01 bộ dụng cụ vô trùng riêng biệt, tránh lây nhiễm chéo.</div>
               <div>✓ Máy móc, công nghệ chuẩn y khoa chính hãng được FDA chứng nhận.</div>
@@ -204,7 +204,7 @@ export function ServiceView({ service }: { service: Service }) {
 
             {/* Protocol / Specification table */}
             <div style={{ margin: "24px 0" }}>
-              <h3 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "10px", color: "#326e51" }}>
+              <h3 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "10px", color: "#3d2e24" }}>
                 Thông tin liệu trình &amp; Thông số chuyên khoa
               </h3>
               <table>
@@ -238,7 +238,7 @@ export function ServiceView({ service }: { service: Service }) {
                 target="_blank"
                 rel="noreferrer"
               >
-                Xem thông tin trên Hasaki.vn →
+                Xem thông tin trên Nari Home →
               </a>
             </div>
           </section>
@@ -261,7 +261,7 @@ export function ServiceView({ service }: { service: Service }) {
               }}
             >
               <div style={{ textAlign: "center", borderRight: "1px solid #eee" }}>
-                <div style={{ fontSize: "44px", fontWeight: "bold", color: "#326e51", lineHeight: 1 }}>
+                <div style={{ fontSize: "44px", fontWeight: "bold", color: "#3d2e24", lineHeight: 1 }}>
                   {richDetail.ratingSummary.average.toFixed(1)}
                 </div>
                 <div style={{ color: "#f59e0b", fontSize: "20px", margin: "6px 0" }}>★★★★★</div>
@@ -312,7 +312,7 @@ export function ServiceView({ service }: { service: Service }) {
                 marginBottom: "24px",
               }}
             >
-              <h3 style={{ fontSize: "15px", fontWeight: "bold", marginBottom: "12px", color: "#326e51" }}>
+              <h3 style={{ fontSize: "15px", fontWeight: "bold", marginBottom: "12px", color: "#3d2e24" }}>
                 Viết đánh giá dịch vụ
               </h3>
               <form onSubmit={handleReviewSubmit}>
@@ -357,7 +357,7 @@ export function ServiceView({ service }: { service: Service }) {
 
                 <textarea
                   rows={3}
-                  placeholder="Chia sẻ trải nghiệm thực tế của bạn sau khi trải nghiệm liệu trình tại Hasaki Clinic..."
+                  placeholder="Chia sẻ trải nghiệm thực tế của bạn sau khi trải nghiệm liệu trình tại Nari Clinic & Spa..."
                   value={reviewComment}
                   onChange={e => setReviewComment(e.target.value)}
                   style={{
@@ -387,7 +387,7 @@ export function ServiceView({ service }: { service: Service }) {
                 <button
                   type="submit"
                   style={{
-                    background: "#326e51",
+                    background: "#3d2e24",
                     color: "white",
                     border: "none",
                     padding: "9px 20px",
@@ -434,7 +434,7 @@ export function ServiceView({ service }: { service: Service }) {
                 target="_blank"
                 rel="noreferrer"
               >
-                Xem thêm đánh giá trên Hasaki →
+                Xem thêm đánh giá trên Nari Home →
               </a>
             </div>
           </section>
@@ -443,7 +443,7 @@ export function ServiceView({ service }: { service: Service }) {
           <section className="snapshot-section" id="hoi-dap">
             <h2>Hỏi đáp về dịch vụ</h2>
             <p style={{ fontSize: "13px", color: "#666", marginBottom: "16px" }}>
-              Mọi thắc mắc của bạn sẽ được đội ngũ Bác sĩ chuyên khoa Da Liễu và Chuyên viên tư vấn Hasaki Clinic giải đáp tận tình.
+              Mọi thắc mắc của bạn sẽ được đội ngũ Bác sĩ chuyên khoa Da Liễu và Chuyên viên tư vấn Nari Clinic & Spa giải đáp tận tình.
             </p>
 
             {/* Interactive Q&A Form */}
@@ -524,7 +524,7 @@ export function ServiceView({ service }: { service: Service }) {
               </form>
             </div>
 
-            {/* Scraped Q&A comments & Hasaki Care replies */}
+            {/* Scraped Q&A comments & Nari Home Care replies */}
             <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
               {comments.map(comm => (
                 <div
@@ -548,12 +548,12 @@ export function ServiceView({ service }: { service: Service }) {
                     {comm.content}
                   </p>
 
-                  {/* Hasaki Care Replies */}
+                  {/* Nari Home Care Replies */}
                   {comm.replies && comm.replies.length > 0 && (
                     <div
                       style={{
                         background: "#f4f9f6",
-                        borderLeft: "3px solid #326e51",
+                        borderLeft: "3px solid #3d2e24",
                         padding: "12px 14px",
                         borderRadius: "0 6px 6px 0",
                         display: "flex",
@@ -564,13 +564,13 @@ export function ServiceView({ service }: { service: Service }) {
                       {comm.replies.map((reply, rIdx) => (
                         <div key={reply.id || rIdx}>
                           <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
-                            <strong style={{ fontSize: "13px", color: "#326e51" }}>
+                            <strong style={{ fontSize: "13px", color: "#3d2e24" }}>
                               {reply.author}
                             </strong>
                             <span
                               style={{
                                 fontSize: "10px",
-                                background: "#326e51",
+                                background: "#3d2e24",
                                 color: "white",
                                 padding: "2px 6px",
                                 borderRadius: "3px",
@@ -597,13 +597,13 @@ export function ServiceView({ service }: { service: Service }) {
                 target="_blank"
                 rel="noreferrer"
               >
-                Xem thêm hỏi đáp trên Hasaki →
+                Xem thêm hỏi đáp trên Nari Home →
               </a>
             </div>
           </section>
         </div>
 
-        {/* Dịch vụ liên quan tại Hasaki Clinic */}
+        {/* Dịch vụ liên quan tại Nari Clinic & Spa */}
         <section style={{ marginTop: "36px" }}>
           <div
             style={{
@@ -614,11 +614,11 @@ export function ServiceView({ service }: { service: Service }) {
             }}
           >
             <h2 style={{ fontSize: "20px", fontWeight: "bold", margin: 0, color: "#222" }}>
-              Dịch vụ liên quan tại Hasaki Clinic
+              Dịch vụ liên quan tại Nari Clinic & Spa
             </h2>
             <Link
               href="/danh-muc/hasaki-clinic-spa-c331.html"
-              style={{ fontSize: "13px", color: "#326e51", fontWeight: "bold" }}
+              style={{ fontSize: "13px", color: "#3d2e24", fontWeight: "bold" }}
             >
               Xem tất cả 42 dịch vụ →
             </Link>

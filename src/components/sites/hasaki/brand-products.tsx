@@ -216,7 +216,7 @@ export function BrandProducts({
             >
               <span>✓</span>
               <span>
-                Dữ liệu sản phẩm thực tế được đồng bộ từ gian hàng chính hãng <strong>{name}</strong> trên Hasaki.vn (tháng 11/2026).
+                Dữ liệu sản phẩm thực tế được đồng bộ từ gian hàng chính hãng <strong>{name}</strong> trên Nari Home (tháng 11/2026).
               </span>
             </div>
           )}

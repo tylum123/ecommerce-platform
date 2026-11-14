@@ -162,7 +162,7 @@ export function CampaignWowView({ campaignData }: { campaignData: CampaignWowDat
             <nav className="breadcrumbs" aria-label="Breadcrumb" style={{ padding: 0 }}>
               <Link href="/">Trang chủ</Link>
               <span style={{ margin: "0 8px", color: "#9ca3af" }}>›</span>
-              <span style={{ color: "#326e51", fontWeight: 600 }}>Hot Deals - Campaign WOW</span>
+              <span style={{ color: "#3d2e24", fontWeight: 600 }}>Hot Deals - Campaign WOW</span>
             </nav>
 
             <button
@@ -181,9 +181,9 @@ export function CampaignWowView({ campaignData }: { campaignData: CampaignWowDat
                 fontWeight: 500,
               }}
             >
-              <MapPin size={14} color="#326e51" />
+              <MapPin size={14} color="#3d2e24" />
               <span>Giao đến: <strong>{userLocation}</strong></span>
-              <span style={{ color: "#e85029", marginLeft: "4px" }}>⚡ NowFree 2H</span>
+              <span style={{ color: "#e85029", marginLeft: "4px" }}>⚡ NariNow 2H</span>
             </button>
           </div>
         </div>
@@ -260,10 +260,10 @@ export function CampaignWowView({ campaignData }: { campaignData: CampaignWowDat
                     gap: "5px",
                   }}
                 >
-                  <Zap size={14} color="#ff7800" /> NOWFREE 2H TOÀN QUỐC
+                  <Zap size={14} color="#ff7800" /> NARINOW 2H TOÀN QUỐC
                 </span>
                 <a
-                  href="https://hasaki.vn/campaign/wow"
+                  href="https://Nari Home/campaign/wow"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
@@ -277,7 +277,7 @@ export function CampaignWowView({ campaignData }: { campaignData: CampaignWowDat
                     marginLeft: "8px",
                   }}
                 >
-                  Mở trang gốc hasaki.vn/campaign/wow
+                  Mở trang gốc Nari Home/campaign/wow
                   <ExternalLink size={12} />
                 </a>
               </div>
@@ -405,7 +405,7 @@ export function CampaignWowView({ campaignData }: { campaignData: CampaignWowDat
               </span>
             </div>
             <span style={{ fontSize: "11px", color: "#666" }}>
-              Cập nhật trực tiếp từ hệ thống Flash Deal Hasaki
+              Cập nhật trực tiếp từ hệ thống Flash Deal Nari Home
             </span>
           </div>
         </div>
@@ -437,7 +437,7 @@ export function CampaignWowView({ campaignData }: { campaignData: CampaignWowDat
                     padding: "5px 12px",
                     fontSize: "12px",
                     borderRadius: "16px",
-                    border: selectedBrand === brand ? "1px solid #326e51" : "1px solid #e5e7eb",
+                    border: selectedBrand === brand ? "1px solid #3d2e24" : "1px solid #e5e7eb",
                     backgroundColor: selectedBrand === brand ? "#e8f4ed" : "#f9fafb",
                     color: selectedBrand === brand ? "#23553e" : "#4b5563",
                     fontWeight: selectedBrand === brand ? 700 : 500,
@@ -468,7 +468,7 @@ export function CampaignWowView({ campaignData }: { campaignData: CampaignWowDat
                     padding: "5px 12px",
                     fontSize: "12px",
                     borderRadius: "16px",
-                    border: selectedPriceRange === p.id ? "1px solid #326e51" : "1px solid #e5e7eb",
+                    border: selectedPriceRange === p.id ? "1px solid #3d2e24" : "1px solid #e5e7eb",
                     backgroundColor: selectedPriceRange === p.id ? "#e8f4ed" : "#f9fafb",
                     color: selectedPriceRange === p.id ? "#23553e" : "#4b5563",
                     fontWeight: selectedPriceRange === p.id ? 700 : 500,
@@ -618,13 +618,13 @@ export function CampaignWowView({ campaignData }: { campaignData: CampaignWowDat
                         </div>
                       )}
 
-                      {/* NowFree 2H Badge */}
+                      {/* NariNow 2H Badge */}
                       <div
                         style={{
                           position: "absolute",
                           bottom: "8px",
                           left: "8px",
-                          backgroundColor: "#326e51",
+                          backgroundColor: "#3d2e24",
                           color: "#ffffff",
                           fontSize: "10px",
                           fontWeight: 700,
@@ -635,7 +635,7 @@ export function CampaignWowView({ campaignData }: { campaignData: CampaignWowDat
                           gap: "3px",
                         }}
                       >
-                        <Zap size={11} /> NowFree 2H
+                        <Zap size={11} /> NariNow 2H
                       </div>
                     </Link>
 
@@ -693,9 +693,9 @@ export function CampaignWowView({ campaignData }: { campaignData: CampaignWowDat
                             padding: "8px 12px",
                             fontSize: "12px",
                             fontWeight: 600,
-                            border: isJustAdded ? "1px solid #16a34a" : "1px solid #326e51",
+                            border: isJustAdded ? "1px solid #16a34a" : "1px solid #3d2e24",
                             backgroundColor: isJustAdded ? "#16a34a" : "#ffffff",
-                            color: isJustAdded ? "#ffffff" : "#326e51",
+                            color: isJustAdded ? "#ffffff" : "#3d2e24",
                             borderRadius: "4px",
                             cursor: "pointer",
                             display: "flex",
@@ -748,7 +748,7 @@ export function CampaignWowView({ campaignData }: { campaignData: CampaignWowDat
                 }}
                 style={{
                   padding: "8px 18px",
-                  backgroundColor: "#326e51",
+                  backgroundColor: "#3d2e24",
                   color: "#ffffff",
                   border: "none",
                   borderRadius: "4px",
@@ -782,11 +782,11 @@ export function CampaignWowView({ campaignData }: { campaignData: CampaignWowDat
               <strong style={{ color: "#1e4d36", display: "block", marginBottom: "4px" }}>
                 ✓ 100% Chính Hãng
               </strong>
-              <span>Cam kết đền bù 200% nếu phát hiện hàng giả, hàng nhái từ Hasaki.</span>
+              <span>Cam kết đền bù 200% nếu phát hiện hàng giả, hàng nhái từ Nari Home.</span>
             </div>
             <div>
               <strong style={{ color: "#1e4d36", display: "block", marginBottom: "4px" }}>
-                ⚡ NowFree Giao 2H
+                ⚡ NariNow Giao 2H
               </strong>
               <span>Giao siêu tốc nội thành cho đơn hàng đủ điều kiện tại hơn 100 chi nhánh.</span>
             </div>
@@ -800,7 +800,7 @@ export function CampaignWowView({ campaignData }: { campaignData: CampaignWowDat
               <strong style={{ color: "#1e4d36", display: "block", marginBottom: "4px" }}>
                 🏷 Giá Luôn Tốt Nhất
               </strong>
-              <span>Chính sách ở đâu rẻ hơn Hasaki hoàn tiền chênh lệch.</span>
+              <span>Chính sách ở đâu rẻ hơn Nari Home hoàn tiền chênh lệch.</span>
             </div>
           </div>
         </div>

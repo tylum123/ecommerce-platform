@@ -10,11 +10,12 @@ import { newArrivals } from "@/lib/new-arrivals";
 import {
   readLocation,
   formatLocationShort,
-  isNowFreeDistrict,
+  isNariNowDistrict,
   LOCATION_CHANGE_EVENT,
   type LocationSelection,
 } from "@/lib/campaigns-location";
 import { Footer } from "@/components/sites/hasaki/footer";
+import { NariHomeLogo } from "@/components/sites/hasaki/nari-home-logo";
 
 const subscribe = (callback: () => void) => {
   window.addEventListener("demo-cart-change", callback);
@@ -83,7 +84,7 @@ export function CheckoutView() {
         ...item,
         product: {
           slug: item.slug,
-          brand: "Hasaki",
+          brand: "Nari Home",
           name: cleanName,
           price: 150000,
           image: undefined,
@@ -167,8 +168,8 @@ export function CheckoutView() {
     <>
       <div className="cart-top">
         <div className="wrap">
-          <Link href="/">
-            <Image src="/hasaki-logo.png" width={160} height={40} alt="Hasaki.vn" unoptimized />
+          <Link href="/" aria-label="Nari Home">
+            <NariHomeLogo theme="light" compact={true} />
           </Link>
           <div>
             <ShoppingCart /> THÔNG TIN ĐẶT HÀNG
@@ -197,7 +198,7 @@ export function CheckoutView() {
               <form id="checkout-demo" className="cart-box checkout-form" onSubmit={submit}>
                 <h2>Thông tin nhận hàng</h2>
                 <p className="checkout-note">
-                  Giao diện thử nghiệm Hasaki. Thông tin được lưu vào Cổng khách hàng để theo dõi đơn
+                  Giao diện thử nghiệm Nari Home. Thông tin được lưu vào Cổng khách hàng để theo dõi đơn
                   hàng demo.
                 </p>
 
@@ -216,14 +217,14 @@ export function CheckoutView() {
                       gap: 6,
                     }}
                   >
-                    <MapPin size={14} className="text-emerald-700" />
+                    <MapPin size={14} className="text-[#3d2e24]" />
                     <span>
                       Khu vực đã chọn: <strong>{formatLocationShort(savedLoc)}</strong>
                     </span>
-                    {isNowFreeDistrict(savedLoc.province, savedLoc.district) && (
+                    {isNariNowDistrict(savedLoc.province, savedLoc.district) && (
                       <span
                         style={{
-                          background: "#326e51",
+                          background: "#3d2e24",
                           color: "#fff",
                           padding: "1px 6px",
                           borderRadius: 4,
@@ -232,7 +233,7 @@ export function CheckoutView() {
                           marginLeft: "auto",
                         }}
                       >
-                        NowFree 2H
+                        NariNow 2H
                       </span>
                     )}
                   </div>
@@ -288,14 +289,14 @@ export function CheckoutView() {
                 <fieldset className="checkout-options">
                   <legend>Phương thức vận chuyển</legend>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
-                    <Truck size={16} className="text-emerald-700" />
-                    <strong>Giao hàng NowFree 2H</strong>
-                    <span style={{ color: "#166534", marginLeft: "auto", fontWeight: 600 }}>
+                    <Truck size={16} className="text-[#3d2e24]" />
+                    <strong>Giao hàng NariNow 2H</strong>
+                    <span style={{ color: "#b86b4b", marginLeft: "auto", fontWeight: 600 }}>
                       Miễn phí
                     </span>
                   </div>
                   <p style={{ margin: "4px 0 0 0", fontSize: 12, color: "#6b7280" }}>
-                    Áp dụng cho đơn hàng giao trong khu vực hỗ trợ NowFree của Hasaki.
+                    Áp dụng cho đơn hàng giao trong khu vực hỗ trợ NariNow của Nari Home.
                   </p>
                 </fieldset>
 
@@ -321,7 +322,7 @@ export function CheckoutView() {
                     />{" "}
                     Thanh toán trực tuyến (VNPAY-QR / Thẻ ATM / Ví MoMo)
                   </label>
-                  <p>Hệ thống mô phỏng thanh toán an toàn chuẩn Hasaki.</p>
+                  <p>Hệ thống mô phỏng thanh toán an toàn chuẩn Nari Home.</p>
                 </fieldset>
               </form>
 
@@ -350,7 +351,7 @@ export function CheckoutView() {
                     </span>
                   </div>
                 ))}
-                <Link href="/gio-hang" style={{ display: "inline-block", marginTop: 12, fontSize: 13, color: "#326e51", fontWeight: 500 }}>
+                <Link href="/gio-hang" style={{ display: "inline-block", marginTop: 12, fontSize: 13, color: "#b86b4b", fontWeight: 500 }}>
                   ← Sửa giỏ hàng
                 </Link>
               </section>
@@ -364,16 +365,16 @@ export function CheckoutView() {
               </div>
               <div>
                 <span>Phí vận chuyển</span>
-                <span style={{ color: "#166534", fontWeight: 600 }}>Miễn phí</span>
+                <span style={{ color: "#b86b4b", fontWeight: 600 }}>Miễn phí</span>
               </div>
               <hr />
               <div>
                 <strong>Tổng thanh toán</strong>
-                <strong style={{ color: "#e11d48", fontSize: 18 }}>{money(total)}</strong>
+                <strong style={{ color: "#b86b4b", fontSize: 18 }}>{money(total)}</strong>
               </div>
-              <p>Giá đã bao gồm thuế VAT và dịch vụ NowFree 2H.</p>
+              <p>Giá đã bao gồm thuế VAT và dịch vụ NariNow 2H.</p>
               {submitError && <p role="alert">{submitError}</p>}
-              <button type="submit" form="checkout-demo" disabled={submitting || review} style={{ background: "#326e51", color: "#fff", fontWeight: "bold" }}>
+              <button type="submit" form="checkout-demo" disabled={submitting || review} style={{ background: "#3d2e24", color: "#fff", fontWeight: "bold" }}>
                 {submitting ? "ĐANG GỬI..." : "ĐẶT HÀNG NGAY"}
               </button>
             </aside>
@@ -381,14 +382,14 @@ export function CheckoutView() {
         )}
 
         {review && rows.length > 0 && (
-          <section className="cart-box checkout-review" role="status" style={{ borderLeft: "4px solid #326e51" }}>
+          <section className="cart-box checkout-review" role="status" style={{ borderLeft: "4px solid #3d2e24" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-              <CheckCircle2 className="text-emerald-700" size={24} />
-              <h2 style={{ margin: 0, color: "#166534" }}>Đã ghi nhận đơn hàng thành công!</h2>
+              <CheckCircle2 className="text-[#3d2e24]" size={24} />
+              <h2 style={{ margin: 0, color: "#3d2e24" }}>Đã ghi nhận đơn hàng thành công!</h2>
             </div>
             {createdOrderCode && (
               <p className="checkout-order-code" style={{ fontSize: 15, fontWeight: "bold", color: "#1f2937", margin: "6px 0" }}>
-                Mã đơn hàng: <span style={{ color: "#326e51", letterSpacing: 0.5 }}>{createdOrderCode}</span>
+                Mã đơn hàng: <span style={{ color: "#b86b4b", letterSpacing: 0.5 }}>{createdOrderCode}</span>
               </p>
             )}
             <p>
@@ -408,7 +409,7 @@ export function CheckoutView() {
                 style={{
                   display: "inline-block",
                   padding: "8px 16px",
-                  background: "#326e51",
+                  background: "#3d2e24",
                   color: "#ffffff",
                   borderRadius: 6,
                   fontWeight: 600,

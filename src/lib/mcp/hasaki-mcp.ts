@@ -1,5 +1,5 @@
 /**
- * Hasaki Model Context Protocol (MCP) Server Engine
+ * Nari Home Model Context Protocol (MCP) Server Engine
  * Standardized JSON-RPC 2.0 & REST-ready MCP server implementation.
  *
  * Exposes 12 domain tools, 4 resources, and 3 prompts connecting:
@@ -314,7 +314,7 @@ const initialOrders: ErpOrder[] = [
     totalAmount: 674000,
     createdAt: "2026-11-13T08:30:00Z",
     updatedAt: "2026-11-13T09:00:00Z",
-    staffNotes: "Đơn NowFree 2H, giao trước 10h30.",
+    staffNotes: "Đơn NariNow 2H, giao trước 10h30.",
   },
   {
     id: "ORD-1002",
@@ -393,7 +393,7 @@ const initialUsers: ErpUser[] = [
     id: "USR-03",
     name: "Lê Hoàng Yến",
     phone: "0987654321",
-    email: "hoangyen.le@hasaki.vn",
+    email: "hoangyen.le@narihome.vn",
     membershipTier: "Diamond",
     points: 3400,
     totalOrders: 32,
@@ -435,10 +435,10 @@ const initialStaff: ErpStaff[] = [
   },
   {
     id: "STF-04",
-    code: "CS-HASAKI-01",
+    code: "CS-NARI HOME-01",
     fullName: "Phạm Thảo Vy",
     role: "cs_agent",
-    branch: "Trụ Sở Chính Hasaki (Tổng đài 1800 6324)",
+    branch: "Trụ Sở Chính Nari Home (Tổng đài 1800 6324)",
     phone: "18006324",
     shift: "morning",
     isActive: true,
@@ -475,7 +475,7 @@ const erpStore = {
 export const MCP_TOOLS: McpToolItem[] = [
   {
     name: "hasaki_search_products",
-    description: "Tìm kiếm sản phẩm trong danh mục Hasaki theo từ khóa, ngành hàng, thương hiệu, mức giá và bộ lọc sắp xếp.",
+    description: "Tìm kiếm sản phẩm trong danh mục Nari Home theo từ khóa, ngành hàng, thương hiệu, mức giá và bộ lọc sắp xếp.",
     inputSchema: {
       type: "object",
       properties: {
@@ -494,7 +494,7 @@ export const MCP_TOOLS: McpToolItem[] = [
   },
   {
     name: "hasaki_get_product_detail",
-    description: "Lấy chi tiết chuyên sâu sản phẩm Hasaki theo slug hoặc ID: thông số kỹ thuật, giá bán, mô tả, đánh giá và Schema.org Product JSON-LD.",
+    description: "Lấy chi tiết chuyên sâu sản phẩm Nari Home theo slug hoặc ID: thông số kỹ thuật, giá bán, mô tả, đánh giá và Schema.org Product JSON-LD.",
     inputSchema: {
       type: "object",
       properties: {
@@ -505,7 +505,7 @@ export const MCP_TOOLS: McpToolItem[] = [
   },
   {
     name: "hasaki_list_deals_and_bestsellers",
-    description: "Tra cứu danh sách Flash Deals đang diễn ra (tiến độ bán, thời gian) hoặc bảng xếp hạng sản phẩm bán chạy nhất Hasaki.",
+    description: "Tra cứu danh sách Flash Deals đang diễn ra (tiến độ bán, thời gian) hoặc bảng xếp hạng sản phẩm bán chạy nhất Nari Home.",
     inputSchema: {
       type: "object",
       properties: {
@@ -548,7 +548,7 @@ export const MCP_TOOLS: McpToolItem[] = [
   },
   {
     name: "hasaki_list_orders",
-    description: "Tra cứu danh sách đơn hàng ERP Hasaki theo trạng thái (chờ duyệt, đang xử lý, NowFree 2H đang giao, hoàn tất) hoặc số điện thoại người mua.",
+    description: "Tra cứu danh sách đơn hàng ERP Nari Home theo trạng thái (chờ duyệt, đang xử lý, NariNow 2H đang giao, hoàn tất) hoặc số điện thoại người mua.",
     inputSchema: {
       type: "object",
       properties: {
@@ -563,7 +563,7 @@ export const MCP_TOOLS: McpToolItem[] = [
   },
   {
     name: "hasaki_update_order_status",
-    description: "Cập nhật trạng thái đơn hàng trong hệ thống ERP (chuyển sang đang giao NowFree 2H, hoàn tất hoặc hủy).",
+    description: "Cập nhật trạng thái đơn hàng trong hệ thống ERP (chuyển sang đang giao NariNow 2H, hoàn tất hoặc hủy).",
     inputSchema: {
       type: "object",
       properties: {
@@ -580,7 +580,7 @@ export const MCP_TOOLS: McpToolItem[] = [
   },
   {
     name: "hasaki_manage_users",
-    description: "Quản lý khách hàng thành viên Hasaki Club: tìm kiếm hồ sơ, kiểm tra điểm thưởng loyalty và tích điểm đơn hàng.",
+    description: "Quản lý khách hàng thành viên Nari Home Club: tìm kiếm hồ sơ, kiểm tra điểm thưởng loyalty và tích điểm đơn hàng.",
     inputSchema: {
       type: "object",
       properties: {
@@ -599,7 +599,7 @@ export const MCP_TOOLS: McpToolItem[] = [
   },
   {
     name: "hasaki_manage_staff",
-    description: "Tra cứu thông tin đội ngũ nhân sự Hasaki (Bác sĩ da liễu Clinic, quản lý chi nhánh, nhân viên kho vận, CSKH tổng đài).",
+    description: "Tra cứu thông tin đội ngũ nhân sự Nari Home (Bác sĩ da liễu Clinic, quản lý chi nhánh, nhân viên kho vận, CSKH tổng đài).",
     inputSchema: {
       type: "object",
       properties: {
@@ -614,7 +614,7 @@ export const MCP_TOOLS: McpToolItem[] = [
   },
   {
     name: "hasaki_clinic_services_and_booking",
-    description: "Tra cứu bảng giá dịch vụ Hasaki Clinic & Spa (trị mụn, laser, triệt lông) và tạo đặt hẹn khám da với bác sĩ da liễu.",
+    description: "Tra cứu bảng giá dịch vụ Nari Clinic & Spa (trị mụn, laser, triệt lông) và tạo đặt hẹn khám da với bác sĩ da liễu.",
     inputSchema: {
       type: "object",
       properties: {
@@ -637,7 +637,7 @@ export const MCP_TOOLS: McpToolItem[] = [
   },
   {
     name: "hasaki_find_stores_and_warranty",
-    description: "Tìm kiếm chi nhánh trong hệ thống 350+ cửa hàng Hasaki toàn quốc hoặc tra cứu kích hoạt bảo hành thiết bị chính hãng.",
+    description: "Tìm kiếm chi nhánh trong hệ thống 350+ cửa hàng Nari Home toàn quốc hoặc tra cứu kích hoạt bảo hành thiết bị chính hãng.",
     inputSchema: {
       type: "object",
       properties: {
@@ -650,7 +650,7 @@ export const MCP_TOOLS: McpToolItem[] = [
   },
   {
     name: "hasaki_seo_and_codegraph",
-    description: "Kiểm toán kỹ thuật SEO toàn diện cho các route Hasaki, tạo Schema.org JSON-LD chuẩn xác hoặc trích xuất bản đồ CodeGraph dự án.",
+    description: "Kiểm toán kỹ thuật SEO toàn diện cho các route Nari Home, tạo Schema.org JSON-LD chuẩn xác hoặc trích xuất bản đồ CodeGraph dự án.",
     inputSchema: {
       type: "object",
       properties: {
@@ -674,25 +674,25 @@ export const MCP_TOOLS: McpToolItem[] = [
 export const MCP_RESOURCES: McpResourceItem[] = [
   {
     uri: "hasaki://catalog/overview",
-    name: "Hasaki Product Catalog Overview",
-    description: "Tổng quan toàn bộ danh mục sản phẩm, 36 ngành hàng chính, thương hiệu phân phối và chỉ số hàng đầu của Hasaki.",
+    name: "Nari Home Product Catalog Overview",
+    description: "Tổng quan toàn bộ danh mục sản phẩm, 36 ngành hàng chính, thương hiệu phân phối và chỉ số hàng đầu của Nari Home.",
     mimeType: "text/markdown",
   },
   {
     uri: "hasaki://erp/summary",
-    name: "Hasaki ERP & Logistics Operations Summary",
-    description: "Báo cáo thời gian thực về tồn kho đa chi nhánh, trạng thái đơn hàng NowFree 2H, nhân sự vận hành và năng lực kho bãi.",
+    name: "Nari Home ERP & Logistics Operations Summary",
+    description: "Báo cáo thời gian thực về tồn kho đa chi nhánh, trạng thái đơn hàng NariNow 2H, nhân sự vận hành và năng lực kho bãi.",
     mimeType: "text/markdown",
   },
   {
     uri: "hasaki://seo/audit-report",
-    name: "Hasaki Technical SEO & Structured Data Audit",
+    name: "Nari Home Technical SEO & Structured Data Audit",
     description: "Báo cáo kiểm toán kỹ thuật SEO, chỉ số index Google, độ bao phủ Schema.org và trạng thái robots.txt / sitemap.xml.",
     mimeType: "application/json",
   },
   {
     uri: "hasaki://codegraph/architecture",
-    name: "Hasaki CodeGraph Architecture Blueprint",
+    name: "Nari Home CodeGraph Architecture Blueprint",
     description: "Bản đồ liên kết mã nguồn CodeGraph: Từ giao diện người dùng Next.js App Router đến adapter dịch vụ và điểm tích hợp MCP.",
     mimeType: "text/markdown",
   },
@@ -705,7 +705,7 @@ export const MCP_RESOURCES: McpResourceItem[] = [
 export const MCP_PROMPTS: McpPromptItem[] = [
   {
     name: "hasaki-beauty-consultant",
-    description: "Chuyên gia tư vấn mỹ phẩm & da liễu Hasaki - phân tích tình trạng da, đề xuất routine và sản phẩm phù hợp ngân sách.",
+    description: "Chuyên gia tư vấn mỹ phẩm & da liễu Nari Home - phân tích tình trạng da, đề xuất routine và sản phẩm phù hợp ngân sách.",
     arguments: [
       { name: "skinType", description: "Loại da (da dầu, da khô, da hỗn hợp, da nhạy cảm)", required: true },
       { name: "concern", description: "Vấn đề cần điều trị (mụn, thâm nám, lỗ chân lông to, lão hóa)", required: true },
@@ -714,7 +714,7 @@ export const MCP_PROMPTS: McpPromptItem[] = [
   },
   {
     name: "hasaki-warehouse-order-ops",
-    description: "Trợ lý vận hành kho vận & xử lý đơn hàng Hasaki ERP - hỗ trợ điều phối NowFree 2H, kiểm kê tồn kho và cập nhật đơn hàng.",
+    description: "Trợ lý vận hành kho vận & xử lý đơn hàng Nari Home ERP - hỗ trợ điều phối NariNow 2H, kiểm kê tồn kho và cập nhật đơn hàng.",
     arguments: [
       { name: "task", description: "Nhiệm vụ (kiểm kê, xuất kho, duyệt giao 2H, xử lý khiếu nại)", required: true },
       { name: "orderId", description: "Mã đơn hàng liên quan" },
@@ -723,7 +723,7 @@ export const MCP_PROMPTS: McpPromptItem[] = [
   },
   {
     name: "hasaki-seo-auditor",
-    description: "Chuyên gia kiểm toán kỹ thuật SEO & dữ liệu có cấu trúc Schema.org cho sàn thương mại điện tử Hasaki.",
+    description: "Chuyên gia kiểm toán kỹ thuật SEO & dữ liệu có cấu trúc Schema.org cho sàn thương mại điện tử Nari Home.",
     arguments: [
       { name: "path", description: "Đường dẫn trang cần phân tích SEO", required: true },
       { name: "targetKeyword", description: "Từ khóa SEO mục tiêu" },
@@ -795,7 +795,7 @@ export async function executeMcpTool(
           sold: p.sold || 0,
           slug: p.slug,
           category: p.category,
-          productUrl: `https://hasaki.vn/san-pham/${p.slug}`,
+          productUrl: `https://Nari Home/san-pham/${p.slug}`,
           image: p.image,
         }));
 
@@ -846,7 +846,7 @@ export async function executeMcpTool(
             ...base,
             priceFormatted: money(base.price),
             oldPriceFormatted: money(base.old),
-            url: `https://hasaki.vn/san-pham/${base.slug}`,
+            url: `https://Nari Home/san-pham/${base.slug}`,
           },
           structuredDataSchema: schemaJsonLd,
         };
@@ -875,7 +875,7 @@ export async function executeMcpTool(
             discount: `-${d.sale}%`,
             soldProgress: `${d.progress || 50}%`,
             slug: d.slug,
-            productUrl: `https://hasaki.vn/san-pham/${d.slug}`,
+            productUrl: `https://Nari Home/san-pham/${d.slug}`,
           }));
 
           return {
@@ -907,7 +907,7 @@ export async function executeMcpTool(
             brand: b.brand,
             priceFormatted: money(b.price),
             slug: b.slug,
-            productUrl: `https://hasaki.vn/san-pham/${b.slug}`,
+            productUrl: `https://Nari Home/san-pham/${b.slug}`,
           }));
 
           return {
@@ -1215,8 +1215,8 @@ export async function executeMcpTool(
             slug: s.slug,
             price: s.price,
             duration: s.duration,
-            bookingUrl: `https://hasaki.vn${s.booking}`,
-            detailUrl: `https://hasaki.vn/dich-vu/${s.slug}`,
+            bookingUrl: `https://Nari Home${s.booking}`,
+            detailUrl: `https://Nari Home/dich-vu/${s.slug}`,
             description: s.description,
           }));
 
@@ -1264,7 +1264,7 @@ export async function executeMcpTool(
         }
 
         if (action === "book") {
-          const customerName = typeof args.customerName === "string" ? args.customerName.trim() : "Khách hàng Hasaki";
+          const customerName = typeof args.customerName === "string" ? args.customerName.trim() : "Khách hàng Nari Home";
           const phone = typeof args.phone === "string" ? args.phone.trim() : "";
           const serviceName = typeof args.serviceName === "string" ? args.serviceName.trim() : "Khám & Tư Vấn Da Liễu";
           const branchName = typeof args.branchName === "string" ? args.branchName.trim() : "71 Hoàng Hoa Thám, P.Tân Bình, TP.HCM";
@@ -1299,7 +1299,7 @@ export async function executeMcpTool(
                 type: "text",
                 text: JSON.stringify(
                   {
-                    message: "Đặt lịch hẹn Hasaki Clinic & Spa thành công!",
+                    message: "Đặt lịch hẹn Nari Clinic & Spa thành công!",
                     bookingDetails: newBooking,
                     instructions: "Quý khách vui lòng đến trước 10 phút. Bác sĩ chuyên khoa da liễu sẽ trực tiếp thăm khám và soi da miễn phí.",
                     hotline: "1800 6324 (Phím 2)",
@@ -1379,7 +1379,7 @@ export async function executeMcpTool(
 
         if (action === "codegraph_map") {
           const codeGraphSummary = {
-            project: "Hasaki Clone Architecture Graph",
+            project: "Nari Home Clone Architecture Graph",
             version: "2026.11.13",
             architecture: {
               framework: "Next.js 16 (App Router) + React 19 + Tailwind CSS v4",
@@ -1432,12 +1432,12 @@ export function readMcpResource(uri: string): { uri: string; mimeType: string; t
     case "hasaki://catalog/overview": {
       const allProducts = getAllCatalogProducts();
       const text = [
-        "# Hasaki Product Catalog Overview",
+        "# Nari Home Product Catalog Overview",
         "",
         `- **Tổng số sản phẩm**: ${allProducts.length} sản phẩm`,
         `- **Số ngành hàng**: ${categories.length} danh mục cấp 1 & cấp 2`,
         `- **Thương hiệu nổi bật**: La Roche-Posay, Bioderma, CeraVe, Anker, Cocoon, Skin1004, Klairs, Hada Labo, L'Oreal`,
-        `- **Chính sách**: 100% chính hãng, đền bù 200% nếu phát hiện hàng giả, giao nhanh 2H NowFree miễn phí từ 90K.`,
+        `- **Chính sách**: 100% chính hãng, đền bù 200% nếu phát hiện hàng giả, giao nhanh 2H NariNow miễn phí từ 90K.`,
         "",
         "## Danh Sách 36 Ngành Hàng Chính",
         categories.map(([name, slug]) => `- **${name}**: \`/danh-muc/${slug}\``).join("\n"),
@@ -1450,14 +1450,14 @@ export function readMcpResource(uri: string): { uri: string; mimeType: string; t
       const totalStock = erpStore.inventory.reduce((acc, i) => acc + i.totalQuantity, 0);
       const ordersCount = erpStore.orders.length;
       const text = [
-        "# Hasaki ERP & Logistics Operations Summary",
+        "# Nari Home ERP & Logistics Operations Summary",
         "",
         `## Chỉ Số Kho Vận Tổng Hợp`,
         `- **Tổng SKU theo dõi**: ${erpStore.inventory.length} mã`,
         `- **Tổng sản phẩm tồn kho**: ${totalStock.toLocaleString("vi-VN")} đơn vị`,
         `- **Kho trung tâm**: Kho Tổng Bình Chánh (1.200m²)`,
         `- **Đơn hàng xử lý trong ngày**: ${ordersCount} đơn hàng`,
-        `- **Tỷ lệ đơn NowFree 2H**: 66.7%`,
+        `- **Tỷ lệ đơn NariNow 2H**: 66.7%`,
         `- **Nhân sự trực ca**: ${erpStore.staff.filter(s => s.isActive).length} nhân viên`,
         "",
         "## Đơn Hàng Gần Nhất",
@@ -1478,7 +1478,7 @@ export function readMcpResource(uri: string): { uri: string; mimeType: string; t
 
     case "hasaki://codegraph/architecture": {
       const text = [
-        "# Hasaki Clone CodeGraph Architecture Blueprint",
+        "# Nari Home Clone CodeGraph Architecture Blueprint",
         "",
         "## Central Contracts Layer",
         "- `src/lib/backend-contracts.ts`: Canonical domain models (`ProductSummary`, `ProductDetailData`, `StoreBranchInfo`, `SupportTopic`, `CustomerOrderDraft`)",
@@ -1519,20 +1519,20 @@ export function getMcpPrompt(
       const budget = args.budget || "dưới 1 triệu VNĐ";
 
       return {
-        description: "Chuyên gia tư vấn mỹ phẩm & da liễu Hasaki",
+        description: "Chuyên gia tư vấn mỹ phẩm & da liễu Nari Home",
         messages: [
           {
             role: "system",
             content: {
               type: "text",
-              text: "Bạn là Dược sĩ & Chuyên gia tư vấn làm đẹp cao cấp tại Hasaki Beauty & Clinic. Hãy phân tích khoa học tình trạng da của khách hàng, giải thích hoạt chất phù hợp (BHA, Niacinamide, Hyaluronic Acid, Centella...) và xây dựng chu trình Skincare sáng/tối với các sản phẩm chính hãng có sẵn tại Hasaki.",
+              text: "Bạn là Dược sĩ & Chuyên gia tư vấn làm đẹp cao cấp tại Nari Home Beauty & Clinic. Hãy phân tích khoa học tình trạng da của khách hàng, giải thích hoạt chất phù hợp (BHA, Niacinamide, Hyaluronic Acid, Centella...) và xây dựng chu trình Skincare sáng/tối với các sản phẩm chính hãng có sẵn tại Nari Home.",
             },
           },
           {
             role: "user",
             content: {
               type: "text",
-              text: `Tôi có loại da là ${skinType}, đang gặp vấn đề ${concern}. Ngân sách dự kiến của tôi là ${budget}. Vui lòng gợi ý routine hoàn chỉnh và các sản phẩm Hasaki chính hãng phù hợp.`,
+              text: `Tôi có loại da là ${skinType}, đang gặp vấn đề ${concern}. Ngân sách dự kiến của tôi là ${budget}. Vui lòng gợi ý routine hoàn chỉnh và các sản phẩm Nari Home chính hãng phù hợp.`,
             },
           },
         ],
@@ -1540,18 +1540,18 @@ export function getMcpPrompt(
     }
 
     case "hasaki-warehouse-order-ops": {
-      const task = args.task || "Điều phối giao nhanh NowFree 2H";
+      const task = args.task || "Điều phối giao nhanh NariNow 2H";
       const orderId = args.orderId || "HSK-20261113-001";
       const branch = args.branch || "71 Hoàng Hoa Thám, Tân Bình";
 
       return {
-        description: "Trợ lý vận hành kho vận & xử lý đơn hàng Hasaki ERP",
+        description: "Trợ lý vận hành kho vận & xử lý đơn hàng Nari Home ERP",
         messages: [
           {
             role: "system",
             content: {
               type: "text",
-              text: "Bạn là Trưởng ca điều phối kho vận Hasaki ERP. Bạn chịu trách nhiệm giám sát luồng đơn hàng NowFree 2H, kiểm soát tồn kho đa chi nhánh, cảnh báo ngưỡng reorder và đảm bảo cam kết SLA giao hàng.",
+              text: "Bạn là Trưởng ca điều phối kho vận Nari Home ERP. Bạn chịu trách nhiệm giám sát luồng đơn hàng NariNow 2H, kiểm soát tồn kho đa chi nhánh, cảnh báo ngưỡng reorder và đảm bảo cam kết SLA giao hàng.",
             },
           },
           {
@@ -1576,7 +1576,7 @@ export function getMcpPrompt(
             role: "system",
             content: {
               type: "text",
-              text: "Bạn là Chuyên gia Kỹ thuật SEO hàng đầu cho sàn thương mại điện tử Hasaki.vn. Bạn phân tích thẻ Meta, Schema.org JSON-LD (Product, Organization, MedicalBusiness), tốc độ Core Web Vitals và cấu trúc liên kết nội bộ theo tiêu chuẩn Google Search Central.",
+              text: "Bạn là Chuyên gia Kỹ thuật SEO hàng đầu cho sàn thương mại điện tử Nari Home. Bạn phân tích thẻ Meta, Schema.org JSON-LD (Product, Organization, MedicalBusiness), tốc độ Core Web Vitals và cấu trúc liên kết nội bộ theo tiêu chuẩn Google Search Central.",
             },
           },
           {
@@ -1628,7 +1628,7 @@ export async function handleMcpJsonRpc(request: JsonRpcRequest): Promise<JsonRpc
           serverInfo: {
             name: "hasaki-mcp-server",
             version: "1.0.0",
-            description: "Official Hasaki Clone Model Context Protocol Server for AI Agents",
+            description: "Official Nari Home Clone Model Context Protocol Server for AI Agents",
           },
         },
       };

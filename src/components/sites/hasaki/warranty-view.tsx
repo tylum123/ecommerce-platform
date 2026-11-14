@@ -68,34 +68,34 @@ export function WarrantyView() {
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-200">
         <div className="wrap py-2.5 text-xs text-muted-foreground flex items-center gap-1.5">
-          <Link href="/" className="hover:text-emerald-700">Trang chủ</Link>
+          <Link href="/" className="hover:text-[#3d2e24]">Trang chủ</Link>
           <ChevronRight className="w-3 h-3 text-gray-400" />
-          <span className="text-gray-800 font-medium">Trung tâm bảo hành Hasaki</span>
+          <span className="text-gray-800 font-medium">Trung tâm bảo hành Nari Home</span>
         </div>
       </div>
 
       <main className="wrap py-6 flex-1">
         {/* Banner Hero */}
-        <section className="bg-gradient-to-r from-emerald-800 to-emerald-950 text-white rounded-xl p-6 sm:p-8 mb-6 shadow-sm">
+        <section className="bg-gradient-to-r from-[#3d2e24] to-[#1e1b18] text-white rounded-xl p-6 sm:p-8 mb-6 shadow-sm">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 bg-emerald-700/60 text-emerald-100 text-xs font-semibold px-3 py-1 rounded-full mb-3">
+            <div className="inline-flex items-center gap-2 bg-[#3d2e24]/60 text-[#f6ece3] text-xs font-semibold px-3 py-1 rounded-full mb-3">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>CHÍNH SÁCH BẢO HÀNH CHÍNH HÃNG 100%</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold mb-2">
-              Trung Tâm Bảo Hành &amp; Dịch Vụ Hậu Mãi Hasaki
+              Trung Tâm Bảo Hành &amp; Dịch Vụ Hậu Mãi Nari Home
             </h1>
-            <p className="text-emerald-100 text-sm leading-relaxed mb-4">
+            <p className="text-[#f6ece3] text-sm leading-relaxed mb-4">
               Tra cứu thời hạn bảo hành điện tử theo Số điện thoại hoặc Serial máy, gửi yêu cầu bảo hành nhanh và xem chính sách bảo hành chính hãng từ các nhãn hàng thiết bị làm đẹp, phụ kiện công nghệ và gia dụng.
             </p>
-            <div className="flex flex-wrap items-center gap-4 text-xs text-emerald-200">
+            <div className="flex flex-wrap items-center gap-4 text-xs text-[#efe2d4]">
               <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> Hotline: 1800 6324 (Miễn phí)</span>
               <span>·</span>
               <a 
-                href="https://baohanh.hasaki.vn/" 
+                href="https://baohanh.Nari Home/" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="hover:underline flex items-center gap-1 text-emerald-100"
+                className="hover:underline flex items-center gap-1 text-[#f6ece3]"
               >
                 Cổng bảo hành chính thức <ExternalLink className="w-3 h-3" />
               </a>
@@ -110,7 +110,7 @@ export function WarrantyView() {
             onClick={() => setActiveTab("lookup")}
             className={`px-5 py-3.5 text-sm font-bold border-b-2 flex items-center gap-2 transition-colors ${
               activeTab === "lookup"
-                ? "border-emerald-700 text-emerald-700"
+                ? "border-[#6e5a4f] text-[#3d2e24]"
                 : "border-transparent text-gray-500 hover:text-gray-800"
             }`}
           >
@@ -123,7 +123,7 @@ export function WarrantyView() {
             onClick={() => setActiveTab("request")}
             className={`px-5 py-3.5 text-sm font-bold border-b-2 flex items-center gap-2 transition-colors ${
               activeTab === "request"
-                ? "border-emerald-700 text-emerald-700"
+                ? "border-[#6e5a4f] text-[#3d2e24]"
                 : "border-transparent text-gray-500 hover:text-gray-800"
             }`}
           >
@@ -136,7 +136,7 @@ export function WarrantyView() {
             onClick={() => setActiveTab("policy")}
             className={`px-5 py-3.5 text-sm font-bold border-b-2 flex items-center gap-2 transition-colors ${
               activeTab === "policy"
-                ? "border-emerald-700 text-emerald-700"
+                ? "border-[#6e5a4f] text-[#3d2e24]"
                 : "border-transparent text-gray-500 hover:text-gray-800"
             }`}
           >
@@ -153,7 +153,7 @@ export function WarrantyView() {
                 Tra Cứu Thông Tin Bảo Hành Điện Tử
               </h2>
               <p className="text-xs text-gray-500 mb-6 text-center">
-                Nhập số điện thoại đặt hàng hoặc mã Serial / mã đơn hàng trên hóa đơn Hasaki
+                Nhập số điện thoại đặt hàng hoặc mã Serial / mã đơn hàng trên hóa đơn Nari Home
               </p>
 
               <form onSubmit={handleLookupSubmit} className="flex flex-col sm:flex-row gap-3 mb-4">
@@ -163,13 +163,13 @@ export function WarrantyView() {
                     value={lookupQuery}
                     onChange={(e) => setLookupQuery(e.target.value)}
                     placeholder="Nhập số điện thoại (vd: 0901234567) hoặc Serial (vd: ANK-ZOLO-2026-9812)..."
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#9e7656]"
                   />
                   <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" />
                 </div>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm rounded-lg transition-colors shadow-sm"
+                  className="px-6 py-2.5 bg-[#3d2e24] hover:bg-[#2a1f18] text-white font-bold text-sm rounded-lg transition-colors shadow-sm"
                 >
                   Tra cứu ngay
                 </button>
@@ -205,25 +205,25 @@ export function WarrantyView() {
               {searched && lookupResult && (
                 <div className={`p-5 rounded-xl border ${
                   lookupResult.found 
-                    ? "bg-emerald-50/60 border-emerald-200" 
+                    ? "bg-[#faf5f0]/60 border-[#e6d5c5]" 
                     : "bg-amber-50/60 border-amber-200"
                 }`}>
                   <div className="flex items-start gap-3">
                     {lookupResult.found ? (
-                      <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-6 h-6 text-[#3d2e24] shrink-0 mt-0.5" />
                     ) : (
                       <AlertCircle className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
                     )}
                     <div className="flex-1">
                       <h3 className={`text-sm font-bold mb-1 ${
-                        lookupResult.found ? "text-emerald-900" : "text-amber-900"
+                        lookupResult.found ? "text-[#1e1b18]" : "text-amber-900"
                       }`}>
                         {lookupResult.found ? "Tìm Thấy Thông Tin Bảo Hành" : "Không Tìm Thấy Thông Tin"}
                       </h3>
                       <p className="text-xs text-gray-700 mb-3">{lookupResult.message}</p>
 
                       {lookupResult.found && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs bg-white p-3.5 rounded-lg border border-emerald-100 shadow-2xs">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs bg-white p-3.5 rounded-lg border border-[#e6d5c5] shadow-2xs">
                           <div>
                             <span className="text-gray-500 block">Khách hàng:</span>
                             <span className="font-semibold text-gray-800">{lookupResult.customerName}</span>
@@ -246,7 +246,7 @@ export function WarrantyView() {
                           </div>
                           <div>
                             <span className="text-gray-500 block">Hạn bảo hành:</span>
-                            <span className="font-semibold text-emerald-700">{lookupResult.warrantyExpireDate}</span>
+                            <span className="font-semibold text-[#3d2e24]">{lookupResult.warrantyExpireDate}</span>
                           </div>
                           <div className="sm:col-span-2">
                             <span className="text-gray-500 block">Nơi mua / Tiếp nhận:</span>
@@ -270,17 +270,17 @@ export function WarrantyView() {
                 Gửi Yêu Cầu Bảo Hành Sản Phẩm
               </h2>
               <p className="text-xs text-gray-500 mb-6 text-center">
-                Điền thông tin thiết bị cần bảo hành hoặc đổi mới. Nhân viên kỹ thuật Hasaki sẽ liên hệ xác nhận sau ít phút.
+                Điền thông tin thiết bị cần bảo hành hoặc đổi mới. Nhân viên kỹ thuật Nari Home sẽ liên hệ xác nhận sau ít phút.
               </p>
 
               {reqSuccess ? (
-                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 text-center">
-                  <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto mb-3" />
-                  <h3 className="text-base font-bold text-emerald-900 mb-1">
+                <div className="bg-[#faf5f0] border border-[#e6d5c5] rounded-xl p-6 text-center">
+                  <CheckCircle2 className="w-12 h-12 text-[#3d2e24] mx-auto mb-3" />
+                  <h3 className="text-base font-bold text-[#1e1b18] mb-1">
                     Gửi Yêu Cầu Bảo Hành Thành Công!
                   </h3>
                   <p className="text-xs text-gray-700 mb-4 leading-relaxed">
-                    Hệ thống đã ghi nhận yêu cầu bảo hành cho số điện thoại <b>{reqPhone}</b>. Chuyên viên chăm sóc khách hàng Hasaki sẽ liên hệ lại với bạn qua số điện thoại để hướng dẫn gửi máy hoặc tiếp nhận trực tiếp tại chi nhánh.
+                    Hệ thống đã ghi nhận yêu cầu bảo hành cho số điện thoại <b>{reqPhone}</b>. Chuyên viên chăm sóc khách hàng Nari Home sẽ liên hệ lại với bạn qua số điện thoại để hướng dẫn gửi máy hoặc tiếp nhận trực tiếp tại chi nhánh.
                   </p>
                   <button
                     type="button"
@@ -292,7 +292,7 @@ export function WarrantyView() {
                       setReqSerial("");
                       setReqNote("");
                     }}
-                    className="px-4 py-2 bg-emerald-700 text-white rounded-lg text-xs font-semibold hover:bg-emerald-800 transition-colors"
+                    className="px-4 py-2 bg-[#3d2e24] text-white rounded-lg text-xs font-semibold hover:bg-[#2a1f18] transition-colors"
                   >
                     Gửi yêu cầu khác
                   </button>
@@ -315,7 +315,7 @@ export function WarrantyView() {
                       value={reqPhone}
                       onChange={(e) => setReqPhone(e.target.value)}
                       placeholder="Số điện thoại gồm 10 chữ số..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#9e7656]"
                     />
                   </div>
 
@@ -329,7 +329,7 @@ export function WarrantyView() {
                       value={reqName}
                       onChange={(e) => setReqName(e.target.value)}
                       placeholder="Họ và tên..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#9e7656]"
                     />
                   </div>
 
@@ -343,7 +343,7 @@ export function WarrantyView() {
                       value={reqProduct}
                       onChange={(e) => setReqProduct(e.target.value)}
                       placeholder="Ví dụ: Máy rửa mặt Halio, Củ sạc Anker 30W..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#9e7656]"
                     />
                   </div>
 
@@ -357,7 +357,7 @@ export function WarrantyView() {
                       value={reqSerial}
                       onChange={(e) => setReqSerial(e.target.value)}
                       placeholder="Nhập mã Serial trên thân máy hoặc hộp..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#9e7656]"
                     />
                   </div>
 
@@ -371,7 +371,7 @@ export function WarrantyView() {
                       value={reqNote}
                       onChange={(e) => setReqNote(e.target.value)}
                       placeholder="Mô tả chi tiết hiện tượng lỗi (vd: không lên nguồn, sạc không vào điện...)"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#9e7656]"
                     />
                   </div>
 
@@ -381,7 +381,7 @@ export function WarrantyView() {
 
                   <button
                     type="submit"
-                    className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm rounded-lg transition-colors shadow-sm"
+                    className="w-full py-2.5 bg-[#3d2e24] hover:bg-[#2a1f18] text-white font-bold text-sm rounded-lg transition-colors shadow-sm"
                   >
                     Gửi yêu cầu tiếp nhận bảo hành
                   </button>
@@ -408,13 +408,13 @@ export function WarrantyView() {
               {/* General Terms */}
               <div className="bg-slate-50 p-5 rounded-xl border border-gray-200">
                 <h3 className="font-bold text-sm text-gray-800 mb-3 flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+                  <CheckCircle2 className="w-4 h-4 text-[#3d2e24]" />
                   Quy Định Chung Về Bảo Hành
                 </h3>
                 <ul className="space-y-2 text-xs sm:text-sm text-gray-600">
                   {policyData.generalTerms.map((term, i) => (
                     <li key={i} className="flex items-start gap-2">
-                      <span className="text-emerald-700 font-bold">•</span>
+                      <span className="text-[#3d2e24] font-bold">•</span>
                       <span>{term}</span>
                     </li>
                   ))}
@@ -434,7 +434,7 @@ export function WarrantyView() {
                       className="bg-white rounded-xl border border-gray-200 p-5 shadow-2xs flex flex-col justify-between"
                     >
                       <div>
-                        <div className="inline-block bg-emerald-50 text-emerald-800 font-bold text-xs px-2.5 py-1 rounded-md mb-2">
+                        <div className="inline-block bg-[#faf5f0] text-[#2a1f18] font-bold text-xs px-2.5 py-1 rounded-md mb-2">
                           {cat.period}
                         </div>
                         <h4 className="font-bold text-sm text-gray-900 mb-2">
@@ -471,7 +471,7 @@ export function WarrantyView() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {policyData.processSteps.map((step) => (
                     <div key={step.step} className="bg-slate-50 p-4 rounded-xl border border-gray-200">
-                      <div className="w-7 h-7 rounded-full bg-emerald-700 text-white font-bold text-xs flex items-center justify-center mb-2">
+                      <div className="w-7 h-7 rounded-full bg-[#3d2e24] text-white font-bold text-xs flex items-center justify-center mb-2">
                         {step.step}
                       </div>
                       <h4 className="font-bold text-sm text-gray-800 mb-1">{step.title}</h4>
@@ -488,16 +488,16 @@ export function WarrantyView() {
         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
             <h3 className="text-base font-bold text-gray-900 mb-1 flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-emerald-700" />
+              <Building2 className="w-5 h-5 text-[#3d2e24]" />
               Tiếp Nhận Bảo Hành Tại Toàn Bộ Hệ Thống Cửa Hàng
             </h3>
             <p className="text-xs text-gray-600">
-              Quý khách có thể mang trực tiếp thiết bị tới bất kỳ cửa hàng nào trong hơn 350 chi nhánh Hasaki để được nhân viên hỗ trợ tiếp nhận.
+              Quý khách có thể mang trực tiếp thiết bị tới bất kỳ cửa hàng nào trong hơn 350 chi nhánh Nari Home để được nhân viên hỗ trợ tiếp nhận.
             </p>
           </div>
           <Link
             href="/he-thong-cua-hang"
-            className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-lg transition-colors shrink-0"
+            className="px-5 py-2.5 bg-[#3d2e24] hover:bg-[#2a1f18] text-white font-bold text-xs rounded-lg transition-colors shrink-0"
           >
             Tìm cửa hàng gần nhất
           </Link>

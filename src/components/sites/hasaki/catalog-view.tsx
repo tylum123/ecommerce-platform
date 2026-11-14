@@ -72,7 +72,7 @@ export function CategoryView({ slug }: { slug: string }) {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, Infinity]);
   const [priceError, setPriceError] = useState("");
 
-  // Dynamic Hasaki facets filter (all 14 groups from scraped Hasaki facet dataset)
+  // Dynamic Nari Home facets filter (all 14 groups from scraped Nari Home facet dataset)
   const [selectedFacets, setSelectedFacets] = useState<Record<string, string[]>>({});
   const facetGroups = useMemo(() => getCategoryFacets(slug), [slug]);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
@@ -197,7 +197,7 @@ export function CategoryView({ slug }: { slug: string }) {
           <Link href="/">Trang chủ</Link> › Danh mục › {found[0]}
         </div>
 
-        {/* 8-Brand Logo Strip Banner (Scraped from live Hasaki Category header) */}
+        {/* 8-Brand Logo Strip Banner (Scraped from live Nari Home Category header) */}
         {uiData.categoryPageUi.brandBannerLogos.length > 0 && (
           <div
             className="hasaki-brand-strip"
@@ -245,7 +245,7 @@ export function CategoryView({ slug }: { slug: string }) {
                     height: 54,
                     background: isSelected ? "#fff7ed" : "#ffffff",
                     border: isSelected
-                      ? "2px solid #ff6600"
+                      ? "2px solid #b86b4b"
                       : "1px solid #e5e7eb",
                     borderRadius: 6,
                     padding: 6,
@@ -272,7 +272,7 @@ export function CategoryView({ slug }: { slug: string }) {
 
         <div className="listing">
           <aside className="filters">
-            {/* SỨC KHỎE - LÀM ĐẸP Category Tree (Scraped from live Hasaki Left Sidebar) */}
+            {/* SỨC KHỎE - LÀM ĐẸP Category Tree (Scraped from live Nari Home Left Sidebar) */}
             <h3>Sức Khỏe - Làm Đẹp</h3>
             {uiData.categoryPageUi.sidebarCategoryTree.map((node) => {
               const nodeSlug = node.href.replace("/danh-muc/", "");
@@ -333,7 +333,7 @@ export function CategoryView({ slug }: { slug: string }) {
               onClick={handleApplyPrice}
               style={{
                 width: "100%",
-                background: "#326e51",
+                background: "#3d2e24",
                 color: "white",
                 border: 0,
                 borderRadius: 3,
@@ -380,7 +380,7 @@ export function CategoryView({ slug }: { slug: string }) {
               </button>
             )}
 
-            {/* Deep Hasaki Facets (14 Scraped Filter Groups) */}
+            {/* Deep Nari Home Facets (14 Scraped Filter Groups) */}
             {facetGroups.length > 0 && (
               <>
                 <h3 style={{ marginTop: 24 }}>Bộ lọc chuyên sâu</h3>
@@ -423,7 +423,7 @@ export function CategoryView({ slug }: { slug: string }) {
                             <span
                               style={{
                                 marginLeft: 6,
-                                background: "#326e51",
+                                background: "#3d2e24",
                                 color: "#fff",
                                 borderRadius: 10,
                                 padding: "1px 6px",
@@ -520,7 +520,7 @@ export function CategoryView({ slug }: { slug: string }) {
               <span>({list.length} sản phẩm)</span>
             </div>
 
-            {/* 1:1 Hasaki Sort Bar + Hiển thị 40/60/80 Selector */}
+            {/* 1:1 Nari Home Sort Bar + Hiển thị 40/60/80 Selector */}
             <div
               className="listing-sort"
               role="group"
@@ -943,7 +943,7 @@ export function ProductView({
                   {p.name}
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <strong style={{ fontSize: 14, color: "#ff6600" }}>
+                  <strong style={{ fontSize: 14, color: "#b86b4b" }}>
                     {money(computedPrice)}
                   </strong>
                   <span style={{ fontSize: 11, color: "#226c47" }}>
@@ -967,7 +967,7 @@ export function ProductView({
                 type="button"
                 onClick={handleAddToCart}
                 style={{
-                  background: "#ff6600",
+                  background: "#b86b4b",
                   color: "#ffffff",
                   border: 0,
                   borderRadius: 5,
@@ -1034,7 +1034,7 @@ export function ProductView({
                           padding: 2,
                           borderRadius: 4,
                           border: isSelected
-                            ? "2px solid #326e51"
+                            ? "2px solid #3d2e24"
                             : "1px solid #e5e7eb",
                           background: "#ffffff",
                           cursor: "pointer",
@@ -1096,7 +1096,7 @@ export function ProductView({
           </div>
 
           <div className="detail-info">
-            {/* Ministry of Health Registration Badge + NOWFREE Badge */}
+            {/* Ministry of Health Registration Badge + NariNow Badge */}
             <div
               style={{
                 display: "flex",
@@ -1108,7 +1108,7 @@ export function ProductView({
             >
               <span
                 style={{
-                  background: "#ff6600",
+                  background: "#b86b4b",
                   color: "#fff",
                   fontSize: 10,
                   fontWeight: 800,
@@ -1116,7 +1116,7 @@ export function ProductView({
                   borderRadius: 3,
                 }}
               >
-                NOWFREE
+                NariNow
               </span>
               {brandHref ? (
                 <Link className="brand-link" href={brandHref}>
@@ -1176,7 +1176,7 @@ export function ProductView({
                   gap: 10,
                 }}
               >
-                <strong style={{ fontSize: 22, color: "#ff6600" }}>
+                <strong style={{ fontSize: 22, color: "#b86b4b" }}>
                   {money(computedPrice)}
                 </strong>
                 <span
@@ -1200,7 +1200,7 @@ export function ProductView({
                   Giá thị trường:{" "}
                   <del style={{ marginRight: 8 }}>{money(computedOldPrice)}</del>
                   - Tiết kiệm:{" "}
-                  <b style={{ color: "#ff6600" }}>
+                  <b style={{ color: "#b86b4b" }}>
                     {money(savingsAmount)} (-{p.sale}%)
                   </b>
                 </div>
@@ -1328,7 +1328,7 @@ export function ProductView({
               </div>
             )}
 
-            {/* Action Buttons: Giỏ hàng + Mua ngay NowFree 2H */}
+            {/* Action Buttons: Giỏ hàng + Mua ngay NariNow 2H */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
               <button
                 type="button"
@@ -1350,7 +1350,7 @@ export function ProductView({
                   display: "inline-flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  background: "#ff6600",
+                  background: "#b86b4b",
                   color: "#ffffff",
                   borderRadius: 5,
                   padding: "10px 20px",
@@ -1359,7 +1359,7 @@ export function ProductView({
                   textDecoration: "none",
                 }}
               >
-                MUA NGAY NOWFREE 2H
+                MUA NGAY NARINOW 2H
               </Link>
             </div>
 
@@ -1374,7 +1374,7 @@ export function ProductView({
 
             <div className="detail-services" style={{ marginTop: 14 }}>
               <p>
-                <Truck /> Giao nhanh 2H NowFree
+                <Truck /> Giao nhanh 2H NariNow
               </p>
               <p>
                 <ShieldCheck /> Đền bù 100% nếu phát hiện hàng giả
@@ -1385,7 +1385,7 @@ export function ProductView({
             </div>
           </div>
 
-          {/* Right Sidebar: - MIỄN PHÍ VẬN CHUYỂN - (4 Official Hasaki Policies) */}
+          {/* Right Sidebar: - MIỄN PHÍ VẬN CHUYỂN - (4 Official Nari Home Policies) */}
           <aside className="detail-side">
             <h3
               style={{
@@ -1529,7 +1529,7 @@ export function ProductView({
                         <div
                           style={{
                             fontWeight: 700,
-                            color: "#ff6600",
+                            color: "#b86b4b",
                           }}
                         >
                           {money(sp.price)}
@@ -1628,7 +1628,7 @@ export function ProductView({
                                 position: "absolute",
                                 top: 4,
                                 right: 4,
-                                background: "#ff6600",
+                                background: "#b86b4b",
                                 color: "#fff",
                                 fontSize: 10,
                                 fontWeight: 700,
@@ -1641,7 +1641,7 @@ export function ProductView({
                           )}
                         </div>
                         <div style={{ minWidth: 0, fontSize: 12, lineHeight: 1.35 }}>
-                          <div style={{ fontWeight: 700, color: "#ff6600", fontSize: 14 }}>
+                          <div style={{ fontWeight: 700, color: "#b86b4b", fontSize: 14 }}>
                             {money(item.price)}
                           </div>
                           {item.old > item.price && (
@@ -1652,7 +1652,7 @@ export function ProductView({
                           <div
                             style={{
                               fontWeight: 700,
-                              color: "#326e51",
+                              color: "#3d2e24",
                               marginTop: 2,
                             }}
                           >
@@ -1675,7 +1675,7 @@ export function ProductView({
                               display: "inline-block",
                               maxWidth: "100%",
                               padding: "1px 5px",
-                              border: "1px dashed #ff6600",
+                              border: "1px dashed #b86b4b",
                               background: "#fff7ed",
                               color: "#ea580c",
                               borderRadius: 3,
@@ -1765,7 +1765,7 @@ export function ProductView({
                               position: "absolute",
                               top: 4,
                               right: 4,
-                              background: "#ff6600",
+                              background: "#b86b4b",
                               color: "#fff",
                               fontSize: 10,
                               fontWeight: 700,
@@ -1778,7 +1778,7 @@ export function ProductView({
                         )}
                       </div>
                       <div style={{ minWidth: 0, fontSize: 12, lineHeight: 1.35 }}>
-                        <div style={{ fontWeight: 700, color: "#ff6600", fontSize: 14 }}>
+                        <div style={{ fontWeight: 700, color: "#b86b4b", fontSize: 14 }}>
                           {money(item.price)}
                         </div>
                         {item.old > item.price && (
@@ -1789,7 +1789,7 @@ export function ProductView({
                         <div
                           style={{
                             fontWeight: 700,
-                            color: "#326e51",
+                            color: "#3d2e24",
                             marginTop: 2,
                           }}
                         >

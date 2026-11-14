@@ -19,7 +19,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/", "/quan-tri", "/quan-tri/"],
       },
     ],
-    sitemap: "https://hasaki.vn/sitemap.xml",
-    host: "https://hasaki.vn",
+    sitemap: "https://Nari Home/sitemap.xml",
+    host: "https://Nari Home",
   };
 }

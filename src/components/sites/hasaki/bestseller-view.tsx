@@ -179,7 +179,7 @@ export function BestsellerView({
               <button
                 type="submit"
                 style={{
-                  background: "#326e51",
+                  background: "#3d2e24",
                   color: "white",
                   border: "none",
                   padding: "6px 12px",
@@ -206,7 +206,7 @@ export function BestsellerView({
                   style={{
                     background: "none",
                     border: "none",
-                    color: "#326e51",
+                    color: "#3d2e24",
                     cursor: "pointer",
                     fontSize: "12px",
                     textAlign: "left",
@@ -225,7 +225,7 @@ export function BestsellerView({
               <span>({items.length} sản phẩm mẫu)</span>
             </div>
             <p className="bestseller-notice">
-              Danh sách và thứ hạng dựa trên dữ liệu ảnh chụp từ Hasaki ngày 13/11/2026. Giá và khuyến mãi là dữ liệu ảnh chụp; giỏ hàng là mô phỏng frontend.
+              Danh sách và thứ hạng dựa trên dữ liệu ảnh chụp từ Nari Home ngày 13/11/2026. Giá và khuyến mãi là dữ liệu ảnh chụp; giỏ hàng là mô phỏng frontend.
             </p>
             <div className="listing-sort" role="group" aria-label="Sắp xếp sản phẩm">
               {[

@@ -33,9 +33,9 @@ export default function BangGiaDichVuPage() {
   return (
     <>
       <Header />
-      <nav className="booking-clinic-nav" aria-label="Hasaki Clinic">
+      <nav className="booking-clinic-nav" aria-label="Nari Clinic & Spa">
         <div className="wrap">
-          <Link href="/danh-muc/hasaki-clinic-spa-c331.html">HASAKI CLINIC &amp; SPA</Link>
+          <Link href="/danh-muc/hasaki-clinic-spa-c331.html">Nari Clinic & Spa &amp; SPA</Link>
           <Link href="/ho-tro/gioi-thieu">GIỚI THIỆU</Link>
           <Link href="/danh-muc/hasaki-clinic-spa-c331.html">DỊCH VỤ</Link>
           <Link href="/bang-gia-dich-vu.html" style={{ fontWeight: "bold", color: "#f47722" }}>
@@ -50,7 +50,7 @@ export default function BangGiaDichVuPage() {
       <main className="wrap clinic-page" style={{ paddingTop: "14px" }}>
         <div className="breadcrumbs">
           <Link href="/">Trang chủ</Link> ›{" "}
-          <Link href="/danh-muc/hasaki-clinic-spa-c331.html">Hasaki Clinic &amp; Spa</Link> › Bảng giá dịch vụ
+          <Link href="/danh-muc/hasaki-clinic-spa-c331.html">Nari Clinic & Spa &amp; Spa</Link> › Bảng giá dịch vụ
         </div>
 
         {/* Page Banner / Title Header */}
@@ -81,13 +81,13 @@ export default function BangGiaDichVuPage() {
               Hệ thống phòng khám da liễu chuẩn y khoa
             </span>
             <h1 style={{ fontSize: "26px", fontWeight: "bold", margin: "0 0 10px", lineHeight: 1.3 }}>
-              BẢNG GIÁ DỊCH VỤ HASAKI CLINIC &amp; SPA
+              BẢNG GIÁ DỊCH VỤ Nari Clinic & Spa &amp; SPA
             </h1>
             <p style={{ fontSize: "14px", lineHeight: 1.6, opacity: 0.95, margin: 0 }}>
               Cam kết giá niêm yết minh bạch toàn quốc · 100% Bác sĩ Da Liễu thăm khám &amp; soi da miễn phí · Không phát sinh chi phí · Dụng cụ vô trùng riêng biệt cho từng khách hàng.
             </p>
             <div style={{ marginTop: "12px", fontSize: "12px", opacity: 0.8 }}>
-              📅 Bảng giá ghi nhận ngày 13/11/2026 · Áp dụng tại toàn bộ hệ thống chi nhánh Hasaki Clinic &amp; Spa toàn quốc.
+              📅 Bảng giá ghi nhận ngày 13/11/2026 · Áp dụng tại toàn bộ hệ thống chi nhánh Nari Clinic & Spa &amp; Spa toàn quốc.
             </div>
           </div>
         </div>
@@ -127,8 +127,8 @@ export default function BangGiaDichVuPage() {
                   style={{
                     padding: "8px 16px",
                     borderRadius: "20px",
-                    border: isActive ? "1px solid #326e51" : "1px solid #ddd",
-                    background: isActive ? "#326e51" : "white",
+                    border: isActive ? "1px solid #3d2e24" : "1px solid #ddd",
+                    background: isActive ? "#3d2e24" : "white",
                     color: isActive ? "white" : "#444",
                     fontSize: "13px",
                     fontWeight: isActive ? "bold" : "normal",
@@ -215,7 +215,7 @@ export default function BangGiaDichVuPage() {
               }}
             >
               <thead>
-                <tr style={{ background: "#f2f7f4", borderBottom: "2px solid #326e51", color: "#245b40" }}>
+                <tr style={{ background: "#f2f7f4", borderBottom: "2px solid #3d2e24", color: "#245b40" }}>
                   <th style={{ padding: "12px 14px", width: "90px" }}>Mã DV</th>
                   <th style={{ padding: "12px 14px", minWidth: "260px" }}>Tên dịch vụ phòng khám</th>
                   <th style={{ padding: "12px 14px", width: "160px" }}>Chuyên khoa</th>
@@ -314,8 +314,8 @@ export default function BangGiaDichVuPage() {
                               style={{
                                 padding: "6px 10px",
                                 fontSize: "12px",
-                                border: "1px solid #326e51",
-                                color: "#326e51",
+                                border: "1px solid #3d2e24",
+                                color: "#3d2e24",
                                 borderRadius: "4px",
                                 textDecoration: "none",
                                 whiteSpace: "nowrap",
@@ -367,7 +367,7 @@ export default function BangGiaDichVuPage() {
           }}
         >
           <h2 style={{ fontSize: "17px", fontWeight: "bold", color: "#245b40", margin: "0 0 14px" }}>
-            LƯU Ý Y KHOA QUAN TRỌNG &amp; CHÍNH SÁCH BẢO HÀNH TẠI HASAKI CLINIC &amp; SPA
+            LƯU Ý Y KHOA QUAN TRỌNG &amp; CHÍNH SÁCH BẢO HÀNH TẠI Nari Clinic & Spa &amp; SPA
           </h2>
           <ul style={{ margin: 0, paddingLeft: "20px", lineHeight: "1.8", fontSize: "13px", color: "#444" }}>
             <li>
@@ -386,7 +386,7 @@ export default function BangGiaDichVuPage() {
               <strong>Giá niêm yết trọn gói:</strong> Chi phí trong bảng giá đã bao gồm vật tư y tế, thuốc bôi làm dịu và thuế VAT. Phòng khám cam kết không chèo kéo hoặc ép buộc mua thêm sản phẩm.
             </li>
             <li>
-              <strong>Hotline hỗ trợ &amp; đặt lịch khám:</strong> Tổng đài <a href="tel:18006324" style={{ color: "#326e51", fontWeight: "bold" }}>1800 6324</a> (nhấn phím 2 - Miễn phí) hoạt động từ 09:00 - 20:00 hằng ngày.
+              <strong>Hotline hỗ trợ &amp; đặt lịch khám:</strong> Tổng đài <a href="tel:18006324" style={{ color: "#3d2e24", fontWeight: "bold" }}>1800 6324</a> (nhấn phím 2 - Miễn phí) hoạt động từ 09:00 - 20:00 hằng ngày.
             </li>
           </ul>
         </div>

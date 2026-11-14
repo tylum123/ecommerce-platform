@@ -71,16 +71,25 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Check 1-Click Demo Accounts
+      // Check 1-Click Demo Accounts (supports @narihome.vn and legacy @hasaki.vn)
+      const normalizedUser = username
+        .toLowerCase()
+        .replace(/@hasaki\.vn$/i, "@narihome.vn")
+        .replace(/@nari\s*home$/i, "@narihome.vn");
       const demoAccount = DEMO_AUTH_ACCOUNTS.find(
         (acc) =>
-          acc.username.toLowerCase() === username.toLowerCase() ||
+          acc.username.toLowerCase() === normalizedUser ||
           acc.user.phone === username ||
-          acc.user.email.toLowerCase() === username.toLowerCase()
+          acc.user.email.toLowerCase() === normalizedUser
       );
 
       if (demoAccount) {
-        if (password === demoAccount.passwordHint || password === "Hasaki@123") {
+        if (
+          password === demoAccount.passwordHint ||
+          password === "Nari@123" ||
+          password === "Hasaki@123" ||
+          password === "Nari@123"
+        ) {
           const user: AuthSessionUser = {
             ...demoAccount.user,
             loggedInAt: new Date().toISOString(),
@@ -103,7 +112,7 @@ export async function POST(request: NextRequest) {
           return response;
         } else {
           return NextResponse.json(
-            { success: false, error: "Mật khẩu không chính xác. Mật khẩu demo là: Hasaki@123" },
+            { success: false, error: "Mật khẩu không chính xác. Mật khẩu demo là: Nari@123" },
             { status: 401 }
           );
         }
@@ -140,7 +149,7 @@ export async function POST(request: NextRequest) {
       const calculatedHash = await hashPasswordWithSalt(password, dbUser.salt || "hasaki_salt_2026");
       const isPasswordValid =
         calculatedHash === dbUser.password_hash ||
-        password === "Hasaki@123" ||
+        password === "Nari@123" ||
         (dbUser.password_hash === "sha256_mock_hash" && password.length >= 6);
 
       if (!isPasswordValid) {
@@ -156,7 +165,7 @@ export async function POST(request: NextRequest) {
         email: dbUser.email || "",
         phone: dbUser.phone,
         role: dbUser.role,
-        roleLabel: dbUser.role_label || (dbUser.role === "customer" ? "Khách Hàng" : "Nhân Viên Hasaki"),
+        roleLabel: dbUser.role_label || (dbUser.role === "customer" ? "Khách Hàng" : "Nhân Viên Nari Home"),
         tier: dbUser.tier,
         loyaltyPoints: dbUser.loyalty_points,
         branchId: dbUser.branch_id || undefined,

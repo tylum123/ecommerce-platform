@@ -25,7 +25,7 @@ test("DEMO_AUTH_ACCOUNTS provides valid roles for Admin, Staff, and Customer", (
 
   const admin = DEMO_AUTH_ACCOUNTS.find((a) => a.user.role === "admin");
   assert.ok(admin, "Admin account must exist");
-  assert.equal(admin.username, "admin@hasaki.vn");
+  assert.match(admin.username, /^admin@(narihome|hasaki)\.vn$/);
   assert.equal(isStaffOrAdminRole(admin.user.role), true);
 
   const customer = DEMO_AUTH_ACCOUNTS.find((a) => a.user.role === "customer");

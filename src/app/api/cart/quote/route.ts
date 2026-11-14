@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const rawItems: Array<{ sku?: string; slug?: string; quantity?: number; price?: number }> = body.items || [];
     const province = body.province || "";
     const district = body.district || "";
-    const deliveryType = body.deliveryType === "Tiêu chuẩn" ? "Tiêu chuẩn" : "NowFree 2H";
+    const deliveryType = body.deliveryType === "Tiêu chuẩn" ? "Tiêu chuẩn" : "NariNow 2H";
 
     let subtotal = 0;
     const resolvedItems = [];
@@ -34,16 +34,16 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Free NowFree 2H for orders >= 90.000 VND
-    const shippingFee = deliveryType === "NowFree 2H" && subtotal >= 90000 ? 0 : 25000;
+    // Free NariNow 2H for orders >= 90.000 VND
+    const shippingFee = deliveryType === "NariNow 2H" && subtotal >= 90000 ? 0 : 25000;
     const total = subtotal + shippingFee;
 
-    // Multi-Branch NowFree 2H & Clinic capability checking
+    // Multi-Branch NariNow 2H & Clinic capability checking
     const branches = listAllBranches(true);
-    const nowFreeBranches = branches.filter((b) => b.supportsNowFree2H);
+    const NariNowBranches = branches.filter((b) => b.supportsNowFree2H);
     const clinicBranches = branches.filter((b) => b.supportsClinic);
 
-    const isNowFreeAvailable = nowFreeBranches.length > 0;
+    const isNariNowAvailable = NariNowBranches.length > 0;
 
     // Provisional VietQR preview
     const tempOrderCode = `PROV-${Date.now().toString().slice(-6)}`;
@@ -60,10 +60,10 @@ export async function POST(request: NextRequest) {
         discount: 0,
         total,
         deliveryType,
-        isNowFreeAvailable,
+        isNariNowAvailable,
         eligibleForFreeShipping: subtotal >= 90000,
         availableBranchesCount: branches.length,
-        nowFreeBranchesCount: nowFreeBranches.length,
+        NariNowBranchesCount: NariNowBranches.length,
         clinicBranchesCount: clinicBranches.length,
         vietQrPreview,
         paymentMethods: [

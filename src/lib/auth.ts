@@ -81,14 +81,14 @@ export const DEMO_AUTH_ACCOUNTS: Array<{
   user: Omit<AuthSessionUser, "loggedInAt">;
 }> = [
   {
-    username: "admin@hasaki.vn",
-    passwordHint: "Hasaki@123",
+    username: "admin@narihome.vn",
+    passwordHint: "Nari@123",
     label: "Quản Trị Viên Cấp Cao (Admin)",
     badge: "Super Admin",
     user: {
       id: "usr-admin",
       fullName: "Trần Đình Khoa (Admin)",
-      email: "admin@hasaki.vn",
+      email: "admin@narihome.vn",
       phone: "0903112233",
       role: "admin",
       roleLabel: "Quản Trị Viên Hệ Thống",
@@ -107,18 +107,45 @@ export const DEMO_AUTH_ACCOUNTS: Array<{
         "system:config",
         "mcp:execute",
       ],
-      address: "Trụ sở Hasaki, Quận Tân Bình, TP.HCM",
+      address: "Trụ sở Nari Home, Quận Tân Bình, TP.HCM",
     },
   },
   {
-    username: "kho@hasaki.vn",
-    passwordHint: "Hasaki@123",
-    label: "Quản Lý Kho Vận & NowFree 2H",
-    badge: "Warehouse Lead",
+    username: "quanly@narihome.vn",
+    passwordHint: "Nari@123",
+    label: "Quản Lý Cửa Hàng (Store Manager)",
+    badge: "Quản lý cửa hàng",
+    user: {
+      id: "usr-store-manager",
+      fullName: "Lê Hoàng Long (Quản Lý Cửa Hàng)",
+      email: "quanly@narihome.vn",
+      phone: "0903223344",
+      role: "store_manager",
+      roleLabel: "Quản Lý Cửa Hàng Nari Home",
+      tier: "Gold",
+      loyaltyPoints: 1500,
+      employeeCode: "NV-HSK-002",
+      branchId: "CN1",
+      branchName: "CN1 - 71 Hoàng Hoa Thám, Tân Bình",
+      permissions: [
+        "orders:read",
+        "orders:write",
+        "inventory:read",
+        "staff:view",
+        "reports:store",
+      ],
+      address: "Cửa hàng CN1 Hoàng Hoa Thám, TP.HCM",
+    },
+  },
+  {
+    username: "kho@narihome.vn",
+    passwordHint: "Nari@123",
+    label: "Quản Lý Kho Vận & NariNow 2H",
+    badge: "Quản lý kho 2H",
     user: {
       id: "usr-warehouse",
       fullName: "Nguyễn Văn Thành (Quản Lý Kho)",
-      email: "kho@hasaki.vn",
+      email: "kho@narihome.vn",
       phone: "0903334455",
       role: "warehouse_staff",
       roleLabel: "Nhân Viên Quản Lý Kho",
@@ -132,40 +159,67 @@ export const DEMO_AUTH_ACCOUNTS: Array<{
     },
   },
   {
-    username: "bacsi@hasaki.vn",
-    passwordHint: "Hasaki@123",
-    label: "Bác Sĩ Da Liễu Hasaki Clinic Q.10",
-    badge: "Clinic Doctor",
+    username: "bacsi@narihome.vn",
+    passwordHint: "Nari@123",
+    label: "Bác Sĩ Da Liễu Nari Clinic & Spa Q.10",
+    badge: "Bác sĩ Clinic",
     user: {
       id: "usr-doctor",
       fullName: "BS. CKI Nguyễn Thị Mai",
-      email: "bacsi@hasaki.vn",
+      email: "bacsi@narihome.vn",
       phone: "0903445566",
       role: "clinic_doctor",
-      roleLabel: "Bác Sĩ Da Liễu Hasaki Clinic",
+      roleLabel: "Bác Sĩ Da Liễu Nari Clinic & Spa",
       tier: "Diamond",
       loyaltyPoints: 1200,
       employeeCode: "NV-HSK-004",
       branchId: "CN2",
       branchName: "CN2 - 555 Đường 3/2, Quận 10",
       permissions: ["clinic:appointments", "clinic:treatments", "clinic:prescriptions", "users:read"],
-      address: "Hasaki Clinic Quận 10, TP.HCM",
+      address: "Nari Clinic & Spa Quận 10, TP.HCM",
+    },
+  },
+  {
+    username: "cskh@narihome.vn",
+    passwordHint: "Nari@123",
+    label: "Chăm Sóc Khách Hàng (Tổng Đài CSKH)",
+    badge: "CSKH Agent",
+    user: {
+      id: "usr-cskh",
+      fullName: "Phạm Thu Hương (CSKH)",
+      email: "cskh@narihome.vn",
+      phone: "0903556677",
+      role: "cs_agent",
+      roleLabel: "Chuyên Viên CSKH Nari Home",
+      tier: "Silver",
+      loyaltyPoints: 500,
+      employeeCode: "NV-HSK-005",
+      branchId: "CN1",
+      branchName: "Tổng đài CSKH 1800 6324",
+      permissions: [
+        "users:read",
+        "orders:read",
+        "clinic:appointments",
+        "support:tickets",
+      ],
+      address: "Trung tâm CSKH Nari Home, TP.HCM",
     },
   },
   {
     username: "0901234567",
-    passwordHint: "Hasaki@123",
+    passwordHint: "Nari@123",
     label: "Khách Hàng VIP Diamond (2.850 Điểm)",
-    badge: "VIP Diamond",
+    badge: "Khách hàng VIP",
     user: {
       id: "usr-customer-vip",
       fullName: "Nguyễn Minh Anh (VIP)",
-      email: "khachhang@hasaki.vn",
+      email: "khachhang@narihome.vn",
       phone: "0901234567",
       role: "customer",
       roleLabel: "Khách Hàng Thân Thiết",
       tier: "Diamond",
       loyaltyPoints: 2850,
+      permissions: ["portal:profile", "portal:orders", "portal:bookings", "portal:address", "portal:rewards"],
       address: "71 Hoàng Hoa Thám, Phường 13, Quận Tân Bình, TP. Hồ Chí Minh",
     },
   },
@@ -370,17 +424,14 @@ export function clearAuthSession(): void {
 export async function fetchCurrentSession(): Promise<AuthSessionUser | null> {
   try {
     const res = await fetch("/api/auth", { method: "GET" });
-    if (!res.ok) {
-      clearAuthSession();
-      return null;
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.user) {
+        saveAuthSession(data.user);
+        return data.user;
+      }
     }
-    const data = await res.json();
-    if (data.success && data.user) {
-      saveAuthSession(data.user);
-      return data.user;
-    }
-    clearAuthSession();
-    return null;
+    return readAuthSession();
   } catch {
     return readAuthSession();
   }

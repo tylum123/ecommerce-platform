@@ -77,7 +77,7 @@ export function ProductCard({
         <small
           style={{
             fontWeight: 700,
-            color: "#326e51",
+            color: "#3d2e24",
             fontSize: 12,
             marginBottom: 2,
           }}
@@ -85,7 +85,7 @@ export function ProductCard({
           {product.brand}
         </small>
 
-        {/* English Product Subtitle (1:1 Hasaki Card Format) */}
+        {/* English Product Subtitle (1:1 Nari Home Card Format) */}
         <div
           style={{
             fontSize: 11.5,
@@ -120,7 +120,7 @@ export function ProductCard({
               {hasRealRating && (
                 <span
                   style={{
-                    background: "#ff6600",
+                    background: "#b86b4b",
                     color: "#ffffff",
                     fontWeight: 700,
                     borderRadius: 3,
@@ -144,14 +144,14 @@ export function ProductCard({
           </div>
         )}
 
-        {/* Dashed Orange Gift Bill Tag (Scraped from live Hasaki Category cards) */}
+        {/* Dashed Terracotta Gift Bill Tag */}
         <div
           style={{
             marginTop: 6,
             padding: "2px 6px",
-            border: "1px dashed #ff6600",
-            background: "#fff7ed",
-            color: "#ea580c",
+            border: "1px dashed #b86b4b",
+            background: "#fbf0ea",
+            color: "#b86b4b",
             borderRadius: 3,
             fontSize: 10,
             fontWeight: 600,

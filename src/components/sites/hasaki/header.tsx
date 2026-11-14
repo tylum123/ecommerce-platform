@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { money } from "@/lib/catalog";
 import { readCart } from "@/lib/cart";
+import { NariHomeLogo } from "@/components/sites/hasaki/nari-home-logo";
 import { AccountDialog } from "@/components/sites/hasaki/account-dialog";
 import { LocationDialog } from "@/components/sites/hasaki/location-dialog";
 import { readLocation, formatLocationShort } from "@/lib/campaigns-location";
@@ -41,7 +42,7 @@ export function Header() {
   const [locationLabel, setLocationLabel] = useState("Chọn khu vực của bạn");
   const [authUser, setAuthUser] = useState<AuthSessionUser | null>(null);
 
-  // Interactive Search Popup state (live Hasaki click/focus behavior)
+  // Interactive Search Popup state (live Nari Home click/focus behavior)
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchAreaRef = useRef<HTMLDivElement | null>(null);
@@ -136,11 +137,11 @@ export function Header() {
 
   return (
     <>
-      <div className="promo-strip">
+      <div className="top-strip promo-strip">
         <Link
           href={uiData.topBanner.href}
           style={{
-            color: "#fff",
+            color: "#f6ece3",
             textDecoration: "none",
             display: "flex",
             alignItems: "center",
@@ -149,23 +150,19 @@ export function Header() {
             flexWrap: "wrap",
           }}
         >
-          <span>KHAI HỘI SIÊU SALE LỚN NHẤT NĂM</span>
-          <b>1.11 SALE ĐẦU THÁNG</b>
-          <b>11.11 SALE LỚN BÙNG NỔ</b>
-          <b>16.11 SIÊU SALE GIỮA THÁNG</b>
+          <span style={{ letterSpacing: "0.04em", fontWeight: 700 }}>
+            NARI HOME — KHƠI NGUỒN VẺ ĐẸP · KIẾN TẠO KHÍ CHẤT
+          </span>
+          <b>ƯU ĐÃI ĐỘC QUYỀN</b>
+          <b>CHÍNH HÃNG 100%</b>
+          <b>GIAO NHANH 2H</b>
         </Link>
       </div>
 
-      <header className="header">
+      <header className="header site-header header-main-bar">
         <div className="wrap header-inner">
-          <Link className="logo" href="/">
-            <Image
-              src="/hasaki-logo.png"
-              alt="Hasaki.vn"
-              width={180}
-              height={42}
-              unoptimized
-            />
+          <Link className="logo" href="/" aria-label="Nari Home">
+            <NariHomeLogo theme="light" />
           </Link>
 
           <div
@@ -183,7 +180,7 @@ export function Header() {
             </div>
 
             <form
-              className="search"
+              className="search header-search"
               action="/tim-kiem"
               onSubmit={() => setIsSearchOpen(false)}
             >
@@ -198,19 +195,19 @@ export function Header() {
                 onClick={() => setIsSearchOpen(true)}
                 autoComplete="off"
                 aria-label="Tìm sản phẩm"
-                placeholder="Tìm sản phẩm, thương hiệu bạn mong muốn..."
+                placeholder="Tìm sản phẩm, thương hiệu bạn mong muốn tại Nari Home..."
               />
               <button aria-label="Tìm kiếm" type="submit">
                 <Search size={22} />
               </button>
             </form>
 
-            {/* Interactive Search Popup (Scraped from live Hasaki click on #search) */}
+            {/* Interactive Search Popup */}
             {isSearchOpen && (
               <div
                 className="hasaki-search-popup"
                 role="dialog"
-                aria-label="Gợi ý tìm kiếm Hasaki"
+                aria-label="Gợi ý tìm kiếm Nari Home"
                 style={{
                   position: "absolute",
                   top: "calc(100% + 4px)",
@@ -248,9 +245,9 @@ export function Header() {
                             display: "inline-flex",
                             alignItems: "center",
                             gap: 5,
-                            background: "#e8f5ee",
-                            color: "#226c47",
-                            border: "1px solid #bce0cb",
+                            background: "#f6ece3",
+                            color: "#3d2e24",
+                            border: "1px solid #ebd6c4",
                             borderRadius: 4,
                             padding: "5px 10px",
                             fontSize: 12,
@@ -359,7 +356,7 @@ export function Header() {
                           onClick={() => setIsSearchOpen(false)}
                           style={{
                             fontSize: 12,
-                            color: "#2a704c",
+                            color: "#b86b4b",
                             textDecoration: "none",
                             fontWeight: 600,
                           }}
@@ -410,7 +407,7 @@ export function Header() {
                                 style={{
                                   fontSize: 11,
                                   fontWeight: 700,
-                                  color: "#226c47",
+                                  color: "#3d2e24",
                                 }}
                               >
                                 {b.name}
@@ -436,7 +433,7 @@ export function Header() {
                     >
                       <span style={{ fontSize: 12, color: "#4b5563" }}>
                         Kết quả gợi ý cho từ khóa{" "}
-                        <b style={{ color: "#226c47" }}>&ldquo;{searchQuery}&rdquo;</b>
+                        <b style={{ color: "#3d2e24" }}>&ldquo;{searchQuery}&rdquo;</b>
                       </span>
                       <Link
                         href={`/tim-kiem?q=${encodeURIComponent(searchQuery)}`}
@@ -444,7 +441,7 @@ export function Header() {
                         style={{
                           fontSize: 12,
                           fontWeight: 700,
-                          color: "#ff6600",
+                          color: "#b86b4b",
                           textDecoration: "none",
                         }}
                       >
@@ -471,9 +468,9 @@ export function Header() {
                               fontWeight: 700,
                               padding: "3px 10px",
                               borderRadius: 12,
-                              background: "#eef7f2",
-                              color: "#226c47",
-                              border: "1px solid #cce3d6",
+                              background: "#f6ece3",
+                              color: "#3d2e24",
+                              border: "1px solid #ebd6c4",
                               textDecoration: "none",
                             }}
                           >
@@ -530,7 +527,7 @@ export function Header() {
                                 style={{
                                   fontSize: 11,
                                   fontWeight: 700,
-                                  color: "#226c47",
+                                  color: "#3d2e24",
                                 }}
                               >
                                 {prod.brand}
@@ -556,7 +553,7 @@ export function Header() {
                                 }}
                               >
                                 <strong
-                                  style={{ fontSize: 13, color: "#ff6600" }}
+                                  style={{ fontSize: 13, color: "#b86b4b" }}
                                 >
                                   {money(prod.price)}
                                 </strong>
@@ -572,7 +569,7 @@ export function Header() {
                                     style={{
                                       fontSize: 10,
                                       fontWeight: 700,
-                                      background: "#ff6600",
+                                      background: "#b86b4b",
                                       color: "#fff",
                                       borderRadius: 3,
                                       padding: "1px 4px",
@@ -657,7 +654,7 @@ export function Header() {
         </div>
       </header>
 
-      <nav className="nav">
+      <nav className="nav subnav-bar">
         <div className="wrap nav-inner">
           <button
             onClick={() => setMenu((prev) => !prev)}
@@ -668,7 +665,7 @@ export function Header() {
             <Menu size={23} /> DANH MỤC
           </button>
           <Link href="/deals-dang-dien-ra.html?product_list_order=topsale">
-            HASAKI DEALS
+            NARI DEALS
           </Link>
           <Link href="/campaign/wow">HOT DEALS</Link>
           <Link href="/thuong-hieu">THƯƠNG HIỆU</Link>
@@ -744,9 +741,9 @@ export function Header() {
                     fontSize: 11,
                     fontWeight: 800,
                     textTransform: "uppercase",
-                    color: "#226c47",
+                    color: "#3d2e24",
                     letterSpacing: 0.4,
-                    borderBottom: "1px solid #e5e7eb",
+                    borderBottom: "1px solid #ebd6c4",
                   }}
                 >
                   Sức Khỏe - Làm Đẹp
@@ -766,10 +763,10 @@ export function Header() {
                         padding: "8px 14px",
                         fontSize: 13,
                         fontWeight: isActive ? 700 : 500,
-                        color: isActive ? "#ff6600" : "#1f2937",
+                        color: isActive ? "#b86b4b" : "#1f2937",
                         background: isActive ? "#ffffff" : "transparent",
                         borderLeft: isActive
-                          ? "3px solid #ff6600"
+                          ? "3px solid #b86b4b"
                           : "3px solid transparent",
                         textDecoration: "none",
                       }}
@@ -778,7 +775,7 @@ export function Header() {
                       <ChevronRight
                         size={14}
                         style={{
-                          color: isActive ? "#ff6600" : "#9ca3af",
+                          color: isActive ? "#b86b4b" : "#9ca3af",
                         }}
                       />
                     </Link>
@@ -813,7 +810,7 @@ export function Header() {
                         style={{
                           fontSize: 16,
                           fontWeight: 800,
-                          color: "#226c47",
+                          color: "#3d2e24",
                           textDecoration: "none",
                         }}
                       >
@@ -825,7 +822,7 @@ export function Header() {
                         style={{
                           fontSize: 12,
                           fontWeight: 700,
-                          color: "#ff6600",
+                          color: "#b86b4b",
                           textDecoration: "none",
                         }}
                       >
@@ -902,23 +899,23 @@ export function Header() {
                         display: "inline-flex",
                         alignItems: "center",
                         gap: 6,
-                        color: "#c2410c",
+                        color: "#b86b4b",
                         fontWeight: 700,
                       }}
                     >
                       <Flame size={15} />
-                      Cam kết 100% Chính Hãng — Giao nhanh NowFree 2H tại 186 chi nhánh toàn quốc
+                      Cam kết 100% Chính Hãng — Giao nhanh NariNow 2H tại 186 chi nhánh toàn quốc
                     </span>
                     <Link
                       href="/deals-dang-dien-ra.html"
                       onClick={() => setMenu(false)}
                       style={{
                         fontWeight: 700,
-                        color: "#ea580c",
+                        color: "#b86b4b",
                         textDecoration: "underline",
                       }}
                     >
-                      Săn Flash Deal ngay ›
+                      Săn Nari Deal ngay ›
                     </Link>
                   </div>
                 </div>
@@ -937,7 +934,7 @@ export function Header() {
                     style={{
                       fontSize: 12,
                       fontWeight: 800,
-                      color: "#226c47",
+                      color: "#3d2e24",
                       textTransform: "uppercase",
                       marginBottom: 10,
                     }}
@@ -986,7 +983,7 @@ export function Header() {
                             style={{
                               fontSize: 11,
                               fontWeight: 700,
-                              color: "#226c47",
+                              color: "#3d2e24",
                             }}
                           >
                             {brand.name}
@@ -1004,7 +1001,7 @@ export function Header() {
                       marginTop: 12,
                       padding: "7px 10px",
                       borderRadius: 5,
-                      background: "#226c47",
+                      background: "#3d2e24",
                       color: "#ffffff",
                       fontSize: 12,
                       fontWeight: 700,

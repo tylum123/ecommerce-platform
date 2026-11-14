@@ -1,5 +1,5 @@
 /**
- * Data-Driven Interactive UI & Navigation Service for Hasaki Clone.
+ * Data-Driven Interactive UI & Navigation Service for Nari Home Clone.
  * Powered by live Playwright hover/click DOM scraping (docs/research/hasaki/interactive-ui-2026-11-14.json),
  * category facets, and brand catalog — eliminating hardcoded UI arrays across Header, Search, Category, and Product views.
  */
@@ -8,6 +8,7 @@ import rawInteractiveUi from "../../docs/research/hasaki/interactive-ui-2026-11-
 import rawBrandCatalog from "../../docs/research/hasaki/brand-catalog-2026-11-13.json";
 import { categories, getAllCatalogProducts, type Product } from "@/lib/catalog";
 import { getSubcategoriesForCategory } from "@/lib/category-facets";
+import { brandDeep } from "@/lib/brand-config";
 
 export interface TopKeywordItem {
   label: string;
@@ -320,10 +321,10 @@ function buildMegaMenuTree(defaultBrands: SuggestedBrandCard[]): MegaMenuCategor
               ],
       },
       {
-        title: "Dịch vụ & Trải nghiệm Hasaki",
+        title: "Dịch vụ & Trải nghiệm Nari Home",
         href: "/dich-vu-phong-kham.html",
         items: [
-          { label: "Phòng Khám Da Liễu Hasaki Clinic", href: "/dich-vu-phong-kham.html" },
+          { label: "Phòng Khám Da Liễu Nari Clinic & Spa", href: "/dich-vu-phong-kham.html" },
           { label: "Bảng Giá Dịch Vụ Điều Trị", href: "/bang-gia-dich-vu.html" },
           { label: "Cẩm Nang Làm Đẹp Y Khoa", href: "/cam-nang.html" },
           { label: "Đặt Lịch Khám Da Miễn Phí", href: "/dat-lich-kham" },
@@ -399,9 +400,9 @@ export function getInteractiveUiData(): InteractiveUiDataset {
     giftBillsByBrand[g.brand.toLowerCase()] = g;
   }
 
-  cachedInteractiveData = {
+  cachedInteractiveData = brandDeep({
     scrapedAt: rawInteractiveUi.scrapedAt || "2026-11-14T03:49:14.377Z",
-    source: rawInteractiveUi.source || "https://hasaki.vn/",
+    source: rawInteractiveUi.source || "https://Nari Home/",
     topBanner: {
       alt: rawInteractiveUi.topBanner?.alt || "9/11 - 30/11 Combo Giá Tốt Mua 1 Tặng 1 Fullsize",
       src:
@@ -458,7 +459,7 @@ export function getInteractiveUiData(): InteractiveUiDataset {
     },
     giftBills: BRAND_GIFT_BILLS,
     giftBillsByBrand,
-  };
+  });
 
   return cachedInteractiveData;
 }

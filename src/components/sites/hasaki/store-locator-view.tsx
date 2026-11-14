@@ -57,25 +57,25 @@ export function StoreLocatorView() {
       {/* Breadcrumb strip */}
       <div className="bg-white border-b border-gray-200">
         <div className="wrap py-2.5 text-xs text-muted-foreground flex items-center gap-1.5">
-          <Link href="/" className="hover:text-emerald-700">Trang chủ</Link>
+          <Link href="/" className="hover:text-[#3d2e24]">Trang chủ</Link>
           <ChevronRight className="w-3 h-3 text-gray-400" />
-          <span className="text-gray-800 font-medium">Hệ thống cửa hàng Hasaki</span>
+          <span className="text-gray-800 font-medium">Hệ thống cửa hàng Nari Home</span>
         </div>
       </div>
 
       <main className="wrap py-6 flex-1">
         {/* Banner header */}
-        <section className="bg-gradient-to-r from-emerald-800 to-emerald-950 text-white rounded-xl p-6 sm:p-8 mb-6 shadow-sm">
+        <section className="bg-gradient-to-r from-[#3d2e24] to-[#1e1b18] text-white rounded-xl p-6 sm:p-8 mb-6 shadow-sm">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 bg-emerald-700/60 text-emerald-100 text-xs font-semibold px-3 py-1 rounded-full mb-3">
+            <div className="inline-flex items-center gap-2 bg-[#3d2e24]/60 text-[#f6ece3] text-xs font-semibold px-3 py-1 rounded-full mb-3">
               <Store className="w-3.5 h-3.5" />
               <span>HỆ THỐNG PHỦ SÓNG TOÀN QUỐC</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold mb-2">
-              Tìm Cửa Hàng &amp; Phòng Khám Hasaki Gần Bạn
+              Tìm Cửa Hàng &amp; Phòng Khám Nari Home Gần Bạn
             </h1>
-            <p className="text-emerald-100 text-sm sm:text-base leading-relaxed">
-              Mạng lưới hơn 350 cửa hàng mỹ phẩm chính hãng và hệ thống phòng khám da liễu Hasaki Clinic &amp; Spa. Mở cửa từ 08:00 - 22:00 tất cả các ngày trong tuần (kể cả Thứ 7, Chủ Nhật).
+            <p className="text-[#f6ece3] text-sm sm:text-base leading-relaxed">
+              Mạng lưới hơn 350 cửa hàng mỹ phẩm chính hãng và hệ thống phòng khám da liễu Nari Clinic & Spa &amp; Spa. Mở cửa từ 08:00 - 22:00 tất cả các ngày trong tuần (kể cả Thứ 7, Chủ Nhật).
             </p>
           </div>
         </section>
@@ -95,7 +95,7 @@ export function StoreLocatorView() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Nhập tên đường, địa chỉ hoặc tên chi nhánh..."
-                  className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
+                  className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#9e7656] focus:border-transparent"
                 />
                 <Search className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
               </div>
@@ -110,7 +110,7 @@ export function StoreLocatorView() {
                 id="city-select"
                 value={selectedCity}
                 onChange={(e) => handleCityChange(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#9e7656]"
               >
                 {cities.map((city) => (
                   <option key={city} value={city}>{city}</option>
@@ -128,7 +128,7 @@ export function StoreLocatorView() {
                 value={selectedDistrict}
                 onChange={(e) => setSelectedDistrict(e.target.value)}
                 disabled={districts.length <= 1}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600 disabled:bg-gray-100 disabled:text-gray-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#9e7656] disabled:bg-gray-100 disabled:text-gray-400"
               >
                 {districts.map((district) => (
                   <option key={district} value={district}>{district}</option>
@@ -145,7 +145,7 @@ export function StoreLocatorView() {
                 onClick={() => setHasClinicOnly(false)}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                   !hasClinicOnly 
-                    ? "bg-emerald-700 text-white" 
+                    ? "bg-[#3d2e24] text-white" 
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -156,17 +156,17 @@ export function StoreLocatorView() {
                 onClick={() => setHasClinicOnly(true)}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 transition-colors ${
                   hasClinicOnly 
-                    ? "bg-emerald-700 text-white" 
-                    : "bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100"
+                    ? "bg-[#3d2e24] text-white" 
+                    : "bg-[#faf5f0] text-[#2a1f18] border border-[#e6d5c5] hover:bg-[#f6ece3]"
                 }`}
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                Có Hasaki Clinic &amp; Spa ({clinicTotal})
+                Có Nari Clinic & Spa &amp; Spa ({clinicTotal})
               </button>
             </div>
 
             <div className="text-xs text-gray-500 font-medium">
-              Tìm thấy <b className="text-emerald-700 font-bold">{filteredBranches.length}</b> cửa hàng phù hợp
+              Tìm thấy <b className="text-[#3d2e24] font-bold">{filteredBranches.length}</b> cửa hàng phù hợp
             </div>
           </div>
         </section>
@@ -182,7 +182,7 @@ export function StoreLocatorView() {
                 {/* Branch image banner */}
                 <div className="relative h-44 w-full bg-slate-100 overflow-hidden">
                   <Image
-                    src={branch.image || "https://hasaki.vn/images/graphics/cuahang-4.jpg"}
+                    src={branch.image || "https://Nari Home/images/graphics/cuahang-4.jpg"}
                     alt={branch.name}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -190,9 +190,9 @@ export function StoreLocatorView() {
                     unoptimized
                   />
                   {branch.hasClinic && (
-                    <span className="absolute top-2.5 right-2.5 bg-emerald-600 text-white text-[11px] font-semibold px-2.5 py-1 rounded-md shadow-sm flex items-center gap-1">
+                    <span className="absolute top-2.5 right-2.5 bg-[#3d2e24] text-white text-[11px] font-semibold px-2.5 py-1 rounded-md shadow-sm flex items-center gap-1">
                       <Sparkles className="w-3 h-3" />
-                      Hasaki Clinic &amp; Spa
+                      Nari Clinic & Spa &amp; Spa
                     </span>
                   )}
                 </div>
@@ -206,16 +206,16 @@ export function StoreLocatorView() {
 
                     <div className="space-y-1.5 text-xs text-gray-600 mb-4">
                       <p className="flex items-start gap-1.5">
-                        <MapPin className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+                        <MapPin className="w-4 h-4 text-[#3d2e24] shrink-0 mt-0.5" />
                         <span>{branch.address}</span>
                       </p>
                       <p className="flex items-center gap-1.5">
-                        <Clock className="w-4 h-4 text-emerald-700 shrink-0" />
+                        <Clock className="w-4 h-4 text-[#3d2e24] shrink-0" />
                         <span>Giờ mở cửa: {branch.hours || "08:00 - 22:00 mỗi ngày"}</span>
                       </p>
                       <p className="flex items-center gap-1.5">
-                        <Phone className="w-4 h-4 text-emerald-700 shrink-0" />
-                        <span>Hotline miễn phí: <a href="tel:18006324" className="text-emerald-700 font-semibold hover:underline">1800 6324</a></span>
+                        <Phone className="w-4 h-4 text-[#3d2e24] shrink-0" />
+                        <span>Hotline miễn phí: <a href="tel:18006324" className="text-[#3d2e24] font-semibold hover:underline">1800 6324</a></span>
                       </p>
                     </div>
                   </div>
@@ -235,7 +235,7 @@ export function StoreLocatorView() {
                     {branch.hasClinic && (
                       <Link
                         href="/booking"
-                        className="flex-1 text-center py-2 px-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                        className="flex-1 text-center py-2 px-3 bg-[#3d2e24] hover:bg-[#2a1f18] text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
                       >
                         <Calendar className="w-3.5 h-3.5" />
                         Đặt hẹn Clinic
@@ -262,7 +262,7 @@ export function StoreLocatorView() {
                 setSelectedDistrict("Tất cả Quận/Huyện");
                 setHasClinicOnly(false);
               }}
-              className="px-4 py-2 bg-emerald-700 text-white text-xs font-semibold rounded-lg hover:bg-emerald-800 transition-colors"
+              className="px-4 py-2 bg-[#3d2e24] text-white text-xs font-semibold rounded-lg hover:bg-[#2a1f18] transition-colors"
             >
               Đặt lại bộ lọc
             </button>

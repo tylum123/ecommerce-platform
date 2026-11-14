@@ -1,5 +1,5 @@
 /**
- * Central Deals & Bestsellers Service Module for Hasaki Clone.
+ * Central Deals & Bestsellers Service Module for Nari Home Clone.
  * Indexed by CodeGraph to map deals/bestseller frontend views -> service contracts -> backend adapter.
  */
 
@@ -10,9 +10,14 @@ import {
   money
 } from "@/lib/catalog";
 
-import dealsJson from "../../docs/research/hasaki/deals-2026-11-13.json";
-import bestsellersJson from "../../docs/research/hasaki/bestsellers-2026-11-13.json";
-import categoryProductsJson from "../../docs/research/hasaki/category-products-2026-11-13.json";
+import rawDealsJson from "../../docs/research/hasaki/deals-2026-11-13.json";
+import rawBestsellersJson from "../../docs/research/hasaki/bestsellers-2026-11-13.json";
+import rawCategoryProductsJson from "../../docs/research/hasaki/category-products-2026-11-13.json";
+import { brandDeep } from "@/lib/brand-config";
+
+const dealsJson = brandDeep(rawDealsJson);
+const bestsellersJson = brandDeep(rawBestsellersJson);
+const categoryProductsJson = brandDeep(rawCategoryProductsJson);
 
 export interface DealProduct extends ProductSummary {
   deal?: {
@@ -37,7 +42,7 @@ export interface DealCategoryOption {
   count?: number;
 }
 
-// Canonical category mappings matching Hasaki source navigation & catalog.ts
+// Canonical category mappings matching Nari Home source navigation & catalog.ts
 const CATEGORY_ID_TO_SLUG: Record<string, string> = {
   "": "",
   "4": "cham-soc-da-mat-c4.html",

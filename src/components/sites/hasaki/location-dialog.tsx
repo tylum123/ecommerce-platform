@@ -7,7 +7,7 @@ import {
   readLocation,
   saveLocation,
   clearLocation,
-  isNowFreeDistrict,
+  isNariNowDistrict,
   LOCATION_CHANGE_EVENT,
   type ProvinceLocation,
 } from "@/lib/campaigns-location";
@@ -74,8 +74,8 @@ export function LocationDialog({ onClose, onSaved }: LocationDialogProps) {
 
   const availableWards = currentDistrictData ? currentDistrictData.wards : [];
 
-  const isNowFree = selectedProvince && selectedDistrict
-    ? isNowFreeDistrict(selectedProvince, selectedDistrict)
+  const isNariNow = selectedProvince && selectedDistrict
+    ? isNariNowDistrict(selectedProvince, selectedDistrict)
     : false;
 
   function handleProvinceChange(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -191,8 +191,8 @@ export function LocationDialog({ onClose, onSaved }: LocationDialogProps) {
               width: "36px",
               height: "36px",
               borderRadius: "50%",
-              backgroundColor: "#e8f4ed",
-              color: "#326e51",
+              backgroundColor: "#f6ece3",
+              color: "#3d2e24",
               display: "grid",
               placeItems: "center",
               flexShrink: 0,
@@ -206,7 +206,7 @@ export function LocationDialog({ onClose, onSaved }: LocationDialogProps) {
               style={{
                 fontSize: "18px",
                 fontWeight: 700,
-                color: "#1e4d36",
+                color: "#1e1b18",
                 margin: 0,
                 lineHeight: 1.3,
               }}
@@ -214,7 +214,7 @@ export function LocationDialog({ onClose, onSaved }: LocationDialogProps) {
               Chọn khu vực giao hàng
             </h2>
             <p style={{ margin: 0, fontSize: "12px", color: "#666" }}>
-              Xem chính xác giá, tồn kho và thời gian giao hàng NowFree 2H
+              Xem chính xác giá, tồn kho và thời gian giao hàng NariNow 2H
             </p>
           </div>
         </div>
@@ -278,7 +278,7 @@ export function LocationDialog({ onClose, onSaved }: LocationDialogProps) {
             <option value="">-- Chọn Quận / Huyện --</option>
             {availableDistricts.map((district) => (
               <option key={district.name} value={district.name}>
-                {district.name} {district.isNowFreeEligible ? "⚡ (NowFree 2H)" : ""}
+                {district.name} {district.isNariNowEligible ? "⚡ (NariNow 2H)" : ""}
               </option>
             ))}
           </select>
@@ -317,7 +317,7 @@ export function LocationDialog({ onClose, onSaved }: LocationDialogProps) {
           </select>
         </div>
 
-        {/* NowFree Eligibility Badge */}
+        {/* NariNow Eligibility Badge */}
         {selectedDistrict && (
           <div
             style={{
@@ -328,16 +328,16 @@ export function LocationDialog({ onClose, onSaved }: LocationDialogProps) {
               display: "flex",
               alignItems: "center",
               gap: "8px",
-              backgroundColor: isNowFree ? "#e8f7ee" : "#f3f4f6",
-              border: isNowFree ? "1px solid #b7e4c7" : "1px solid #e5e7eb",
-              color: isNowFree ? "#1f6e3c" : "#4b5563",
+              backgroundColor: isNariNow ? "#fbf0ea" : "#f3f4f6",
+              border: isNariNow ? "1px solid #e6d5c5" : "1px solid #e5e7eb",
+              color: isNariNow ? "#b86b4b" : "#4b5563",
             }}
           >
-            {isNowFree ? (
+            {isNariNow ? (
               <>
-                <Zap size={16} color="#16a34a" style={{ flexShrink: 0 }} />
+                <Zap size={16} color="#b86b4b" style={{ flexShrink: 0 }} />
                 <span>
-                  <strong>Hỗ trợ giao siêu tốc NowFree 2H!</strong> Khu vực này có chi nhánh Hasaki hỗ trợ giao ngay trong 2 giờ.
+                  <strong>Hỗ trợ giao siêu tốc NariNow 2H!</strong> Khu vực này có chi nhánh Nari Home hỗ trợ giao ngay trong 2 giờ.
                 </span>
               </>
             ) : (
@@ -372,7 +372,7 @@ export function LocationDialog({ onClose, onSaved }: LocationDialogProps) {
             onClick={handleSave}
             style={{
               flex: 1,
-              backgroundColor: "#326e51",
+              backgroundColor: "#3d2e24",
               color: "#ffffff",
               border: "none",
               borderRadius: "4px",

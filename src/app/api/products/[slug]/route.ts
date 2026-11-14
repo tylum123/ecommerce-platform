@@ -43,10 +43,10 @@ export async function GET(request: Request, context: RouteContext) {
           isSample: fallback.isSample,
           specs: [
             { label: "Thương hiệu", value: fallback.brand },
-            { label: "Xuất xứ", value: "Chính hãng Hasaki" },
+            { label: "Xuất xứ", value: "Chính hãng Nari Home" },
             { label: "Danh mục", value: fallback.category },
           ],
-          sourceUrl: `https://hasaki.vn/san-pham/${fallback.slug}`,
+          sourceUrl: `https://Nari Home/san-pham/${fallback.slug}`,
         };
       }
     }

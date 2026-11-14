@@ -1,5 +1,5 @@
 /**
- * Enterprise ERP Service & Repository for Hasaki Clone.
+ * Enterprise ERP Service & Repository for Nari Home Clone.
  * Manages Multi-Branch Inventory, Customers, Staff RBAC, Orders Fulfillment, and Audit Logs.
  * CodeGraph-indexed enterprise repository.
  */
@@ -109,7 +109,7 @@ export interface ErpOrderRecord {
   total: number;
   status: ErpOrderStatus;
   statusLabel: string;
-  deliveryType: "NowFree 2H" | "Tiêu chuẩn";
+  deliveryType: "NariNow 2H" | "Tiêu chuẩn";
   paymentMethod: string;
   paymentStatus: PaymentStatus;
   branchName: string;
@@ -147,7 +147,7 @@ export const ROLE_LABELS: Record<StaffRole, string> = {
   admin: "Quản Trị Viên Hệ Thống",
   store_manager: "Quản Lý Cửa Hàng",
   warehouse_staff: "Nhân Viên Quản Lý Kho",
-  clinic_doctor: "Bác Sĩ Da Liễu Hasaki Clinic",
+  clinic_doctor: "Bác Sĩ Da Liễu Nari Clinic & Spa",
   cs_agent: "Chuyên Viên Chăm Sóc Khách Hàng",
 };
 
@@ -194,7 +194,7 @@ export const ORDER_STATUS_LABELS: Record<ErpOrderStatus, string> = {
   pending: "Chờ xác nhận",
   confirmed: "Đã xác nhận",
   packing: "Đang đóng gói",
-  shipping: "Đang giao hàng (NowFree 2H)",
+  shipping: "Đang giao hàng (NariNow 2H)",
   delivered: "Đã giao thành công",
   cancelled: "Đã hủy đơn",
 };
@@ -325,12 +325,12 @@ function createInitialStaff(): StaffRecord[] {
       id: "stf-001",
       employeeCode: "NV-HSK-001",
       fullName: "Trần Đình Khoa",
-      email: "khoa.tran@hasaki.vn",
+      email: "khoa.tran@narihome.vn",
       phone: "0903112233",
       role: "admin",
       roleLabel: ROLE_LABELS.admin,
       branchId: "HQ",
-      branchName: "Trụ sở chính Hasaki (HQ)",
+      branchName: "Trụ sở chính Nari Home (HQ)",
       department: "Công Nghệ & Điều Hành Hệ Thống",
       status: "active",
       permissions: ROLE_PERMISSIONS.admin,
@@ -340,7 +340,7 @@ function createInitialStaff(): StaffRecord[] {
       id: "stf-002",
       employeeCode: "NV-HSK-002",
       fullName: "Lê Thị Bích Ngọc",
-      email: "ngoc.le@hasaki.vn",
+      email: "ngoc.le@narihome.vn",
       phone: "0903223344",
       role: "store_manager",
       roleLabel: ROLE_LABELS.store_manager,
@@ -355,7 +355,7 @@ function createInitialStaff(): StaffRecord[] {
       id: "stf-003",
       employeeCode: "NV-HSK-003",
       fullName: "Nguyễn Văn Thành",
-      email: "thanh.nguyen@hasaki.vn",
+      email: "thanh.nguyen@narihome.vn",
       phone: "0903334455",
       role: "warehouse_staff",
       roleLabel: ROLE_LABELS.warehouse_staff,
@@ -376,7 +376,7 @@ function createInitialStaff(): StaffRecord[] {
       roleLabel: ROLE_LABELS.clinic_doctor,
       branchId: "CN1",
       branchName: "CN1 - 71 Hoàng Hoa Thám, Tân Bình",
-      department: "Hasaki Clinic & Spa Da Liễu",
+      department: "Nari Clinic & Spa Da Liễu",
       status: "active",
       permissions: ROLE_PERMISSIONS.clinic_doctor,
       joinedAt: "2022-08-20T08:00:00Z",
@@ -385,7 +385,7 @@ function createInitialStaff(): StaffRecord[] {
       id: "stf-005",
       employeeCode: "NV-HSK-005",
       fullName: "Phạm Hoàng Oanh",
-      email: "oanh.pham@hasaki.vn",
+      email: "oanh.pham@narihome.vn",
       phone: "0903556677",
       role: "cs_agent",
       roleLabel: ROLE_LABELS.cs_agent,
@@ -400,7 +400,7 @@ function createInitialStaff(): StaffRecord[] {
       id: "stf-006",
       employeeCode: "NV-HSK-006",
       fullName: "Đặng Quốc Bảo",
-      email: "bao.dang@hasaki.vn",
+      email: "bao.dang@narihome.vn",
       phone: "0903667788",
       role: "store_manager",
       roleLabel: ROLE_LABELS.store_manager,
@@ -415,7 +415,7 @@ function createInitialStaff(): StaffRecord[] {
       id: "stf-007",
       employeeCode: "NV-HSK-007",
       fullName: "Vũ Hải Yến",
-      email: "yen.vu@hasaki.vn",
+      email: "yen.vu@narihome.vn",
       phone: "0903778899",
       role: "warehouse_staff",
       roleLabel: ROLE_LABELS.warehouse_staff,
@@ -436,7 +436,7 @@ function createInitialStaff(): StaffRecord[] {
       roleLabel: ROLE_LABELS.clinic_doctor,
       branchId: "CN2",
       branchName: "CN2 - 555 Đường 3/2, Quận 10",
-      department: "Hasaki Clinic & Spa Da Liễu",
+      department: "Nari Clinic & Spa Da Liễu",
       status: "active",
       permissions: ROLE_PERMISSIONS.clinic_doctor,
       joinedAt: "2023-04-12T08:00:00Z",
@@ -488,7 +488,7 @@ function createInitialInventory(): { records: InventoryRecord[]; logs: Inventory
       sku,
       productSlug: p.slug,
       productName: p.name,
-      brand: p.brand || "Hasaki",
+      brand: p.brand || "Nari Home",
       category: p.category || "my-pham",
       price: p.price || 150000,
       totalStock,
@@ -524,7 +524,7 @@ function createInitialInventory(): { records: InventoryRecord[]; logs: Inventory
         delta: -10,
         previousStock: records[1].totalStock + 10,
         newStock: records[1].totalStock,
-        reason: "Xuất kho phục vụ chiến dịch Flash Deal NowFree 2H",
+        reason: "Xuất kho phục vụ chiến dịch Flash Deal NariNow 2H",
         staffCode: "NV-HSK-003",
         branchId: "CN2",
         branchName: "CN2 - 555 Đường 3/2, Quận 10",
@@ -550,7 +550,7 @@ function createInitialInventory(): { records: InventoryRecord[]; logs: Inventory
         delta: -5,
         previousStock: records[4].totalStock + 5,
         newStock: records[4].totalStock,
-        reason: "Xuất mẫu trải nghiệm tại Hasaki Clinic & kiểm định chất lượng",
+        reason: "Xuất mẫu trải nghiệm tại Nari Clinic & Spa & kiểm định chất lượng",
         staffCode: "NV-HSK-002",
         branchId: "CN1",
         branchName: "CN1 - 71 Hoàng Hoa Thám, Tân Bình",
@@ -563,7 +563,7 @@ function createInitialInventory(): { records: InventoryRecord[]; logs: Inventory
         delta: -8,
         previousStock: records[7].totalStock + 8,
         newStock: records[7].totalStock,
-        reason: "Đóng gói đơn hàng NowFree 2H cho khách hàng VIP Gold",
+        reason: "Đóng gói đơn hàng NariNow 2H cho khách hàng VIP Gold",
         staffCode: "NV-HSK-003",
         branchId: "CN2",
         branchName: "CN2 - 555 Đường 3/2, Quận 10",
@@ -580,8 +580,8 @@ function createInitialOrders(inventory: InventoryRecord[]): ErpOrderRecord[] {
     const inv = inventory[index % inventory.length];
     return {
       sku: inv ? inv.sku : "422208973",
-      name: inv ? inv.productName : "Sản phẩm Hasaki",
-      brand: inv ? inv.brand : "Hasaki",
+      name: inv ? inv.productName : "Sản phẩm Nari Home",
+      brand: inv ? inv.brand : "Nari Home",
       price: inv ? inv.price : 250000,
       slug: inv ? inv.productSlug : "san-pham-mau.html",
     };
@@ -610,7 +610,7 @@ function createInitialOrders(inventory: InventoryRecord[]): ErpOrderRecord[] {
       total: p0.price + p1.price,
       status: "shipping",
       statusLabel: ORDER_STATUS_LABELS.shipping,
-      deliveryType: "NowFree 2H",
+      deliveryType: "NariNow 2H",
       paymentMethod: "Thanh toán khi nhận hàng (COD)",
       paymentStatus: "unpaid",
       branchName: "CN1 - 71 Hoàng Hoa Thám, Tân Bình",
@@ -634,7 +634,7 @@ function createInitialOrders(inventory: InventoryRecord[]): ErpOrderRecord[] {
       total: p2.price * 2 + p3.price,
       status: "packing",
       statusLabel: ORDER_STATUS_LABELS.packing,
-      deliveryType: "NowFree 2H",
+      deliveryType: "NariNow 2H",
       paymentMethod: "Chuyển khoản VNPAY-QR",
       paymentStatus: "paid",
       branchName: "CN2 - 555 Đường 3/2, Quận 10",
@@ -680,7 +680,7 @@ function createInitialOrders(inventory: InventoryRecord[]): ErpOrderRecord[] {
       total: p1.price * 2 + p0.price,
       status: "pending",
       statusLabel: ORDER_STATUS_LABELS.pending,
-      deliveryType: "NowFree 2H",
+      deliveryType: "NariNow 2H",
       paymentMethod: "Thanh toán khi nhận hàng (COD)",
       paymentStatus: "unpaid",
       branchName: "CN2 - 555 Đường 3/2, Quận 10",
@@ -702,7 +702,7 @@ function createInitialOrders(inventory: InventoryRecord[]): ErpOrderRecord[] {
       total: p2.price * 2,
       status: "delivered",
       statusLabel: ORDER_STATUS_LABELS.delivered,
-      deliveryType: "NowFree 2H",
+      deliveryType: "NariNow 2H",
       paymentMethod: "Chuyển khoản VNPAY-QR",
       paymentStatus: "paid",
       branchName: "CN1 - 71 Hoàng Hoa Thám, Tân Bình",
@@ -724,7 +724,7 @@ function createInitialOrders(inventory: InventoryRecord[]): ErpOrderRecord[] {
       total: p3.price,
       status: "delivered",
       statusLabel: ORDER_STATUS_LABELS.delivered,
-      deliveryType: "NowFree 2H",
+      deliveryType: "NariNow 2H",
       paymentMethod: "Thẻ ATM Nội địa",
       paymentStatus: "paid",
       branchName: "CN28 - Nguyễn Văn Linh, Đà Nẵng",
@@ -940,13 +940,13 @@ export function createStaff(input: {
   const nextNum = store.staff.length + 1;
   const id = `stf-${nextNum.toString().padStart(3, "0")}`;
   const employeeCode = `NV-HSK-${nextNum.toString().padStart(3, "0")}`;
-  const roleLabel = ROLE_LABELS[input.role] || "Nhân viên Hasaki";
+  const roleLabel = ROLE_LABELS[input.role] || "Nhân viên Nari Home";
   const permissions = ROLE_PERMISSIONS[input.role] || ["users:read"];
 
   let branchName = input.branchName;
   if (!branchName && input.branchId) {
     const b = BRANCH_DEFINITIONS.find((item) => item.id === input.branchId);
-    branchName = b ? b.name : "Trụ sở Hasaki";
+    branchName = b ? b.name : "Trụ sở Nari Home";
   }
 
   const newStaff: StaffRecord = {
@@ -1176,7 +1176,7 @@ export function createErpOrder(input: {
   customerPhone: string;
   shippingAddress: string;
   items: ErpOrderItem[];
-  deliveryType?: "NowFree 2H" | "Tiêu chuẩn";
+  deliveryType?: "NariNow 2H" | "Tiêu chuẩn";
   paymentMethod?: string;
   branchName?: string;
   notes?: string;
@@ -1187,8 +1187,8 @@ export function createErpOrder(input: {
   const orderCode = `HSK-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(nextNum + 1000).slice(-4)}`;
 
   const subtotal = input.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const deliveryType = input.deliveryType || "NowFree 2H";
-  const shippingFee = deliveryType === "NowFree 2H" && subtotal >= 99000 ? 0 : 15000;
+  const deliveryType = input.deliveryType || "NariNow 2H";
+  const shippingFee = deliveryType === "NariNow 2H" && subtotal >= 99000 ? 0 : 15000;
   const total = subtotal + shippingFee;
 
   const branchName = input.branchName || "CN1 - 71 Hoàng Hoa Thám, Tân Bình";

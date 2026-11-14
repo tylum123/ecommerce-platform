@@ -294,3 +294,75 @@ npm.cmd run start
 3. **Xóa sạch lỗi 404 trên toàn bộ liên kết Header, Mega Menu, Search Popup & Trang Chủ**:
    - Mở rộng `resolveCategorySlug()` và `getCategoryTitle()` trong `src/lib/catalog.ts` ánh xạ toàn bộ ~150 danh mục con trong `interactive-ui-2026-11-14.json` (`megaMenu`, `searchPopup`, `categoryPageUi`) và các banner (`nha-cua-doi-song-c2529.html`, `dien-gia-dung-c2463.html`, `loa-bluetooth-c2800.html`, v.v.).
    - Bổ sung và mở rộng các route `/tra-cuu-don-hang`, `/campaign/[slug]`, `/tag/[slug]`, `/cam-nang/[slug]`, `/dang-ky`, `/dich-vu/[slug]` và `/thuong-hieu/[slug]`.
+
+---
+
+## Cập Nhật Wave 9 (Kiến Trúc White-Label O2O `/grill-me`, Đổi Tên Repo GitHub `ecommerce-platform`, Phân Quyền RBAC & Sửa Font Tiếng Việt) — 14/11/2026
+
+### 1. Quyết Định Kiến Trúc Nghiệp Vụ & Kỹ Thuật (`/grill-me`)
+1. **Chiến lược Database & Dữ liệu mẫu (White-label Retail + Clinic Schema)**:
+   - Tách biệt hoàn toàn dữ liệu hiển thị khỏi dữ liệu cào cứng bằng tầng CSDL quan hệ chuẩn hóa ([src/lib/db/schema.sql](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/db/schema.sql) và [src/lib/db/repository.ts](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/db/repository.ts), tài liệu tại [docs/DATABASE_ARCHITECTURE.md](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/docs/DATABASE_ARCHITECTURE.md)).
+   - Hỗ trợ kết nối **PostgreSQL ngoài** qua `DATABASE_URL` và tự động fallback về **SQLite nội bộ (`data/ecommerce.sqlite`)** khi chạy local.
+   - Dữ liệu Hasaki chỉ đóng vai trò **Seed Data (dữ liệu mẫu)** có công tắc bật/tắt hoặc xóa sạch (`ENABLE_HASAKI_SEED=false` / `clearSeedData()`) để nạp sản phẩm & dịch vụ riêng của doanh nghiệp.
+2. **Mô hình Chi nhánh & Tồn kho (Flexible Multi-Branch 1..N)**:
+   - Hỗ trợ cấu hình linh hoạt từ `1` kho duy nhất đến `N` chi nhánh cửa hàng/clinic (`branches` + `branch_inventory`), mỗi chi nhánh có cờ bật/tắt `NowFree 2H` và `Clinic & Spa`, tự động trừ tồn kho thực tế khi tạo đơn hàng.
+3. **Bảo mật Phiên đăng nhập & Thanh toán O2O**:
+   - Sử dụng **HTTP-only signed session cookie (`hasaki_session`)** kết hợp [src/middleware.ts](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/middleware.ts) để bảo vệ các route `/quan-tri` và `/khach-hang/*` ngay từ tầng Edge/Server.
+   - Thanh toán hỗ trợ **COD**, **VietQR chuyển khoản ngân hàng động** và cổng **Webhook xác nhận thanh toán tự động** ([src/app/api/payments/webhook/route.ts](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/app/api/payments/webhook/route.ts)).
+
+### 2. Đổi Tên Dự Án & Đẩy Lên GitHub (`ecommerce-platform`)
+- Đã đổi tên package trong `package.json` thành **`ecommerce-platform`** (gỡ bỏ tên `hasaki-clone`).
+- Đã khởi tạo repository GitHub mới và đẩy toàn bộ mã nguồn sạch lên nhánh `main`:
+  - **GitHub URL**: `https://github.com/tylum123/ecommerce-platform`
+
+### 3. Phân Quyền Route (RBAC), Màn Hình Theo Vai Trò & Chuẩn Hóa Font Tiếng Việt (Đang triển khai & Kiểm thử)
+- **Phân quyền Route & Màn hình hiển thị theo Role**:
+  - `Guest`: Xem Storefront công khai; truy cập `/quan-tri` hoặc `/khach-hang/*` sẽ tự động chuyển hướng về `/dang-nhap?redirect=...`.
+  - `Customer (VIP)`: Truy cập `/khach-hang/tai-khoan`, `/khach-hang/don-hang`, `/khach-hang/so-dia-chi`, `/khach-hang/yeu-thich`; chặn truy cập `/quan-tri` (hiển thị thông báo phân quyền rõ ràng + nút quay về khu vực khách hàng).
+  - `Staff (Warehouse / Clinic Doctor)`: Truy cập `/quan-tri` với các tab nghiệp vụ được phép theo đúng vai trò (`orders`, `inventory` cho Quản lý Kho; `users`/hồ sơ da & lịch hẹn cho Bác sĩ Da liễu).
+  - `Super Admin`: Toàn quyền truy cập tất cả các tab trên `/quan-tri` (`Overview`, `Users CRM`, `Staff RBAC`, `Orders NowFree 2H`, `Multi-branch Inventory`, `SEO & AI MCP`).
+- **Chuẩn hóa Font chữ Tiếng Việt**:
+  - Cấu hình `subsets: ["latin", "vietnamese"]` và đồng bộ biến CSS `--font-sans` trong `src/app/layout.tsx` & `src/app/globals.css`, khắc phục triệt để lỗi lệch dấu Tiếng Việt (`ắ, ặ, ể, ệ, ơ, ư, đ`) và lệch `line-height` trên Windows.
+
+---
+
+## Bàn Giao Wave 10 — Chuyển Đổi Hoàn Tất Nhận Diện Thương Hiệu & Tone Màu **Nari Home (Phương Án A — Header Kem Lụa Sáng `#F6ECE3`)** — 14/11/2026
+
+Đã hoàn thành toàn diện **Wave 10** theo đúng yêu cầu người dùng: chuyển đổi thương hiệu từ Hasaki sang **Nari Home — *"Khơi nguồn vẻ đẹp - Kiến tạo khí chất"*** với Phương án A (Header nền Kem Lụa Sáng `#F6ECE3`):
+
+1. **Hệ Thống Font Chữ & Metadata Trang Web (`src/app/layout.tsx`)**:
+   - Tích hợp cặp font chuẩn thương hiệu: **`Cormorant_Garamond`** (`--font-display`, weight 500/600/700 cho Logo và tiêu đề) và **`Be_Vietnam_Pro`** (`--font-sans`, weight 400/500/600/700 cho nội dung UI), hỗ trợ đầy đủ `subsets: ["latin", "vietnamese"]`.
+   - Cập nhật Metadata mặc định: `<title>Nari Home — Khơi nguồn vẻ đẹp - Kiến tạo khí chất | Mỹ Phẩm & Clinic Chính Hãng</title>` và mô tả dịch vụ làm đẹp da liễu chuẩn y khoa Nari Home.
+
+2. **Hệ Thống Design Tokens & Bảng Màu Luxury Silk & Pearl Champagne (`src/app/globals.css`)**:
+   - Thiết lập các biến CSS `:root` chuẩn xác:
+     - Nền chính: `--bg-page: #faf5f0;` (Ivory Alabaster Silk)
+     - Nền khối/phần tử: `--bg-surface-alt: #f6ece3;` (Pearl Champagne Silk)
+     - Viền tinh tế: `--line: #e6d5c5;` (Silk Champagne Border)
+     - Màu thương hiệu chính: `--brand-green: #3d2e24;` (Deep Espresso Luxury) & `--brand-green-dark: #1e1b18;` (Obsidian Charcoal)
+     - Màu điểm nhấn kim loại quý: `--brand-accent: #9e7656;` (Champagne Bronze)
+     - Màu hành động CTA: `--orange: #b86b4b;` (Warm Terracotta / Rose-Bronze) cho giá khuyến mãi, Flash Deals, giỏ hàng, nút đặt hẹn
+     - Màu chữ chính & phụ: `--text: #1e1b18;` (Obsidian Charcoal) & `--muted: #6e5a4f;` (Warm Taupe)
+   - **Header Phương án A (`.header`, `.site-header`, `.header-main-bar`)**:
+     - Nền gradient Kem Lụa Sáng: `linear-gradient(135deg, #faf5f0 0%, #f6ece3 52%, #efe2d4 100%)`.
+     - Viền đáy vàng đồng ngọc trai: `1px solid #e2ceba`.
+     - Chữ & biểu tượng: `#1e1b18` và `#3d2e24`, hover chuyển sang `#b86b4b`.
+     - Thanh thông báo trên cùng (`.promo-strip`): Nền Espresso trầm `#3d2e24`, chữ `#f6ece3`, huy hiệu pill cam đất `#b86b4b`.
+     - Ô tìm kiếm (`.search`): Nền trắng tinh tế, viền `#d4beaa`, nút tìm kiếm Espresso `#3d2e24` (hover `#b86b4b`).
+     - Thanh điều hướng (`.nav`, `.subnav-bar`): Nền `#fdfaf7`, viền `#eadbcf`, menu links `#3d2e24` (hover `#b86b4b`).
+
+3. **Component `<NariHomeLogo />` & Hero Banner Trang Chủ**:
+   - Tạo mới `src/components/sites/hasaki/nari-home-logo.tsx`: Biểu tượng SVG hoa lily nở đối xứng & ngọc trai trung tâm với vòng chỉ vàng đồng champagne, dòng chữ **Nari Home** font Cormorant Garamond và slogan *"Khơi nguồn vẻ đẹp - Kiến tạo khí chất"*.
+   - Thay thế toàn bộ logo cũ bằng `<NariHomeLogo />` trên Header, Footer, Giỏ hàng, Thanh toán.
+   - Trang chủ (`src/app/page.tsx`): Đặt banner chính thức `public/nari-home-banner.jpg` làm **Slide đầu tiên** của Hero Banner Carousel kèm điều khiển mượt mà.
+   - Thẻ sản phẩm (`src/components/sites/hasaki/product-card.tsx`): Đổi màu thương hiệu và tag quà tặng sang Warm Terracotta `#b86b4b` và Deep Espresso `#3d2e24`.
+   - Chân trang (`src/components/sites/hasaki/footer.tsx`): Đổi toàn bộ nhãn nhận diện sang Nari Home, Nari Clinic & Spa, email `hotro@narihome.vn`, bản quyền © 2026 Nari Home Beauty & Clinic.
+   - Các màn hình đăng nhập & đăng ký (`/dang-nhap`, `/dang-ky`): Đồng bộ tone màu ấm và văn bản sang tài khoản Nari Home.
+
+4. **Ghi Nhận Thay Đổi Theo Yêu Cầu Người Dùng**:
+   - Đã gỡ bỏ nhãn `"TOOL PLAYGROUND"` bên cạnh tab `"AI MCP & SEO Hub"` tại dòng 899-901 của `src/components/sites/hasaki/admin-erp-view.tsx` và giữ nguyên trạng thái này.
+   - Đã sửa lỗi kiểu dữ liệu `handleAddToCartFromFav` trong `src/components/sites/hasaki/customer-portal-view.tsx` đồng bộ với `CartItem` (`{ slug, quantity }`).
+
+5. **Kết Quả Kiểm Thử & Xác Minh**:
+   - `npx tsc --noEmit --incremental false`: Pass 100% với 0 lỗi Type-Check.
+   - `node --test test/access-policy.test.mjs test/auth-and-routing.test.mjs test/brand-filter.test.mjs test/test-campaigns-location.mjs`: Pass toàn bộ 14/14 bài test tự động (access policy, RBAC routes, HMAC session, catalog sorting & facets).

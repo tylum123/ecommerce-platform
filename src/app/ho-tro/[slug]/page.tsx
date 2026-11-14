@@ -19,11 +19,11 @@ export async function generateMetadata({
   const topic = getSupportTopicBySlug(slug);
   if (!topic) {
     return {
-      title: "Hỗ trợ khách hàng | Hasaki.vn"
+      title: "Hỗ trợ khách hàng | Nari Home"
     };
   }
   return {
-    title: `${topic.title} | Hasaki.vn`,
+    title: `${topic.title} | Nari Home`,
     description: topic.summary
   };
 }

@@ -36,13 +36,13 @@ export default function OrderLookupPage() {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-            <PackageCheck size={24} color="#326e51" />
+            <PackageCheck size={24} color="#3d2e24" />
             <h1 style={{ fontSize: "20px", fontWeight: 700, margin: 0, color: "#111" }}>
               Kiểm tra tình trạng đơn hàng
             </h1>
           </div>
           <p style={{ fontSize: "13px", color: "#666", margin: "0 0 20px", lineHeight: 1.5 }}>
-            Nhập mã đơn hàng và số điện thoại đặt hàng để tra cứu tiến độ xử lý & giao hàng NowFree 2H.
+            Nhập mã đơn hàng và số điện thoại đặt hàng để tra cứu tiến độ xử lý & giao hàng NariNow 2H.
           </p>
 
           <form onSubmit={handleSubmit} style={{ display: "grid", gap: "14px" }}>
@@ -103,7 +103,7 @@ export default function OrderLookupPage() {
             <button
               type="submit"
               style={{
-                backgroundColor: "#326e51",
+                backgroundColor: "#3d2e24",
                 color: "#ffffff",
                 border: "none",
                 borderRadius: "4px",
@@ -139,7 +139,7 @@ export default function OrderLookupPage() {
               <strong>Kết quả tra cứu cho mã “{orderCode.trim()}”:</strong>
               <p style={{ margin: "6px 0 0", color: "#555" }}>
                 Tính năng tra cứu đơn hàng thời gian thực đang ở chế độ mô phỏng giao diện (chưa kết nối cơ sở dữ liệu vận đơn thật). Vui lòng liên hệ Hotline miễn phí{" "}
-                <a href="tel:18006324" style={{ color: "#326e51", fontWeight: 700 }}>
+                <a href="tel:18006324" style={{ color: "#3d2e24", fontWeight: 700 }}>
                   1800 6324
                 </a>{" "}
                 để được kiểm tra đơn hàng nhanh nhất.
@@ -162,10 +162,10 @@ export default function OrderLookupPage() {
             }}
           >
             <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-              <PhoneCall size={14} color="#326e51" />
-              Hỗ trợ khách hàng (08:00 - 22:00): <strong style={{ color: "#326e51" }}>1800 6324</strong>
+              <PhoneCall size={14} color="#3d2e24" />
+              Hỗ trợ khách hàng (08:00 - 22:00): <strong style={{ color: "#3d2e24" }}>1800 6324</strong>
             </span>
-            <Link href="/ho-tro" style={{ color: "#326e51", textDecoration: "underline" }}>
+            <Link href="/ho-tro" style={{ color: "#3d2e24", textDecoration: "underline" }}>
               Xem trung tâm hỗ trợ →
             </Link>
           </div>

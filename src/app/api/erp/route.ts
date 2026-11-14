@@ -88,17 +88,17 @@ export async function POST(request: NextRequest) {
         success: true,
         seedDataEnabled: newState,
         message: newState
-          ? "Đã BẬT hiển thị dữ liệu mẫu Hasaki."
-          : "Đã TẮT hiển thị dữ liệu mẫu Hasaki. Hệ thống hiện chỉ hiển thị các sản phẩm, chi nhánh và dịch vụ độc quyền do bạn nhập.",
+          ? "Đã BẬT hiển thị dữ liệu mẫu Nari Home."
+          : "Đã TẮT hiển thị dữ liệu mẫu Nari Home. Hệ thống hiện chỉ hiển thị các sản phẩm, chi nhánh và dịch vụ độc quyền do bạn nhập.",
       });
     }
 
-    // 2. ACTION: CLEAR SEED DATA (Permanently wipe Hasaki sample catalog)
+    // 2. ACTION: CLEAR SEED DATA (Permanently wipe Nari Home sample catalog)
     if (action === "clear_seed_data") {
       const result = purgeSeedData();
       return NextResponse.json({
         success: true,
-        message: "Đã xóa toàn bộ dữ liệu mẫu Hasaki khỏi cơ sở dữ liệu. Toàn bộ sản phẩm và dịch vụ hiện tại là dữ liệu độc quyền của bạn.",
+        message: "Đã xóa toàn bộ dữ liệu mẫu Nari Home khỏi cơ sở dữ liệu. Toàn bộ sản phẩm và dịch vụ hiện tại là dữ liệu độc quyền của bạn.",
         purged: result,
       });
     }

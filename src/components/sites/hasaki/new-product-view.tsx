@@ -27,11 +27,11 @@ export function NewProductView({ item }: { item: Item }) {
         <p>Giỏ hàng và thanh toán trong bản này là giao diện thử nghiệm.</p>
       </div></div>
     <div className="snapshot-details"><nav className="snapshot-section-nav" aria-label="Thông tin sản phẩm"><a href="#mo-ta">Mô tả</a><a href="#thong-so">Thông số</a><a href="#huong-dan">HDSD</a><a href="#danh-gia">Đánh giá</a><a href="#hoi-dap">Hỏi đáp</a></nav>
-      <section id="mo-ta" className="snapshot-section"><h2>Mô tả sản phẩm</h2><p>{item.description}</p><p>Nội dung mô tả đầy đủ chưa được thu thập. <a href={item.url}>Xem trên Hasaki</a></p></section>
-      <section id="thong-so" className="snapshot-section"><h2>Thông số sản phẩm</h2>{item.detail?.specs.length ? <table><tbody>{item.detail.specs.map(([name, value], index) => <tr key={`${name}-${index}`}><th scope="row">{name}</th><td>{value}</td></tr>)}</tbody></table> : <p>Chưa có thông số trong dữ liệu đã lưu. <a href={item.url}>Xem trên Hasaki</a></p>}</section>
-      <section id="huong-dan" className="snapshot-section"><h2>Hướng dẫn sử dụng</h2><p>Chưa có hướng dẫn trong dữ liệu đã lưu. <a href={item.url}>Xem trên Hasaki</a></p></section>
-      <section id="danh-gia" className="snapshot-section"><h2>Đánh giá</h2><p>Chưa tải dữ liệu đánh giá. Việc gửi đánh giá cần tài khoản Hasaki.</p><a className="snapshot-source-button" href={item.url}>Xem và viết đánh giá trên Hasaki</a></section>
-      <section id="hoi-dap" className="snapshot-section"><h2>Hỏi đáp</h2><p>Chưa tải dữ liệu hỏi đáp.</p><a className="snapshot-source-button" href={item.url}>Xem và gửi câu hỏi trên Hasaki</a></section>
+      <section id="mo-ta" className="snapshot-section"><h2>Mô tả sản phẩm</h2><p>{item.description}</p><p>Nội dung mô tả đầy đủ chưa được thu thập. <a href={item.url}>Xem trên Nari Home</a></p></section>
+      <section id="thong-so" className="snapshot-section"><h2>Thông số sản phẩm</h2>{item.detail?.specs.length ? <table><tbody>{item.detail.specs.map(([name, value], index) => <tr key={`${name}-${index}`}><th scope="row">{name}</th><td>{value}</td></tr>)}</tbody></table> : <p>Chưa có thông số trong dữ liệu đã lưu. <a href={item.url}>Xem trên Nari Home</a></p>}</section>
+      <section id="huong-dan" className="snapshot-section"><h2>Hướng dẫn sử dụng</h2><p>Chưa có hướng dẫn trong dữ liệu đã lưu. <a href={item.url}>Xem trên Nari Home</a></p></section>
+      <section id="danh-gia" className="snapshot-section"><h2>Đánh giá</h2><p>Chưa tải dữ liệu đánh giá. Việc gửi đánh giá cần tài khoản Nari Home.</p><a className="snapshot-source-button" href={item.url}>Xem và viết đánh giá trên Nari Home</a></section>
+      <section id="hoi-dap" className="snapshot-section"><h2>Hỏi đáp</h2><p>Chưa tải dữ liệu hỏi đáp.</p><a className="snapshot-source-button" href={item.url}>Xem và gửi câu hỏi trên Nari Home</a></section>
     </div>
   </main><Footer /></>;
 }

@@ -113,9 +113,9 @@ export function ClinicView({ sort }: { sort: string }) {
   return (
     <>
       <Header />
-      <nav className="booking-clinic-nav" aria-label="Hasaki Clinic">
+      <nav className="booking-clinic-nav" aria-label="Nari Clinic & Spa">
         <div className="wrap">
-          <Link href="/danh-muc/hasaki-clinic-spa-c331.html">HASAKI CLINIC &amp; SPA</Link>
+          <Link href="/danh-muc/hasaki-clinic-spa-c331.html">Nari Clinic & Spa &amp; SPA</Link>
           <Link href="/ho-tro/gioi-thieu">GIỚI THIỆU</Link>
           <Link href="/danh-muc/hasaki-clinic-spa-c331.html">DỊCH VỤ</Link>
           <Link href="/bang-gia-dich-vu.html">BẢNG GIÁ</Link>
@@ -127,13 +127,13 @@ export function ClinicView({ sort }: { sort: string }) {
 
       <main className="wrap clinic-page">
         <div className="breadcrumbs">
-          <Link href="/">Trang chủ</Link> › Hasaki Clinic &amp; Spa
+          <Link href="/">Trang chủ</Link> › Nari Clinic & Spa &amp; Spa
         </div>
 
         <Image
           className="clinic-banner"
           src="https://media.hcdn.vn/catalog/category/1787211720369-dieu-tri-da-chuan-y-khoa-1-1787215476.jpg"
-          alt="Hasaki Clinic"
+          alt="Nari Clinic & Spa"
           width={1320}
           height={250}
           unoptimized
@@ -141,7 +141,7 @@ export function ClinicView({ sort }: { sort: string }) {
 
         <div className="listing">
           <aside className="filters clinic-filters">
-            <h3>HASAKI CLINIC &amp; SPA</h3>
+            <h3>Nari Clinic & Spa &amp; SPA</h3>
             <div className="category-filter-list" style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "14px" }}>
               <button
                 type="button"
@@ -270,7 +270,7 @@ export function ClinicView({ sort }: { sort: string }) {
 
           <div className="listing-main">
             <div className="listing-header">
-              <h1>Hasaki Clinic &amp; Spa</h1>
+              <h1>Nari Clinic & Spa &amp; Spa</h1>
               <span>({items.length} dịch vụ trong ảnh chụp)</span>
             </div>
             <p className="bestseller-notice">

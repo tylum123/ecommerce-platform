@@ -71,7 +71,7 @@ export function BookingView({ initialService = "" }: { initialService?: string }
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bookingPayload),
       });
-      if (!response.ok) throw new Error("Dịch vụ đặt lịch hiện chưa khả dụng. Lịch hẹn chưa được tạo; vui lòng đặt trực tiếp với Hasaki.");
+      if (!response.ok) throw new Error("Dịch vụ đặt lịch hiện chưa khả dụng. Lịch hẹn chưa được tạo; vui lòng đặt trực tiếp với Nari Home.");
       const result: unknown = await response.json();
       if (!result || typeof result !== "object" || !("code" in result) || typeof result.code !== "string" || !result.code) {
         throw new Error("Máy chủ chưa trả mã xác nhận lịch hẹn. Vui lòng thử lại sau.");
@@ -88,9 +88,9 @@ export function BookingView({ initialService = "" }: { initialService?: string }
   return (
     <>
       <Header />
-      <nav className="booking-clinic-nav" aria-label="Hasaki Clinic">
+      <nav className="booking-clinic-nav" aria-label="Nari Clinic & Spa">
         <div className="wrap">
-          <Link href="/danh-muc/hasaki-clinic-spa-c331.html">HASAKI CLINIC &amp; SPA</Link>
+          <Link href="/danh-muc/hasaki-clinic-spa-c331.html">Nari Clinic & Spa &amp; SPA</Link>
           <Link href="/ho-tro/gioi-thieu">GIỚI THIỆU</Link>
           <Link href="/danh-muc/hasaki-clinic-spa-c331.html">DỊCH VỤ</Link>
           <Link href="/bang-gia-dich-vu.html">BẢNG GIÁ</Link>
@@ -104,7 +104,7 @@ export function BookingView({ initialService = "" }: { initialService?: string }
 
       <main className="booking-page wrap">
         <div className="breadcrumbs" style={{ paddingTop: 0 }}>
-          <Link href="/">Trang chủ</Link> › <Link href="/clinic">Hasaki Clinic &amp; Spa</Link> › Đặt hẹn
+          <Link href="/">Trang chủ</Link> › <Link href="/clinic">Nari Clinic & Spa &amp; Spa</Link> › Đặt hẹn
         </div>
         <div className="booking-steps" aria-label="Các phần thông tin đặt hẹn">
           ① Số điện thoại　–　② Chi nhánh　–　③ Dịch vụ　–　④ Ngày giờ
@@ -284,7 +284,7 @@ export function BookingView({ initialService = "" }: { initialService?: string }
           <div className="booking-preview" role="status">
             <h2>Thông tin đặt hẹn mẫu</h2>
             {bookingCode && (
-              <p style={{ color: "#326e51" }}>
+              <p style={{ color: "#3d2e24" }}>
                 Mã đặt hẹn: <strong>{bookingCode}</strong>
               </p>
             )}
@@ -301,13 +301,13 @@ export function BookingView({ initialService = "" }: { initialService?: string }
               <Link
                 href="/khach-hang/lich-hen"
                 className="booking-portal-link"
-                style={{ color: "#326e51", fontWeight: "bold", textDecoration: "underline" }}
+                style={{ color: "#3d2e24", fontWeight: "bold", textDecoration: "underline" }}
               >
                 Xem lịch hẹn trong Cổng khách hàng →
               </Link>
             </p>
-            <strong>Chưa gửi lịch hẹn. Vui lòng đặt trực tiếp với Hasaki để xác nhận.</strong>{" "}
-            <a href="https://hasaki.vn/booking">Mở trang đặt hẹn Hasaki</a>
+            <strong>Chưa gửi lịch hẹn. Vui lòng đặt trực tiếp với Nari Home để xác nhận.</strong>{" "}
+            <a href="https://Nari Home/booking">Mở trang đặt hẹn Nari Home</a>
           </div>
         )}
       </main>

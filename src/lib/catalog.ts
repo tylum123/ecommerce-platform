@@ -259,7 +259,7 @@ function normalizeCatHref(href: string): string {
   uiCategoryTitleMap.set("dien-gia-dung-c2463.html", "Điện Gia Dụng");
   uiCategoryTitleMap.set("loa-bluetooth-c2800.html", "Loa Bluetooth");
   uiCategoryTitleMap.set("my-pham-c3.html", "Mỹ Phẩm");
-  uiCategoryTitleMap.set("hasaki-clinic-spa-c331.html", "Hasaki Clinic & Spa");
+  uiCategoryTitleMap.set("hasaki-clinic-spa-c331.html", "Nari Clinic & Spa");
   uiCategoryTitleMap.set("camera-giam-sat-c2934.html", "Camera Giám Sát");
   uiCategoryTitleMap.set("dung-cu-so-che-thuc-pham-c2809.html", "Dụng Cụ Sơ Chế Thực Phẩm");
   uiCategoryTitleMap.set("kem-duong-am-cho-be-c2505.html", "Kem Dưỡng Ẩm Cho Bé");

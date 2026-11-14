@@ -46,11 +46,11 @@ const ARTICLES: GuideArticle[] = [
     readTime: "5 phút đọc",
     image: "https://media.hcdn.vn/catalog/product/4/_/4_avt-mun-249k-1716968747.jpg",
     summary:
-      "Tự ý nặn mụn bằng tay hoặc que kim loại tại nhà là nguyên nhân hàng đầu khiến vi khuẩn P.acnes lan rộng, gây viêm sâu và để lại sẹo rỗ vĩnh viễn. Tìm hiểu quy trình lấy mụn bằng tăm bông vô trùng tại Hasaki Clinic.",
+      "Tự ý nặn mụn bằng tay hoặc que kim loại tại nhà là nguyên nhân hàng đầu khiến vi khuẩn P.acnes lan rộng, gây viêm sâu và để lại sẹo rỗ vĩnh viễn. Tìm hiểu quy trình lấy mụn bằng tăm bông vô trùng tại Nari Clinic & Spa.",
     contentHtml: `
       <p>Nhiều người thường có thói quen dùng tay hoặc cây nặn mụn kim loại để loại bỏ nhân mụn ngay khi thấy cồi trắng xuất hiện. Tuy nhiên, hành động này tiềm ẩn rủi ro phá vỡ thành nang lông bên dưới bề mặt da, đẩy ổ viêm vào sâu trung bì và để lại sẹo rỗ vĩnh viễn.</p>
       
-      <h4>Quy trình lấy mụn 12 bước chuẩn y khoa tại Hasaki Clinic</h4>
+      <h4>Quy trình lấy mụn 12 bước chuẩn y khoa tại Nari Clinic & Spa</h4>
       <ol>
         <li><strong>Bác sĩ thăm khám:</strong> Bác sĩ Da Liễu soi da, phân loại mức độ mụn (mụn ẩn, mụn đầu đen, mụn viêm).</li>
         <li><strong>Tẩy trang dịu nhẹ:</strong> Loại bỏ dầu thừa và cặn trang điểm với dược mỹ phẩm Bioderma/La Roche-Posay.</li>
@@ -89,7 +89,7 @@ const ARTICLES: GuideArticle[] = [
     readTime: "6 phút đọc",
     image: "https://media.hcdn.vn/catalog/product/c/o/cong-nghe-diode-laser-triet-long-bao-hanh-5-nam.jpg",
     summary:
-      "So sánh chi tiết bước sóng 808nm chuyên sâu của Diode Laser với ánh sáng phân tán IPL. Khám phá lý do công nghệ Diode Laser tại Hasaki Clinic giúp triệt sạch lông tận gốc và được cam kết bảo hành 5 năm bằng văn bản.",
+      "So sánh chi tiết bước sóng 808nm chuyên sâu của Diode Laser với ánh sáng phân tán IPL. Khám phá lý do công nghệ Diode Laser tại Nari Clinic & Spa giúp triệt sạch lông tận gốc và được cam kết bảo hành 5 năm bằng văn bản.",
     contentHtml: `
       <p>Triệt lông vĩnh viễn là một trong những nhu cầu thẩm mỹ phổ biến nhất hiện nay. Tuy nhiên, nhiều khách hàng vẫn nhầm lẫn giữa công nghệ Diode Laser hiện đại và công nghệ IPL thế hệ cũ.</p>
 
@@ -97,12 +97,12 @@ const ARTICLES: GuideArticle[] = [
       <p><strong>IPL (Intense Pulsed Light):</strong> Thực chất là một chùm ánh sáng đa sắc, dải bước sóng rộng từ 500nm - 1200nm, năng lượng bị phân tán và dễ hấp thu bởi cả sắc tố da xung quanh, gây cảm giác nóng rát, châm chích và nguy cơ tăng sắc tố.</p>
       <p><strong>Diode Laser 808nm:</strong> Là ánh sáng đơn sắc có bước sóng chuẩn xác 808nm - bước sóng vàng được FDA công nhận có khả năng xuyên sâu qua nang lông và hấp thu chọn lọc tối đa hắc tố melanin tại chân lông mà không làm tổn thương các mô lân cận.</p>
 
-      <h4>Ưu điểm của công nghệ Diode Laser tại Hasaki Clinic</h4>
+      <h4>Ưu điểm của công nghệ Diode Laser tại Nari Clinic & Spa</h4>
       <ul>
         <li><strong>Đầu đá Sapphire làm lạnh -5°C:</strong> Mang lại cảm giác mát lạnh êm ái suốt quá trình triệt, hoàn toàn không đau rát.</li>
         <li><strong>Rút ngắn liệu trình:</strong> Chỉ từ 6 - 8 buổi là lông tơ đã thưa mảnh và biến mất hoàn toàn, so với 12 - 15 buổi của IPL.</li>
         <li><strong>Se khít lỗ chân lông và mờ thâm:</strong> Nhiệt quang chọn lọc giúp kích thích tăng sinh collagen, làm sáng mịn vùng da dưới cánh tay hoặc bikini.</li>
-        <li><strong>Chế độ bảo hành 5 năm:</strong> Hasaki Clinic cấp phiếu bảo hành bằng văn bản, hỗ trợ dặm lại miễn phí trong suốt 5 năm.</li>
+        <li><strong>Chế độ bảo hành 5 năm:</strong> Nari Clinic & Spa cấp phiếu bảo hành bằng văn bản, hỗ trợ dặm lại miễn phí trong suốt 5 năm.</li>
       </ul>
     `,
     relatedService: {
@@ -158,7 +158,7 @@ const ARTICLES: GuideArticle[] = [
     contentHtml: `
       <p>Laser CO2 Fractional được Hiệp hội Da Liễu Hoa Kỳ đánh giá là bước tiến vượt bậc trong công nghệ tái tạo bề mặt da và xử lý thương tổn biểu bì dạng nốt ruồi, mụn thịt, sẹo rỗ lâu năm.</p>
       
-      <h4>Ứng dụng điều trị tại Hasaki Clinic</h4>
+      <h4>Ứng dụng điều trị tại Nari Clinic & Spa</h4>
       <p><strong>1. Xóa nốt ruồi, u tuyến mồ hôi, mụn thịt:</strong> Tia laser hội tụ siêu mảnh chỉ 70 micromet đốt cháy chính xác chân nốt ruồi mà không làm lan rộng tổn thương ra vùng da lành. Vết thương đóng mài nhanh và bong tự nhiên sau 5 - 7 ngày.</p>
       <p><strong>2. Điều trị sẹo rỗ &amp; tái tạo da:</strong> Tạo hàng ngàn cột nhiệt vi điểm xuyên sâu tới lớp bì, kích hoạt phản ứng lành thương tự nhiên và tổng hợp sợi collagen type I &amp; III giúp đáy sẹo nâng lên đầy đặn.</p>
 
@@ -179,7 +179,7 @@ const ARTICLES: GuideArticle[] = [
     id: "cham-soc-da-sau-nan-mun",
     title: "Chăm sóc da sau khi lấy nhân mụn: 4 nguyên tắc vàng ngăn ngừa thâm và tái phát mụn",
     topic: "Chăm sóc da nhạy cảm",
-    author: "Dược sĩ Lâm sàng Hasaki Care",
+    author: "Dược sĩ Lâm sàng Nari Home Care",
     date: "02/11/2026",
     readTime: "5 phút đọc",
     image: "https://media.hcdn.vn/catalog/product/m/n/mn-149-1747988808_img_380x380_64adc6_fit_center.png",
@@ -250,7 +250,7 @@ const ARTICLES: GuideArticle[] = [
     contentHtml: `
       <p>Sử dụng mỹ phẩm không rõ nguồn gốc hoặc kem trộn chứa corticoid khiến da bị nghiện độc chất, hàng rào bảo vệ tự nhiên bị phá vỡ hoàn toàn, dẫn đến hiện tượng đỏ rát, châm chích và lộ mao mạch mạng nhện.</p>
       
-      <h4>Phác đồ cai nghiện corticoid và phục hồi da tại Hasaki Clinic</h4>
+      <h4>Phác đồ cai nghiện corticoid và phục hồi da tại Nari Clinic & Spa</h4>
       <p><strong>1. Thăm khám bằng máy soi da 3D:</strong> Bác sĩ xác định mức độ teo da và mật độ vi khuẩn ký sinh Demodex.</p>
       <p><strong>2. Điện di lạnh Cool Relax II:</strong> Dẫn truyền tinh chất phục hồi nồng độ cao vào sâu tầng sinh trưởng của da ở nhiệt độ -15°C, giúp co mạch máu giãn, cắt đứt cảm giác ngứa rát khó chịu ngay lập tức.</p>
       <p><strong>3. Chiếu ánh sáng sinh học vàng:</strong> Kích hoạt tuần hoàn máu và thúc đẩy tế bào biểu bì mới phát triển khỏe mạnh.</p>
@@ -277,7 +277,7 @@ const ARTICLES: GuideArticle[] = [
       <h4>Vì sao nên Peel da tại cơ sở y tế uy tín?</h4>
       <p>Nồng độ acid trong peel y khoa cao hơn nhiều lần so với sản phẩm tẩy da chết tại nhà. Nếu không trung hòa acid đúng thời điểm hoặc không đánh giá chính xác độ dày sừng của da, nguy cơ bỏng hóa chất và tăng sắc tố sau viêm (PIH) là rất cao.</p>
 
-      <h4>Sản phẩm Image Skincare USA chính hãng tại Hasaki Clinic</h4>
+      <h4>Sản phẩm Image Skincare USA chính hãng tại Nari Clinic & Spa</h4>
       <ul>
         <li><strong>BHA 7% + Lactic 7% + Resorcinol 7%:</strong> Phối hợp 3 hoạt chất vàng giúp kháng khuẩn, thông thoáng lỗ chân lông và gom cồi mụn khô nhanh chóng.</li>
         <li><strong>Retinol 25%:</strong> Thúc đẩy tăng sinh tế bào mới, cải thiện thâm mụn và làm mờ các nếp nhăn li ti trên bề mặt da.</li>
@@ -309,9 +309,9 @@ export default function CamNangPage() {
   return (
     <>
       <Header />
-      <nav className="booking-clinic-nav" aria-label="Hasaki Clinic">
+      <nav className="booking-clinic-nav" aria-label="Nari Clinic & Spa">
         <div className="wrap">
-          <Link href="/danh-muc/hasaki-clinic-spa-c331.html">HASAKI CLINIC &amp; SPA</Link>
+          <Link href="/danh-muc/hasaki-clinic-spa-c331.html">Nari Clinic & Spa &amp; SPA</Link>
           <Link href="/ho-tro/gioi-thieu">GIỚI THIỆU</Link>
           <Link href="/danh-muc/hasaki-clinic-spa-c331.html">DỊCH VỤ</Link>
           <Link href="/bang-gia-dich-vu.html">BẢNG GIÁ</Link>
@@ -326,7 +326,7 @@ export default function CamNangPage() {
       <main className="wrap clinic-page" style={{ paddingTop: "14px" }}>
         <div className="breadcrumbs">
           <Link href="/">Trang chủ</Link> ›{" "}
-          <Link href="/danh-muc/hasaki-clinic-spa-c331.html">Hasaki Clinic &amp; Spa</Link> › Cẩm nang làm đẹp &amp; Da liễu
+          <Link href="/danh-muc/hasaki-clinic-spa-c331.html">Nari Clinic & Spa &amp; Spa</Link> › Cẩm nang làm đẹp &amp; Da liễu
         </div>
 
         {/* Hero Banner Header */}
@@ -355,10 +355,10 @@ export default function CamNangPage() {
             Kiến thức y khoa chính thống
           </span>
           <h1 style={{ fontSize: "26px", fontWeight: "bold", margin: "0 0 10px", lineHeight: 1.3 }}>
-            CẨM NANG Y KHOA &amp; LÀM ĐẸP HASAKI CLINIC
+            CẨM NANG Y KHOA &amp; LÀM ĐẸP Nari Clinic & Spa
           </h1>
           <p style={{ fontSize: "14px", lineHeight: 1.6, opacity: 0.95, margin: 0, maxWidth: "800px" }}>
-            Chia sẻ kiến thức da liễu chuẩn y khoa, phác đồ điều trị mụn, triệt lông laser và chăm sóc da an toàn từ đội ngũ Bác sĩ chuyên khoa Da Liễu giàu kinh nghiệm tại Hasaki Clinic &amp; Spa.
+            Chia sẻ kiến thức da liễu chuẩn y khoa, phác đồ điều trị mụn, triệt lông laser và chăm sóc da an toàn từ đội ngũ Bác sĩ chuyên khoa Da Liễu giàu kinh nghiệm tại Nari Clinic & Spa &amp; Spa.
           </p>
         </div>
 
@@ -389,8 +389,8 @@ export default function CamNangPage() {
                 style={{
                   padding: "8px 16px",
                   borderRadius: "20px",
-                  border: isActive ? "1px solid #326e51" : "1px solid #ddd",
-                  background: isActive ? "#326e51" : "white",
+                  border: isActive ? "1px solid #3d2e24" : "1px solid #ddd",
+                  background: isActive ? "#3d2e24" : "white",
                   color: isActive ? "white" : "#444",
                   fontSize: "13px",
                   fontWeight: isActive ? "bold" : "normal",
@@ -456,7 +456,7 @@ export default function CamNangPage() {
                     position: "absolute",
                     top: "10px",
                     left: "10px",
-                    background: "#326e51",
+                    background: "#3d2e24",
                     color: "white",
                     fontSize: "11px",
                     fontWeight: "bold",
@@ -516,7 +516,7 @@ export default function CamNangPage() {
                     style={{
                       background: "none",
                       border: "none",
-                      color: "#326e51",
+                      color: "#3d2e24",
                       fontWeight: "bold",
                       fontSize: "12px",
                       cursor: "pointer",
@@ -654,7 +654,7 @@ export default function CamNangPage() {
               <div
                 style={{
                   background: "#f7f9f8",
-                  borderLeft: "4px solid #326e51",
+                  borderLeft: "4px solid #3d2e24",
                   padding: "12px 16px",
                   fontSize: "13px",
                   fontStyle: "italic",
@@ -688,7 +688,7 @@ export default function CamNangPage() {
                 }}
               >
                 <div>
-                  <div style={{ fontSize: "12px", color: "#326e51", fontWeight: "bold" }}>
+                  <div style={{ fontSize: "12px", color: "#3d2e24", fontWeight: "bold" }}>
                     DỊCH VỤ PHÒNG KHÁM LIÊN QUAN:
                   </div>
                   <strong style={{ fontSize: "14px", color: "#111" }}>
@@ -703,7 +703,7 @@ export default function CamNangPage() {
                   <Link
                     href={activeArticle.relatedService.url}
                     style={{
-                      background: "#326e51",
+                      background: "#3d2e24",
                       color: "white",
                       padding: "8px 14px",
                       borderRadius: "4px",
@@ -755,10 +755,10 @@ export default function CamNangPage() {
                   </div>
                   <Link
                     href={activeArticle.relatedProduct.url}
-                    style={{ color: "#326e51", fontWeight: "bold" }}
+                    style={{ color: "#3d2e24", fontWeight: "bold" }}
                     onClick={() => setActiveArticle(null)}
                   >
-                    Mua tại Hasaki →
+                    Mua tại Nari Home →
                   </Link>
                 </div>
               )}

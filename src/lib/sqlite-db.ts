@@ -1,5 +1,5 @@
 /**
- * White-Label Retail + Clinic SQLite Engine for Hasaki Clone.
+ * White-Label Retail + Clinic SQLite Engine for Nari Home Clone.
  * Powered by Node.js built-in `node:sqlite` (DatabaseSync).
  * Supports seamless multi-branch inventory, zero-dependency embedded transactions,
  * brand/catalog white-label isolation, and the Seed Data Switch.
@@ -197,7 +197,7 @@ function initializeDatabaseSchema(db: DatabaseSync): void {
       shipping_address TEXT NOT NULL,
       branch_id TEXT NOT NULL,
       branch_name TEXT NOT NULL,
-      delivery_type TEXT NOT NULL DEFAULT 'NowFree 2H',
+      delivery_type TEXT NOT NULL DEFAULT 'NariNow 2H',
       payment_method TEXT NOT NULL DEFAULT 'COD',
       payment_status TEXT NOT NULL DEFAULT 'unpaid',
       status TEXT NOT NULL DEFAULT 'pending',
@@ -419,7 +419,7 @@ export interface DbOrder {
   shippingAddress: string;
   branchId: string;
   branchName: string;
-  deliveryType: "NowFree 2H" | "Tiêu chuẩn";
+  deliveryType: "NariNow 2H" | "Tiêu chuẩn";
   paymentMethod: string;
   paymentStatus: "unpaid" | "paid" | "refunded";
   status: "pending" | "confirmed" | "packing" | "shipping" | "delivered" | "cancelled";
@@ -546,7 +546,7 @@ function seedInitialDataIfNecessary(db: DatabaseSync): void {
   const userCount = (db.prepare("SELECT COUNT(*) as count FROM users").get() as { count: number }).count;
   if (userCount === 0) {
     const now = new Date().toISOString();
-    // Default password hash for "Hasaki@123" with salt "hasaki_salt_2026"
+    // Default password hash for "Nari@123" with salt "hasaki_salt_2026"
     // Using deterministic hash for fast seed initialization
     const defaultSalt = "hasaki_salt_2026";
     const defaultHash = "f9a463cbbcb071e61ea460df6a2665e31eb27cf2cb7e0b1f2e519c72e2cfbc39";
@@ -557,16 +557,16 @@ function seedInitialDataIfNecessary(db: DatabaseSync): void {
     `);
 
     // Super Admin
-    userStmt.run("usr-admin", "admin@hasaki.vn", "0903112233", defaultHash, defaultSalt, "Trần Đình Khoa (Admin)", "admin", "Quản Trị Viên Hệ Thống", "Diamond", 5000, 50000000, 20, "Trụ sở Hasaki, Q. Tân Bình", "CN1", "active", now);
+    userStmt.run("usr-admin", "admin@narihome.vn", "0903112233", defaultHash, defaultSalt, "Trần Đình Khoa (Admin)", "admin", "Quản Trị Viên Hệ Thống", "Diamond", 5000, 50000000, 20, "Trụ sở Nari Home, Q. Tân Bình", "CN1", "active", now);
     // Warehouse Staff
-    userStmt.run("usr-warehouse", "kho@hasaki.vn", "0903334455", defaultHash, defaultSalt, "Nguyễn Văn Thành (Quản Lý Kho)", "warehouse_staff", "Nhân Viên Quản Lý Kho", "Gold", 800, 8000000, 5, "Kho Tổng Tân Bình", "CN1", "active", now);
+    userStmt.run("usr-warehouse", "kho@narihome.vn", "0903334455", defaultHash, defaultSalt, "Nguyễn Văn Thành (Quản Lý Kho)", "warehouse_staff", "Nhân Viên Quản Lý Kho", "Gold", 800, 8000000, 5, "Kho Tổng Tân Bình", "CN1", "active", now);
     // Clinic Doctor
-    userStmt.run("usr-doctor", "bacsi@hasaki.vn", "0903445566", defaultHash, defaultSalt, "BS. CKI Nguyễn Thị Mai", "clinic_doctor", "Bác Sĩ Da Liễu Hasaki Clinic", "Diamond", 1200, 15000000, 10, "Hasaki Clinic Q.10", "CN2", "active", now);
+    userStmt.run("usr-doctor", "bacsi@narihome.vn", "0903445566", defaultHash, defaultSalt, "BS. CKI Nguyễn Thị Mai", "clinic_doctor", "Bác Sĩ Da Liễu Nari Clinic & Spa", "Diamond", 1200, 15000000, 10, "Nari Clinic & Spa Q.10", "CN2", "active", now);
     // VIP Customer
-    userStmt.run("usr-customer-vip", "khachhang@hasaki.vn", "0901234567", defaultHash, defaultSalt, "Nguyễn Minh Anh (VIP)", "customer", "Khách Hàng Thân Thiết", "Diamond", 2850, 28500000, 15, "71 Hoàng Hoa Thám, Tân Bình, TP.HCM", "CN1", "active", now);
+    userStmt.run("usr-customer-vip", "khachhang@narihome.vn", "0901234567", defaultHash, defaultSalt, "Nguyễn Minh Anh (VIP)", "customer", "Khách Hàng Thân Thiết", "Diamond", 2850, 28500000, 15, "71 Hoàng Hoa Thám, Tân Bình, TP.HCM", "CN1", "active", now);
   }
 
-  // 3. Seed Hasaki Catalog Products & Inventory (30 initial flagship SKUs)
+  // 3. Seed Nari Home Catalog Products & Inventory (30 initial flagship SKUs)
   const productCount = (db.prepare("SELECT COUNT(*) as count FROM products").get() as { count: number }).count;
   if (productCount === 0) {
     const now = new Date().toISOString();
@@ -594,7 +594,7 @@ function seedInitialDataIfNecessary(db: DatabaseSync): void {
         rating: 4.9,
         reviews: 320,
         sold: 2150,
-        image: "https://media.hasaki.vn/catalog/product/p/r/promotions-auto-gel-rua-mat-la-roche-posay-tao-bot-cho-da-dau-nhay-cam-400ml_5G5kQ19yK3s2b2vP.jpg",
+        image: "https://media.Nari Home/catalog/product/p/r/promotions-auto-gel-rua-mat-la-roche-posay-tao-bot-cho-da-dau-nhay-cam-400ml_5G5kQ19yK3s2b2vP.jpg",
       },
       {
         sku: "10023402",
@@ -609,7 +609,7 @@ function seedInitialDataIfNecessary(db: DatabaseSync): void {
         rating: 5.0,
         reviews: 450,
         sold: 4800,
-        image: "https://media.hasaki.vn/catalog/product/p/r/promotions-auto-nuoc-tay-trang-bioderma-danh-cho-da-nhay-cam-500ml_5W9Z383vK3s2b2vP.jpg",
+        image: "https://media.Nari Home/catalog/product/p/r/promotions-auto-nuoc-tay-trang-bioderma-danh-cho-da-nhay-cam-500ml_5W9Z383vK3s2b2vP.jpg",
       },
       {
         sku: "10023403",
@@ -624,7 +624,7 @@ function seedInitialDataIfNecessary(db: DatabaseSync): void {
         rating: 4.8,
         reviews: 210,
         sold: 3100,
-        image: "https://media.hasaki.vn/catalog/product/p/r/promotions-auto-kem-chong-nang-la-roche-posay-kiem-soat-dau-spf50-50ml_5G5kQ19yK3s2b2vP.jpg",
+        image: "https://media.Nari Home/catalog/product/p/r/promotions-auto-kem-chong-nang-la-roche-posay-kiem-soat-dau-spf50-50ml_5G5kQ19yK3s2b2vP.jpg",
       },
       {
         sku: "10023404",
@@ -639,7 +639,7 @@ function seedInitialDataIfNecessary(db: DatabaseSync): void {
         rating: 4.9,
         reviews: 180,
         sold: 1450,
-        image: "https://media.hasaki.vn/catalog/product/p/r/promotions-auto-tinh-chat-klairs-midnight-blue-30ml_5G5kQ19yK3s2b2vP.jpg",
+        image: "https://media.Nari Home/catalog/product/p/r/promotions-auto-tinh-chat-klairs-midnight-blue-30ml_5G5kQ19yK3s2b2vP.jpg",
       },
       {
         sku: "10023405",
@@ -654,7 +654,7 @@ function seedInitialDataIfNecessary(db: DatabaseSync): void {
         rating: 4.9,
         reviews: 580,
         sold: 6200,
-        image: "https://media.hasaki.vn/catalog/product/p/r/promotions-auto-tay-te-bao-chet-ca-phe-dak-lak-cocoon-200ml_5G5kQ19yK3s2b2vP.jpg",
+        image: "https://media.Nari Home/catalog/product/p/r/promotions-auto-tay-te-bao-chet-ca-phe-dak-lak-cocoon-200ml_5G5kQ19yK3s2b2vP.jpg",
       },
       {
         sku: "10023406",
@@ -669,7 +669,7 @@ function seedInitialDataIfNecessary(db: DatabaseSync): void {
         rating: 5.0,
         reviews: 390,
         sold: 3500,
-        image: "https://media.hasaki.vn/catalog/product/p/r/promotions-auto-sua-chong-nang-anessa-60ml_5G5kQ19yK3s2b2vP.jpg",
+        image: "https://media.Nari Home/catalog/product/p/r/promotions-auto-sua-chong-nang-anessa-60ml_5G5kQ19yK3s2b2vP.jpg",
       },
       {
         sku: "10023407",
@@ -684,7 +684,7 @@ function seedInitialDataIfNecessary(db: DatabaseSync): void {
         rating: 4.8,
         reviews: 410,
         sold: 4300,
-        image: "https://media.hasaki.vn/catalog/product/p/r/promotions-auto-serum-loreal-hyaluronic-acid-30ml_5G5kQ19yK3s2b2vP.jpg",
+        image: "https://media.Nari Home/catalog/product/p/r/promotions-auto-serum-loreal-hyaluronic-acid-30ml_5G5kQ19yK3s2b2vP.jpg",
       },
       {
         sku: "10023408",
@@ -699,7 +699,7 @@ function seedInitialDataIfNecessary(db: DatabaseSync): void {
         rating: 4.9,
         reviews: 290,
         sold: 2800,
-        image: "https://media.hasaki.vn/catalog/product/p/r/promotions-auto-kem-duong-am-cerave-454g_5G5kQ19yK3s2b2vP.jpg",
+        image: "https://media.Nari Home/catalog/product/p/r/promotions-auto-kem-duong-am-cerave-454g_5G5kQ19yK3s2b2vP.jpg",
       },
     ];
 
@@ -722,7 +722,7 @@ function seedInitialDataIfNecessary(db: DatabaseSync): void {
         p.rating,
         p.reviews,
         p.sold,
-        `${p.name} chính hãng 100% có tem phụ Tiếng Việt và hóa đơn VAT. Phục vụ giao hàng nhanh NowFree 2H.`,
+        `${p.name} chính hãng 100% có tem phụ Tiếng Việt và hóa đơn VAT. Phục vụ giao hàng nhanh NariNow 2H.`,
         p.image,
         now
       );
@@ -735,7 +735,7 @@ function seedInitialDataIfNecessary(db: DatabaseSync): void {
     }
   }
 
-  // 4. Seed Clinic Services (Hasaki Clinic & Spa Dermatology)
+  // 4. Seed Clinic Services (Nari Clinic & Spa Dermatology)
   const serviceCount = (db.prepare("SELECT COUNT(*) as count FROM services").get() as { count: number }).count;
   if (serviceCount === 0) {
     const now = new Date().toISOString();
@@ -1202,7 +1202,7 @@ export function createOrderWithBranchStockSqlite(input: {
   customerPhone: string;
   shippingAddress: string;
   branchId?: string;
-  deliveryType?: "NowFree 2H" | "Tiêu chuẩn";
+  deliveryType?: "NariNow 2H" | "Tiêu chuẩn";
   paymentMethod?: string;
   items: Array<{ sku: string; quantity: number; name?: string; price?: number; slug?: string; image?: string }>;
   notes?: string;
@@ -1234,7 +1234,7 @@ export function createOrderWithBranchStockSqlite(input: {
     };
   }
 
-  const deliveryType = input.deliveryType || "NowFree 2H";
+  const deliveryType = input.deliveryType || "NariNow 2H";
   const paymentMethod = input.paymentMethod || "Thanh toán khi nhận hàng (COD)";
 
   db.exec("BEGIN TRANSACTION;");
@@ -1324,7 +1324,7 @@ export function createOrderWithBranchStockSqlite(input: {
       );
     }
 
-    const shippingFee = deliveryType === "NowFree 2H" && subtotal >= 90000 ? 0 : 25000;
+    const shippingFee = deliveryType === "NariNow 2H" && subtotal >= 90000 ? 0 : 25000;
     const total = subtotal + shippingFee;
 
     db.prepare(`
@@ -1427,7 +1427,7 @@ export function listOrdersSqlite(filter?: {
     shipping_address: string;
     branch_id: string;
     branch_name: string;
-    delivery_type: "NowFree 2H" | "Tiêu chuẩn";
+    delivery_type: "NariNow 2H" | "Tiêu chuẩn";
     payment_method: string;
     payment_status: "unpaid" | "paid" | "refunded";
     status: "pending" | "confirmed" | "packing" | "shipping" | "delivered" | "cancelled";
@@ -1507,7 +1507,7 @@ export function getOrderByIdOrCodeSqlite(key: string): DbOrder | null {
     shipping_address: string;
     branch_id: string;
     branch_name: string;
-    delivery_type: "NowFree 2H" | "Tiêu chuẩn";
+    delivery_type: "NariNow 2H" | "Tiêu chuẩn";
     payment_method: string;
     payment_status: "unpaid" | "paid" | "refunded";
     status: "pending" | "confirmed" | "packing" | "shipping" | "delivered" | "cancelled";

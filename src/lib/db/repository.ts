@@ -47,7 +47,7 @@ export function generateVietQrPaymentDetails(params: {
 }): VietQrDetails {
   const bankId = params.bankId || process.env.VIETQR_BANK_ID || "MB";
   const accountNo = params.accountNo || process.env.VIETQR_ACCOUNT_NO || "0901234567";
-  const accountName = params.accountName || process.env.VIETQR_ACCOUNT_NAME || "CONG TY CO PHAN HASAKI BEAUTY AND CLINIC";
+  const accountName = params.accountName || process.env.VIETQR_ACCOUNT_NAME || "CONG TY CO PHAN NARI HOME BEAUTY AND CLINIC";
   const template = process.env.VIETQR_TEMPLATE || "compact2";
 
   const addInfo = encodeURIComponent(`Thanh toan don hang ${params.orderCode}`);
@@ -151,14 +151,14 @@ export async function createOrder(input: {
   customerPhone: string;
   shippingAddress: string;
   branchId?: string;
-  deliveryType?: "NowFree 2H" | "Tiêu chuẩn";
+  deliveryType?: "NariNow 2H" | "Tiêu chuẩn";
   paymentMethod?: string;
   items: Array<{ sku: string; quantity: number; name?: string; price?: number; slug?: string; image?: string }>;
   notes?: string;
 }): Promise<DbOrder> {
   // Compute provisional subtotal for VietQR generation
   const tempSubtotal = input.items.reduce((sum, item) => sum + (item.price || 100000) * item.quantity, 0);
-  const tempShipping = input.deliveryType === "NowFree 2H" && tempSubtotal >= 90000 ? 0 : 25000;
+  const tempShipping = input.deliveryType === "NariNow 2H" && tempSubtotal >= 90000 ? 0 : 25000;
   const tempTotal = tempSubtotal + tempShipping;
   const provisionalCode = `HSK-${Date.now().toString().slice(-6)}`;
 

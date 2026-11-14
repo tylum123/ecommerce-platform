@@ -83,7 +83,7 @@ interface McpToolDef {
 const DEFAULT_MCP_TOOLS: McpToolDef[] = [
   {
     name: "hasaki_search_products",
-    description: "Tìm kiếm sản phẩm trong danh mục Hasaki theo từ khóa và bộ lọc",
+    description: "Tìm kiếm sản phẩm trong danh mục Nari Home theo từ khóa và bộ lọc",
     defaultArgs: { query: "cerave", limit: 5 },
   },
   {
@@ -93,7 +93,7 @@ const DEFAULT_MCP_TOOLS: McpToolDef[] = [
   },
   {
     name: "hasaki_list_orders",
-    description: "Truy vấn danh sách đơn hàng ERP và kiểm tra tiến độ giao NowFree 2H",
+    description: "Truy vấn danh sách đơn hàng ERP và kiểm tra tiến độ giao NariNow 2H",
     defaultArgs: { status: "shipping", limit: 5 },
   },
   {
@@ -108,7 +108,7 @@ const DEFAULT_MCP_TOOLS: McpToolDef[] = [
   },
   {
     name: "hasaki_codegraph_map",
-    description: "Tra cứu cấu trúc kiến trúc module CodeGraph của hệ thống Hasaki",
+    description: "Tra cứu cấu trúc kiến trúc module CodeGraph của hệ thống Nari Home",
     defaultArgs: { module: "erp-store" },
   },
 ];
@@ -123,9 +123,9 @@ interface SeoRouteAudit {
 }
 
 const DEFAULT_SEO_ROUTES: SeoRouteAudit[] = [
-  { route: "/", name: "Trang chủ Hasaki", score: 100, schemaType: "WebSite, Organization", ogImage: true, status: "Pass" },
+  { route: "/", name: "Trang chủ Nari Home", score: 100, schemaType: "WebSite, Organization", ogImage: true, status: "Pass" },
   { route: "/thuong-hieu", name: "Danh mục Thương hiệu", score: 98, schemaType: "CollectionPage, Brand", ogImage: true, status: "Pass" },
-  { route: "/clinic", name: "Hasaki Clinic & Spa", score: 100, schemaType: "MedicalBusiness, Service", ogImage: true, status: "Pass" },
+  { route: "/clinic", name: "Nari Clinic & Spa", score: 100, schemaType: "MedicalBusiness, Service", ogImage: true, status: "Pass" },
   { route: "/quan-tri", name: "Hệ thống Quản trị ERP", score: 95, schemaType: "WebPage, AdminApp", ogImage: true, status: "Pass" },
   { route: "/gio-hang", name: "Giỏ hàng & Checkout", score: 96, schemaType: "CheckoutPage", ogImage: false, status: "Warn" },
   { route: "/san-pham/sua-rua-mat-cerave-sach-sau-cho-da-thuong-den-da-dau-473ml-102959.html", name: "Chi tiết Sữa Rửa Mặt CeraVe", score: 100, schemaType: "Product, BreadcrumbList", ogImage: true, status: "Pass" },
@@ -408,7 +408,7 @@ export function AdminErpView() {
         tool: toolName,
         status: "success",
         timestamp: new Date().toISOString(),
-        message: "Thực thi thành công qua Hasaki AI Agent Protocol",
+        message: "Thực thi thành công qua Nari Home AI Agent Protocol",
         receivedArgs: args,
       },
     };
@@ -614,7 +614,7 @@ export function AdminErpView() {
     return (
       <div className="min-h-screen bg-[#f3f6f4] text-[#1e2922] py-16 px-4">
         <div className="wrap max-w-lg mx-auto bg-white rounded-xl border border-gray-200 p-8 text-center shadow-sm">
-          <Lock className="w-10 h-10 text-[#326e51] mx-auto mb-3" />
+          <Lock className="w-10 h-10 text-[#3d2e24] mx-auto mb-3" />
           <h1 className="text-lg font-bold text-gray-900 mb-2">
             Khu vực Quản trị Nội bộ (Yêu cầu xác thực)
           </h1>
@@ -624,7 +624,7 @@ export function AdminErpView() {
           <div className="flex justify-center gap-3">
             <Link
               href="/dang-nhap"
-              className="bg-[#326e51] text-white px-5 py-2.5 rounded-md text-sm font-semibold"
+              className="bg-[#3d2e24] text-white px-5 py-2.5 rounded-md text-sm font-semibold"
             >
               Đến trang đăng nhập
             </Link>
@@ -644,12 +644,12 @@ export function AdminErpView() {
     <div className="min-h-screen bg-[#f3f6f4] text-[#1e2922] pb-16">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#173a2b] text-white px-5 py-3 rounded-lg shadow-xl flex items-center gap-3 border border-emerald-500/30 animate-in fade-in slide-in-from-bottom-3 duration-200">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+        <div className="fixed bottom-6 right-6 z-50 bg-[#173a2b] text-white px-5 py-3 rounded-lg shadow-xl flex items-center gap-3 border border-[#9e7656]/30 animate-in fade-in slide-in-from-bottom-3 duration-200">
+          <CheckCircle2 className="w-5 h-5 text-[#c8a98e] shrink-0" />
           <span className="text-sm font-medium">{toastMessage}</span>
           <button
             onClick={() => setToastMessage(null)}
-            className="text-emerald-300 hover:text-white ml-2 text-xs"
+            className="text-[#d4beaa] hover:text-white ml-2 text-xs"
           >
             ✕
           </button>
@@ -657,32 +657,32 @@ export function AdminErpView() {
       )}
 
       {/* Top Banner / Breadcrumb Bar */}
-      <div className="bg-[#326e51] text-white border-b border-emerald-900/30">
+      <div className="bg-[#3d2e24] text-white border-b border-[#2a1f18]/30">
         <div className="wrap py-4 px-4 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-emerald-800 flex items-center justify-center border border-emerald-600/50 shadow-inner">
-              <Building2 className="w-5 h-5 text-emerald-200" />
+            <div className="w-10 h-10 rounded-lg bg-[#2a1f18] flex items-center justify-center border border-[#9e7656]/50 shadow-inner">
+              <Building2 className="w-5 h-5 text-[#efe2d4]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold tracking-tight">HASAKI ENTERPRISE ERP</h1>
-                <span className="bg-[#ff6c1a] text-white text-[11px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <h1 className="text-xl font-bold tracking-tight">NARI HOME ENTERPRISE ERP</h1>
+                <span className="bg-[#b86b4b] text-white text-[11px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">
                   Admin Portal v2.6
                 </span>
               </div>
-              <p className="text-xs text-emerald-100/80">
+              <p className="text-xs text-[#f6ece3]/80">
                 Trung tâm Quản trị Vận hành Bán lẻ, Kho Đa Chi nhánh, Khách hàng & AI MCP Protocols
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 text-xs">
-            <div className="flex items-center gap-2 bg-emerald-900/40 px-3 py-1.5 rounded-md border border-emerald-700/40">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="flex items-center gap-2 bg-[#2a1f18]/40 px-3 py-1.5 rounded-md border border-[#6e5a4f]/40">
+              <span className="w-2 h-2 rounded-full bg-[#d4af37] animate-pulse" />
               <span>Hệ thống: 100% Hoạt động</span>
             </div>
-            <div className="flex items-center gap-2 bg-emerald-900/40 px-3 py-1.5 rounded-md border border-emerald-700/40">
-              <ShieldCheck className="w-4 h-4 text-emerald-300" />
+            <div className="flex items-center gap-2 bg-[#2a1f18]/40 px-3 py-1.5 rounded-md border border-[#6e5a4f]/40">
+              <ShieldCheck className="w-4 h-4 text-[#d4beaa]" />
               <span>
                 {authSession
                   ? `${authSession.fullName} (${
@@ -702,7 +702,7 @@ export function AdminErpView() {
             <button
               onClick={refreshAllData}
               disabled={isLoading}
-              className="flex items-center gap-1.5 bg-white text-[#326e51] font-medium px-3 py-1.5 rounded-md hover:bg-emerald-50 transition-colors shadow-sm disabled:opacity-50"
+              className="flex items-center gap-1.5 bg-white text-[#3d2e24] font-medium px-3 py-1.5 rounded-md hover:bg-[#faf5f0] transition-colors shadow-sm disabled:opacity-50"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
               <span>Đồng bộ</span>
@@ -711,12 +711,12 @@ export function AdminErpView() {
         </div>
 
         {/* Active Admin Session & Role Switcher Bar */}
-        <div className="bg-[#1b4331] border-t border-emerald-700/50 px-4 py-2.5">
+        <div className="bg-[#2a1f18] border-t border-[#6e5a4f]/50 px-4 py-2.5">
           <div className="wrap flex flex-wrap items-center justify-between gap-3 text-xs">
             {/* Current Session Info */}
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-emerald-800 border border-emerald-500/50 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
+                <div className="w-6 h-6 rounded-full bg-[#2a1f18] border border-[#9e7656]/50 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
                   {authSession ? authSession.fullName.charAt(0) : "A"}
                 </div>
                 <div>
@@ -724,7 +724,7 @@ export function AdminErpView() {
                     {authSession ? authSession.fullName : "Chưa đăng nhập (Khách vãng lai)"}
                   </span>
                   {authSession?.email && (
-                    <span className="text-emerald-300/80 text-[11px] ml-1.5">
+                    <span className="text-[#d4beaa]/80 text-[11px] ml-1.5">
                       ({authSession.email})
                     </span>
                   )}
@@ -732,8 +732,8 @@ export function AdminErpView() {
               </div>
 
               {/* Role Badge */}
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-900 text-emerald-200 border border-emerald-600/60 shadow-sm">
-                <ShieldCheck className="w-3 h-3 text-emerald-400" />
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#2a1f18] text-[#efe2d4] border border-[#9e7656]/60 shadow-sm">
+                <ShieldCheck className="w-3 h-3 text-[#c8a98e]" />
                 <span>
                   {authSession?.role === "admin"
                     ? "Admin ERP"
@@ -748,14 +748,14 @@ export function AdminErpView() {
               </span>
 
               {/* Branch */}
-              <span className="text-emerald-200/90 text-[11px] bg-emerald-900/40 px-2 py-0.5 rounded border border-emerald-700/40 truncate max-w-[280px]">
-                Chi nhánh: <b>{authSession?.branchName || "Toàn hệ thống Hasaki"}</b>
+              <span className="text-[#efe2d4]/90 text-[11px] bg-[#2a1f18]/40 px-2 py-0.5 rounded border border-[#6e5a4f]/40 truncate max-w-[280px]">
+                Chi nhánh: <b>{authSession?.branchName || "Toàn hệ thống Nari Home"}</b>
               </span>
             </div>
 
             {/* Quick Role Switcher Buttons & Controls */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] text-emerald-300 font-medium hidden md:inline">
+              <span className="text-[11px] text-[#d4beaa] font-medium hidden md:inline">
                 Chuyển vai trò nhanh:
               </span>
               {DEMO_AUTH_ACCOUNTS.filter((acc) => acc.user.role !== "customer").map((acc) => {
@@ -775,8 +775,8 @@ export function AdminErpView() {
                     onClick={() => handleSwitchRole(acc.user)}
                     className={`px-2.5 py-1 rounded text-[11px] font-semibold transition-all ${
                       isSelected
-                        ? "bg-[#ff6c1a] text-white shadow-sm ring-1 ring-white/50"
-                        : "bg-emerald-900/80 hover:bg-emerald-800 text-emerald-100 border border-emerald-600/40"
+                        ? "bg-[#b86b4b] text-white shadow-sm ring-1 ring-white/50"
+                        : "bg-[#2a1f18]/80 hover:bg-[#2a1f18] text-[#f6ece3] border border-[#9e7656]/40"
                     }`}
                     title={`${acc.label} (${acc.user.email})`}
                   >
@@ -787,7 +787,7 @@ export function AdminErpView() {
 
               <Link
                 href="/dang-nhap"
-                className="bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 border border-emerald-600/40 px-2.5 py-1 rounded text-[11px] font-medium transition-colors"
+                className="bg-[#2a1f18]/60 hover:bg-[#2a1f18] text-[#efe2d4] border border-[#9e7656]/40 px-2.5 py-1 rounded text-[11px] font-medium transition-colors"
               >
                 Cổng đăng nhập
               </Link>
@@ -814,7 +814,7 @@ export function AdminErpView() {
             onClick={() => setActiveTab("dashboard")}
             className={`flex items-center gap-2 py-3 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
               activeTab === "dashboard"
-                ? "border-[#326e51] text-[#326e51] bg-emerald-50/50"
+                ? "border-[#3d2e24] text-[#3d2e24] bg-[#faf5f0]/80"
                 : "border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50"
             }`}
           >
@@ -826,7 +826,7 @@ export function AdminErpView() {
             onClick={() => setActiveTab("users")}
             className={`flex items-center gap-2 py-3 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
               activeTab === "users"
-                ? "border-[#326e51] text-[#326e51] bg-emerald-50/50"
+                ? "border-[#3d2e24] text-[#3d2e24] bg-[#faf5f0]/80"
                 : "border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50"
             }`}
           >
@@ -841,7 +841,7 @@ export function AdminErpView() {
             onClick={() => setActiveTab("staff")}
             className={`flex items-center gap-2 py-3 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
               activeTab === "staff"
-                ? "border-[#326e51] text-[#326e51] bg-emerald-50/50"
+                ? "border-[#3d2e24] text-[#3d2e24] bg-[#faf5f0]/80"
                 : "border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50"
             }`}
           >
@@ -856,7 +856,7 @@ export function AdminErpView() {
             onClick={() => setActiveTab("orders")}
             className={`flex items-center gap-2 py-3 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
               activeTab === "orders"
-                ? "border-[#326e51] text-[#326e51] bg-emerald-50/50"
+                ? "border-[#3d2e24] text-[#3d2e24] bg-[#faf5f0]/80"
                 : "border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50"
             }`}
           >
@@ -873,14 +873,14 @@ export function AdminErpView() {
             onClick={() => setActiveTab("inventory")}
             className={`flex items-center gap-2 py-3 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
               activeTab === "inventory"
-                ? "border-[#326e51] text-[#326e51] bg-emerald-50/50"
+                ? "border-[#3d2e24] text-[#3d2e24] bg-[#faf5f0]/80"
                 : "border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50"
             }`}
           >
             <Warehouse className="w-4 h-4" />
             <span>Kho hàng & Đa chi nhánh</span>
             {inventory.some((i) => i.warehouseStatus === "low_stock") && (
-              <span className="bg-[#ff6c1a] text-white text-[11px] px-1.5 py-0.2 rounded-full font-bold">
+              <span className="bg-[#b86b4b] text-white text-[11px] px-1.5 py-0.2 rounded-full font-bold">
                 {inventory.filter((i) => i.warehouseStatus === "low_stock").length} cảnh báo
               </span>
             )}
@@ -890,15 +890,12 @@ export function AdminErpView() {
             onClick={() => setActiveTab("mcp_seo")}
             className={`flex items-center gap-2 py-3 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
               activeTab === "mcp_seo"
-                ? "border-[#326e51] text-[#326e51] bg-emerald-50/50"
+                ? "border-[#3d2e24] text-[#3d2e24] bg-[#faf5f0]/80"
                 : "border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50"
             }`}
           >
-            <Bot className="w-4 h-4 text-emerald-600" />
+            <Bot className="w-4 h-4 text-[#3d2e24]" />
             <span>AI MCP & SEO Hub</span>
-            <span className="bg-emerald-100 text-[#326e51] text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">
-              Tool Playground
-            </span>
           </button>
         </div>
       </div>
@@ -922,11 +919,11 @@ export function AdminErpView() {
                       {formatVND(kpis?.totalRevenue || 0)}
                     </p>
                   </div>
-                  <div className="w-12 h-12 rounded-lg bg-emerald-50 text-[#326e51] flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-lg bg-[#faf5f0] text-[#3d2e24] flex items-center justify-center">
                     <DollarSign className="w-6 h-6" />
                   </div>
                 </div>
-                <div className="mt-3 flex items-center gap-1.5 text-xs text-emerald-700 font-medium">
+                <div className="mt-3 flex items-center gap-1.5 text-xs text-[#3d2e24] font-medium">
                   <ArrowUpRight className="w-3.5 h-3.5" />
                   <span>Hôm nay: {formatVND(kpis?.todayRevenue || 0)}</span>
                 </div>
@@ -942,7 +939,7 @@ export function AdminErpView() {
                       {kpis?.totalOrders || 0}
                     </p>
                   </div>
-                  <div className="w-12 h-12 rounded-lg bg-orange-50 text-[#ff6c1a] flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-lg bg-orange-50 text-[#b86b4b] flex items-center justify-center">
                     <Package className="w-6 h-6" />
                   </div>
                 </div>
@@ -972,7 +969,7 @@ export function AdminErpView() {
                   </div>
                 </div>
                 <div className="mt-3 flex items-center gap-1.5 text-xs text-gray-600 font-medium">
-                  <span className="text-emerald-700 font-bold">
+                  <span className="text-[#3d2e24] font-bold">
                     {kpis?.activeCustomers || 0} tài khoản đang hoạt động
                   </span>
                 </div>
@@ -1004,7 +1001,7 @@ export function AdminErpView() {
               <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
                 <div className="flex items-center justify-between pb-3 border-b border-gray-100">
                   <div className="flex items-center gap-2">
-                    <AlertTriangle className="w-5 h-5 text-[#ff6c1a]" />
+                    <AlertTriangle className="w-5 h-5 text-[#b86b4b]" />
                     <h2 className="font-bold text-gray-900">Sản Phẩm Cần Nhập Kho Gấp</h2>
                   </div>
                   <button
@@ -1012,7 +1009,7 @@ export function AdminErpView() {
                       setInventoryStatusFilter("low_stock");
                       setActiveTab("inventory");
                     }}
-                    className="text-xs font-semibold text-[#326e51] hover:underline flex items-center gap-1"
+                    className="text-xs font-semibold text-[#3d2e24] hover:underline flex items-center gap-1"
                   >
                     <span>Xem tất cả</span>
                     <ChevronRight className="w-3.5 h-3.5" />
@@ -1054,7 +1051,7 @@ export function AdminErpView() {
                               setStockAdjustReason("Nhập hàng khẩn cấp do tồn kho dưới mức an toàn");
                               setActiveTab("inventory");
                             }}
-                            className="bg-emerald-50 text-[#326e51] hover:bg-[#326e51] hover:text-white px-2.5 py-1 text-xs font-semibold rounded transition-colors"
+                            className="bg-[#faf5f0] text-[#3d2e24] hover:bg-[#3d2e24] hover:text-white px-2.5 py-1 text-xs font-semibold rounded transition-colors"
                           >
                             + Nhập
                           </button>
@@ -1078,7 +1075,7 @@ export function AdminErpView() {
                   </div>
                   <button
                     onClick={() => setActiveTab("inventory")}
-                    className="text-xs font-semibold text-[#326e51] hover:underline flex items-center gap-1"
+                    className="text-xs font-semibold text-[#3d2e24] hover:underline flex items-center gap-1"
                   >
                     <span>Lịch sử chi tiết</span>
                     <ChevronRight className="w-3.5 h-3.5" />
@@ -1093,7 +1090,7 @@ export function AdminErpView() {
                           <span
                             className={`font-bold px-1.5 py-0.5 rounded text-[10px] ${
                               log.delta > 0
-                                ? "bg-emerald-100 text-emerald-800"
+                                ? "bg-[#f6ece3] text-[#2a1f18]"
                                 : "bg-orange-100 text-orange-800"
                             }`}
                           >
@@ -1120,31 +1117,31 @@ export function AdminErpView() {
             </div>
 
             {/* Quick Actions Panel */}
-            <div className="bg-gradient-to-r from-[#173a2b] to-[#326e51] text-white p-6 rounded-xl shadow-md flex flex-wrap items-center justify-between gap-4">
+            <div className="bg-gradient-to-r from-[#173a2b] to-[#3d2e24] text-white p-6 rounded-xl shadow-md flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h3 className="text-lg font-bold">Lối Tắt Điều Hành Doanh Nghiệp</h3>
-                <p className="text-xs text-emerald-100 mt-1 max-w-xl">
-                  Khởi tạo nhanh hồ sơ khách hàng mới, phê duyệt phân quyền nhân sự, xử lý đơn NowFree 2H hoặc kiểm tra các MCP protocol dành cho trợ lý AI.
+                <p className="text-xs text-[#f6ece3] mt-1 max-w-xl">
+                  Khởi tạo nhanh hồ sơ khách hàng mới, phê duyệt phân quyền nhân sự, xử lý đơn NariNow 2H hoặc kiểm tra các MCP protocol dành cho trợ lý AI.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2.5">
                 <button
                   onClick={() => setIsNewUserModalOpen(true)}
-                  className="bg-white text-[#326e51] hover:bg-emerald-50 px-3.5 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 shadow"
+                  className="bg-white text-[#3d2e24] hover:bg-[#faf5f0] px-3.5 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 shadow"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>+ Khách Hàng</span>
                 </button>
                 <button
                   onClick={() => setIsNewStaffModalOpen(true)}
-                  className="bg-emerald-800 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 border border-emerald-600/40"
+                  className="bg-[#2a1f18] hover:bg-[#3d2e24] text-white px-3.5 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 border border-[#9e7656]/40"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>+ Nhân Sự</span>
                 </button>
                 <button
                   onClick={() => setActiveTab("mcp_seo")}
-                  className="bg-[#ff6c1a] hover:bg-[#e85b0d] text-white px-3.5 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 shadow"
+                  className="bg-[#b86b4b] hover:bg-[#e85b0d] text-white px-3.5 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 shadow"
                 >
                   <Bot className="w-3.5 h-3.5" />
                   <span>Mở AI MCP Playground</span>
@@ -1163,14 +1160,14 @@ export function AdminErpView() {
               <div>
                 <h2 className="text-lg font-bold text-gray-900">Quản Lý Khách Hàng & Hội Viên</h2>
                 <p className="text-xs text-gray-500">
-                  Hệ thống quản lý khách hàng Hasaki, phân loại hạng thẻ và tích lũy điểm thưởng
+                  Hệ thống quản lý khách hàng Nari Home, phân loại hạng thẻ và tích lũy điểm thưởng
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   onClick={() => setIsNewUserModalOpen(true)}
-                  className="bg-[#326e51] hover:bg-[#285841] text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
+                  className="bg-[#3d2e24] hover:bg-[#1e1b18] text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Thêm Khách Hàng</span>
@@ -1187,7 +1184,7 @@ export function AdminErpView() {
                   placeholder="Tìm theo tên, số điện thoại, email..."
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-[#326e51]"
+                  className="w-full pl-9 pr-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-[#3d2e24]"
                 />
               </div>
 
@@ -1249,7 +1246,7 @@ export function AdminErpView() {
                           {u.tier}
                         </span>
                       </td>
-                      <td className="py-3 px-3 text-right font-bold text-emerald-700">
+                      <td className="py-3 px-3 text-right font-bold text-[#3d2e24]">
                         {u.loyaltyPoints} pts
                       </td>
                       <td className="py-3 px-3 text-right font-semibold text-gray-800">
@@ -1262,13 +1259,13 @@ export function AdminErpView() {
                         <span
                           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
                             u.status === "active"
-                              ? "bg-emerald-50 text-emerald-700"
+                              ? "bg-[#faf5f0] text-[#3d2e24]"
                               : "bg-red-50 text-red-600"
                           }`}
                         >
                           <span
                             className={`w-1.5 h-1.5 rounded-full ${
-                              u.status === "active" ? "bg-emerald-500" : "bg-red-500"
+                              u.status === "active" ? "bg-[#9e7656]" : "bg-red-500"
                             }`}
                           />
                           {u.status === "active" ? "Hoạt động" : "Bị khóa"}
@@ -1279,7 +1276,7 @@ export function AdminErpView() {
                           <button
                             onClick={() => handleUpdateUserPoints(u.id, 100)}
                             title="Tặng 100 điểm thưởng"
-                            className="bg-emerald-50 hover:bg-emerald-100 text-[#326e51] px-2 py-1 rounded text-[11px] font-semibold transition-colors"
+                            className="bg-[#faf5f0] hover:bg-[#f6ece3] text-[#3d2e24] px-2 py-1 rounded text-[11px] font-semibold transition-colors"
                           >
                             +100 pts
                           </button>
@@ -1299,7 +1296,7 @@ export function AdminErpView() {
                             className={`p-1 rounded transition-colors ${
                               u.status === "active"
                                 ? "text-gray-400 hover:text-red-600 hover:bg-red-50"
-                                : "text-emerald-600 hover:bg-emerald-50"
+                                : "text-[#3d2e24] hover:bg-[#faf5f0]"
                             }`}
                           >
                             {u.status === "active" ? (
@@ -1333,7 +1330,7 @@ export function AdminErpView() {
 
               <button
                 onClick={() => setIsNewStaffModalOpen(true)}
-                className="bg-[#326e51] hover:bg-[#285841] text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
+                className="bg-[#3d2e24] hover:bg-[#1e1b18] text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
               >
                 <Plus className="w-4 h-4" />
                 <span>Thêm Nhân Viên</span>
@@ -1357,7 +1354,7 @@ export function AdminErpView() {
                     onClick={() => setStaffRoleFilter(item.key)}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                       staffRoleFilter === item.key
-                        ? "bg-[#326e51] text-white"
+                        ? "bg-[#3d2e24] text-white"
                         : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
                   >
@@ -1376,17 +1373,17 @@ export function AdminErpView() {
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className="text-[10px] font-mono bg-emerald-50 text-[#326e51] font-bold px-1.5 py-0.5 rounded">
+                      <span className="text-[10px] font-mono bg-[#faf5f0] text-[#3d2e24] font-bold px-1.5 py-0.5 rounded">
                         {staff.employeeCode}
                       </span>
                       <h3 className="font-bold text-gray-900 mt-1">{staff.fullName}</h3>
-                      <p className="text-xs text-[#326e51] font-medium">{staff.roleLabel}</p>
+                      <p className="text-xs text-[#3d2e24] font-medium">{staff.roleLabel}</p>
                     </div>
 
                     <span
                       className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${
                         staff.status === "active"
-                          ? "bg-emerald-50 text-emerald-700"
+                          ? "bg-[#faf5f0] text-[#3d2e24]"
                           : "bg-amber-50 text-amber-700"
                       }`}
                     >
@@ -1437,7 +1434,7 @@ export function AdminErpView() {
                     </span>
                     <button
                       onClick={() => handleToggleStaffStatus(staff.id, staff.status)}
-                      className="text-xs text-[#326e51] hover:underline font-semibold"
+                      className="text-xs text-[#3d2e24] hover:underline font-semibold"
                     >
                       {staff.status === "active" ? "Báo nghỉ phép" : "Kích hoạt lại"}
                     </button>
@@ -1455,7 +1452,7 @@ export function AdminErpView() {
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-5">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg font-bold text-gray-900">Quản Lý Đơn Hàng & Điều Phối NowFree 2H</h2>
+                <h2 className="text-lg font-bold text-gray-900">Quản Lý Đơn Hàng & Điều Phối NariNow 2H</h2>
                 <p className="text-xs text-gray-500">
                   Quy trình xử lý đơn hàng từ Tiếp nhận → Đóng gói → Giao hàng 2H → Hoàn tất
                 </p>
@@ -1473,7 +1470,7 @@ export function AdminErpView() {
                 { key: "pending", label: "Chờ xác nhận" },
                 { key: "confirmed", label: "Đã xác nhận" },
                 { key: "packing", label: "Đang đóng gói" },
-                { key: "shipping", label: "Đang giao NowFree 2H" },
+                { key: "shipping", label: "Đang giao NariNow 2H" },
                 { key: "delivered", label: "Đã giao thành công" },
                 { key: "cancelled", label: "Đã hủy" },
               ].map((item) => (
@@ -1482,7 +1479,7 @@ export function AdminErpView() {
                   onClick={() => setOrderStatusFilter(item.key)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                     orderStatusFilter === item.key
-                      ? "bg-[#326e51] text-white shadow-sm"
+                      ? "bg-[#3d2e24] text-white shadow-sm"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
@@ -1509,11 +1506,11 @@ export function AdminErpView() {
                   {filteredOrders.map((o) => (
                     <tr key={o.id} className="hover:bg-gray-50/80 transition-colors">
                       <td className="py-3 px-4">
-                        <span className="font-mono font-bold text-emerald-800">{o.orderCode}</span>
+                        <span className="font-mono font-bold text-[#2a1f18]">{o.orderCode}</span>
                         <div className="text-[11px] text-gray-400 mt-0.5">
                           {formatDateTime(o.createdAt)}
                         </div>
-                        <span className="inline-block text-[10px] font-semibold bg-emerald-50 text-[#326e51] px-1.5 py-0.2 rounded mt-1">
+                        <span className="inline-block text-[10px] font-semibold bg-[#faf5f0] text-[#3d2e24] px-1.5 py-0.2 rounded mt-1">
                           {o.deliveryType}
                         </span>
                       </td>
@@ -1528,7 +1525,7 @@ export function AdminErpView() {
                         <div className="space-y-0.5 max-w-[200px]">
                           {o.items.map((item, idx) => (
                             <div key={idx} className="truncate text-gray-700">
-                              <span className="font-bold text-[#326e51]">{item.quantity}x</span>{" "}
+                              <span className="font-bold text-[#3d2e24]">{item.quantity}x</span>{" "}
                               {item.name}
                             </div>
                           ))}
@@ -1538,7 +1535,7 @@ export function AdminErpView() {
                         <div className="font-bold text-gray-900">{formatVND(o.total)}</div>
                         <span
                           className={`text-[10px] font-semibold ${
-                            o.paymentStatus === "paid" ? "text-emerald-600" : "text-amber-600"
+                            o.paymentStatus === "paid" ? "text-[#3d2e24]" : "text-amber-600"
                           }`}
                         >
                           {o.paymentStatus === "paid" ? "Đã thanh toán" : "Chưa thanh toán"}
@@ -1554,7 +1551,7 @@ export function AdminErpView() {
                         <span
                           className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-bold ${
                             o.status === "delivered"
-                              ? "bg-emerald-100 text-emerald-800"
+                              ? "bg-[#f6ece3] text-[#2a1f18]"
                               : o.status === "shipping"
                               ? "bg-blue-100 text-blue-800"
                               : o.status === "packing"
@@ -1577,7 +1574,7 @@ export function AdminErpView() {
                           {o.status === "pending" && (
                             <button
                               onClick={() => handleAdvanceOrderStatus(o.id, "confirmed")}
-                              className="bg-[#326e51] hover:bg-[#285841] text-white px-2.5 py-1 rounded text-[11px] font-semibold transition-colors"
+                              className="bg-[#3d2e24] hover:bg-[#1e1b18] text-white px-2.5 py-1 rounded text-[11px] font-semibold transition-colors"
                             >
                               Xác nhận đơn
                             </button>
@@ -1595,13 +1592,13 @@ export function AdminErpView() {
                               onClick={() => handleAdvanceOrderStatus(o.id, "shipping")}
                               className="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-[11px] font-semibold transition-colors"
                             >
-                              Giao NowFree 2H
+                              Giao NariNow 2H
                             </button>
                           )}
                           {o.status === "shipping" && (
                             <button
                               onClick={() => handleAdvanceOrderStatus(o.id, "delivered")}
-                              className="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-[11px] font-semibold transition-colors"
+                              className="bg-[#3d2e24] hover:bg-[#3d2e24] text-white px-2.5 py-1 rounded text-[11px] font-semibold transition-colors"
                             >
                               Hoàn tất
                             </button>
@@ -1651,7 +1648,7 @@ export function AdminErpView() {
                   placeholder="Tìm theo SKU, tên sản phẩm, thương hiệu..."
                   value={inventorySearch}
                   onChange={(e) => setInventorySearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-[#326e51]"
+                  className="w-full pl-9 pr-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-[#3d2e24]"
                 />
               </div>
 
@@ -1724,7 +1721,7 @@ export function AdminErpView() {
                         <span
                           className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
                             item.warehouseStatus === "in_stock"
-                              ? "bg-emerald-100 text-emerald-800"
+                              ? "bg-[#f6ece3] text-[#2a1f18]"
                               : item.warehouseStatus === "low_stock"
                               ? "bg-red-100 text-red-800 animate-pulse"
                               : "bg-gray-200 text-gray-700"
@@ -1745,7 +1742,7 @@ export function AdminErpView() {
                               setStockAdjustDelta(20);
                               setStockAdjustReason("Nhập hàng bổ sung từ Nhà phân phối");
                             }}
-                            className="bg-emerald-50 hover:bg-[#326e51] hover:text-white text-[#326e51] px-2.5 py-1 rounded text-[11px] font-semibold transition-colors"
+                            className="bg-[#faf5f0] hover:bg-[#3d2e24] hover:text-white text-[#3d2e24] px-2.5 py-1 rounded text-[11px] font-semibold transition-colors"
                           >
                             + Nhập kho
                           </button>
@@ -1802,7 +1799,7 @@ export function AdminErpView() {
                           <span
                             className={`px-1.5 py-0.5 rounded text-[11px] ${
                               log.delta > 0
-                                ? "bg-emerald-100 text-emerald-800"
+                                ? "bg-[#f6ece3] text-[#2a1f18]"
                                 : "bg-red-100 text-red-800"
                             }`}
                           >
@@ -1834,16 +1831,16 @@ export function AdminErpView() {
         {activeTab === "mcp_seo" && (
           <div className="space-y-6">
             {/* Header intro */}
-            <div className="bg-gradient-to-r from-[#173a2b] via-[#326e51] to-[#25523d] text-white p-6 rounded-xl shadow-sm">
+            <div className="bg-gradient-to-r from-[#173a2b] via-[#3d2e24] to-[#25523d] text-white p-6 rounded-xl shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-emerald-800 flex items-center justify-center border border-emerald-600/40">
-                  <Bot className="w-6 h-6 text-emerald-300" />
+                <div className="w-12 h-12 rounded-lg bg-[#2a1f18] flex items-center justify-center border border-[#9e7656]/40">
+                  <Bot className="w-6 h-6 text-[#d4beaa]" />
                 </div>
                 <div>
                   <h2 className="text-xl font-bold tracking-tight">
-                    Hasaki AI MCP Protocol & SEO Optimization Hub
+                    Nari Home AI MCP Protocol & SEO Optimization Hub
                   </h2>
-                  <p className="text-xs text-emerald-100/90 mt-0.5">
+                  <p className="text-xs text-[#f6ece3]/90 mt-0.5">
                     Giao diện thử nghiệm Model Context Protocol (JSON-RPC 2.0) cho Autonomous AI Agents & Bảng kiểm thử SEO / Structured Data
                   </p>
                 </div>
@@ -1854,12 +1851,12 @@ export function AdminErpView() {
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-gray-100">
                 <div className="flex items-center gap-2">
-                  <Code className="w-5 h-5 text-[#326e51]" />
+                  <Code className="w-5 h-5 text-[#3d2e24]" />
                   <h3 className="font-bold text-gray-900">AI MCP Tool Playground (JSON-RPC 2.0)</h3>
                 </div>
                 <div className="text-xs text-gray-500 flex items-center gap-2">
                   <span>Endpoint:</span>
-                  <code className="bg-gray-100 text-[#326e51] font-mono px-2 py-0.5 rounded font-bold">
+                  <code className="bg-gray-100 text-[#3d2e24] font-mono px-2 py-0.5 rounded font-bold">
                     POST /api/mcp
                   </code>
                 </div>
@@ -1877,11 +1874,11 @@ export function AdminErpView() {
                       onClick={() => handleSelectMcpTool(tool.name)}
                       className={`text-left p-3 rounded-lg border text-xs transition-all ${
                         selectedMcpTool === tool.name
-                          ? "border-[#326e51] bg-emerald-50/60 ring-1 ring-[#326e51]"
+                          ? "border-[#3d2e24] bg-[#faf5f0]/60 ring-1 ring-[#3d2e24]"
                           : "border-gray-200 hover:border-gray-300 bg-gray-50/50"
                       }`}
                     >
-                      <div className="font-mono font-bold text-[#326e51]">{tool.name}</div>
+                      <div className="font-mono font-bold text-[#3d2e24]">{tool.name}</div>
                       <p className="text-[11px] text-gray-500 mt-1 line-clamp-2">
                         {tool.description}
                       </p>
@@ -1904,13 +1901,13 @@ export function AdminErpView() {
                     rows={8}
                     value={mcpToolArgs}
                     onChange={(e) => setMcpToolArgs(e.target.value)}
-                    className="w-full font-mono text-xs bg-slate-900 text-emerald-400 p-3 rounded-lg border border-slate-700 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full font-mono text-xs bg-slate-900 text-[#c8a98e] p-3 rounded-lg border border-slate-700 focus:outline-none focus:ring-1 focus:ring-[#9e7656]"
                   />
                   <div className="flex items-center justify-between">
                     <button
                       onClick={handleExecuteMcpTool}
                       disabled={mcpExecuting}
-                      className="bg-[#ff6c1a] hover:bg-[#e65c0d] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm disabled:opacity-50 transition-all"
+                      className="bg-[#b86b4b] hover:bg-[#e65c0d] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm disabled:opacity-50 transition-all"
                     >
                       {mcpExecuting ? (
                         <>
@@ -1926,7 +1923,7 @@ export function AdminErpView() {
                     </button>
                     {mcpLatency !== null && (
                       <span className="text-xs font-mono text-gray-500">
-                        Độ trễ phản hồi: <b className="text-emerald-700">{mcpLatency}ms</b>
+                        Độ trễ phản hồi: <b className="text-[#3d2e24]">{mcpLatency}ms</b>
                       </span>
                     )}
                   </div>
@@ -1938,11 +1935,11 @@ export function AdminErpView() {
                     <label className="text-xs font-semibold text-gray-700">
                       Kết quả phản hồi JSON-RPC 2.0:
                     </label>
-                    <span className="text-[11px] text-emerald-600 font-mono font-bold">
+                    <span className="text-[11px] text-[#3d2e24] font-mono font-bold">
                       {mcpResponse ? "Status 200 OK" : "Waiting for execute"}
                     </span>
                   </div>
-                  <pre className="h-[210px] overflow-auto font-mono text-xs bg-slate-950 text-emerald-300 p-3 rounded-lg border border-slate-800 no-scrollbar">
+                  <pre className="h-[210px] overflow-auto font-mono text-xs bg-slate-950 text-[#d4beaa] p-3 rounded-lg border border-slate-800 no-scrollbar">
                     {mcpResponse ||
                       "// Nhấn 'Thực thi Tool' để gửi yêu cầu JSON-RPC đến /api/mcp và xem dữ liệu thời gian thực..."}
                   </pre>
@@ -1954,14 +1951,14 @@ export function AdminErpView() {
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-gray-100">
                 <div className="flex items-center gap-2">
-                  <Globe className="w-5 h-5 text-[#326e51]" />
+                  <Globe className="w-5 h-5 text-[#3d2e24]" />
                   <h3 className="font-bold text-gray-900">SEO & Structured Data (JSON-LD) Audit</h3>
                 </div>
                 <div className="flex items-center gap-3 text-xs">
                   <Link
                     href="/sitemap.xml"
                     target="_blank"
-                    className="text-[#326e51] hover:underline flex items-center gap-1 font-semibold"
+                    className="text-[#3d2e24] hover:underline flex items-center gap-1 font-semibold"
                   >
                     <span>/sitemap.xml</span>
                     <ExternalLink className="w-3 h-3" />
@@ -1969,7 +1966,7 @@ export function AdminErpView() {
                   <Link
                     href="/robots.txt"
                     target="_blank"
-                    className="text-[#326e51] hover:underline flex items-center gap-1 font-semibold"
+                    className="text-[#3d2e24] hover:underline flex items-center gap-1 font-semibold"
                   >
                     <span>/robots.txt</span>
                     <ExternalLink className="w-3 h-3" />
@@ -1979,12 +1976,12 @@ export function AdminErpView() {
 
               {/* SEO Score Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-emerald-50/60 p-4 rounded-xl border border-emerald-200/60">
+                <div className="bg-[#faf5f0]/60 p-4 rounded-xl border border-[#e6d5c5]/60">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-emerald-800">Lighthouse SEO</span>
-                    <span className="text-xl font-black text-emerald-700">100 / 100</span>
+                    <span className="text-xs font-semibold text-[#2a1f18]">Lighthouse SEO</span>
+                    <span className="text-xl font-black text-[#3d2e24]">100 / 100</span>
                   </div>
-                  <p className="text-[11px] text-emerald-600 mt-1">
+                  <p className="text-[11px] text-[#3d2e24] mt-1">
                     Chuẩn hóa hoàn chỉnh thẻ Title, Meta Description, H1/H2 và canonical URL.
                   </p>
                 </div>
@@ -2026,12 +2023,12 @@ export function AdminErpView() {
                   <tbody className="divide-y divide-gray-100">
                     {DEFAULT_SEO_ROUTES.map((item) => (
                       <tr key={item.route} className="hover:bg-gray-50/80">
-                        <td className="py-2.5 px-4 font-mono font-medium text-emerald-800">
+                        <td className="py-2.5 px-4 font-mono font-medium text-[#2a1f18]">
                           {item.route}
                         </td>
                         <td className="py-2.5 px-3 font-semibold text-gray-800">{item.name}</td>
                         <td className="py-2.5 px-3 text-center">
-                          <span className="font-bold text-emerald-700">{item.score}%</span>
+                          <span className="font-bold text-[#3d2e24]">{item.score}%</span>
                         </td>
                         <td className="py-2.5 px-3 text-gray-600 font-mono text-[11px]">
                           {item.schemaType}
@@ -2040,7 +2037,7 @@ export function AdminErpView() {
                           <span
                             className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold ${
                               item.ogImage
-                                ? "bg-emerald-100 text-emerald-700"
+                                ? "bg-[#f6ece3] text-[#3d2e24]"
                                 : "bg-gray-100 text-gray-500"
                             }`}
                           >
@@ -2051,7 +2048,7 @@ export function AdminErpView() {
                           <span
                             className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
                               item.status === "Pass"
-                                ? "bg-emerald-100 text-emerald-800"
+                                ? "bg-[#f6ece3] text-[#2a1f18]"
                                 : "bg-amber-100 text-amber-800"
                             }`}
                           >
@@ -2183,7 +2180,7 @@ export function AdminErpView() {
                 </button>
                 <button
                   type="submit"
-                  className="bg-[#326e51] hover:bg-[#285841] text-white px-4 py-2 rounded-lg font-bold"
+                  className="bg-[#3d2e24] hover:bg-[#1e1b18] text-white px-4 py-2 rounded-lg font-bold"
                 >
                   Tạo Khách Hàng
                 </button>
@@ -2252,12 +2249,12 @@ export function AdminErpView() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Email Hasaki *</label>
+                  <label className="block font-semibold text-gray-700 mb-1">Email Nari Home *</label>
                   <input
                     name="email"
                     type="email"
                     required
-                    placeholder="tuan.hoang@hasaki.vn"
+                    placeholder="tuan.hoang@narihome.vn"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
                   />
                 </div>
@@ -2283,7 +2280,7 @@ export function AdminErpView() {
                     <option value="admin">Admin HQ</option>
                     <option value="store_manager">Quản lý Cửa hàng</option>
                     <option value="warehouse_staff">Nhân viên Quản lý kho</option>
-                    <option value="clinic_doctor">Bác sĩ Hasaki Clinic</option>
+                    <option value="clinic_doctor">Bác sĩ Nari Clinic & Spa</option>
                     <option value="cs_agent">Chuyên viên CSKH</option>
                   </select>
                 </div>
@@ -2312,7 +2309,7 @@ export function AdminErpView() {
                 </button>
                 <button
                   type="submit"
-                  className="bg-[#326e51] hover:bg-[#285841] text-white px-4 py-2 rounded-lg font-bold"
+                  className="bg-[#3d2e24] hover:bg-[#1e1b18] text-white px-4 py-2 rounded-lg font-bold"
                 >
                   Thêm Nhân Sự
                 </button>
@@ -2412,7 +2409,7 @@ export function AdminErpView() {
                 </button>
                 <button
                   type="submit"
-                  className="bg-[#326e51] hover:bg-[#285841] text-white px-4 py-2 rounded-lg font-bold"
+                  className="bg-[#3d2e24] hover:bg-[#1e1b18] text-white px-4 py-2 rounded-lg font-bold"
                 >
                   Xác Nhận Điều Chỉnh
                 </button>
@@ -2497,7 +2494,7 @@ export function AdminErpView() {
                 </div>
                 <div className="text-right">
                   <p className="text-gray-500">Tổng thanh toán:</p>
-                  <p className="text-base font-black text-[#ff6c1a]">
+                  <p className="text-base font-black text-[#b86b4b]">
                     {formatVND(selectedOrder.total)}
                   </p>
                 </div>
@@ -2506,7 +2503,7 @@ export function AdminErpView() {
               <div className="pt-2 flex items-center justify-between border-t border-gray-100">
                 <div className="flex items-center gap-1.5">
                   <span className="text-gray-500">Nhân sự phụ trách:</span>
-                  <span className="font-bold text-[#326e51]">
+                  <span className="font-bold text-[#3d2e24]">
                     {selectedOrder.assignedStaffName || "Chưa gán"}
                   </span>
                 </div>
@@ -2525,3 +2522,6 @@ export function AdminErpView() {
     </div>
   );
 }
+
+export { AdminAccessDenied } from "./admin-access-denied";
+

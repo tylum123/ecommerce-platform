@@ -6,8 +6,12 @@ import type {
   BrandSummary,
 } from "@/lib/backend-contracts";
 import { products as catalogProducts } from "@/lib/catalog";
-import brandCatalogRaw from "../../docs/research/hasaki/brand-catalog-2026-11-13.json";
-import richDetailsRaw from "../../docs/research/hasaki/product-rich-details-2026-11-13.json";
+import rawBrandCatalog from "../../docs/research/hasaki/brand-catalog-2026-11-13.json";
+import rawRichDetails from "../../docs/research/hasaki/product-rich-details-2026-11-13.json";
+import { brandDeep } from "@/lib/brand-config";
+
+const brandCatalogRaw = brandDeep(rawBrandCatalog);
+const richDetailsRaw = brandDeep(rawRichDetails);
 
 interface RawBrandItem {
   id?: number | string | null;
@@ -136,7 +140,7 @@ export function getRichProductDetail(slugOrId: string): ProductDetailData | null
         { label: "Danh Mục", value: catalogItem.category },
       ],
       isSample: true,
-      sourceUrl: `https://hasaki.vn/san-pham/${catalogItem.slug}`,
+      sourceUrl: `https://Nari Home/san-pham/${catalogItem.slug}`,
     };
   }
 

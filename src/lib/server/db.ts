@@ -1,5 +1,5 @@
 /**
- * Central In-Memory Backend Repository & Database Store for Hasaki Clone.
+ * Central In-Memory Backend Repository & Database Store for Nari Home Clone.
  * Indexed by CodeGraph to unify data snapshots, runtime mutations, and API route handlers.
  *
  * Implements strict TypeScript types, runtime persistence across dev reloads via globalThis,
@@ -263,7 +263,7 @@ export function createOrderRecord(input: CreateOrderInput): OrderRecord {
     recipientPhone: input.recipientPhone.trim(),
     address: input.address.trim(),
     paymentMethod: input.paymentMethod || "Thanh toán khi nhận hàng (COD)",
-    deliveryType: input.deliveryType || "NowFree 2H",
+    deliveryType: input.deliveryType || "NariNow 2H",
     items,
     subtotal: input.subtotal ?? calculatedSubtotal,
     shippingFee: shipping,
@@ -302,7 +302,7 @@ export function createBookingRecord(input: CreateBookingInput): BookingRecord {
     appointmentTime: timeDisplay,
     status: "confirmed",
     doctorAssigned: input.doctorAssigned || "Bác sĩ da liễu chỉ định tại chi nhánh",
-    note: input.note || "Hẹn khám tư vấn da miễn phí tại Hasaki Clinic",
+    note: input.note || "Hẹn khám tư vấn da miễn phí tại Nari Clinic & Spa",
     createdAt: new Date().toLocaleString("vi-VN"),
   };
 
@@ -337,7 +337,7 @@ export function addProductReviewOrComment(
       rating: Math.max(1, Math.min(5, Math.round(payload.rating ?? 5))),
       comment: payload.content.trim(),
       createdAt: new Date().toLocaleDateString("vi-VN"),
-      variant: "Chính hãng Hasaki",
+      variant: "Chính hãng Nari Home",
     };
     current.reviews.unshift(newReview);
   } else {
@@ -350,8 +350,8 @@ export function addProductReviewOrComment(
       replies: [
         {
           id: `rep-${Date.now()}`,
-          author: "Hasaki Beauty Chăm sóc khách hàng",
-          content: "Dạ chào bạn, Hasaki xin cảm ơn câu hỏi của bạn. Chuyên viên tư vấn sẽ liên hệ giải đáp chi tiết ạ!",
+          author: "Nari Home Beauty Chăm sóc khách hàng",
+          content: "Dạ chào bạn, Nari Home xin cảm ơn câu hỏi của bạn. Chuyên viên tư vấn sẽ liên hệ giải đáp chi tiết ạ!",
           createdAt: new Date().toLocaleDateString("vi-VN"),
           isAdmin: true,
         },
@@ -386,7 +386,7 @@ export function createWarrantyClaim(input: CreateWarrantyClaimInput): WarrantyCl
     productName: input.productName.trim(),
     brand: input.brand?.trim() || "Chính hãng",
     issueDescription: input.issueDescription.trim(),
-    branchName: input.branchName?.trim() || "Trung tâm Bảo hành Hasaki Toàn quốc",
+    branchName: input.branchName?.trim() || "Trung tâm Bảo hành Nari Home Toàn quốc",
     status: "processing",
     createdAt: new Date().toLocaleString("vi-VN"),
   };
@@ -419,7 +419,7 @@ export function lookupWarranty(query: string): WarrantyLookupResult {
       phone: runtimeClaim.phone,
       serialNumber: runtimeClaim.serialNumber,
       productName: runtimeClaim.productName,
-      brand: runtimeClaim.brand || "Hasaki Official",
+      brand: runtimeClaim.brand || "Nari Home Official",
       purchaseDate: runtimeClaim.createdAt,
       warrantyExpireDate: "12-24 tháng theo tiêu chuẩn hãng",
       warrantyStatus: "processing",
@@ -633,7 +633,7 @@ export interface CodeGraphManifest {
 export function getCodeGraphManifest(): CodeGraphManifest {
   return {
     version: "2.0.0",
-    project: "Hasaki.vn Fullstack Next.js Clone",
+    project: "Nari Home Fullstack Next.js Clone",
     description: "Reverse-engineered Next.js App Router codebase with 1:1 fidelity, typed domain services, and in-memory mock repository.",
     contracts: {
       file: "src/lib/backend-contracts.ts",
@@ -731,7 +731,7 @@ export function getCodeGraphManifest(): CodeGraphManifest {
       { path: "/api/codegraph", methods: ["GET"], description: "System architectural dependency graph manifest" },
     ],
     frontendRoutes: [
-      { path: "/", title: "Trang chủ Hasaki.vn", dynamic: false },
+      { path: "/", title: "Trang chủ Nari Home", dynamic: false },
       { path: "/deal-dau-ngay", title: "Flash Deals Giờ Vàng", dynamic: false },
       { path: "/ban-chay", title: "Top Bán Chạy", dynamic: false },
       { path: "/danh-muc/[category]", title: "Danh mục sản phẩm", dynamic: true },
@@ -739,7 +739,7 @@ export function getCodeGraphManifest(): CodeGraphManifest {
       { path: "/thuong-hieu/[brand]", title: "Thương hiệu chính hãng", dynamic: true },
       { path: "/gio-hang", title: "Giỏ hàng", dynamic: false },
       { path: "/dat-hang", title: "Thanh toán đơn hàng", dynamic: false },
-      { path: "/clinic", title: "Hasaki Clinic & Spa", dynamic: false },
+      { path: "/clinic", title: "Nari Clinic & Spa", dynamic: false },
       { path: "/booking", title: "Đặt hẹn Clinic", dynamic: false },
       { path: "/he-thong-cua-hang", title: "Hệ thống 350+ Cửa hàng", dynamic: false },
       { path: "/bao-hanh", title: "Tra cứu Bảo hành", dynamic: false },

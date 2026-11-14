@@ -108,7 +108,7 @@ export function DealsList({ items }: { items: readonly DealProduct[] }) {
               style={{
                 border: "none",
                 background: "none",
-                color: "#ff6600",
+                color: "#b86b4b",
                 cursor: "pointer",
                 fontSize: "12px",
                 textDecoration: "underline"
@@ -135,9 +135,9 @@ export function DealsList({ items }: { items: readonly DealProduct[] }) {
               onClick={() => setSortBy(opt.id)}
               style={{
                 border: "1px solid",
-                borderColor: sortBy === opt.id ? "#ff6600" : "#ddd",
+                borderColor: sortBy === opt.id ? "#b86b4b" : "#ddd",
                 background: sortBy === opt.id ? "#fff7ed" : "white",
-                color: sortBy === opt.id ? "#ff6600" : "#444",
+                color: sortBy === opt.id ? "#b86b4b" : "#444",
                 padding: "5px 10px",
                 borderRadius: "3px",
                 fontSize: "12px",

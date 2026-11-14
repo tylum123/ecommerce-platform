@@ -95,6 +95,39 @@ const clinicHighlights = [
   },
 ];
 
+const heroSlides = [
+  {
+    type: "image" as const,
+    src: "/nari-home-banner.jpg",
+    alt: "Nari Home — Khơi nguồn vẻ đẹp - Kiến tạo khí chất",
+    href: "/deals-dang-dien-ra.html",
+  },
+  {
+    type: "editorial" as const,
+    badge: "NARI DEALS",
+    title: "SIÊU SALE LIÊN HOÀN",
+    subtitle: "Khơi nguồn vẻ đẹp - Kiến tạo khí chất",
+    href: "#flash",
+    themeClass: "hero-1",
+  },
+  {
+    type: "editorial" as const,
+    badge: "NARI CLINIC & SPA",
+    title: "GIỜ VÀNG LÀM ĐẸP CHUẨN Y KHOA",
+    subtitle: "Trải nghiệm liệu trình phục hồi & trẻ hóa da cao cấp",
+    href: "/clinic",
+    themeClass: "hero-2",
+  },
+  {
+    type: "editorial" as const,
+    badge: "HOT DEALS",
+    title: "MỖI NGÀY THÊM XINH",
+    subtitle: "Mỹ phẩm chính hãng 100% — Giao nhanh NariNow 2H",
+    href: "/campaign/wow",
+    themeClass: "hero-3",
+  },
+];
+
 export default function Home() {
   const [visibleCount, setVisibleCount] = useState(12);
   const [cart, setCart] = useState(0);
@@ -168,25 +201,87 @@ export default function Home() {
       <Header />
       <main className="wrap">
         <div className="hero-layout">
-          <div className={`hero hero-${slide % 4}`}>
-            <div>
-              <small>HASAKI DEALS</small>
-              <h1>{["SIÊU SALE LIÊN HOÀN", "GIỜ VÀNG SĂN SALE", "MỖI NGÀY THÊM XINH", "ƯU ĐÃI LÀM ĐẸP"][slide % 4]}</h1>
-              <p>Khám phá ưu đãi dành riêng cho bạn</p>
-              <a href="#flash">KHÁM PHÁ NGAY →</a>
-            </div>
-            <button className="hero-prev" onClick={() => setSlide((slide + 7) % 8)} aria-label="Banner trước">
-              <ChevronLeft />
-            </button>
-            <button className="hero-next" onClick={() => setSlide((slide + 1) % 8)} aria-label="Banner tiếp theo">
-              <ChevronRight />
-            </button>
-            <div className="dots">
-              {Array.from({ length: 8 }, (_, i) => (
-                <button key={i} aria-label={`Banner ${i + 1}`} className={i === slide ? "active" : ""} onClick={() => setSlide(i)} />
-              ))}
-            </div>
-          </div>
+          {(() => {
+            const currentSlide = heroSlides[slide % heroSlides.length];
+            if (currentSlide.type === "image") {
+              return (
+                <div className="hero relative overflow-hidden h-[165px] sm:h-[200px] md:h-[250px]" style={{ padding: 0 }}>
+                  <Link href={currentSlide.href} className="relative block w-full h-full">
+                    <Image
+                      src={currentSlide.src}
+                      alt={currentSlide.alt}
+                      fill
+                      priority
+                      className="object-cover object-center"
+                      sizes="(max-width: 1000px) 100vw, 920px"
+                    />
+                  </Link>
+                  <button
+                    className="hero-prev"
+                    style={{ zIndex: 10 }}
+                    onClick={() => setSlide((slide + heroSlides.length - 1) % heroSlides.length)}
+                    aria-label="Banner trước"
+                  >
+                    <ChevronLeft />
+                  </button>
+                  <button
+                    className="hero-next"
+                    style={{ zIndex: 10 }}
+                    onClick={() => setSlide((slide + 1) % heroSlides.length)}
+                    aria-label="Banner tiếp theo"
+                  >
+                    <ChevronRight />
+                  </button>
+                  <div className="dots" style={{ zIndex: 10 }}>
+                    {heroSlides.map((_, i) => (
+                      <button
+                        key={i}
+                        aria-label={`Banner ${i + 1}`}
+                        className={i === (slide % heroSlides.length) ? "active" : ""}
+                        onClick={() => setSlide(i)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+            return (
+              <div className={`hero ${currentSlide.themeClass}`}>
+                <div>
+                  <small>{currentSlide.badge}</small>
+                  <h1>{currentSlide.title}</h1>
+                  <p>{currentSlide.subtitle}</p>
+                  <a href={currentSlide.href}>KHÁM PHÁ NGAY →</a>
+                </div>
+                <button
+                  className="hero-prev"
+                  style={{ zIndex: 10 }}
+                  onClick={() => setSlide((slide + heroSlides.length - 1) % heroSlides.length)}
+                  aria-label="Banner trước"
+                >
+                  <ChevronLeft />
+                </button>
+                <button
+                  className="hero-next"
+                  style={{ zIndex: 10 }}
+                  onClick={() => setSlide((slide + 1) % heroSlides.length)}
+                  aria-label="Banner tiếp theo"
+                >
+                  <ChevronRight />
+                </button>
+                <div className="dots" style={{ zIndex: 10 }}>
+                  {heroSlides.map((_, i) => (
+                    <button
+                      key={i}
+                      aria-label={`Banner ${i + 1}`}
+                      className={i === (slide % heroSlides.length) ? "active" : ""}
+                      onClick={() => setSlide(i)}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
           <div className="hero-side">
             <Link href="/danh-muc/nha-cua-doi-song-c2529.html">
               <small>KHÁM PHÁ NGAY</small>
@@ -228,13 +323,13 @@ export default function Home() {
         </section>
 
         <div className="brand-banners">
-          <Link href="/campaign/wow" style={{ display: "grid", placeItems: "center", background: "#e1eadf", minHeight: 115, fontWeight: "bold", color: "#6b8b73" }}>
+          <Link href="/campaign/wow" style={{ display: "grid", placeItems: "center", background: "#f6ece3", minHeight: 115, fontWeight: "bold", color: "#3d2e24", border: "1px solid #ebd6c4", borderRadius: 6 }}>
             ƯU ĐÃI THƯƠNG HIỆU WOW
           </Link>
-          <Link href="/tag/dai-tiec-hang-hieu.html" style={{ display: "grid", placeItems: "center", background: "#f4e8c8", minHeight: 115, fontWeight: "bold", color: "#ad8b4d" }}>
+          <Link href="/tag/dai-tiec-hang-hieu.html" style={{ display: "grid", placeItems: "center", background: "#faeadb", minHeight: 115, fontWeight: "bold", color: "#703c27", border: "1px solid #ebd6c4", borderRadius: 6 }}>
             ĐẠI TIỆC HÀNG HIỆU
           </Link>
-          <Link href="/san-pham-ban-chay.html" style={{ display: "grid", placeItems: "center", background: "#e9e0eb", minHeight: 115, fontWeight: "bold", color: "#927998" }}>
+          <Link href="/san-pham-ban-chay.html" style={{ display: "grid", placeItems: "center", background: "#f5ebe3", minHeight: 115, fontWeight: "bold", color: "#3d2e24", border: "1px solid #ebd6c4", borderRadius: 6 }}>
             TOP SẢN PHẨM BÁN CHẠY
           </Link>
         </div>
@@ -285,20 +380,20 @@ export default function Home() {
           <div className="brand-hero">
             {(
               [
-                ["VICHY", "vichy.html"],
-                ["CERAVE", "cerave.html"],
-                ["LA ROCHE-POSAY", "la-roche-posay.html"],
+                ["VICHY", "vichy.html", "#f6ece3", "#3d2e24"],
+                ["CERAVE", "cerave.html", "#faeadb", "#703c27"],
+                ["LA ROCHE-POSAY", "la-roche-posay.html", "#f5ebe3", "#3d2e24"],
               ] as const
-            ).map(([b, slug]) => (
-              <Link href={`/thuong-hieu/${slug}`} key={b} style={{ height: 115, background: "#e4eee5", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#47745a", fontSize: 24, fontWeight: "bold" }}>
+            ).map(([b, slug, bg, textCol]) => (
+              <Link href={`/thuong-hieu/${slug}`} key={b} style={{ height: 115, background: bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: textCol, fontSize: 24, fontWeight: "bold", border: "1px solid #ebd6c4", borderRadius: 6 }}>
                 {b}
-                <small style={{ fontSize: 10, marginTop: 8 }}>KHÁM PHÁ THƯƠNG HIỆU</small>
+                <small style={{ fontSize: 10, marginTop: 8, color: "#9e7656" }}>KHÁM PHÁ THƯƠNG HIỆU</small>
               </Link>
             ))}
           </div>
           <div className="brand-logos">
             {brandItems.map(([b, slug]) => (
-              <Link href={`/thuong-hieu/${slug}`} key={b} style={{ border: "1px solid #eee", height: 60, display: "grid", placeItems: "center", textAlign: "center", fontSize: 10, fontWeight: "bold", color: "#536b60" }}>
+              <Link href={`/thuong-hieu/${slug}`} key={b} style={{ border: "1px solid #ebd6c4", background: "#ffffff", height: 60, display: "grid", placeItems: "center", textAlign: "center", fontSize: 10, fontWeight: "bold", color: "#3d2e24", borderRadius: 4 }}>
                 {b}
               </Link>
             ))}
@@ -364,7 +459,7 @@ export default function Home() {
           <div className="section-title clinic-tabs">
             <div>
               <button className={!clinic ? "selected" : ""} onClick={() => setClinic(false)}>
-                Hasaki Clinic
+                Nari Clinic
               </button>
               <button className={clinic ? "selected" : ""} onClick={() => setClinic(true)}>
                 Bảng giá
@@ -375,10 +470,10 @@ export default function Home() {
           {clinic ? (
             <div className="clinic-info" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
               <div>
-                <strong>Bảng giá dịch vụ Hasaki Clinic chuẩn Y Khoa</strong>
+                <strong>Bảng giá dịch vụ Nari Clinic chuẩn Y Khoa</strong>
                 <p style={{ margin: "6px 0 0" }}>Khám da miễn phí 100% với Bác sĩ Da liễu · Cam kết hiệu quả &amp; minh bạch chi phí.</p>
               </div>
-              <Link href="/bang-gia-dich-vu.html" style={{ background: "#326e51", color: "#fff", padding: "10px 18px", borderRadius: 4, fontWeight: 700 }}>
+              <Link href="/bang-gia-dich-vu.html" style={{ background: "#3d2e24", color: "#fff", padding: "10px 18px", borderRadius: 4, fontWeight: 700 }}>
                 Xem bảng giá chi tiết →
               </Link>
             </div>

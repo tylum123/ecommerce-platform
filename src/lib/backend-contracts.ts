@@ -1,5 +1,5 @@
 /**
- * Central Backend Contracts & Domain Types for Hasaki Clone.
+ * Central Backend Contracts & Domain Types for Nari Home Clone.
  * Indexed by CodeGraph to map frontend views -> adapter services -> future backend API endpoints.
  */
 

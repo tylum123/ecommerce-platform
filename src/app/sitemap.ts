@@ -3,7 +3,7 @@ import { categories, getAllCatalogProducts } from "@/lib/catalog";
 import { clinicServices } from "@/lib/clinic-services";
 import { getSupportTopics } from "@/lib/support-stores";
 
-const BASE_URL = "https://hasaki.vn";
+const BASE_URL = "https://Nari Home";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const currentDate = new Date().toISOString();

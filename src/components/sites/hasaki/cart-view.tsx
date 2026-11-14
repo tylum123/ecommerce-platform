@@ -8,6 +8,7 @@ import { money, findCatalogProduct } from "@/lib/catalog";
 import { readCart, saveCart } from "@/lib/cart";
 import { newArrivals } from "@/lib/new-arrivals";
 import { Footer } from "@/components/sites/hasaki/footer";
+import { NariHomeLogo } from "@/components/sites/hasaki/nari-home-logo";
 
 const subscribe = (callback: () => void) => {
   window.addEventListener("demo-cart-change", callback);
@@ -78,7 +79,7 @@ export function CartView({ checkout = false }: { checkout?: boolean }) {
         ...item,
         product: {
           slug: item.slug,
-          brand: "Hasaki",
+          brand: "Nari Home",
           name: cleanName,
           price: 150000,
           image: undefined,
@@ -101,8 +102,8 @@ export function CartView({ checkout = false }: { checkout?: boolean }) {
     <>
       <div className="cart-top">
         <div className="wrap">
-          <Link href="/">
-            <Image src="/hasaki-logo.png" width={160} height={40} alt="Hasaki.vn" unoptimized />
+          <Link href="/" aria-label="Nari Home">
+            <NariHomeLogo theme="light" compact={true} />
           </Link>
           <div>
             <ShoppingCart /> {checkout ? "THÔNG TIN ĐẶT HÀNG" : "GIỎ HÀNG"}
@@ -238,14 +239,14 @@ export function CartView({ checkout = false }: { checkout?: boolean }) {
                   </div>
                   <div>
                     <span>Phí vận chuyển</span>
-                    <span>Miễn phí (NowFree 2H)</span>
+                    <span>Miễn phí (NariNow 2H)</span>
                   </div>
                   <hr />
                   <div>
                     <strong>Tổng cộng</strong>
                     <strong>{money(total)}</strong>
                   </div>
-                  <p>Giá và đơn hàng mô phỏng theo dữ liệu Hasaki.</p>
+                  <p>Giá và đơn hàng mô phỏng theo dữ liệu Nari Home.</p>
                   {checkout ? (
                     <button type="button" onClick={() => setPlaced(true)}>
                       HOÀN TẤT ĐẶT HÀNG MẪU
