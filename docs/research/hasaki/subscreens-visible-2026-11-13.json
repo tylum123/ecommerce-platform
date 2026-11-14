@@ -1,0 +1,915 @@
+{
+  "scrapedAt": "2026-11-14T04:17:19.794Z",
+  "liveHasakiVisibleSummary": {
+    "home": {
+      "url": "https://hasaki.vn/",
+      "status": 200,
+      "title": "Hasaki.vn | Tiết Kiệm Hơn. Mọi Lúc.",
+      "h1s": [],
+      "h2s": [],
+      "h3s": [],
+      "sampleImages": [
+        "https://media.hcdn.vn/hsk/icon/logo-hsk-v3.png?v=3"
+      ]
+    },
+    "newArrivals": {
+      "url": "https://hasaki.vn/hang-moi-ve.html",
+      "status": 200,
+      "title": "Mỹ Phẩm Mới Về Giá Tốt | Hasaki.vn",
+      "h1s": [],
+      "h2s": [],
+      "h3s": [],
+      "sampleImages": [
+        "https://media.hcdn.vn/hsk/icon/logo-hsk-v3.png?v=3"
+      ]
+    },
+    "categorySkincare": {
+      "url": "https://hasaki.vn/danh-muc/cham-soc-da-mat-c4.html",
+      "status": 200,
+      "title": "Mua Mỹ Phẩm Chăm Sóc Da Mặt Chính Hãng 100% | Hasaki.vn",
+      "h1s": [],
+      "h2s": [],
+      "h3s": [],
+      "sampleImages": [
+        "https://media.hcdn.vn/hsk/icon/logo-hsk-v3.png?v=3"
+      ]
+    },
+    "categoryMakeup": {
+      "url": "https://hasaki.vn/danh-muc/trang-diem-c25.html",
+      "status": 200,
+      "title": "Mua Son Dưỡng Môi Chính Hãng 100% Tại Hasaki.vn | Hasaki.vn",
+      "h1s": [],
+      "h2s": [],
+      "h3s": [],
+      "sampleImages": [
+        "https://media.hcdn.vn/hsk/icon/logo-hsk-v3.png?v=3"
+      ]
+    },
+    "deals": {
+      "url": "https://hasaki.vn/deals-dang-dien-ra.html",
+      "status": 200,
+      "title": "Top Deals Mỹ Phẩm Giá Tốt | Hasaki.vn",
+      "h1s": [],
+      "h2s": [],
+      "h3s": [],
+      "sampleImages": []
+    },
+    "bestsellers": {
+      "url": "https://hasaki.vn/san-pham-ban-chay.html",
+      "status": 200,
+      "title": "Mỹ Phẩm Bán Chạy, Mỹ Phẩm Best seller Giá Tốt | Hasaki.vn",
+      "h1s": [],
+      "h2s": [],
+      "h3s": [],
+      "sampleImages": [
+        "https://media.hcdn.vn/hsk/icon/logo-hsk-v3.png?v=3"
+      ]
+    },
+    "clinic": {
+      "url": "https://hasaki.vn/dich-vu-phong-kham.html",
+      "status": 404,
+      "title": "Lỗi 404 không tìm thấy trang | Hasaki.vn",
+      "h1s": [
+        "Xác thực bảo mật"
+      ],
+      "h2s": [],
+      "h3s": [
+        "Gợi ý dành riêng cho bạn",
+        "Kem Chống Nắng",
+        "Nước Tẩy Trang",
+        "Kem Dưỡng Ẩm",
+        "Sữa Rửa Mặt",
+        "Bông Tẩy Trang",
+        "Mặt Nạ",
+        "LOREAL",
+        "LA ROCHE POSAY",
+        "Son",
+        "Obagi",
+        "VASELINE",
+        "Carslan",
+        "cerave",
+        "olay",
+        "toner klairs",
+        "Mỹ Phẩm High-End",
+        "Nước Hoa",
+        "Chăm Sóc Răng Miệng",
+        "Thực Phẩm Chức Năng"
+      ],
+      "sampleImages": [
+        "https://media.hcdn.vn/hsk/icons/back_200x200.png",
+        "https://media.hcdn.vn/hsk/icons/cart_top_200x200.png",
+        "https://media.hcdn.vn/hsk/icon/logo-hsk-v3.png?v=2026111411",
+        "https://media.hcdn.vn/hsk/icons/search_icon_21x22.png",
+        "https://media.hcdn.vn/hsk/icon/icon_header__login.png",
+        "https://media.hcdn.vn/hsk/icons/logo-fb-208x32.png",
+        "https://media.hcdn.vn/hsk/icon/icon_header__customer.png",
+        "https://media.hcdn.vn/hsk/icon/icon_header__guarantee.png",
+        "https://media.hcdn.vn/hsk/icon/icon_header__phone.png",
+        "https://media.hcdn.vn/hsk/icon/icon_header__cart.png",
+        "https://media.hcdn.vn/hsk/banner/menu-category-home-cham-soc-da-mat-210x400---27122024.png",
+        "https://media.hcdn.vn/hsk/banner/trang-diem-210-x-400---3.png",
+        "https://media.hcdn.vn/hsk/icon/cham-soc-toc-image-cover-210-x-400---10.png",
+        "https://media.hcdn.vn/hsk/icon/menu-category-cham-soc-co-the-400-x-400-1794059847.png",
+        "https://media.hcdn.vn/hsk/icon/thoi-trang-210-x-400-20260926-1790393737.png",
+        "https://media.hcdn.vn/hsk/icon/nha-cua-doi-song-400-x-400-20261104-1793788835.png",
+        "https://media.hcdn.vn/hsk/icon/dien-gia-dung-400-x-400-20261104-1793788846.png",
+        "https://media.hcdn.vn/hsk/icon/dien-thoai-may-tinh-bang-400-x-400-20261104-1793788859.png",
+        "https://media.hcdn.vn/hsk/icon/thiet-bi-dien-tu-400-x-400-20261104-1793790108.png",
+        "https://media.hcdn.vn/hsk/icon/san-pham-cho-be-menu-cate-home-1793618452.png"
+      ]
+    },
+    "clinicPricing": {
+      "url": "https://hasaki.vn/bang-gia-dich-vu.html",
+      "status": 200,
+      "title": "Dịch vụ đa dạng - ưu đãi hấp dẫn | Hasaki.vn",
+      "h1s": [
+        "Dịch Vụ Phòng Khám"
+      ],
+      "h2s": [
+        "Triệt Lông Diode Laser",
+        "Thư Giãn & Chăm Sóc"
+      ],
+      "h3s": [],
+      "sampleImages": [
+        "https://media.hcdn.vn/hsk/icon/logo-hsk-v3.png?v=3"
+      ]
+    },
+    "clinicHandbook": {
+      "url": "https://hasaki.vn/cam-nang.html",
+      "status": 200,
+      "title": "Bí Quyết Cẩm Nang Làm Đẹp Cho Phái Đẹp | Hasaki.vn",
+      "h1s": [],
+      "h2s": [
+        "Dịch vụ",
+        "Dịch vụ bán chạy",
+        "Sản phẩm bán chạy",
+        "Son Dưỡng Môi Hiệu Quả Là Gì? Chọn Thế Nào Cho Môi Khô?",
+        "Bà bầu có nên dùng son dưỡng môi? Chọn và dùng thế nào dịu nhẹ?",
+        "Cách làm son dưỡng môi từ Vaseline tại nhà có khó không?",
+        "HỎI ĐÁP",
+        "Viêm Nang Lông Là Gì? Nguyên Nhân Bị Viêm Nang Lông",
+        "Có Nên Đắp Cà Chua Trực Tiếp Lên Mặt Không?",
+        "Cách Nhận Biết Da Khô Và 1 Số Mẹo Cải Thiện Cho Làn Da Khô",
+        "Vitamin E Là Gì? Vitamin E Nào Tốt Cho Da Mặt",
+        "REVIEW MỸ PHẨM",
+        "Thương Hiệu Cỏ Cây Hoa Lá: Khám Phá Mỹ Phẩm Thảo Dược Việt Nam",
+        "Phấn Phủ Funny Elves: Khóa Nền Mịn Lì, Kiềm Dầu Hiệu Quả",
+        "Thương hiệu CNP là gì? Khám phá mỹ phẩm da liễu Hàn Quốc"
+      ],
+      "h3s": [
+        "Combo Lấy Mụn + Mặt Nạ Kháng Khuẩn + Chiếu ASSH (Trải nghiệm)",
+        "Triệt Lông Nách Nữ Diode Laser (Trải Nghiệm)",
+        "Nước Hoa Hồng Klairs Không Mùi Cho Da Nhạy Cảm 180ml",
+        "Nước Tẩy Trang L&#x27;Oreal Tươi Mát Cho Da Dầu, Hỗn Hợp 400ml",
+        "Kem Chống Nắng Skin1004 Cho Da Nhạy Cảm SPF 50+ 50ml"
+      ],
+      "sampleImages": [
+        "https://media.hcdn.vn/hsk/icon/logo-hsk-v3.png?v=3",
+        "https://media.hcdn.vn/catalog/product/m/n/mn-149-1747988808_img_380x380_64adc6_fit_center.png",
+        "https://media.hcdn.vn/catalog/product/t/r/triet-long-nach-nu-trai-nghiem-1-1700193396_img_380x380_64adc6_fit_center.jpg",
+        "https://media.hcdn.vn/catalog/product/p/r/special-deal-nuoc-hoa-hong-khong-mui-klairs-danh-cho-da-nhay-cam-180ml_Q3RXcz8o68ffzNQo_img_380x380_64adc6_fit_center.png",
+        "https://media.hcdn.vn/catalog/product/p/r/promotions-auto-nuoc-tay-trang-tuoi-mat-l-oreal-3-in-1-danh-cho-da-dau-da-hon-hop-400ml_g7yAMe3B6jnKpTad_img_380x380_64adc6_fit_center.png",
+        "https://media.hcdn.vn/catalog/product/p/r/special-deal-kem-chong-nang-skin1004-chiet-xuat-rau-ma-spf50-pa-50ml_A1ZYfnZwU8fvUBUm_img_380x380_64adc6_fit_center.png"
+      ]
+    },
+    "campaignWow": {
+      "url": "https://hasaki.vn/campaign/wow",
+      "status": 200,
+      "title": "Khuyến Mãi Mỹ Phẩm Giá Tốt, Ưu Đãi Khủng | Hasaki.vn",
+      "h1s": [],
+      "h2s": [],
+      "h3s": [],
+      "sampleImages": [
+        "https://media.hcdn.vn/hsk/icon/logo-hsk-v3.png?v=3",
+        "https://media.hcdn.vn/hsk/campaign/1794558766577-wapcogia-1794560736.jpg",
+        "https://media.hcdn.vn/hsk/campaign/1794558766577-wapcogia-1794560942.jpg"
+      ]
+    }
+  },
+  "localSubscreensAudit": [
+    {
+      "name": "home",
+      "path": "/",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "SIÊU SALE LIÊN HOÀN"
+      ],
+      "h2s": [
+        "Flash deals",
+        "Danh mục",
+        "Thương hiệu",
+        "Bán chạy",
+        "Top tìm kiếm"
+      ],
+      "h3s": [],
+      "imagesCount": 17,
+      "visibleTextLen": 6029
+    },
+    {
+      "name": "category-skincare",
+      "path": "/danh-muc/cham-soc-da-mat-c4.html",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "Chăm Sóc Da Mặt"
+      ],
+      "h2s": [],
+      "h3s": [
+        "Sức Khỏe - Làm Đẹp",
+        "Danh mục sản phẩm",
+        "Khoảng giá",
+        "Thương hiệu",
+        "Bộ lọc chuyên sâu"
+      ],
+      "imagesCount": 19,
+      "visibleTextLen": 7486
+    },
+    {
+      "name": "category-makeup",
+      "path": "/danh-muc/trang-diem-c25.html",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "Trang Điểm"
+      ],
+      "h2s": [],
+      "h3s": [
+        "Sức Khỏe - Làm Đẹp",
+        "Danh mục sản phẩm",
+        "Khoảng giá",
+        "Thương hiệu",
+        "Bộ lọc chuyên sâu"
+      ],
+      "imagesCount": 17,
+      "visibleTextLen": 6172
+    },
+    {
+      "name": "category-bodycare",
+      "path": "/danh-muc/cham-soc-co-the-c12.html",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "Chăm Sóc Cơ Thể"
+      ],
+      "h2s": [],
+      "h3s": [
+        "Sức Khỏe - Làm Đẹp",
+        "Danh mục sản phẩm",
+        "Khoảng giá",
+        "Thương hiệu",
+        "Bộ lọc chuyên sâu"
+      ],
+      "imagesCount": 17,
+      "visibleTextLen": 6495
+    },
+    {
+      "name": "deals",
+      "path": "/deals-dang-dien-ra.html",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "ϟ FLASH DEAL"
+      ],
+      "h2s": [],
+      "h3s": [],
+      "imagesCount": 22,
+      "visibleTextLen": 6796
+    },
+    {
+      "name": "bestsellers",
+      "path": "/san-pham-ban-chay.html",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "Sản Phẩm Bán Chạy"
+      ],
+      "h2s": [],
+      "h3s": [
+        "DANH MỤC",
+        "THƯƠNG HIỆU",
+        "KHOẢNG GIÁ"
+      ],
+      "imagesCount": 30,
+      "visibleTextLen": 12455
+    },
+    {
+      "name": "new-arrivals",
+      "path": "/hang-moi-ve.html",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "Hàng Mới Về - Bạt Ngàn Quà Tặng"
+      ],
+      "h2s": [
+        "Bộ Gội Xả Cocoon Bồ Kết Sạch Gàu 500ml + Tinh Dầu Bưởi Cung Cấp Dưỡng Chất 310ml",
+        "Combo Cocoon Dầu Gội Bồ Kết Làm Sạch Gàu 500ml + Gel Tắm Đường Thốt Nốt An Giang 500ml",
+        "Combo Cocoon Dầu Gội 310ml + Tẩy Da Chết Da Đầu 200ml Bồ Kết Làm Sạch Gàu",
+        "Kem Dưỡng Azderma Hỗ Trợ Làm Mờ Vết Thâm, Sáng Da 20g",
+        "Combo Sữa Tắm Lifebuoy Detox Matcha & Khổ Qua 800g + Smoothie Tẩy Da Chết Dove 50g (Mẫu Ngẫu Nhiên)",
+        "Combo Sữa Tắm Lifebuoy Cà Phê Sạch Tế Bào Da Chết 800g + Smoothie Tẩy Da Chết Dove 50g (Mẫu Ngẫu Nhiên)",
+        "Combo Sữa Tắm Lifebuoy Hoa Cúc Và Hương Cam Thảo 800g + Smoothie Tẩy Da Chết Dove 50g (Mẫu Ngẫu Nhiên)",
+        "Combo Sữa Tắm Lifebuoy Băng Vĩnh Cửu & Tuyết Tùng Cho Nam 800g + Smoothie Tẩy Da Chết Dove 50g (Mẫu Ngẫu Nhiên)",
+        "Combo Sữa Tắm Lifebuoy Detox Muối Hồng & Rau Má 800g + Smoothie Tẩy Da Chết Dove 50g (Mẫu Ngẫu Nhiên)",
+        "Combo Sữa Tắm Lifebuoy Detox Thảo Dược & Hoa Sen 800g + Smoothie Tẩy Da Chết Dove 50g (Mẫu Ngẫu Nhiên)",
+        "Combo Sữa Tắm Lifebuoy Detox Than Hoạt Tính & Cám Gạo Cho Nam 800g + Smoothie Tẩy Da Chết Dove 50g (Mẫu Ngẫu Nhiên)",
+        "Combo 5 Mặt Nạ BNBG Rượu Nho Giúp Cải Thiện Kết Cấu Da 30ml"
+      ],
+      "h3s": [
+        "DANH MỤC",
+        "KHOẢNG GIÁ",
+        "THƯƠNG HIỆU"
+      ],
+      "imagesCount": 12,
+      "visibleTextLen": 6449
+    },
+    {
+      "name": "brands-directory",
+      "path": "/thuong-hieu",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "Xem 488 thương hiệu chính hãng"
+      ],
+      "h2s": [
+        "Thương hiệu nổi bật",
+        "0-9"
+      ],
+      "h3s": [],
+      "imagesCount": 1,
+      "visibleTextLen": 10344
+    },
+    {
+      "name": "brand-detail-laroche",
+      "path": "/thuong-hieu/la-roche-posay",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "La Roche-Posay"
+      ],
+      "h2s": [
+        "KHOẢNG GIÁ",
+        "DANH MỤC",
+        "Sản phẩm La Roche-Posay"
+      ],
+      "h3s": [],
+      "imagesCount": 10,
+      "visibleTextLen": 2241
+    },
+    {
+      "name": "brand-detail-bioderma",
+      "path": "/thuong-hieu/bioderma.html",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "Bioderma"
+      ],
+      "h2s": [
+        "KHOẢNG GIÁ",
+        "DANH MỤC",
+        "Sản phẩm Bioderma"
+      ],
+      "h3s": [],
+      "imagesCount": 3,
+      "visibleTextLen": 1458
+    },
+    {
+      "name": "product-detail-bioderma",
+      "path": "/san-pham/nuoc-tay-trang-bioderma-danh-cho-da-nhay-cam-500ml",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "Nước Tẩy Trang Bioderma Dành Cho Da Nhạy Cảm 500ml ( 500ml – Da nhạy cảm (Nắp hồng) )"
+      ],
+      "h2s": [
+        "Nước Tẩy Trang Bioderma Dành Cho Da Nhạy Cảm 500ml",
+        "Sản phẩm liên quan"
+      ],
+      "h3s": [
+        "- MIỄN PHÍ VẬN CHUYỂN -",
+        "Hình ảnh chi tiết ( 11 ảnh chính hãng)",
+        "Đánh giá từ khách hàng ( 228 lượt đánh giá)",
+        "Hỏi đáp về sản phẩm ( 6 câu hỏi)"
+      ],
+      "imagesCount": 18,
+      "visibleTextLen": 6549
+    },
+    {
+      "name": "product-detail-cerave",
+      "path": "/san-pham/sua-rua-mat-cerave-sach-sau-cho-da-thuong-den-da-dau-473ml-102959.html",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "Sữa Rửa Mặt CeraVe Sạch Sâu Cho Da Thường Đến Da Dầu 473ml ( 500ml – Da nhạy cảm (Nắp hồng) )"
+      ],
+      "h2s": [
+        "Sữa Rửa Mặt CeraVe Sạch Sâu Cho Da Thường Đến Da Dầu 473ml",
+        "Sản phẩm liên quan"
+      ],
+      "h3s": [
+        "- MIỄN PHÍ VẬN CHUYỂN -",
+        "Hình ảnh chi tiết ( 12 ảnh chính hãng)",
+        "Đánh giá từ khách hàng ( 116 lượt đánh giá)",
+        "Hỏi đáp về sản phẩm ( 6 câu hỏi)"
+      ],
+      "imagesCount": 21,
+      "visibleTextLen": 6856
+    },
+    {
+      "name": "clinic-landing",
+      "path": "/dich-vu-phong-kham.html",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "Hasaki Clinic & Spa"
+      ],
+      "h2s": [
+        "Triệt Lông Nách (1 Buổi )",
+        "Triệt Lông Nguyên Chân (1 Buổi )",
+        "Mesoderm Trị Mụn",
+        "Triệt Lông Nguyên Tay (1 Buổi )",
+        "Xóa Nốt Ruồi Công Nghệ Laser Fractional CO2",
+        "Combo Lấy Mụn + Mặt Nạ Kháng Khuẩn + Chiếu ASSH (Trải nghiệm)",
+        "Triệt Lông Nách Nữ Diode Laser (8 Buổi) (Bảo Hành 5 Năm)",
+        "Triệt Lông Mép (1 Buổi )",
+        "Combo Lấy Mụn + Mesoderm Trị Mụn + Mặt Nạ Kháng Khuẩn + Chiếu ASSH",
+        "Combo Lấy Mụn + Mặt Nạ Kháng Khuẩn + Chiếu ASSH",
+        "Combo Lấy Mụn + Mặt Nạ Jean D&#x27;Arcel + Chiếu ASSH",
+        "Triệt Lông Nách Nữ Diode Laser (Trải Nghiệm)"
+      ],
+      "h3s": [
+        "HASAKI CLINIC & SPA",
+        "TÌM KIẾM DỊCH VỤ",
+        "THỜI LƯỢNG",
+        "KHOẢNG GIÁ"
+      ],
+      "imagesCount": 30,
+      "visibleTextLen": 12789
+    },
+    {
+      "name": "clinic-pricing",
+      "path": "/bang-gia-dich-vu.html",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "BẢNG GIÁ DỊCH VỤ HASAKI CLINIC & SPA"
+      ],
+      "h2s": [
+        "LƯU Ý Y KHOA QUAN TRỌNG & CHÍNH SÁCH BẢO HÀNH TẠI HASAKI CLINIC & SPA"
+      ],
+      "h3s": [],
+      "imagesCount": 30,
+      "visibleTextLen": 13806
+    },
+    {
+      "name": "clinic-handbook",
+      "path": "/cam-nang.html",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "CẨM NANG Y KHOA & LÀM ĐẸP HASAKI CLINIC"
+      ],
+      "h2s": [
+        "Quy trình lấy mụn chuẩn Y khoa 12 bước: Vì sao không nên tự nặn mụn tại nhà?",
+        "Công nghệ Diode Laser là gì? Vì sao triệt lông Diode Laser lại vượt trội hơn IPL?",
+        "Mesoderm không kim: Đưa hoạt chất vào sâu tầng trung bì không xâm lấn",
+        "Laser Fractional CO2: Tiêu chuẩn vàng trong điều trị sẹo rỗ và xóa nốt ruồi an toàn",
+        "Chăm sóc da sau khi lấy nhân mụn: 4 nguyên tắc vàng ngăn ngừa thâm và tái phát mụn",
+        "Nâng cơ trẻ hóa Exilis Ultra 360 & RF: Giữ gìn đường nét thon gọn không phẫu thuật",
+        "Phục hồi hàng rào bảo vệ da nhạy cảm bị kích ứng, nhiễm corticoid: Phác đồ y khoa",
+        "Peel da hóa học BHA & Retinol y khoa: Cách lựa chọn nồng độ phù hợp cho từng loại da"
+      ],
+      "h3s": [],
+      "imagesCount": 9,
+      "visibleTextLen": 5552
+    },
+    {
+      "name": "clinic-booking",
+      "path": "/dat-lich-kham",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "Thông Tin Đặt Hẹn *"
+      ],
+      "h2s": [
+        "Chọn Chi Nhánh *",
+        "Dịch vụ bạn muốn làm *",
+        "Chọn Ngày Giờ * Khung giờ minh họa"
+      ],
+      "h3s": [],
+      "imagesCount": 20,
+      "visibleTextLen": 3873
+    },
+    {
+      "name": "campaign-wow",
+      "path": "/campaign/wow",
+      "status": 200,
+      "title": "Khuyến Mãi Mỹ Phẩm Giá Tốt, Ưu Đãi Khủng | Hasaki.vn",
+      "h1s": [
+        "Khuyến Mãi Mỹ Phẩm Giá Tốt, Ưu Đãi Khủng"
+      ],
+      "h2s": [],
+      "h3s": [],
+      "imagesCount": 14,
+      "visibleTextLen": 8155
+    },
+    {
+      "name": "tag-chong-nang",
+      "path": "/tag/kem-chong-nang",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "Kem Chong Nang"
+      ],
+      "h2s": [],
+      "h3s": [],
+      "imagesCount": 12,
+      "visibleTextLen": 7315
+    },
+    {
+      "name": "stores-locator",
+      "path": "/he-thong-cua-hang",
+      "status": 200,
+      "title": "Hệ Thống Cửa Hàng & Hasaki Clinic Toàn Quốc | Hasaki.vn",
+      "h1s": [
+        "Tìm Cửa Hàng & Phòng Khám Hasaki Gần Bạn"
+      ],
+      "h2s": [
+        "Hasaki Beauty & Clinic Hoàng Hoa Thám",
+        "Hasaki Beauty & Clinic Đường 3 Tháng 2",
+        "Hasaki Beauty & Clinic Phan Đăng Lưu",
+        "Hasaki Beauty & Clinic Lê Văn Việt",
+        "Hasaki Beauty & Clinic Nguyễn Gia Trí",
+        "Hasaki Beauty & Clinic Quang Trung",
+        "Hasaki Beauty & Clinic Nguyễn Thị Thập",
+        "Hasaki Beauty & Clinic Nguyễn Ảnh Thủ",
+        "Hasaki Beauty & Clinic Nguyễn Trãi",
+        "Hasaki Beauty & Clinic Hai Bà Trưng Q3",
+        "Hasaki Beauty & Clinic Tân Hương",
+        "Hasaki Beauty & Clinic Bờ Bao Tân Thắng"
+      ],
+      "h3s": [],
+      "imagesCount": 20,
+      "visibleTextLen": 7895
+    },
+    {
+      "name": "support-center",
+      "path": "/ho-tro",
+      "status": 200,
+      "title": "Trung Tâm Hỗ Trợ Khách Hàng | Hasaki.vn",
+      "h1s": [
+        "Xin chào! Chúng tôi có thể giúp gì cho bạn?"
+      ],
+      "h2s": [
+        "Chủ Đề Hướng Dẫn & Chính Sách",
+        "Các Câu Hỏi Thường Gặp (FAQ)"
+      ],
+      "h3s": [
+        "Hướng dẫn đặt hàng tại Hasaki.vn",
+        "Chính sách Giao nhanh miễn phí 2H (NowFree)",
+        "Phương thức thanh toán",
+        "Chính sách đổi trả trong 30 ngày",
+        "Hướng dẫn đăng ký và quản lý tài khoản",
+        "Câu hỏi thường gặp về mã xác thực OTP",
+        "Giới thiệu Hasaki.vn — Chất lượng thật, Giá trị thật",
+        "Chính sách bảo mật thông tin khách hàng",
+        "Điều khoản sử dụng và quy định giao dịch chung",
+        "Thông tin liên hệ & Tổng đài tư vấn"
+      ],
+      "imagesCount": 1,
+      "visibleTextLen": 4995
+    },
+    {
+      "name": "warranty-center",
+      "path": "/bao-hanh",
+      "status": 200,
+      "title": "Tra Cứu Bảo Hành Điện Tử & Chính Sách Hậu Mãi | Hasaki.vn",
+      "h1s": [
+        "Trung Tâm Bảo Hành & Dịch Vụ Hậu Mãi Hasaki"
+      ],
+      "h2s": [
+        "Tra Cứu Thông Tin Bảo Hành Điện Tử"
+      ],
+      "h3s": [
+        "Tiếp Nhận Bảo Hành Tại Toàn Bộ Hệ Thống Cửa Hàng"
+      ],
+      "imagesCount": 1,
+      "visibleTextLen": 2853
+    },
+    {
+      "name": "cart",
+      "path": "/gio-hang",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "Giỏ hàng của bạn ( 0 sản phẩm mẫu)"
+      ],
+      "h2s": [],
+      "h3s": [],
+      "imagesCount": 1,
+      "visibleTextLen": 1588
+    },
+    {
+      "name": "checkout",
+      "path": "/thanh-toan",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "Thông tin đặt hàng ( 0 sản phẩm mẫu)"
+      ],
+      "h2s": [],
+      "h3s": [],
+      "imagesCount": 1,
+      "visibleTextLen": 1614
+    },
+    {
+      "name": "search",
+      "path": "/tim-kiem?q=kem+chong+nang",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [
+        "Kết quả tìm kiếm “ kem chong nang ”"
+      ],
+      "h2s": [
+        "Kem Chống Nắng Skin1004 Cho Da Nhạy Cảm SPF 50+ 50ml",
+        "Kem Chống Nắng La Roche-Posay Phổ Rộng, Nâng Tông Kiềm Dầu 50ml",
+        "Kem Chống Nắng MartiDerm Phổ Rộng SPF50+ 40ml",
+        "Kem Chống Nắng L&#x27;Oreal X20 Thoáng Da Mỏng Nhẹ 50ml",
+        "Kem Chống Nắng d&#x27;Alba Nâng Tông Tím Hiệu Chỉnh Sắc Da 50ml",
+        "Kem Chống Nắng Beplain Nâng Tông, Cấp Ẩm Căng Bóng 50ml"
+      ],
+      "h3s": [
+        "DANH MỤC",
+        "KHOẢNG GIÁ",
+        "THƯƠNG HIỆU"
+      ],
+      "imagesCount": 7,
+      "visibleTextLen": 3048
+    },
+    {
+      "name": "login-register",
+      "path": "/dang-nhap",
+      "status": 200,
+      "title": "Hasaki - Giao diện thử nghiệm",
+      "h1s": [],
+      "h2s": [
+        "Đăng nhập nhanh 1-Click (Tài khoản mẫu)"
+      ],
+      "h3s": [],
+      "imagesCount": 1,
+      "visibleTextLen": 2953
+    },
+    {
+      "name": "customer-portal-account",
+      "path": "/khach-hang/tai-khoan",
+      "status": 200,
+      "title": "Thông tin tài khoản | Hasaki.vn",
+      "h1s": [],
+      "h2s": [
+        "Thông tin tài khoản"
+      ],
+      "h3s": [
+        "Nguyễn Văn An"
+      ],
+      "imagesCount": 1,
+      "visibleTextLen": 1174
+    },
+    {
+      "name": "customer-portal-orders",
+      "path": "/khach-hang/don-hang",
+      "status": 200,
+      "title": "Đơn hàng của tôi | Hasaki.vn",
+      "h1s": [],
+      "h2s": [
+        "Đơn hàng của tôi"
+      ],
+      "h3s": [
+        "Nguyễn Văn An"
+      ],
+      "imagesCount": 1,
+      "visibleTextLen": 1647
+    },
+    {
+      "name": "customer-portal-bookings",
+      "path": "/khach-hang/lich-hen",
+      "status": 200,
+      "title": "Lịch hẹn Clinic & Spa | Hasaki.vn",
+      "h1s": [],
+      "h2s": [
+        "Lịch hẹn Hasaki Clinic & Spa"
+      ],
+      "h3s": [
+        "Nguyễn Văn An"
+      ],
+      "imagesCount": 1,
+      "visibleTextLen": 1630
+    },
+    {
+      "name": "customer-portal-loyalty",
+      "path": "/khach-hang/diem-thuong",
+      "status": 200,
+      "title": "Điểm thưởng Hasaki Rewards | Hasaki.vn",
+      "h1s": [],
+      "h2s": [
+        "Điểm thưởng Hasaki Rewards"
+      ],
+      "h3s": [
+        "Nguyễn Văn An",
+        "Gold Member"
+      ],
+      "imagesCount": 1,
+      "visibleTextLen": 1778
+    },
+    {
+      "name": "admin-erp-portal",
+      "path": "/quan-tri",
+      "status": 200,
+      "title": "Hasaki ERP - Hệ Thống Quản Trị Doanh Nghiệp Toàn Diện",
+      "h1s": [
+        "HASAKI ENTERPRISE ERP"
+      ],
+      "h2s": [
+        "Sản Phẩm Cần Nhập Kho Gấp",
+        "Nhật Ký Biến Động Kho Vận"
+      ],
+      "h3s": [
+        "Lối Tắt Điều Hành Doanh Nghiệp"
+      ],
+      "imagesCount": 1,
+      "visibleTextLen": 3053
+    },
+    {
+      "name": "sitemap-xml",
+      "path": "/sitemap.xml",
+      "status": 200,
+      "title": "",
+      "h1s": [],
+      "h2s": [],
+      "h3s": [],
+      "imagesCount": 0,
+      "visibleTextLen": 38539
+    },
+    {
+      "name": "robots-txt",
+      "path": "/robots.txt",
+      "status": 200,
+      "title": "",
+      "h1s": [],
+      "h2s": [],
+      "h3s": [],
+      "imagesCount": 0,
+      "visibleTextLen": 316
+    }
+  ],
+  "localApisAudit": [
+    {
+      "name": "api-products",
+      "path": "/api/products?limit=8",
+      "status": 200,
+      "topLevelKeys": [
+        "ok",
+        "data"
+      ]
+    },
+    {
+      "name": "api-deals",
+      "path": "/api/deals",
+      "status": 200,
+      "topLevelKeys": [
+        "ok",
+        "categories",
+        "data"
+      ]
+    },
+    {
+      "name": "api-bestsellers",
+      "path": "/api/bestsellers",
+      "status": 200,
+      "topLevelKeys": [
+        "ok",
+        "categories",
+        "data"
+      ]
+    },
+    {
+      "name": "api-stores",
+      "path": "/api/stores",
+      "status": 200,
+      "topLevelKeys": [
+        "ok",
+        "data",
+        "total",
+        "cities",
+        "districts"
+      ]
+    },
+    {
+      "name": "api-warranty",
+      "path": "/api/warranty",
+      "status": 200,
+      "topLevelKeys": [
+        "ok",
+        "data"
+      ]
+    },
+    {
+      "name": "api-admin-users",
+      "path": "/api/admin/users",
+      "status": 200,
+      "topLevelKeys": [
+        "success",
+        "total",
+        "users"
+      ]
+    },
+    {
+      "name": "api-admin-staff",
+      "path": "/api/admin/staff",
+      "status": 200,
+      "topLevelKeys": [
+        "success",
+        "total",
+        "staff"
+      ]
+    },
+    {
+      "name": "api-admin-orders",
+      "path": "/api/admin/orders",
+      "status": 200,
+      "topLevelKeys": [
+        "success",
+        "total",
+        "orders"
+      ]
+    },
+    {
+      "name": "api-admin-inventory",
+      "path": "/api/admin/inventory",
+      "status": 200,
+      "topLevelKeys": [
+        "success",
+        "total",
+        "lowStockCount",
+        "inventory",
+        "auditLogs"
+      ]
+    },
+    {
+      "name": "api-admin-seo",
+      "path": "/api/admin/seo",
+      "status": 200,
+      "topLevelKeys": [
+        "ok",
+        "audit",
+        "sampleSchemas"
+      ]
+    },
+    {
+      "name": "api-mcp-get",
+      "path": "/api/mcp",
+      "status": 200,
+      "topLevelKeys": [
+        "name",
+        "version",
+        "protocolVersion",
+        "description",
+        "capabilities",
+        "counts",
+        "tools",
+        "resources",
+        "prompts",
+        "examples"
+      ]
+    },
+    {
+      "name": "api-ui-config",
+      "path": "/api/ui-config",
+      "status": 200,
+      "topLevelKeys": [
+        "ok",
+        "data"
+      ]
+    },
+    {
+      "name": "api-ui-config-stock",
+      "path": "/api/ui-config?slug=nuoc-tay-trang-bioderma-danh-cho-da-nhay-cam-500ml",
+      "status": 200,
+      "topLevelKeys": [
+        "ok",
+        "branchStock",
+        "data"
+      ]
+    },
+    {
+      "name": "api-codegraph",
+      "path": "/api/codegraph",
+      "status": 200,
+      "topLevelKeys": [
+        "ok",
+        "timestamp",
+        "stats",
+        "manifest"
+      ]
+    }
+  ]
+}

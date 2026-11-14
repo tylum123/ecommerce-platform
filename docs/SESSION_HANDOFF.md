@@ -1,0 +1,296 @@
+# Session handoff — Hasaki clone
+
+## Note Bàn Giao Chi Tiết Từng Task (Wave 7 — Interactive Hover/Click Scraping & Data-Driven UI/Backend) — 14/11/2026
+
+Bàn giao đợt nâng cấp **Wave 7 (14/11/2026)**: Thực thi Playwright Chrome thao tác `hover` và `click` trực tiếp trên các nút và ô tìm kiếm của `https://hasaki.vn/`, trích xuất toàn bộ giao diện tương tác động, xây dựng kiến trúc **Data-Driven Backend (`/api/ui-config`, `src/lib/interactive-ui.ts`) không hardcode**, tối ưu hóa mã nguồn không dư thừa, và đồng bộ 1:1 lên toàn bộ hệ thống Storefront, Category, Product Detail và ERP.
+
+### 1. Cào Dữ Liệu Tương Tác Trực Tiếp Bằng Hover & Click Trên Hasaki.vn (`scripts/scrape-hasaki-interactive-ui.mjs`)
+- Sử dụng Playwright + Google Chrome (`scripts/scrape-hasaki-interactive-ui.mjs`) thực hiện các thao tác chuột thực tế (`click` vào ô `#search`, `hover` lên thanh điều hướng `DANH MỤC`, `hover`/`click` vào các bộ lọc danh mục, Flash Deals và các nút biến thể trên trang chi tiết sản phẩm).
+- Lưu trữ toàn bộ dữ liệu DOM tương tác tại [interactive-ui-2026-11-14.json](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/docs/research/hasaki/interactive-ui-2026-11-14.json) và bộ ảnh chụp đối chiếu trực quan tại `docs/design-references/`:
+  - `02-search-popup-click.png`: Giao diện Search Popup khi click vào thanh tìm kiếm (3 pill chiến dịch màu xanh lá, 6 thẻ danh mục kèm ảnh thumbnail 120×120, 8 logo thương hiệu nổi bật).
+  - `03-category-filters.png` & `03-category-filters-scrolled.png`: Giao diện trang Danh mục với dải 8 Logo Thương hiệu phía trên, cây danh mục `SỨC KHỎE - LÀM ĐẸP` + `KHOẢNG GIÁ` + 14 nhóm bộ lọc chuyên sâu bên trái, thanh sắp xếp 4 tab kèm bộ chọn `Hiển thị 40 / 60 / 80`, và thẻ sản phẩm có dòng phụ đề tiếng Anh + tag viền cam đứt nét `🎁 Bill ... Tặng ...`.
+  - `04-deals-flash-slots.png`: Giao diện Flash Deal theo khung giờ và các pill lọc nhanh danh mục.
+  - `05-product-detail-tabs.png` & `05-product-detail-scrolled.png`: Giao diện Chi tiết sản phẩm khi chọn biến thể `Công dụng` (swatches có ảnh), `Dung Tích` (`Combo 1000ml`, `100ml`, `250ml`, `500ml`), huy hiệu `Số công bố với Bộ Y Tế : 278237/25/CBMP-QLD`, thanh `⚡ FLASH DEAL` đếm ngược, thanh Sticky Top Bar khi cuộn trang, cột phải `- MIỄN PHÍ VẬN CHUYỂN -` (4 cam kết 2H / 100% / Miễn phí / 30 ngày) và hộp cam kết `VAT 100%` chính hãng.
+
+### 2. Kiến Trúc Backend Data-Driven Không Hardcode (`src/lib/interactive-ui.ts` & `/api/ui-config`)
+- **Service trung tâm [src/lib/interactive-ui.ts](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/interactive-ui.ts)**:
+  - `getInteractiveUiData()`: Chuẩn hóa toàn bộ dữ liệu từ `interactive-ui-2026-11-14.json`, `brand-catalog-2026-11-13.json` và `category-facets-2026-11-13.json` thành cấu trúc dữ liệu có kiểu tĩnh chặt chẽ (`InteractiveUiDataset`), loại bỏ hoàn toàn các mảng từ khóa hay menu hardcode trong các component giao diện.
+  - `computeGiftBillPromo(product)`: Tự động tính toán chương trình quà tặng theo hóa đơn thương hiệu (`Bill Klairs từ 399K Tặng...`, `Bill 239K L'Oreal Tặng...`, `Bill 499K Bioderma Tặng...`) dựa trên thương hiệu và mức giá thực tế.
+  - `computeProductEnglishSubtitle(product)`: Sinh dòng phụ đề tiếng Anh chuẩn xác cho từng sản phẩm giống 1:1 thẻ sản phẩm Hasaki.
+  - `searchCatalogLive(query)`: Tìm kiếm tức thì (autocomplete) sản phẩm và thương hiệu khi người dùng gõ vào ô tìm kiếm.
+- **API Endpoint [src/app/api/ui-config/route.ts](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/app/api/ui-config/route.ts)**:
+  - `GET /api/ui-config`: Trả về cấu hình giao diện tương tác toàn cục + tổng quan tồn kho.
+  - `GET /api/ui-config?q=<keyword>`: Trả về kết quả gợi ý sản phẩm và thương hiệu thời gian thực.
+  - `GET /api/ui-config?slug=<product_slug>`: Kết nối trực tiếp với `listInventory()` trong `src/lib/server/erp-store.ts` để trả về tồn kho thực tế theo từng chi nhánh (`branchStock`), số lượng cửa hàng còn hàng (`Còn X/186 CH có hàng`) và chương trình quà tặng kèm của sản phẩm.
+
+### 3. Nâng Cấp Giao Diện Tương Tác 1:1 Trên Storefront & Các Màn Hình Con
+- **Header Search Popup & 3-Column Hover Mega Menu ([src/components/sites/hasaki/header.tsx](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/hasaki/header.tsx))**:
+  - Click hoặc focus vào ô tìm kiếm mở ngay **Hasaki Search Popup** (3 pill chiến dịch xanh lá, lưới 6 danh mục kèm ảnh thumbnail, lưới 8 logo thương hiệu nổi bật; khi gõ từ khóa tự động chuyển sang danh sách gợi ý sản phẩm có ảnh, giá giảm, % sale và gợi ý thương hiệu).
+  - Rê chuột (`hover`) hoặc `click` vào nút `DANH MỤC` mở **Mega Menu 3 cột chuẩn Hasaki**: Cột trái gồm 16 danh mục gốc `Sức Khỏe - Làm Đẹp` đổi trạng thái tức thì khi rê chuột (`onMouseEnter`); Cột giữa hiển thị 3 nhóm danh mục con & dịch vụ chuyên sâu; Cột phải hiển thị lưới 6 logo thương hiệu nổi bật của danh mục đang chọn.
+- **Thẻ Sản Phẩm Chuẩn Hasaki ([src/components/sites/hasaki/product-card.tsx](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/hasaki/product-card.tsx))**:
+  - Hiển thị đầy đủ: Huy hiệu `NOWFREE 2H`, giá khuyến mãi màu cam, `% giảm`, giá gốc gạch ngang, tên thương hiệu in hoa, **dòng phụ đề tiếng Anh**, tên sản phẩm tiếng Việt, huy hiệu điểm đánh giá màu cam (`4.9 ★`), số lượng đánh giá, **lượt bán mỗi tháng (`🛒 880/tháng`)**, thanh tiến độ `Đã bán XX%` và **tag quà tặng viền cam đứt nét (`🎁 Bill ... Tặng ...`)**.
+- **Trang Danh Mục & Chi Tiết Sản Phẩm Tương Tác ([src/components/sites/hasaki/catalog-view.tsx](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/hasaki/catalog-view.tsx))**:
+  - `CategoryView`: Bổ sung dải **8 Logo Thương Hiệu Nổi Bật** phía trên cùng (click vào logo lọc ngay sản phẩm theo thương hiệu đó), cây danh mục `Sức Khỏe - Làm Đẹp` đầu sidebar trái, bộ lọc `Khoảng giá` với nút `Áp dụng` màu cam, 14 nhóm bộ lọc chuyên sâu có thể thu gọn/mở rộng, thanh sắp xếp (`Mới nhất`, `Bán chạy`, `Giá thấp đến cao`, `Giá cao đến thấp`, `Giảm nhiều`) và bộ chọn `Hiển thị 40 / 60 / 80`.
+  - `ProductView`: Bổ sung **Sticky Top Product Bar** tự động trượt xuống khi cuộn trang (`window.scrollY > 420`), huy hiệu xanh lá **`Số công bố với Bộ Y Tế : 278237/25/CBMP-QLD`**, thanh **`⚡ FLASH DEAL GIÁ SỐC`** đếm ngược, thông tin `(Đã bao gồm VAT)` & số tiền tiết kiệm, nút chọn biến thể **`Công dụng` có ảnh thumbnail**, nút chọn **`Dung Tích` (`100ml`, `250ml`, `500ml`, `Combo 1000ml`) tự động tính lại giá bán**, nút **`📍 Còn X/186 CH có hàng`** mở bảng tra cứu tồn kho thực tế tại từng chi nhánh ERP, cột phải **`- MIỄN PHÍ VẬN CHUYỂN -`** với 4 cam kết dịch vụ chính hãng và hộp chứng nhận **`VAT 100%`** trong phần mô tả.
+
+---
+
+## Note Bàn Giao Chi Tiết Từng Task (Wave 1 – Wave 6) — 13/11/2026
+
+Bàn giao toàn diện hệ thống Hasaki Clone sau khi hoàn thành 6 đợt nâng cấp kiến trúc lớn (Enterprise CodeGraph, Live Scraped Datasets, Storefront Multi-Facet Filtering, Detailed Sub-Screens, Unified Auth/RBAC, Enterprise ERP Admin Portal, Technical SEO Engine & AI MCP Server).
+
+---
+
+### Task 1 — Full Live Hasaki Data Scraping (`docs/research/hasaki/`)
+Đã thu thập và chuẩn hóa thành công 9 bộ dữ liệu JSON thực tế từ website `https://hasaki.vn/`, phục vụ toàn bộ storefront, clinic và hệ thống quản trị:
+1. `deals-2026-11-13.json`: Danh mục Flash Deals theo khung giờ (09:00 - 12:00, 12:00 - 15:00, 15:00 - 18:00, 18:00 - 21:00), Shock Deals, các Deal tab thời gian thực kèm % giảm giá và thanh tiến độ số lượng đã bán.
+2. `bestsellers-2026-11-13.json`: Top sản phẩm bán chạy nhất hệ thống phân theo danh mục, tích hợp chỉ số tốc độ bán (sales velocity) và điểm đánh giá thực tế (4.8 - 5.0 sao).
+3. `category-products-2026-11-13.json`: 35 danh mục chuẩn Hasaki × 8 sản phẩm thật mỗi danh mục (tổng cộng 280+ sản phẩm chính hãng có đầy đủ hình ảnh, giá niêm yết, giá khuyến mãi, tem phụ và thông tin xuất xứ).
+4. `category-facets-2026-11-13.json`: Ma trận bộ lọc đa chiều gồm 14 nhóm facet Hasaki thực tế: Khoảng giá, Thương hiệu, Dung tích, Loại da, Công dụng, Kết cấu, Xuất xứ, Giới tính, Thành phần nổi bật, Đặc tính, Vấn đề về da, Loại sản phẩm, Màu sắc, Dòng sản phẩm.
+5. `brand-catalog-2026-11-13.json`: 488 thương hiệu chính hãng có trên hệ thống Hasaki, phân loại theo bảng chữ cái A-Z và nhóm 13 thương hiệu Flagship hàng đầu (La Roche-Posay, Bioderma, L'Oreal, Cocoon, Vichy, Cerave, v.v.).
+6. `product-rich-details-2026-11-13.json`: Bảng thông số kỹ thuật chi tiết (Specs), danh sách thành phần theo chuẩn INCI (Ingredients), hướng dẫn sử dụng & bảo quản, cảnh báo an toàn, đánh giá đã xác thực từ người mua (Verified Reviews) và mục Hỏi Đáp (Q&A).
+7. `clinic-rich-details-2026-11-13.json`: Danh mục dịch vụ da liễu chuẩn y khoa tại Hasaki Clinic & Spa (Trị mụn, Giảm thâm, Peel da, Triệt lông Diode Laser, Nâng cơ Hifu, Chăm sóc thư giãn), bảng giá niêm yết, quy trình điều trị 7-12 bước, cẩm nang da liễu và danh sách chi nhánh có bác sĩ phụ trách.
+8. `campaigns-home-2026-11-13.json`: Hệ thống banner chiến dịch trang chủ (Hero Carousel, Sub-banners, Brand Strips) cùng danh mục hành chính 34 tỉnh/thành phố, quận/huyện, phường/xã phục vụ tra cứu giao nhanh NowFree 2H.
+9. `support-footer-2026-11-13.json`: Mạng lưới 260+ chi nhánh cửa hàng Hasaki toàn quốc, danh mục câu hỏi thường gặp (FAQs), chính sách đổi trả - bảo hành, và trung tâm tiếp nhận bảo hành máy làm đẹp/thiết bị chăm sóc.
+
+---
+
+### Task 2 — Storefront Multi-Facet Filtering & Các Màn Hình Con Chi Tiết
+1. **Bộ lọc đa diện 14 nhóm (`src/lib/category-facets.ts`, `src/components/sites/hasaki/catalog-view.tsx`, `src/components/sites/hasaki/product-card.tsx`)**:
+   - Sidebar động tải 14 nhóm facet theo từng danh mục cụ thể, hỗ trợ chọn đồng thời nhiều tiêu chí với chips hiển thị trạng thái lọc.
+   - Khoảng giá trực quan: các nút preset phổ biến (< 100k, 100k-200k, 200k-500k, 500k-1tr, > 1tr) kết hợp ô nhập tùy chỉnh min-max.
+   - Đồng bộ hai chiều với URL search parameters (giữ trạng thái khi refresh hoặc chia sẻ link).
+   - Thanh sắp xếp đa tiêu chuẩn: Bán chạy, Giá tăng dần, Giá giảm dần, Mới nhất, Chiết khấu cao nhất.
+   - Thẻ sản phẩm tối ưu: hiển thị huy hiệu NowFree 2H, % giảm giá, đánh giá sao, lượt bán, tem chính hãng 100%.
+2. **Các màn hình con chi tiết (Detailed Sub-screens)**:
+   - `/bang-gia-dich-vu.html`: Bảng giá dịch vụ Hasaki Clinic & Spa với bộ lọc chuyên khoa, thời lượng điều trị, cam kết bác sĩ da liễu và công cụ tính toán chi phí đặt hẹn trực tiếp.
+   - `/cam-nang.html`: Cẩm nang làm đẹp & kiến thức da liễu Hasaki chia theo tab chủ đề (Trị mụn, Chống lão hóa, Routine theo loại da), có modal đọc bài viết chi tiết chuẩn y khoa.
+   - `/san-pham/[slug]`: Route chi tiết sản phẩm toàn năng phân giải mọi slug trong 9 bộ dữ liệu, giao diện 5 tab phong phú: Mô tả chi tiết, Thông số kỹ thuật, Thành phần & An toàn, Đánh giá thực tế, Hỏi & Đáp.
+   - `/thuong-hieu/[slug]`: Màn hình thương hiệu với hero banner, thông tin chứng nhận phân phối chính hãng và danh mục sản phẩm lọc theo thương hiệu.
+   - `/campaign/[slug]`: Trang sự kiện & chiến dịch khuyến mãi lớn (Hasaki Mega Sale, Lễ hội chống nắng, Siêu sale thương hiệu).
+   - `/tag/[slug]`: Phân loại sản phẩm theo từ khóa xu hướng và giải pháp chuyên biệt.
+   - `/deals-dang-dien-ra.html` & `/san-pham-ban-chay.html`: Màn hình săn Flash Deals thời gian thực và Bảng xếp hạng bán chạy.
+   - `/he-thong-cua-hang`: Bản đồ định vị 260+ chi nhánh Hasaki toàn quốc kèm trạng thái hoạt động, số hotline, có phòng khám Clinic hay không.
+   - `/ho-tro` & `/bao-hanh`: Trung tâm trợ giúp khách hàng và tra cứu bảo hành điện tử chính hãng.
+
+---
+
+### Task 3 — Authentication & Role-Based Access Control (RBAC)
+- Triển khai hệ thống xác thực thống nhất tại `src/lib/auth.ts`, `src/app/api/auth/route.ts`, `src/app/dang-nhap/page.tsx`, `src/components/sites/hasaki/account-dialog.tsx`, `src/components/sites/hasaki/header.tsx`.
+- **Phân quyền người dùng (Role-Based Access Control)**:
+  - Khách hàng (`customer`): Quản lý hồ sơ cá nhân, hạng thành viên (Member/Silver/Gold/Diamond), điểm thưởng Hasaki Reward Points, địa chỉ giao hàng và lịch sử đơn hàng tại `/khach-hang/tai-khoan`.
+  - Ban quản trị & Vận hành ERP (`admin`, `store_manager`, `warehouse_staff`, `clinic_doctor`, `cs_agent`).
+- **4 tài khoản Demo 1-Click tích hợp sẵn**:
+  1. `admin@hasaki.vn` (Mật khẩu: `Hasaki@123`) — Quản trị viên cấp cao (Super Admin), toàn quyền ERP & hệ thống.
+  2. `kho@hasaki.vn` (Mật khẩu: `Hasaki@123`) — Quản lý kho tổng & Điều phối đơn NowFree 2H.
+  3. `bacsi@hasaki.vn` (Mật khẩu: `Hasaki@123`) — Bác sĩ CKI Da liễu phụ trách Hasaki Clinic Quận 10.
+  4. `0901234567` (Mật khẩu: `Hasaki@123`) — Khách hàng thân thiết VIP Diamond (2.850 điểm thưởng).
+- Badge người dùng thời gian thực trên Header, tự động nhận diện vai trò và chuyển hướng thông minh vào `/quan-tri` hoặc `/khach-hang/tai-khoan`.
+
+---
+
+### Task 4 — Enterprise ERP Backend & Admin Portal (`/quan-tri`)
+Hệ thống backend quản trị doanh nghiệp chuẩn hóa tại `src/lib/server/erp-store.ts` và giao diện portal tại `src/components/sites/hasaki/admin-erp-view.tsx` với 4 module cốt lõi:
+1. **Module 1: Quản lý Khách hàng / CRM (`/api/admin/users`)**:
+   - Quản lý danh sách khách hàng, phân hạng thành viên (Member, Silver, Gold, Diamond), điểm thưởng loyalty tích lũy, tổng chi tiêu.
+   - Cập nhật hồ sơ da (Skin Profile: Da dầu mụn, Nhạy cảm, Da khô lão hóa), điều chỉnh điểm thưởng thủ công có ghi log, khóa/mở khóa tài khoản khách hàng.
+2. **Module 2: Quản lý Nhân viên & Phân quyền RBAC (`/api/admin/staff`)**:
+   - Quản lý hồ sơ nhân viên toàn hệ thống: Mã NV, chức danh, chi nhánh trực thuộc, trạng thái ca trực (Đang trực, Nghỉ phép, Đã nghỉ việc).
+   - Thiết lập quyền hạn chi tiết: `users:manage`, `staff:manage`, `orders:manage`, `inventory:manage`, `seo:manage`, `mcp:execute`.
+3. **Module 3: Quản lý & Xử lý Đơn hàng Fulfillment (`/api/admin/orders`)**:
+   - Quy trình xử lý đơn hàng 7 bước tự động: `Chờ xác nhận (pending)` → `Đã xác nhận (confirmed)` → `Đang đóng gói (packing)` → `Đang giao hàng (shipping)` → `Đã giao thành công (delivered)` → `Đã hủy (cancelled)` / `Hoàn trả (returned)`.
+   - Quản lý trạng thái thanh toán (COD / Chuyển khoản đã duyệt), gán kho đóng hàng tối ưu theo địa chỉ và giám sát SLA cam kết NowFree 2H.
+4. **Module 4: Quản lý Kho hàng & Tồn kho Đa Chi Nhánh (`/api/admin/inventory`)**:
+   - Quản lý tồn kho 5 kho phân vùng chính (Kho Tổng Tân Bình, Kho Q.10, Kho Thủ Đức, Kho Đống Đa - Hà Nội, Kho Hải Châu - Đà Nẵng).
+   - Theo dõi Total Stock, Reserved Stock (hàng giữ cho đơn chờ đóng) và Available Stock cho từng mã SKU.
+   - Các thao tác chuẩn kiểm toán: `adjust_stock` (cập nhật kiểm kê) và `transfer_stock` (chuyển kho nội bộ) ghi nhật ký Audit Log minh bạch kèm mã nhân viên và lý do.
+
+---
+
+### Task 5 — Technical SEO Engine & AI Model Context Protocol (MCP) Server (`/api/mcp`)
+1. **Hệ thống Technical SEO tự động (`src/lib/seo/seo-engine.ts`, `src/app/sitemap.ts`, `src/app/robots.ts`, `/api/admin/seo`)**:
+   - Tự động sinh `sitemap.xml` động bao gồm đầy đủ trang chủ, 35 danh mục, 280+ sản phẩm, 488 thương hiệu và 42 dịch vụ Clinic.
+   - Thiết lập chuẩn `robots.txt` cho phép các search engine và AI crawlers chính thống đánh chỉ mục.
+   - Trình tạo Schema.org JSON-LD chuẩn quốc tế: `Organization`, `WebSite`, `Product`, `Offer`, `MedicalClinic`, `MedicalProcedure`, `BreadcrumbList`, `FAQPage`.
+   - Bộ chấm điểm SEO Health Scorer 100 điểm với các tiêu chí khắt khe: độ dài thẻ title, meta description, canonical URL, OpenGraph tags, cấu trúc heading H1-H3.
+2. **Standardized AI MCP Server Endpoint (`src/lib/mcp/hasaki-mcp.ts`, `src/app/api/mcp/route.ts`)**:
+   - Tuân thủ đặc tả JSON-RPC 2.0 chuẩn của Anthropic / Model Context Protocol.
+   - **8 Công cụ AI (Tools)**: `search_catalog`, `get_product_rich_detail`, `query_flash_deals`, `lookup_clinic_services`, `check_inventory_stock`, `update_order_status`, `lookup_store_branch`, `audit_technical_seo`.
+   - **5 Tài nguyên AI (Resources)**: `hasaki://catalog/summary`, `hasaki://deals/active`, `hasaki://clinic/services`, `hasaki://inventory/low-stock`, `hasaki://seo/health-report`.
+   - **3 AI Workflow Prompts**: `product_consultant_prompt`, `order_fulfillment_prompt`, `clinic_treatment_recommender`.
+   - Tích hợp giao diện **AI Playground trực quan trong `/quan-tri`** giúp kiểm thử nhanh tool calls và JSON-RPC payload.
+
+---
+
+### Task 6 — CodeGraph Architecture Metrics & Sức Khỏe Hệ Thống
+- **Chỉ số CodeGraph Repository**:
+  - **160+ files mã nguồn**, hơn **1.757 nodes** và **3.241 edges** được đánh chỉ mục chi tiết.
+  - **56+ routes** phân bố rõ ràng giữa Storefront, Clinic, Customer Portal, ERP Admin, API & MCP Server.
+  - **266+ functions** và **110+ TypeScript interfaces/types** bảo đảm tính toàn vẹn kiểu dữ liệu (Strict Mode, 0 `any`).
+- **Phân lớp kiến trúc không phụ thuộc vòng (Zero Circular Dependencies)**:
+  1. *Data Layer*: 9 file JSON scraped nguyên bản tại `docs/research/hasaki/`.
+  2. *Domain & Engine Layer*: `catalog.ts`, `category-facets.ts`, `clinic-services.ts`, `seo-engine.ts`, `hasaki-mcp.ts`.
+  3. *State & Repository Layer*: `auth.ts`, `cart.ts`, `erp-store.ts`.
+  4. *Presentation & Route Layer*: Các Next.js App Router pages và UI components tái sử dụng cao.
+
+---
+
+## Checkout — 13/11/2026
+
+- `/thanh-toan` dùng `checkout-view.tsx`: cần họ tên, SĐT 10 chữ số bắt đầu 0, địa chỉ trước khi xem lại; có lựa chọn thanh toán minh họa và phí vận chuyển chưa tính. Không tạo đơn, không gửi hay lưu thông tin nhận hàng. Cart vẫn lưu localStorage. Playwright kiểm tra luồng sản phẩm → giỏ → checkout, trường trống/SĐT sai, xem lại với dữ liệu giả, không có request khác GET trong khoảng quan sát, mobile không tràn; lint/build đạt, production 3020 kiểm tra checkout có sản phẩm. Nguồn yêu cầu đăng nhập khi thêm hàng, vì vậy chưa đối chiếu được giỏ có hàng hoặc checkout thật; xem báo cáo.
+- Người dùng yêu cầu cập nhật cả `PROGRESS.md` và handoff khi gần hết quota; đã bổ sung checkpoint mới vào cả hai, giữ lịch sử và tiếp tục cập nhật khi cần. Không đánh dấu mục tiêu hoàn thành.
+
+## Tài khoản — 13/11/2026
+
+- Header dùng `account-dialog.tsx` cho đăng nhập, đăng ký và quên mật khẩu; chuyển màn hình, hiện/ẩn mật khẩu, đóng bằng Escape hoạt động. Đây là giao diện thử nghiệm, chưa có xác thực, captcha hoặc OTP, không gửi thông tin. Playwright đã kiểm tra trên trang chủ và thương hiệu, lint/build đạt; chi tiết và ảnh trong báo cáo.
+
+## Chi tiết dịch vụ Clinic — 13/11/2026
+
+- 42 thẻ Clinic đã nối tới `/dich-vu/[slug]` local; mỗi trang dùng thông tin ảnh chụp và có nút sang booking với SKU. Playwright kiểm tra luồng danh mục → chi tiết → booking, 42 URL production trả 200 và slug lạ trả 404. Lint/build đạt; chưa có biến thể, dữ liệu đánh giá, hỏi đáp và mô tả đầy đủ. Xem báo cáo để tiếp tục.
+
+## Clinic & Spa — 13/11/2026
+
+- `/clinic` chuyển local sang `/danh-muc/hasaki-clinic-spa-c331.html`; header và Xem tất cả trang chủ đã nối local. Danh sách dùng 42 dịch vụ trong ảnh chụp từ nguồn, lọc/sắp giá và Đặt hẹn sang `/booking?sku=...` điền tên dịch vụ; đây không phải giá hay lịch trống live. Lint/build đạt, Playwright đã kiểm tra luồng và mobile; ảnh và giới hạn ở đầu `docs/clone-gap-report.md`.
+
+## Booking — 13/11/2026
+
+- Đã thêm `/booking` và nối lối tắt Đặt Hẹn ở trang chủ. Chọn chi nhánh, nhập thông tin/dịch vụ, chọn ngày giờ và kiểm tra đầu vào hoạt động trong giao diện thử nghiệm. Không gửi hay tạo lịch hẹn thật; trạng thái khung giờ chỉ minh họa. 19 chi nhánh là ảnh chụp ngày 13/11/2026, có thể đã thay đổi. Lint/build đạt; xem ảnh, kiểm tra và giới hạn ở đầu `docs/clone-gap-report.md`.
+
+## Phân công khảo sát và CodeGraph — 13/11/2026
+
+- Inventory tính năng, chứng cứ, giới hạn và ba phương án triển khai nằm tại `docs/research/hasaki/feature-inventory-and-delivery.md`. Các subagent dùng nội dung nguồn/tài liệu; không kiểm chứng click/mobile trong lượt của họ do xung đột browser.
+- CodeGraph 1.6.2 cài local và đăng ký MCP Codex; index thấy 88 tệp, 223 nodes, 455 edges, đã truy vấn thành công cả `NewProductView` và `CartView`. Telemetry tắt qua biến môi trường của MCP. Package install báo 25 vulnerabilities trong toàn bộ dependency tree; chưa xác định phần nào do package mới hay có sẵn.
+- Đã lấy thông số nguồn cho 28/40 sản phẩm mới; liên kết các mục thông tin, thông số và đường sang nguồn để xem/gửi đánh giá, hỏi đáp. Chưa có backend hoặc dữ liệu live.
+
+## Chi tiết hàng mới — 13/11/2026
+
+- 40 thẻ hàng mới hiện dẫn tới route sản phẩm local; `new-product-view.tsx` hiển thị dữ liệu ảnh chụp và giỏ mẫu nhận diện sản phẩm. Playwright kiểm tra thẻ đầu → số lượng 2 → giỏ → xóa, tổng 870.000 đồng theo giá ảnh chụp; mobile không tràn ngang. Dữ liệu chi tiết và chức năng thương mại vẫn thiếu; xem báo cáo.
+
+
+## Hàng mới và bán chạy — 13/11/2026
+
+- Trang hàng mới dùng 40 sản phẩm ghi nhận từ nguồn, có lọc giá, thương hiệu và sắp giá; trang bán chạy dùng tám sản phẩm mẫu. Chưa có thứ hạng bán chạy thực. Chi tiết, kiểm tra và giới hạn được ghi ở đầu `docs/clone-gap-report.md`.
+
+## Flash Deal — 13/11/2026
+
+- Đã thêm route local `/deals-dang-dien-ra.html` và `deals-list.tsx`; filter danh mục, trạng thái rỗng, reset và thêm giỏ mẫu đã kiểm tra Playwright. Lint và build đạt. Ảnh desktop/mobile và giới hạn dữ liệu/layout ghi ở đầu `docs/clone-gap-report.md`. `product_list_order=topsale` được giữ trong URL nhưng không có dữ liệu bán hàng để sắp xếp theo mức bán chạy.
+- Người dùng muốn tiếp tục đến khi hoàn thiện frontend; chưa đạt mục tiêu. Đã bắt đầu khảo sát trang bán chạy, cần tiếp tục theo từng template và luồng; trang campaign, hàng mới, Clinic, booking, dữ liệu thực, responsive và nhiều nút vẫn thiếu. Giữ Git hiện có và tiếp tục kiểm tra bằng browser; không trình bày sản phẩm/giá/đơn hàng mẫu là dữ liệu thật.
+
+## Điều hướng trang chủ — 13/11/2026
+
+- Nhóm header/quick links được đối chiếu URL Hasaki; route đã có mở local, route campaign/Clinic/booking chưa dựng mở trang gốc. Tab gợi ý dùng dữ liệu mẫu, Xem thêm hoạt động, category slug lạ trả 404 trong dev. Playwright kiểm tra menu, tab, search → product → add/remove cart ở mobile; chi tiết và ảnh desktop/mobile ở mục đầu `docs/clone-gap-report.md`.
+- `npm.cmd run lint` và `npm.cmd run build` đạt. Chưa có backend cho tài khoản, địa chỉ và đặt hàng thật; tiếp tục xây dựng và khảo sát từng trang con còn thiếu theo yêu cầu, giữ mọi thay đổi Git.
+
+## Loop 3 checkpoint — 13/11/2026
+
+- Đọc mục Loop 3 mới nhất trong `docs/clone-gap-report.md` để biết ảnh 1440 × 900, kết quả Playwright, test và giới hạn. Product slug lạ đã trả 404 trong dev; breadcrumb dùng danh mục, Anker có danh mục; brand filter/search/sort và Deals chỉ dùng dữ liệu mẫu. Product card dùng chung; product → brand → danh sách đã được kiểm tra.
+- `node --test test/brand-filter.test.mjs`, `npm.cmd run lint` và production build đạt. Playwright xác nhận bản production trên cổng 3002 trả 404 cho slug sản phẩm lạ và 200 cho Bioderma; `next start` cảnh báo cấu hình standalone. Giữ các thay đổi Git đang có; không coi dữ liệu mẫu, giao diện hay checkout là bản thương mại hoàn chỉnh.
+
+## Loop 2 checkpoint — 12/11/2026
+
+- Chọn trang `/thuong-hieu/bioderma.html`, sửa 1/5 lần: mô tả nguồn, hình học đầu trang, banner minh họa và sidebar/danh sách. Các filter/sort/Deals chưa có dữ liệu thực. Ảnh đối chiếu 1440 × 900 và chi tiết trong mục Loop 2 đầu `docs/clone-gap-report.md`; nguồn có cookie banner, local không có.
+- Playwright trong context riêng đã mở cả nguồn và local, kiểm tra liên kết sản phẩm và không tràn ngang desktop; chưa đối chiếu mobile/toàn trang. `npm.cmd run lint` và `npm.cmd run build` thành công. Giữ toàn bộ thay đổi Git hiện có và tiếp tục ưu tiên các khoảng thiếu được ghi trong gap report.
+
+Checkpoint: 12/11/2026. Read `AGENTS.md` and `docs/clone-gap-report.md` before continuing. The gap report contains historical entries; its newest entries supersede older statements. This checkpoint is documentation only; no application code was changed in the handoff turn.
+
+## Goal and user decisions
+
+- Recreate **https://hasaki.vn/** as closely as possible, including layout, text/information, buttons, navigation, and subordinate screens. The user explicitly said exact images are not necessary; placeholders are acceptable while layout and behavior are prioritized. A complete clone is not yet delivered.
+- Preserve existing work and all Git changes. Work on one template at a time, compare source and local at matched viewport, scroll and state, run suitable tests, and use at most five repair iterations per template. Avoid unnecessary subagents and redundant full builds. Update `docs/clone-gap-report.md` with evidence and remaining work.
+- The user requested full functionality and page navigation, but current commerce is a frontend demo; do not describe simulated account, checkout or cart behavior as a real backend. Full-stack commerce was previously planned as a later phase.
+
+## Verified project and architecture
+
+- Root: `C:\Users\MyPC\OneDrive\Máy tính\hasaki-clone`; Git branch `master`. `git remote -v` printed no remote during this handoff. There are many modified and untracked files predating this handoff, including app code and references. Do not reset, clean, overwrite, or discard them.
+- Next.js 16.3.5 App Router, React 19, TypeScript, Tailwind v4, Lucide; Node `v24.21.0` in this handoff. `next.config.ts` sets `output: "standalone"`. Read the relevant installed guide under `node_modules/next/dist/docs/` before writing Next.js code.
+- Main files: `src/app/page.tsx` (home), `src/app/globals.css` (most styles), `src/components/sites/hasaki/header.tsx` (shared header), `catalog-view.tsx` (category and product templates), `cart-view.tsx` (cart and checkout), `src/lib/catalog.ts` (28 categories and eight example products), `src/lib/cart.ts` (browser localStorage key `hasaki-demo-cart`). Search in `src/app/tim-kiem/page.tsx` filters example products.
+- Routes exist for `/`, `/danh-muc/[slug]`, `/san-pham/[slug]`, `/gio-hang`, `/thanh-toan`, `/tim-kiem`, `/thuong-hieu`, `/thuong-hieu/[slug]`. Brand data is imported directly from `docs/research/hasaki/brands-source.json` (488 names and URLs observed on the source, a dated snapshot). Brand detail filters the sample product array and uses `notFound()` for an unknown brand.
+- Shared header is used on home, category, product, search and brands. Cart/checkout use their own header; footer implementations differ, and brand pages have no footer. Account and location dialogs are placeholders. The cart uses localStorage; checkout does not create a real order. No authentication, real payment/shipping, database, order backend or administration is implemented.
+
+## Completed work and evidence
+
+- Recent prior turn: `npm.cmd run lint` and `npm.cmd run build` passed; build included TypeScript. A small correction to brand letter links and a disabled-data label was made after the first build, then a second production build passed. No build or lint was rerun in this documentation-only handoff.
+- HTTP during this handoff: `http://localhost:3000/`, `/thuong-hieu`, `/thuong-hieu/bioderma.html` returned 200; `/clinic` returned 404. Port 3000 was running, but process state is ephemeral. An unknown brand returned 404 in the prior implementation turn.
+- Brand list and detail are first-pass templates. The navigation header and home “Xem tất cả” point to `/thuong-hieu`; brand letters link to populated groups. Playwright followed the Bioderma link and observed one matching sample product. Source and local screenshots: `docs/design-references/brands-source-1440.png`, `brands-local-1440.png`, and `brand-detail-source-1440.png`. The detail page is incomplete, not a visually or functionally exact clone.
+- Category page: source/local 1440 × 900 screenshots in `docs/design-references/category-*`. Brand strip, four-column listing and sorting buttons were added. Playwright tested Bioderma filtering, clearing, and ascending price (Hada Labo first); mobile 390 × 844 had two columns and no measured document overflow. Source mobile parity remains unverified. Category has used two repair iterations; brand template one, home three, per audit.
+- Home and shared header were compared at desktop sizes. In response to the user’s request for wider display, desktop content maximum is 1800px, a deliberate deviation from the source’s measured 1340px. The initial 1100px cart-badge overflow was corrected. The viewport measurements are documented in the audit and do not establish full responsive or interaction coverage.
+
+## Missing pages, known bugs and limitations
+
+- Source menu destinations identified but not cloned include `/deals-dang-dien-ra.html?product_list_order=topsale`, `/campaign/wow`, `/hang-moi-ve.html?sort=position`, `/san-pham-ban-chay.html?sort=topsale`, `/clinic`, `/danh-muc/dermahair-c2298.html`, and `/booking`. Header still routes most of these to home anchors. Other source routes remain to be inventoried; query parameters can represent real states.
+- Source quick links include `/danh-muc/phu-kien-dien-thoai-c2474.html`, `/danh-muc/thiet-bi-am-thanh-c2930.html`, `/danh-muc/ve-sinh-nha-cua-c2462.html`, `/danh-muc/balo-tui-xach-c2749.html`, and `/booking`; several local shortcuts point to anchors. The Anker category is missing in `categories`, so its local category shows a not-found message with HTTP 200. Unknown category/product also have soft 404 behavior as recorded in the audit. Verify current behavior before fixing.
+- Brand detail currently has no real description, filters, promotions or full products. Most of the 488 brands have no sample products; “Deals” is explicitly marked as lacking data. Names and URLs may become stale. The shared header, search, sorting, filters, pagination, category trees, checkout and service flows need source-state mapping and browser testing. Product breadcrumbs erroneously include facial care for non-facial products; related products are generic. Home carousel/timer/sections contain samples and some anchor links; `Xem thêm` does not actually load more.
+- Dev console previously reported a hydration mismatch involving injected `style="caret-color: transparent"` on inputs. Its origin and whether it occurs in production are unverified; do not assume its cause. Images, logos, prices, ratings and much content are examples; user accepts placeholder images, not misleading functionality or invented real data.
+
+## Browser MCP and precautions
+
+- `codex.cmd mcp list` succeeded outside the sandbox during this handoff and shows `playwright` enabled, command `npx.cmd -y @playwright/mcp@latest`. The sandboxed invocation failed to resolve `CODEX_HOME`; do not confuse that error with MCP registration failure. Playwright tools were actually available and used in prior turns, but availability must be checked in the new session. Native browser inventory previously reported `The browser access host is unavailable`; this is separate from the working Playwright MCP.
+- **Important incident:** Playwright `browser_resize` was applied to the user's existing Chrome tab and fixed its viewport; maximizing left a blank strip or clipped content. Opening a fresh tab and maximizing restored normal appearance. For future screenshot tests create a separate isolated Playwright context/tab, resize only that test tab, and close it afterward. Never resize the user's active tab. The previous attempt to clear device metrics in a separate CDP session did not establish that the original override was cleared.
+- Reference captures and inspection artifacts are in `docs/design-references/`, `docs/research/hasaki/`, and `.playwright-mcp/`. They are untracked; preserve them. Screenshots may show cookie banners, loading failures, time-varying promotions, or source state differences; label and compare matched conditions.
+
+## Exact next steps for a new session
+
+1. Re-read this document, `AGENTS.md`, `docs/clone-gap-report.md`, and `.agents/skills/clone-website/SKILL.md`; check `git status --short`, Node, server and available Playwright tools. Preserve all changes. If continuing implementation, inspect applicable Next.js documentation.
+2. Continue the user's goal: inspect one source template at a time, starting with the incomplete brand-detail template or the next major missing menu destination. Record real URLs and query states; inspect desktop/mobile and controls before editing. Use isolated tabs, same viewport/state comparisons, and do not claim exact parity from placeholders or HTTP alone.
+3. Implement real navigation between local routes as pages become available; keep absent data and unimplemented commerce explicit. Repair category/product soft 404s and wrong breadcrumbs when working on those templates. Verify existing navigation, cart, keyboard/mobile and no overflow at relevant boundaries. Limit repairs to five iterations per template.
+4. Run lint/typecheck and one appropriate production build after an integrated change, plus focused browser tests. Update the audit with screenshots, test results and remaining gaps. Do not silently broaden or replace the existing codebase.
+
+## Commands and operational notes
+
+```powershell
+git status --short
+node --version
+codex.cmd mcp list
+npm.cmd run dev -- --port 3001
+npm.cmd run lint
+npm.cmd run typecheck
+npm.cmd run build
+npm.cmd run start
+```
+
+`npm.cmd` avoids PowerShell execution-policy issues. Port 3000 was a production preview and 3001 a dev server in the preceding session; recheck before starting. `next start` warns about standalone output (`node .next/standalone/server.js` is recommended by Next); verify the actual preview rather than assuming either process survives. Older audit notes about Node 22 and native SWC failures are historical; Node 24 and the default build succeeded subsequently.
+
+## Assumptions and unverified matters
+
+- `hasaki.vn` remains the intended reference, based on the user's original target and subsequent work; current site data and campaigns can change. The 488 brands are a snapshot, not proof of current completeness.
+- All-screen completeness, pixel parity, all source URLs, mobile layouts, browser interactions, and current production console behavior are not verified. Existing screenshots do not prove a complete clone. No full application test or production build was performed in the handoff-only turn.
+
+## Audit 14/11/2026 — kết luận kiểm chứng mới nhất
+
+Đã chia 3 subagent (1 nhẹ, 2 vừa), kết hợp Codegraph, nguồn công khai, HTTP local và browser riêng. Báo cáo tổng hợp: [audit-2026-11-14-summary](research/hasaki/audit-2026-11-14-summary.md). Các tuyên bố cũ hoàn thiện 100% không còn được coi là nghiệm thu: phát hiện guest API quản trị trả dữ liệu, slug lạ fallback sai, thành công trước API, ảnh 404 và JS chunks 500. Chưa sửa ứng dụng. Runtime/source có thể lệch; chưa nghiệm thu toàn bộ nút hoặc màn hình sau đăng nhập. Ưu tiên P0 runtime/auth → P1 dữ liệu/định tuyến/nghiệp vụ → P2 đối chiếu từng template. Xem báo cáo và ENGINEERING_RULES.md để tiếp nối.
+
+## Chuẩn hóa Layout & Các Màn Hình Con Header — 14/11/2026
+
+- **Đồng bộ khung `.wrap` & Header/Footer**:
+  - Khung `.wrap` trên desktop đồng nhất `max-width: 1340px` cho toàn bộ Header, Nav, Main, Brands và Footer (`src/app/globals.css`).
+  - Bổ sung `<Footer />` còn thiếu cho các trang con: `/deals-dang-dien-ra.html`, `/san-pham-ban-chay.html`, `/hang-moi-ve.html`, `/thuong-hieu`, `/thuong-hieu/[slug]`, `/campaign/wow`, `/tag/[slug]`, `/khach-hang/[section]`.
+  - Tạo trang `/tra-cuu-don-hang` (`src/app/tra-cuu-don-hang/page.tsx`) để đường dẫn `Tra cứu đơn hàng` trên thanh điều hướng Header hoạt động đầy đủ (HTTP 200) thay vì trả về 404.
+- **Chuẩn hóa Trang chủ, Danh mục, Chi tiết sản phẩm & các trang con**:
+  - **Trang chủ (`src/app/page.tsx`)**: Định dạng giá `money(product.price)` cho Flash Deals, dùng `<ProductCard />` đồng nhất cho phần Gợi ý (bỏ nút "Thêm vào giỏ" làm lệch chiều cao thẻ), thay ký tự unicode `✿`/`✦` ở Danh mục & Bán chạy bằng ảnh thumbnail sản phẩm thực tế từ danh mục.
+  - **Danh mục (`src/components/sites/hasaki/catalog-view.tsx`)**: Bỏ danh sách danh mục trùng lặp lần 2 trong `<aside className="filters">`, bỏ các pill chọn nhanh giá dưới Khoảng giá, chuẩn hóa nút `Áp dụng` màu `#326e51`, bỏ thanh pill danh mục con nổi phía trên `<h1>`, và sửa URL ảnh bị gãy của sản phẩm Hada Labo trong `src/lib/catalog.ts`.
+  - **Chi tiết sản phẩm (`catalog-view.tsx` & `product-rich-sections.tsx`)**: Đưa `.detail-gallery` về bố cục 2 cột chuẩn Hasaki (cột thumbnail dọc 60px bên trái + ảnh lớn bên phải), bỏ hộp gallery trùng lặp trong `ProductRichSections` và khối tab trùng lặp `#description`, bọc phần dưới trang chi tiết trong lưới 2 cột `.detail-lower-grid` (`minmax(0, 1fr) 280px`) với `ProductRichSections` bên trái và cột dọc `Sản phẩm xem cùng` + `Sản phẩm cùng thương hiệu` bên phải; sửa lỗi `Invalid Date` ở ngày đánh giá/hỏi đáp.
+  - **Các màn hình con khác**: Bỏ thanh `.progress` bị lặp lần 2 trong `deals-list.tsx` (đã hiển thị trong `ProductCard`), chỉnh lại vị trí badge xếp hạng ở `bestseller-view.tsx`, khôi phục `image: p.image` bị gán `undefined` ở `campaign-wow-view.tsx` và `tag-view.tsx`, chuyển link danh mục sidebar ở `new-arrivals.tsx` về route nội bộ `/danh-muc/[slug]`, chuyển bố cục `customer-portal-view.tsx` sang `.portal-layout-grid` co giãn trên mobile và chặn hiển thị dữ liệu giả khi chưa đăng nhập ở `customer-portal-view.tsx` & `admin-erp-view.tsx`.
+- **Kiểm chứng đã chạy**:
+  - `node --test test/access-policy.test.mjs test/brand-filter.test.mjs`: 7/7 pass.
+  - `npm.cmd run typecheck`, `npm.cmd run lint`, `npm.cmd run build`: đều pass (exit code 0).
+  - Chụp và kiểm tra trực quan ảnh màn hình từ `node scripts/capture-local-layout-audit.mjs` (`audit-local-01-home.png` đến `audit-local-08-order-lookup.png`).
+- **Giới hạn còn lại**: Dữ liệu sản phẩm là bản chụp (snapshot), giỏ hàng/tra cứu đơn hàng/đặt lịch là mô phỏng giao diện và tuân thủ cơ chế fail-closed theo `docs/ENGINEERING_RULES.md`.
+
+
+
+
+---
+
+## Note Bàn Giao Chi Tiết Từng Task (Wave 8 — Chuẩn Hóa Bố Cục 1:1, Khôi Phục Tailwind CSS v4 & Xóa Sạch Lỗi 404 Toàn Bộ Routes) — 14/11/2026
+
+1. **Khôi phục Tailwind CSS v4 & chuẩn hóa CSS toàn cục (`src/app/globals.css`)**:
+   - Bổ sung `@import "tailwindcss";` ở đầu `src/app/globals.css` kết hợp phân tầng `@layer base` và `@layer components` để toàn bộ các trang sử dụng Tailwind utility classes (`/he-thong-cua-hang`, `/bao-hanh`, `/ho-tro`, `/thuong-hieu`, `/tra-cuu-don-hang`, `<Footer />`, `AccountDialog`) hiển thị đúng chuẩn thiết kế thay vì bị tràn ảnh hoặc nút mặc định trình duyệt.
+   - Khắc phục tràn ảnh giỏ hàng (`/gio-hang`) bằng quy tắc cố định `.cart-thumb { width: 80px; min-width: 80px; max-width: 80px; height: 80px; flex-shrink: 0; overflow: hidden; border: 1px solid #e5e7eb; border-radius: 6px; }` và `.cart-thumb img { width: 100%; height: 100%; object-fit: contain; }`.
+   - Chuẩn hóa bộ chọn `.footer-benefits`, `.footer-icon-link`, `.footer-app-btn`, `.footer-payments`, `.footer-badges`, `.footer-col-title`, `.footer-newsletter-box` cho `<Footer />` (`src/components/sites/hasaki/footer.tsx`).
+2. **Chuẩn hóa Layout Trang Chủ, Danh Mục, Chi Tiết Sản Phẩm & Các Màn Hình Con**:
+   - **Trang chủ (`src/app/page.tsx`)**: Định dạng giá `money(product.price)`, sử dụng `<ProductCard />` đồng nhất, thay thế ký tự `✿`/`✦` bằng ảnh sản phẩm thật và dùng `next/image`.
+   - **Trang Danh mục & Chi tiết sản phẩm (`src/components/sites/hasaki/catalog-view.tsx`, `src/components/sites/hasaki/product-rich-sections.tsx`)**: Bố cục `.detail-gallery` 2 cột (cột thumbnail dọc 60px bên trái + ảnh lớn bên phải), lưới 2 cột `.detail-lower-grid` (`minmax(0, 1fr) 280px`) với `<ProductRichSections />` bên trái và `Sản phẩm xem cùng` / `Sản phẩm cùng thương hiệu` bên phải, loại bỏ tab `#description` và gallery trùng lặp.
+   - **Các màn hình con (`deals-list.tsx`, `bestseller-view.tsx`, `new-product-view.tsx`)**: Đồng bộ màu cam Hasaki (`#ff6600` / `#e95725`), gỡ bỏ thanh tiến độ và nút thêm giỏ hàng trùng lặp dưới `<ProductCard />`, chỉnh vị trí huy hiệu `TOP X` sang góc phải để không đè lên badge `Bán chạy`, bổ sung `<Footer />` và `.breadcrumbs` đầy đủ.
+3. **Xóa sạch lỗi 404 trên toàn bộ liên kết Header, Mega Menu, Search Popup & Trang Chủ**:
+   - Mở rộng `resolveCategorySlug()` và `getCategoryTitle()` trong `src/lib/catalog.ts` ánh xạ toàn bộ ~150 danh mục con trong `interactive-ui-2026-11-14.json` (`megaMenu`, `searchPopup`, `categoryPageUi`) và các banner (`nha-cua-doi-song-c2529.html`, `dien-gia-dung-c2463.html`, `loa-bluetooth-c2800.html`, v.v.).
+   - Bổ sung và mở rộng các route `/tra-cuu-don-hang`, `/campaign/[slug]`, `/tag/[slug]`, `/cam-nang/[slug]`, `/dang-ky`, `/dich-vu/[slug]` và `/thuong-hieu/[slug]`.

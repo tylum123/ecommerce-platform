@@ -1,0 +1,3463 @@
+{
+  "cham-soc-da-mat-c4.html": [
+    {
+      "code": "filter_category",
+      "name": "Danh mục",
+      "options": [
+        {
+          "key": "1875",
+          "label": "Vấn Đề Về Da",
+          "count": 0
+        },
+        {
+          "key": "2059",
+          "label": "Dưỡng Môi",
+          "count": 0
+        },
+        {
+          "key": "11",
+          "label": "Chống Nắng Da Mặt",
+          "count": 0
+        },
+        {
+          "key": "30",
+          "label": "Mặt Nạ",
+          "count": 0
+        },
+        {
+          "key": "297",
+          "label": "Dưỡng Mắt",
+          "count": 0
+        },
+        {
+          "key": "147",
+          "label": "Bộ Chăm Sóc Da Mặt",
+          "count": 0
+        },
+        {
+          "key": "1865",
+          "label": "Chăm Sóc Chuyên Sâu",
+          "count": 0
+        },
+        {
+          "key": "1855",
+          "label": "Làm Sạch Da",
+          "count": 0
+        },
+        {
+          "key": "1863",
+          "label": "Dưỡng Ẩm",
+          "count": 0
+        },
+        {
+          "key": "290",
+          "label": "Dụng Cụ / Phụ Kiện Chăm Sóc Da",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_brand",
+      "name": "Thương Hiệu",
+      "options": [
+        {
+          "key": "146",
+          "label": "Cocoon",
+          "count": 0
+        },
+        {
+          "key": "108",
+          "label": "Bio-essence",
+          "count": 0
+        },
+        {
+          "key": "91",
+          "label": "L'Oreal",
+          "count": 0
+        },
+        {
+          "key": "82",
+          "label": "Garnier",
+          "count": 0
+        },
+        {
+          "key": "81",
+          "label": "La Roche-Posay",
+          "count": 0
+        },
+        {
+          "key": "77",
+          "label": "B.O.M",
+          "count": 0
+        },
+        {
+          "key": "63",
+          "label": "BNBG",
+          "count": 0
+        },
+        {
+          "key": "62",
+          "label": "Vichy",
+          "count": 0
+        },
+        {
+          "key": "60",
+          "label": "Cetaphil",
+          "count": 0
+        },
+        {
+          "key": "60",
+          "label": "Banobagi",
+          "count": 0
+        },
+        {
+          "key": "59",
+          "label": "Hada Labo",
+          "count": 0
+        },
+        {
+          "key": "54",
+          "label": "Avander",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_product_line",
+      "name": "Dòng sản phẩm",
+      "options": [
+        {
+          "key": "50",
+          "label": "Sản Phẩm Cao Cấp",
+          "count": 0
+        },
+        {
+          "key": "31",
+          "label": "P&amp;G Nội Địa",
+          "count": 0
+        },
+        {
+          "key": "16",
+          "label": "Sébium",
+          "count": 0
+        },
+        {
+          "key": "15",
+          "label": "Sản Phẩm Dành Cho Bé",
+          "count": 0
+        },
+        {
+          "key": "12",
+          "label": "Sensibio",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Atoderm",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Cicabio",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Photoderm",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_skin_problem",
+      "name": "Vấn đề về da",
+      "options": [
+        {
+          "key": "7",
+          "label": "Da khô, mất nước",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Da sạm, xỉn, không đều màu",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Da dầu, lỗ chân lông to",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Da mụn",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Da nhạy cảm, kích ứng, mẩn đỏ",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_size",
+      "name": "Dung tích",
+      "options": [
+        {
+          "key": "1226",
+          "label": "Fullsize",
+          "count": 0
+        },
+        {
+          "key": "877",
+          "label": "Combo",
+          "count": 0
+        },
+        {
+          "key": "253",
+          "label": "1 miếng lẻ",
+          "count": 0
+        },
+        {
+          "key": "107",
+          "label": "Minisize",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Refill",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Sample",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_ingredient",
+      "name": "Thành phần nổi bật",
+      "options": [
+        {
+          "key": "175",
+          "label": "Hyaluronic Acid",
+          "count": 0
+        },
+        {
+          "key": "125",
+          "label": "BHA (Salicylic Acid)",
+          "count": 0
+        },
+        {
+          "key": "114",
+          "label": "Chống nắng vật lý lai hoá học",
+          "count": 0
+        },
+        {
+          "key": "111",
+          "label": "Niacinamide (Vitamin B3)",
+          "count": 0
+        },
+        {
+          "key": "91",
+          "label": "Rau má",
+          "count": 0
+        },
+        {
+          "key": "88",
+          "label": "Panthenol (Vitamin B5)",
+          "count": 0
+        },
+        {
+          "key": "79",
+          "label": "Vitamin C",
+          "count": 0
+        },
+        {
+          "key": "61",
+          "label": "Collagen",
+          "count": 0
+        },
+        {
+          "key": "54",
+          "label": "Retinol",
+          "count": 0
+        },
+        {
+          "key": "50",
+          "label": "Chống nắng hoá học",
+          "count": 0
+        },
+        {
+          "key": "47",
+          "label": "AHA (Alpha Hydroxy Acid)",
+          "count": 0
+        },
+        {
+          "key": "45",
+          "label": "Tràm trà",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_skin_type",
+      "name": "Loại da",
+      "options": [
+        {
+          "key": "1304",
+          "label": "Da thường/Mọi loại da",
+          "count": 0
+        },
+        {
+          "key": "310",
+          "label": "Da dầu/Hỗn hợp dầu",
+          "count": 0
+        },
+        {
+          "key": "282",
+          "label": "Da nhạy cảm",
+          "count": 0
+        },
+        {
+          "key": "230",
+          "label": "Da mụn",
+          "count": 0
+        },
+        {
+          "key": "216",
+          "label": "Da khô/Hỗn hợp khô",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_uses",
+      "name": "Công dụng chính",
+      "options": [
+        {
+          "key": "427",
+          "label": "Dưỡng ẩm và cấp nước",
+          "count": 0
+        },
+        {
+          "key": "400",
+          "label": "Kiểm soát dầu và giảm mụn",
+          "count": 0
+        },
+        {
+          "key": "399",
+          "label": "Làm sáng và đều màu da",
+          "count": 0
+        },
+        {
+          "key": "262",
+          "label": "Làm dịu, phục hồi và tái tạo da",
+          "count": 0
+        },
+        {
+          "key": "224",
+          "label": "Ngừa lão hóa, giảm nhăn",
+          "count": 0
+        },
+        {
+          "key": "119",
+          "label": "Làm sạch sâu da",
+          "count": 0
+        },
+        {
+          "key": "67",
+          "label": "Nâng tông da",
+          "count": 0
+        },
+        {
+          "key": "67",
+          "label": "Làm sạch dịu nhẹ",
+          "count": 0
+        },
+        {
+          "key": "49",
+          "label": "Bảo vệ da tối ưu",
+          "count": 0
+        },
+        {
+          "key": "39",
+          "label": "Thu nhỏ lỗ chân lông",
+          "count": 0
+        },
+        {
+          "key": "11",
+          "label": "Tẩy tế bào chết",
+          "count": 0
+        },
+        {
+          "key": "7",
+          "label": "Giảm quầng thâm và bọng mắt",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_tones",
+      "name": "Màu sắc",
+      "options": [
+        {
+          "key": "1",
+          "label": "Xám",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Trắng Ngà",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Hồng Nhạt",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Tím Xanh Nhạt",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Xanh Bạc Hà",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_product_type",
+      "name": "Loại sản phẩm",
+      "options": [
+        {
+          "key": "656",
+          "label": "Mặt nạ giấy",
+          "count": 0
+        },
+        {
+          "key": "281",
+          "label": "Sữa rửa mặt",
+          "count": 0
+        },
+        {
+          "key": "234",
+          "label": "Kem chống nắng",
+          "count": 0
+        },
+        {
+          "key": "217",
+          "label": "Kem dưỡng",
+          "count": 0
+        },
+        {
+          "key": "212",
+          "label": "Serum / Tinh chất",
+          "count": 0
+        },
+        {
+          "key": "163",
+          "label": "Nước tẩy trang",
+          "count": 0
+        },
+        {
+          "key": "128",
+          "label": "Bộ chăm sóc da",
+          "count": 0
+        },
+        {
+          "key": "96",
+          "label": "Toner / Nước cân bằng",
+          "count": 0
+        },
+        {
+          "key": "76",
+          "label": "Bông tẩy trang",
+          "count": 0
+        },
+        {
+          "key": "57",
+          "label": "Lotion / Sữa dưỡng",
+          "count": 0
+        },
+        {
+          "key": "47",
+          "label": "Tẩy tế bào chết",
+          "count": 0
+        },
+        {
+          "key": "46",
+          "label": "Mặt nạ rửa",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_structure",
+      "name": "Kết cấu",
+      "options": [
+        {
+          "key": "2",
+          "label": "Dạng serum",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Dạng kem",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Dạng lỏng",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_sex",
+      "name": "Giới tính",
+      "options": [
+        {
+          "key": "41",
+          "label": "Unisex",
+          "count": 0
+        },
+        {
+          "key": "11",
+          "label": "Nam",
+          "count": 0
+        },
+        {
+          "key": "5",
+          "label": "Bé gái",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_dac_tinh",
+      "name": "Đặc tính",
+      "options": [
+        {
+          "key": "115",
+          "label": "Chống nắng phổ rộng",
+          "count": 0
+        },
+        {
+          "key": "67",
+          "label": "Không cồn",
+          "count": 0
+        },
+        {
+          "key": "61",
+          "label": "Thuần chay (vegan)",
+          "count": 0
+        },
+        {
+          "key": "32",
+          "label": "Dạng miếng tròn",
+          "count": 0
+        },
+        {
+          "key": "27",
+          "label": "Không paraben",
+          "count": 0
+        },
+        {
+          "key": "23",
+          "label": "Dạng miếng vuông/chữ nhật",
+          "count": 0
+        },
+        {
+          "key": "18",
+          "label": "Dạng vật lý",
+          "count": 0
+        },
+        {
+          "key": "13",
+          "label": "Ngày và đêm",
+          "count": 0
+        },
+        {
+          "key": "12",
+          "label": "Không hương liệu",
+          "count": 0
+        },
+        {
+          "key": "12",
+          "label": "Chống nước/lâu trôi",
+          "count": 0
+        },
+        {
+          "key": "8",
+          "label": "Không sulfate",
+          "count": 0
+        },
+        {
+          "key": "8",
+          "label": "Không xà phòng",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_origin",
+      "name": "Xuất xứ thương hiệu",
+      "options": [
+        {
+          "key": "1046",
+          "label": "Hàn Quốc",
+          "count": 0
+        },
+        {
+          "key": "458",
+          "label": "Pháp",
+          "count": 0
+        },
+        {
+          "key": "434",
+          "label": "Việt Nam",
+          "count": 0
+        },
+        {
+          "key": "411",
+          "label": "Nhật Bản",
+          "count": 0
+        },
+        {
+          "key": "245",
+          "label": "Mỹ",
+          "count": 0
+        },
+        {
+          "key": "107",
+          "label": "Singapore",
+          "count": 0
+        },
+        {
+          "key": "95",
+          "label": "Trung Quốc",
+          "count": 0
+        },
+        {
+          "key": "67",
+          "label": "Canada",
+          "count": 0
+        },
+        {
+          "key": "66",
+          "label": "Ðức",
+          "count": 0
+        },
+        {
+          "key": "36",
+          "label": "Anh",
+          "count": 0
+        },
+        {
+          "key": "31",
+          "label": "Đài Loan",
+          "count": 0
+        },
+        {
+          "key": "25",
+          "label": "Thụy Sĩ",
+          "count": 0
+        }
+      ]
+    }
+  ],
+  "trang-diem-c23.html": [
+    {
+      "code": "filter_category",
+      "name": "Danh mục",
+      "options": [
+        {
+          "key": "50",
+          "label": "Trang Điểm Mắt",
+          "count": 0
+        },
+        {
+          "key": "139",
+          "label": "Dụng Cụ Trang Điểm",
+          "count": 0
+        },
+        {
+          "key": "61",
+          "label": "Trang Điểm Móng",
+          "count": 0
+        },
+        {
+          "key": "2174",
+          "label": "Bộ Trang Điểm",
+          "count": 0
+        },
+        {
+          "key": "24",
+          "label": "Trang Điểm Môi",
+          "count": 0
+        },
+        {
+          "key": "52",
+          "label": "Trang Điểm Mặt",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_brand",
+      "name": "Thương Hiệu",
+      "options": [
+        {
+          "key": "158",
+          "label": "Maybelline",
+          "count": 0
+        },
+        {
+          "key": "150",
+          "label": "B.O.M",
+          "count": 0
+        },
+        {
+          "key": "150",
+          "label": "3CE",
+          "count": 0
+        },
+        {
+          "key": "131",
+          "label": "Silkygirl",
+          "count": 0
+        },
+        {
+          "key": "125",
+          "label": "Judydoll",
+          "count": 0
+        },
+        {
+          "key": "114",
+          "label": "Vacosi",
+          "count": 0
+        },
+        {
+          "key": "98",
+          "label": "australis",
+          "count": 0
+        },
+        {
+          "key": "63",
+          "label": "BYS",
+          "count": 0
+        },
+        {
+          "key": "61",
+          "label": "Mastige",
+          "count": 0
+        },
+        {
+          "key": "57",
+          "label": "LipIce",
+          "count": 0
+        },
+        {
+          "key": "57",
+          "label": "Mlen Diary",
+          "count": 0
+        },
+        {
+          "key": "54",
+          "label": "Colorkey",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_product_line",
+      "name": "Dòng sản phẩm",
+      "options": [
+        {
+          "key": "23",
+          "label": "Fit Me",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "P&amp;G Nội Địa",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Atoderm",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Sensibio",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_size",
+      "name": "Dung tích",
+      "options": [
+        {
+          "key": "1077",
+          "label": "Fullsize",
+          "count": 0
+        },
+        {
+          "key": "155",
+          "label": "Combo",
+          "count": 0
+        },
+        {
+          "key": "34",
+          "label": "Cọ lẻ",
+          "count": 0
+        },
+        {
+          "key": "23",
+          "label": "Minisize",
+          "count": 0
+        },
+        {
+          "key": "11",
+          "label": "Bộ 1 cây",
+          "count": 0
+        },
+        {
+          "key": "8",
+          "label": "Bộ cọ",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Bộ 2 cây",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Bộ 3 cây",
+          "count": 0
+        },
+        {
+          "key": "4",
+          "label": "1 cái",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Refill",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Bộ 5 cây",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_ingredient",
+      "name": "Thành phần nổi bật",
+      "options": [
+        {
+          "key": "23",
+          "label": "Hyaluronic Acid",
+          "count": 0
+        },
+        {
+          "key": "8",
+          "label": "Niacinamide (Vitamin B3)",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Peptide",
+          "count": 0
+        },
+        {
+          "key": "4",
+          "label": "BHA (Salicylic Acid)",
+          "count": 0
+        },
+        {
+          "key": "4",
+          "label": "Đu đủ",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Vitamin E",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Bơ Hạt Mỡ",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Nha đam",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Chống nắng vật lý lai hoá học",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Bơ Cacao",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Vitamin C",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Squalane",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_skin_type",
+      "name": "Loại da",
+      "options": [
+        {
+          "key": "243",
+          "label": "Da thường/Mọi loại da",
+          "count": 0
+        },
+        {
+          "key": "82",
+          "label": "Da dầu/Hỗn hợp dầu",
+          "count": 0
+        },
+        {
+          "key": "29",
+          "label": "Da khô/Hỗn hợp khô",
+          "count": 0
+        },
+        {
+          "key": "5",
+          "label": "Da mụn",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Da nhạy cảm",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_uses",
+      "name": "Công dụng chính",
+      "options": [
+        {
+          "key": "47",
+          "label": "Tán nền",
+          "count": 0
+        },
+        {
+          "key": "16",
+          "label": "Phủ phấn",
+          "count": 0
+        },
+        {
+          "key": "11",
+          "label": "Tán phấn mắt",
+          "count": 0
+        },
+        {
+          "key": "11",
+          "label": "Đánh má hồng",
+          "count": 0
+        },
+        {
+          "key": "9",
+          "label": "Tạo khối",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Dưỡng ẩm và cấp nước",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Phục hồi môi khô, nứt nẻ",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Trang điểm đa năng",
+          "count": 0
+        },
+        {
+          "key": "4",
+          "label": "Làm sạch sâu da",
+          "count": 0
+        },
+        {
+          "key": "4",
+          "label": "Che khuyết điểm",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Nâng tông da",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Tô môi",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_tones",
+      "name": "Màu sắc",
+      "options": [
+        {
+          "key": "160",
+          "label": "Hồng",
+          "count": 0
+        },
+        {
+          "key": "87",
+          "label": "Đỏ",
+          "count": 0
+        },
+        {
+          "key": "73",
+          "label": "Da sáng",
+          "count": 0
+        },
+        {
+          "key": "58",
+          "label": "Nâu",
+          "count": 0
+        },
+        {
+          "key": "50",
+          "label": "Da tự nhiên",
+          "count": 0
+        },
+        {
+          "key": "43",
+          "label": "Cam",
+          "count": 0
+        },
+        {
+          "key": "41",
+          "label": "Đen",
+          "count": 0
+        },
+        {
+          "key": "7",
+          "label": "Da ngăm",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Tím",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Trong suốt",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Xám",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Xanh lá cây",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_product_type",
+      "name": "Loại sản phẩm",
+      "options": [
+        {
+          "key": "148",
+          "label": "Son kem",
+          "count": 0
+        },
+        {
+          "key": "145",
+          "label": "Son dưỡng",
+          "count": 0
+        },
+        {
+          "key": "96",
+          "label": "Phấn phủ",
+          "count": 0
+        },
+        {
+          "key": "89",
+          "label": "Má hồng",
+          "count": 0
+        },
+        {
+          "key": "82",
+          "label": "Son tint",
+          "count": 0
+        },
+        {
+          "key": "70",
+          "label": "Son thỏi",
+          "count": 0
+        },
+        {
+          "key": "69",
+          "label": "Cushion",
+          "count": 0
+        },
+        {
+          "key": "65",
+          "label": "Bông/Mút trang điểm",
+          "count": 0
+        },
+        {
+          "key": "58",
+          "label": "Che khuyết điểm",
+          "count": 0
+        },
+        {
+          "key": "55",
+          "label": "Son bóng",
+          "count": 0
+        },
+        {
+          "key": "53",
+          "label": "Kem nền",
+          "count": 0
+        },
+        {
+          "key": "49",
+          "label": "Cọ trang điểm",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_sex",
+      "name": "Giới tính",
+      "options": [
+        {
+          "key": "1",
+          "label": "Nữ",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Unisex",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_dac_tinh",
+      "name": "Đặc tính",
+      "options": [
+        {
+          "key": "285",
+          "label": "Dạng lì",
+          "count": 0
+        },
+        {
+          "key": "139",
+          "label": "Dạng bóng",
+          "count": 0
+        },
+        {
+          "key": "82",
+          "label": "Có màu ",
+          "count": 0
+        },
+        {
+          "key": "67",
+          "label": "Chống nước/lâu trôi",
+          "count": 0
+        },
+        {
+          "key": "51",
+          "label": "Không màu",
+          "count": 0
+        },
+        {
+          "key": "33",
+          "label": "Có nhũ",
+          "count": 0
+        },
+        {
+          "key": "31",
+          "label": "Có SPF",
+          "count": 0
+        },
+        {
+          "key": "7",
+          "label": "Thuần chay (vegan)",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Dạng satin",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Chống nắng phổ rộng",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Dạng thạch",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Không nhũ",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_origin",
+      "name": "Xuất xứ thương hiệu",
+      "options": [
+        {
+          "key": "619",
+          "label": "Hàn Quốc",
+          "count": 0
+        },
+        {
+          "key": "381",
+          "label": "Trung Quốc",
+          "count": 0
+        },
+        {
+          "key": "193",
+          "label": "Mỹ",
+          "count": 0
+        },
+        {
+          "key": "164",
+          "label": "Việt Nam",
+          "count": 0
+        },
+        {
+          "key": "162",
+          "label": "Úc",
+          "count": 0
+        },
+        {
+          "key": "136",
+          "label": "Nhật Bản",
+          "count": 0
+        },
+        {
+          "key": "132",
+          "label": "Malaysia",
+          "count": 0
+        },
+        {
+          "key": "17",
+          "label": "Ðức",
+          "count": 0
+        },
+        {
+          "key": "17",
+          "label": "Pháp",
+          "count": 0
+        },
+        {
+          "key": "5",
+          "label": "Thái Lan",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Hà Lan",
+          "count": 0
+        }
+      ]
+    }
+  ],
+  "cham-soc-co-the-c12.html": [
+    {
+      "code": "filter_category",
+      "name": "Danh mục",
+      "options": [
+        {
+          "key": "1899",
+          "label": "Khử Mùi",
+          "count": 0
+        },
+        {
+          "key": "2190",
+          "label": "Bộ Chăm Sóc Cơ Thể",
+          "count": 0
+        },
+        {
+          "key": "13",
+          "label": "Chống Nắng Cơ Thể",
+          "count": 0
+        },
+        {
+          "key": "1897",
+          "label": "Dưỡng Thể",
+          "count": 0
+        },
+        {
+          "key": "128",
+          "label": "Tẩy Tế Bào Chết Body",
+          "count": 0
+        },
+        {
+          "key": "2075",
+          "label": "Xà Phòng",
+          "count": 0
+        },
+        {
+          "key": "26",
+          "label": "Sữa Tắm",
+          "count": 0
+        },
+        {
+          "key": "65",
+          "label": "Chăm Sóc Da Tay & Chân",
+          "count": 0
+        },
+        {
+          "key": "116",
+          "label": "Tẩy Lông",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_brand",
+      "name": "Thương Hiệu",
+      "options": [
+        {
+          "key": "67",
+          "label": "Nivea",
+          "count": 0
+        },
+        {
+          "key": "57",
+          "label": "Dove",
+          "count": 0
+        },
+        {
+          "key": "49",
+          "label": "Old Spice",
+          "count": 0
+        },
+        {
+          "key": "48",
+          "label": "Vaseline",
+          "count": 0
+        },
+        {
+          "key": "45",
+          "label": "Kiss My Body",
+          "count": 0
+        },
+        {
+          "key": "41",
+          "label": "Cocoon",
+          "count": 0
+        },
+        {
+          "key": "28",
+          "label": "Refre",
+          "count": 0
+        },
+        {
+          "key": "27",
+          "label": "Olay",
+          "count": 0
+        },
+        {
+          "key": "26",
+          "label": "Lifebuoy",
+          "count": 0
+        },
+        {
+          "key": "19",
+          "label": "Romano",
+          "count": 0
+        },
+        {
+          "key": "19",
+          "label": "Cetaphil Baby",
+          "count": 0
+        },
+        {
+          "key": "18",
+          "label": "Gennie",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_hair_condition",
+      "name": "Tình trạng tóc",
+      "options": [
+        {
+          "key": "4",
+          "label": "Tóc dễ gãy rụng, mỏng và xẹp",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Tóc dầu bết",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Tóc khô xơ và hư tổn",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Da đầu gàu ngứa",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_product_line",
+      "name": "Dòng sản phẩm",
+      "options": [
+        {
+          "key": "42",
+          "label": "Sản Phẩm Dành Cho Bé",
+          "count": 0
+        },
+        {
+          "key": "38",
+          "label": "P&amp;G Nhập Khẩu Từ Mỹ",
+          "count": 0
+        },
+        {
+          "key": "10",
+          "label": "P&amp;G Nội Địa",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Atoderm",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Fit Me",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_odour",
+      "name": "Nhóm hương",
+      "options": [
+        {
+          "key": "3",
+          "label": "Hương Hoa Cỏ (Floral)",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Hương Biển (Oceanic)",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_concentration",
+      "name": "Nồng độ nước hoa",
+      "options": [
+        {
+          "key": "3",
+          "label": "Eau de Parfum (EDP)",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Eau de Toilette (EDT)",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_size",
+      "name": "Dung tích",
+      "options": [
+        {
+          "key": "532",
+          "label": "Fullsize",
+          "count": 0
+        },
+        {
+          "key": "209",
+          "label": "Combo",
+          "count": 0
+        },
+        {
+          "key": "13",
+          "label": "Minisize",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Refill",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Bộ 2 cây",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "135ml",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Sample",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_ingredient",
+      "name": "Thành phần nổi bật",
+      "options": [
+        {
+          "key": "47",
+          "label": "Niacinamide (Vitamin B3)",
+          "count": 0
+        },
+        {
+          "key": "36",
+          "label": "Nha đam",
+          "count": 0
+        },
+        {
+          "key": "31",
+          "label": "Vitamin C",
+          "count": 0
+        },
+        {
+          "key": "19",
+          "label": "Cà phê",
+          "count": 0
+        },
+        {
+          "key": "16",
+          "label": "Chống nắng vật lý lai hoá học",
+          "count": 0
+        },
+        {
+          "key": "14",
+          "label": "Panthenol (Vitamin B5)",
+          "count": 0
+        },
+        {
+          "key": "14",
+          "label": "Glutathione",
+          "count": 0
+        },
+        {
+          "key": "13",
+          "label": "AHA (Alpha Hydroxy Acid)",
+          "count": 0
+        },
+        {
+          "key": "11",
+          "label": "Hoa cúc",
+          "count": 0
+        },
+        {
+          "key": "10",
+          "label": "Hyaluronic Acid",
+          "count": 0
+        },
+        {
+          "key": "10",
+          "label": "BHA (Salicylic Acid)",
+          "count": 0
+        },
+        {
+          "key": "9",
+          "label": "Ceramide",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_skin_type",
+      "name": "Loại da",
+      "options": [
+        {
+          "key": "597",
+          "label": "Da thường/Mọi loại da",
+          "count": 0
+        },
+        {
+          "key": "34",
+          "label": "Da nhạy cảm",
+          "count": 0
+        },
+        {
+          "key": "30",
+          "label": "Da khô/Hỗn hợp khô",
+          "count": 0
+        },
+        {
+          "key": "17",
+          "label": "Da mụn",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Da dầu/Hỗn hợp dầu",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_uses",
+      "name": "Công dụng chính",
+      "options": [
+        {
+          "key": "194",
+          "label": "Làm sáng và đều màu da",
+          "count": 0
+        },
+        {
+          "key": "96",
+          "label": "Dưỡng ẩm và cấp nước",
+          "count": 0
+        },
+        {
+          "key": "95",
+          "label": "Lưu hương lâu",
+          "count": 0
+        },
+        {
+          "key": "68",
+          "label": "Ngăn mùi và mồ hôi",
+          "count": 0
+        },
+        {
+          "key": "18",
+          "label": "Tẩy tế bào chết",
+          "count": 0
+        },
+        {
+          "key": "15",
+          "label": "Kiểm soát dầu và giảm mụn",
+          "count": 0
+        },
+        {
+          "key": "13",
+          "label": "Bảo vệ da tối ưu",
+          "count": 0
+        },
+        {
+          "key": "9",
+          "label": "Làm sạch dịu nhẹ",
+          "count": 0
+        },
+        {
+          "key": "7",
+          "label": "Giảm rạn da",
+          "count": 0
+        },
+        {
+          "key": "7",
+          "label": "Ngăn mọc lông",
+          "count": 0
+        },
+        {
+          "key": "7",
+          "label": "Làm sạch sâu da",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Ngừa lão hóa, giảm nhăn",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_product_type",
+      "name": "Loại sản phẩm",
+      "options": [
+        {
+          "key": "208",
+          "label": "Sữa tắm",
+          "count": 0
+        },
+        {
+          "key": "76",
+          "label": "Sữa dưỡng thể",
+          "count": 0
+        },
+        {
+          "key": "67",
+          "label": "Lăn khử mùi",
+          "count": 0
+        },
+        {
+          "key": "62",
+          "label": "Tẩy tế bào chết",
+          "count": 0
+        },
+        {
+          "key": "56",
+          "label": "Xịt khử mùi",
+          "count": 0
+        },
+        {
+          "key": "43",
+          "label": "Sữa tắm gội 2in1",
+          "count": 0
+        },
+        {
+          "key": "35",
+          "label": "Sáp khử mùi",
+          "count": 0
+        },
+        {
+          "key": "32",
+          "label": "Serum dưỡng thể",
+          "count": 0
+        },
+        {
+          "key": "26",
+          "label": "Kem dưỡng thể",
+          "count": 0
+        },
+        {
+          "key": "25",
+          "label": "Kem chống nắng",
+          "count": 0
+        },
+        {
+          "key": "12",
+          "label": "Kem dưỡng da tay",
+          "count": 0
+        },
+        {
+          "key": "12",
+          "label": "Kem tẩy lông",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_sex",
+      "name": "Giới tính",
+      "options": [
+        {
+          "key": "271",
+          "label": "Unisex",
+          "count": 0
+        },
+        {
+          "key": "248",
+          "label": "Nữ",
+          "count": 0
+        },
+        {
+          "key": "94",
+          "label": "Nam",
+          "count": 0
+        },
+        {
+          "key": "7",
+          "label": "Bé trai và bé gái",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_dac_tinh",
+      "name": "Đặc tính",
+      "options": [
+        {
+          "key": "122",
+          "label": "Hương nước hoa",
+          "count": 0
+        },
+        {
+          "key": "33",
+          "label": "Ngày và đêm",
+          "count": 0
+        },
+        {
+          "key": "30",
+          "label": "Không cồn",
+          "count": 0
+        },
+        {
+          "key": "18",
+          "label": "Không paraben",
+          "count": 0
+        },
+        {
+          "key": "18",
+          "label": "Không muối nhôm",
+          "count": 0
+        },
+        {
+          "key": "15",
+          "label": "Ban ngày",
+          "count": 0
+        },
+        {
+          "key": "7",
+          "label": "Không sulfate",
+          "count": 0
+        },
+        {
+          "key": "7",
+          "label": "Thuần chay (vegan)",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Chống nắng phổ rộng",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Ban đêm",
+          "count": 0
+        },
+        {
+          "key": "4",
+          "label": "Chống nước/lâu trôi",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Thay lưỡi",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_origin",
+      "name": "Xuất xứ thương hiệu",
+      "options": [
+        {
+          "key": "302",
+          "label": "Mỹ",
+          "count": 0
+        },
+        {
+          "key": "204",
+          "label": "Việt Nam",
+          "count": 0
+        },
+        {
+          "key": "73",
+          "label": "Ðức",
+          "count": 0
+        },
+        {
+          "key": "61",
+          "label": "Nhật Bản",
+          "count": 0
+        },
+        {
+          "key": "59",
+          "label": "Pháp",
+          "count": 0
+        },
+        {
+          "key": "58",
+          "label": "Hàn Quốc",
+          "count": 0
+        },
+        {
+          "key": "58",
+          "label": "Thái Lan",
+          "count": 0
+        },
+        {
+          "key": "25",
+          "label": "Singapore",
+          "count": 0
+        },
+        {
+          "key": "19",
+          "label": "Canada",
+          "count": 0
+        },
+        {
+          "key": "15",
+          "label": "Ý",
+          "count": 0
+        },
+        {
+          "key": "12",
+          "label": "Anh",
+          "count": 0
+        },
+        {
+          "key": "8",
+          "label": "Úc",
+          "count": 0
+        }
+      ]
+    }
+  ],
+  "cham-soc-toc-c96.html": [
+    {
+      "code": "filter_category",
+      "name": "Danh mục",
+      "options": [
+        {
+          "key": "2274",
+          "label": "Phụ Kiện Tóc",
+          "count": 0
+        },
+        {
+          "key": "296",
+          "label": "Thuốc Nhuộm Tóc",
+          "count": 0
+        },
+        {
+          "key": "2144",
+          "label": "Dầu Gội Và Dầu Xả",
+          "count": 0
+        },
+        {
+          "key": "2154",
+          "label": "Dụng Cụ Chăm Sóc Tóc",
+          "count": 0
+        },
+        {
+          "key": "2101",
+          "label": "Sản Phẩm Tạo Kiểu Tóc",
+          "count": 0
+        },
+        {
+          "key": "133",
+          "label": "Bộ Chăm Sóc Tóc",
+          "count": 0
+        },
+        {
+          "key": "193",
+          "label": "Dưỡng Tóc",
+          "count": 0
+        },
+        {
+          "key": "2162",
+          "label": "Tẩy Tế Bào Chết Da Đầu",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_brand",
+      "name": "Thương Hiệu",
+      "options": [
+        {
+          "key": "45",
+          "label": "Cocoon",
+          "count": 0
+        },
+        {
+          "key": "44",
+          "label": "L'Oreal",
+          "count": 0
+        },
+        {
+          "key": "30",
+          "label": "Mise en scène",
+          "count": 0
+        },
+        {
+          "key": "29",
+          "label": "Milaganics",
+          "count": 0
+        },
+        {
+          "key": "28",
+          "label": "Pantene",
+          "count": 0
+        },
+        {
+          "key": "27",
+          "label": "TRESemmé",
+          "count": 0
+        },
+        {
+          "key": "27",
+          "label": "Dove",
+          "count": 0
+        },
+        {
+          "key": "22",
+          "label": "Girlz Only",
+          "count": 0
+        },
+        {
+          "key": "22",
+          "label": "Hotosu",
+          "count": 0
+        },
+        {
+          "key": "21",
+          "label": "Nguyên Xuân",
+          "count": 0
+        },
+        {
+          "key": "20",
+          "label": "Tsubaki",
+          "count": 0
+        },
+        {
+          "key": "20",
+          "label": "Ellips",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_hair_condition",
+      "name": "Tình trạng tóc",
+      "options": [
+        {
+          "key": "139",
+          "label": "Tóc khô xơ và hư tổn",
+          "count": 0
+        },
+        {
+          "key": "123",
+          "label": "Tóc dễ gãy rụng, mỏng và xẹp",
+          "count": 0
+        },
+        {
+          "key": "66",
+          "label": "Tóc dầu bết",
+          "count": 0
+        },
+        {
+          "key": "55",
+          "label": "Tóc xơ rối và khó vào nếp",
+          "count": 0
+        },
+        {
+          "key": "48",
+          "label": "Da đầu gàu ngứa",
+          "count": 0
+        },
+        {
+          "key": "24",
+          "label": "Tóc bạc",
+          "count": 0
+        },
+        {
+          "key": "12",
+          "label": "Tóc nhuộm",
+          "count": 0
+        },
+        {
+          "key": "4",
+          "label": "Tóc xoăn",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Tóc thường",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Da đầu nhạy cảm",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_product_line",
+      "name": "Dòng sản phẩm",
+      "options": [
+        {
+          "key": "38",
+          "label": "P&amp;G Nội Địa",
+          "count": 0
+        },
+        {
+          "key": "30",
+          "label": "Sản Phẩm Dành Cho Bé",
+          "count": 0
+        },
+        {
+          "key": "16",
+          "label": "Sản Phẩm Cao Cấp",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "P&amp;G Nhập Khẩu Từ Mỹ",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Fit Me",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_size",
+      "name": "Dung tích",
+      "options": [
+        {
+          "key": "403",
+          "label": "Fullsize",
+          "count": 0
+        },
+        {
+          "key": "169",
+          "label": "Combo",
+          "count": 0
+        },
+        {
+          "key": "28",
+          "label": "Minisize",
+          "count": 0
+        },
+        {
+          "key": "9",
+          "label": "Sample",
+          "count": 0
+        },
+        {
+          "key": "4",
+          "label": "3 cái",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Bộ 1 cây",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Refill",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_ingredient",
+      "name": "Thành phần nổi bật",
+      "options": [
+        {
+          "key": "39",
+          "label": "Bưởi",
+          "count": 0
+        },
+        {
+          "key": "19",
+          "label": "Keratin",
+          "count": 0
+        },
+        {
+          "key": "17",
+          "label": "Dầu Argan",
+          "count": 0
+        },
+        {
+          "key": "16",
+          "label": "Biotin",
+          "count": 0
+        },
+        {
+          "key": "13",
+          "label": "Panthenol (Vitamin B5)",
+          "count": 0
+        },
+        {
+          "key": "11",
+          "label": "Bồ kết",
+          "count": 0
+        },
+        {
+          "key": "9",
+          "label": "Sulfur",
+          "count": 0
+        },
+        {
+          "key": "9",
+          "label": "Collagen",
+          "count": 0
+        },
+        {
+          "key": "9",
+          "label": "Bạch quả (Ginkgo biloba)",
+          "count": 0
+        },
+        {
+          "key": "8",
+          "label": "BHA (Salicylic Acid)",
+          "count": 0
+        },
+        {
+          "key": "7",
+          "label": "AHA (Alpha Hydroxy Acid)",
+          "count": 0
+        },
+        {
+          "key": "7",
+          "label": "Ceramide",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_skin_type",
+      "name": "Loại da",
+      "options": [
+        {
+          "key": "20",
+          "label": "Da thường/Mọi loại da",
+          "count": 0
+        },
+        {
+          "key": "8",
+          "label": "Da nhạy cảm",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_uses",
+      "name": "Công dụng chính",
+      "options": [
+        {
+          "key": "126",
+          "label": "Ngăn rụng / kích thích mọc tóc",
+          "count": 0
+        },
+        {
+          "key": "87",
+          "label": "Phục hồi tóc hư tổn",
+          "count": 0
+        },
+        {
+          "key": "59",
+          "label": "Giảm dầu, bết tóc",
+          "count": 0
+        },
+        {
+          "key": "53",
+          "label": "Giảm gàu và ngứa",
+          "count": 0
+        },
+        {
+          "key": "47",
+          "label": "Giúp tóc vào nếp suôn mượt",
+          "count": 0
+        },
+        {
+          "key": "43",
+          "label": "Dưỡng ẩm mềm mượt tóc",
+          "count": 0
+        },
+        {
+          "key": "30",
+          "label": "Làm phồng và dày tóc",
+          "count": 0
+        },
+        {
+          "key": "24",
+          "label": "Làm bóng mượt tóc",
+          "count": 0
+        },
+        {
+          "key": "8",
+          "label": "Làm sạch dịu nhẹ",
+          "count": 0
+        },
+        {
+          "key": "7",
+          "label": "Dưỡng ẩm và cấp nước",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Giữ màu tóc nhuộm",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Detox sạch sâu tóc",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_tones",
+      "name": "Màu sắc",
+      "options": [
+        {
+          "key": "36",
+          "label": "Nâu",
+          "count": 0
+        },
+        {
+          "key": "8",
+          "label": "Đen",
+          "count": 0
+        },
+        {
+          "key": "4",
+          "label": "Hồng",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Xám",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Pastel",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Trắng Ngà",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Da sáng",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Trong suốt",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Be Sữa",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Hồng Nhạt",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Tím Xanh Nhạt",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Xanh Bạc Hà",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_product_type",
+      "name": "Loại sản phẩm",
+      "options": [
+        {
+          "key": "168",
+          "label": "Dầu gội",
+          "count": 0
+        },
+        {
+          "key": "76",
+          "label": "Dầu xả",
+          "count": 0
+        },
+        {
+          "key": "51",
+          "label": "Nhuộm tóc",
+          "count": 0
+        },
+        {
+          "key": "51",
+          "label": "Serum / Dầu dưỡng tóc",
+          "count": 0
+        },
+        {
+          "key": "50",
+          "label": "Bộ gội xả",
+          "count": 0
+        },
+        {
+          "key": "39",
+          "label": "Dầu gội khô",
+          "count": 0
+        },
+        {
+          "key": "31",
+          "label": "Sữa tắm gội 2in1",
+          "count": 0
+        },
+        {
+          "key": "26",
+          "label": "Kem ủ tóc",
+          "count": 0
+        },
+        {
+          "key": "26",
+          "label": "Xịt dưỡng tóc",
+          "count": 0
+        },
+        {
+          "key": "22",
+          "label": "Wax / Sáp tạo kiểu tóc",
+          "count": 0
+        },
+        {
+          "key": "19",
+          "label": "Lược chải tóc",
+          "count": 0
+        },
+        {
+          "key": "18",
+          "label": "Bộ chăm sóc tóc",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_sex",
+      "name": "Giới tính",
+      "options": [
+        {
+          "key": "435",
+          "label": "Unisex",
+          "count": 0
+        },
+        {
+          "key": "40",
+          "label": "Nam",
+          "count": 0
+        },
+        {
+          "key": "18",
+          "label": "Nữ",
+          "count": 0
+        },
+        {
+          "key": "7",
+          "label": "Bé trai và bé gái",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_dac_tinh",
+      "name": "Đặc tính",
+      "options": [
+        {
+          "key": "21",
+          "label": "Thuần chay (vegan)",
+          "count": 0
+        },
+        {
+          "key": "19",
+          "label": "Không silicone",
+          "count": 0
+        },
+        {
+          "key": "13",
+          "label": "Không paraben",
+          "count": 0
+        },
+        {
+          "key": "12",
+          "label": "Hương nước hoa",
+          "count": 0
+        },
+        {
+          "key": "7",
+          "label": "Không cồn",
+          "count": 0
+        },
+        {
+          "key": "4",
+          "label": "Không sulfate",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Ngày và đêm",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Có mùi hương",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_origin",
+      "name": "Xuất xứ thương hiệu",
+      "options": [
+        {
+          "key": "189",
+          "label": "Việt Nam",
+          "count": 0
+        },
+        {
+          "key": "166",
+          "label": "Mỹ",
+          "count": 0
+        },
+        {
+          "key": "98",
+          "label": "Pháp",
+          "count": 0
+        },
+        {
+          "key": "83",
+          "label": "Hàn Quốc",
+          "count": 0
+        },
+        {
+          "key": "82",
+          "label": "Nhật Bản",
+          "count": 0
+        },
+        {
+          "key": "31",
+          "label": "Anh",
+          "count": 0
+        },
+        {
+          "key": "20",
+          "label": "Indonesia",
+          "count": 0
+        },
+        {
+          "key": "18",
+          "label": "Trung Quốc",
+          "count": 0
+        },
+        {
+          "key": "8",
+          "label": "Canada",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Thái Lan",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Singapore",
+          "count": 0
+        },
+        {
+          "key": "4",
+          "label": "Hà Lan",
+          "count": 0
+        }
+      ]
+    }
+  ],
+  "nuoc-hoa-c103.html": [
+    {
+      "code": "filter_category",
+      "name": "Danh mục",
+      "options": [
+        {
+          "key": "1937",
+          "label": "Nước Hoa Nữ",
+          "count": 0
+        },
+        {
+          "key": "278",
+          "label": "Xịt Thơm Toàn Thân",
+          "count": 0
+        },
+        {
+          "key": "2178",
+          "label": "Nước Hoa Vùng Kín",
+          "count": 0
+        },
+        {
+          "key": "205",
+          "label": "Nước Hoa Nam",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_brand",
+      "name": "Thương Hiệu",
+      "options": [
+        {
+          "key": "53",
+          "label": "Kiss My Body",
+          "count": 0
+        },
+        {
+          "key": "28",
+          "label": "Narciso Rodriguez",
+          "count": 0
+        },
+        {
+          "key": "12",
+          "label": "Gennie",
+          "count": 0
+        },
+        {
+          "key": "9",
+          "label": "Armaf",
+          "count": 0
+        },
+        {
+          "key": "8",
+          "label": "Laura Anne",
+          "count": 0
+        },
+        {
+          "key": "8",
+          "label": "Issey Miyake",
+          "count": 0
+        },
+        {
+          "key": "7",
+          "label": "Bodymiss",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "B.O.M",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "mine",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Lattafa",
+          "count": 0
+        },
+        {
+          "key": "5",
+          "label": "Yves Saint Laurent",
+          "count": 0
+        },
+        {
+          "key": "4",
+          "label": "Dolce & Gabbana",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_odour",
+      "name": "Nhóm hương",
+      "options": [
+        {
+          "key": "41",
+          "label": "Hương Hoa Cỏ (Floral)",
+          "count": 0
+        },
+        {
+          "key": "13",
+          "label": "Hương Phương Đông (Oriental)",
+          "count": 0
+        },
+        {
+          "key": "9",
+          "label": "Hương Thơm Ngon (Gourmand)",
+          "count": 0
+        },
+        {
+          "key": "7",
+          "label": "Hương Gỗ (Woody)",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Hương Da Thuộc (Leather)",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Hương Síp (Chypre)",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Hương Trái Cây (Fruity)",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Hương Cam Chanh (Citrus)",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Hương Thơm Ngát (Aromatic)",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_concentration",
+      "name": "Nồng độ nước hoa",
+      "options": [
+        {
+          "key": "83",
+          "label": "Eau de Parfum (EDP)",
+          "count": 0
+        },
+        {
+          "key": "27",
+          "label": "Eau de Toilette (EDT)",
+          "count": 0
+        },
+        {
+          "key": "24",
+          "label": " Fragrance Mist/Body Mist ",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_size",
+      "name": "Dung tích",
+      "options": [
+        {
+          "key": "45",
+          "label": "Fullsize",
+          "count": 0
+        },
+        {
+          "key": "25",
+          "label": "Minisize",
+          "count": 0
+        },
+        {
+          "key": "18",
+          "label": "Combo",
+          "count": 0
+        },
+        {
+          "key": "15",
+          "label": "50ml",
+          "count": 0
+        },
+        {
+          "key": "13",
+          "label": "30ml",
+          "count": 0
+        },
+        {
+          "key": "11",
+          "label": "88ml",
+          "count": 0
+        },
+        {
+          "key": "9",
+          "label": "100ml",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "45ml",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "40ml",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "80ml",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "90ml",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "105ml",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_uses",
+      "name": "Công dụng chính",
+      "options": [
+        {
+          "key": "3",
+          "label": "Lưu hương lâu",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Làm sạch và khử mùi",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_product_type",
+      "name": "Loại sản phẩm",
+      "options": [
+        {
+          "key": "102",
+          "label": "Nước hoa",
+          "count": 0
+        },
+        {
+          "key": "38",
+          "label": "Xịt thơm toàn thân",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Sữa dưỡng thể",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Xịt khử mùi",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Nước hoa vùng kín",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_sex",
+      "name": "Giới tính",
+      "options": [
+        {
+          "key": "91",
+          "label": "Nữ",
+          "count": 0
+        },
+        {
+          "key": "38",
+          "label": "Unisex",
+          "count": 0
+        },
+        {
+          "key": "19",
+          "label": "Nam",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_origin",
+      "name": "Xuất xứ thương hiệu",
+      "options": [
+        {
+          "key": "52",
+          "label": "Thái Lan",
+          "count": 0
+        },
+        {
+          "key": "39",
+          "label": "Pháp",
+          "count": 0
+        },
+        {
+          "key": "20",
+          "label": "Singapore",
+          "count": 0
+        },
+        {
+          "key": "17",
+          "label": "Dubai",
+          "count": 0
+        },
+        {
+          "key": "14",
+          "label": "Việt Nam",
+          "count": 0
+        },
+        {
+          "key": "11",
+          "label": "Mỹ",
+          "count": 0
+        },
+        {
+          "key": "9",
+          "label": "Ý",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Hàn Quốc",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Malaysia",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Anh",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Trung Quốc",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Tây Ban Nha",
+          "count": 0
+        }
+      ]
+    }
+  ],
+  "phu-kien-dien-thoai-c2474.html": [
+    {
+      "code": "filter_category",
+      "name": "Danh mục",
+      "options": [
+        {
+          "key": "2697",
+          "label": "Pin Dự Phòng",
+          "count": 0
+        },
+        {
+          "key": "3029",
+          "label": "Thẻ Nhớ",
+          "count": 0
+        },
+        {
+          "key": "2693",
+          "label": "Củ Sạc & Cáp Sạc",
+          "count": 0
+        },
+        {
+          "key": "2701",
+          "label": "Miếng Lau Màn Hình",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_brand",
+      "name": "Thương Hiệu",
+      "options": [
+        {
+          "key": "29",
+          "label": "Anker",
+          "count": 0
+        },
+        {
+          "key": "19",
+          "label": "Baseus",
+          "count": 0
+        },
+        {
+          "key": "17",
+          "label": "Ugreen",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Scrub Daddy",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_size",
+      "name": "Dung tích",
+      "options": [
+        {
+          "key": "16",
+          "label": "Combo",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "1 cái",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_product_type",
+      "name": "Loại sản phẩm",
+      "options": [
+        {
+          "key": "28",
+          "label": "Cáp sạc",
+          "count": 0
+        },
+        {
+          "key": "26",
+          "label": "Củ sạc",
+          "count": 0
+        },
+        {
+          "key": "11",
+          "label": "Pin dự phòng",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Miếng lau màn hình",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_origin",
+      "name": "Xuất xứ thương hiệu",
+      "options": [
+        {
+          "key": "46",
+          "label": "Trung Quốc",
+          "count": 0
+        },
+        {
+          "key": "19",
+          "label": "Hong Kong",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Mỹ",
+          "count": 0
+        }
+      ]
+    }
+  ],
+  "san-pham-cho-be-c2497.html": [
+    {
+      "code": "filter_category",
+      "name": "Danh mục",
+      "options": [
+        {
+          "key": "2717",
+          "label": "Tã & Bỉm Cho Bé",
+          "count": 0
+        },
+        {
+          "key": "2753",
+          "label": "Chăm Sóc Da & Vệ Sinh Cho Bé",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_brand",
+      "name": "Thương Hiệu",
+      "options": [
+        {
+          "key": "17",
+          "label": "Cetaphil Baby",
+          "count": 0
+        },
+        {
+          "key": "9",
+          "label": "Huggies",
+          "count": 0
+        },
+        {
+          "key": "7",
+          "label": "Pigeon",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Suave Kids",
+          "count": 0
+        },
+        {
+          "key": "5",
+          "label": "Lactacyd",
+          "count": 0
+        },
+        {
+          "key": "5",
+          "label": "EcoWipes",
+          "count": 0
+        },
+        {
+          "key": "5",
+          "label": "Kutieskin",
+          "count": 0
+        },
+        {
+          "key": "4",
+          "label": "Corine de Farme",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Anessa",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Pororo",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Bobby",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Colgate",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_size",
+      "name": "Dung tích",
+      "options": [
+        {
+          "key": "60",
+          "label": "Fullsize",
+          "count": 0
+        },
+        {
+          "key": "9",
+          "label": "Combo",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Minisize",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Bộ 1 cây",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_ingredient",
+      "name": "Thành phần nổi bật",
+      "options": [
+        {
+          "key": "7",
+          "label": "Hoa cúc",
+          "count": 0
+        },
+        {
+          "key": "4",
+          "label": "Panthenol (Vitamin B5)",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Chống nắng vật lý lai hoá học",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Jojoba",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Hoa Anh Đào",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Glycerin",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Bơ Hạt Mỡ",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Thảo mộc",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Chống nắng vật lý",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_skin_type",
+      "name": "Loại da",
+      "options": [
+        {
+          "key": "22",
+          "label": "Da thường/Mọi loại da",
+          "count": 0
+        },
+        {
+          "key": "20",
+          "label": "Da nhạy cảm",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_uses",
+      "name": "Công dụng chính",
+      "options": [
+        {
+          "key": "13",
+          "label": "Dưỡng ẩm và cấp nước",
+          "count": 0
+        },
+        {
+          "key": "9",
+          "label": "Làm sạch dịu nhẹ",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Chăm sóc răng miệng trẻ em",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Chăm sóc da em bé",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Bảo vệ da tối ưu",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Bảo vệ sức khoẻ",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Làm dịu, phục hồi và tái tạo da",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Ngăn ngừa viêm nhiễm",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_hsk_product_type",
+      "name": "Loại sản phẩm",
+      "options": [
+        {
+          "key": "31",
+          "label": "Sữa tắm gội 2in1",
+          "count": 0
+        },
+        {
+          "key": "8",
+          "label": "Khăn ướt",
+          "count": 0
+        },
+        {
+          "key": "6",
+          "label": "Kem chống nắng",
+          "count": 0
+        },
+        {
+          "key": "5",
+          "label": "Kem đánh răng",
+          "count": 0
+        },
+        {
+          "key": "5",
+          "label": "Kem dưỡng thể",
+          "count": 0
+        },
+        {
+          "key": "4",
+          "label": "Tã quần",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Sữa dưỡng thể",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Kem dưỡng",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Chống muỗi",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Khăn lau mặt khô",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Tã dán",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Bàn chải đánh răng",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_sex",
+      "name": "Giới tính",
+      "options": [
+        {
+          "key": "18",
+          "label": "Bé trai và bé gái",
+          "count": 0
+        },
+        {
+          "key": "18",
+          "label": "Unisex",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_dac_tinh",
+      "name": "Đặc tính",
+      "options": [
+        {
+          "key": "5",
+          "label": "Không paraben",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Không mùi hương",
+          "count": 0
+        },
+        {
+          "key": "3",
+          "label": "Không chứa fluoride",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Chống nắng phổ rộng",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Ngày và đêm",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "code": "filter_origin",
+      "name": "Xuất xứ thương hiệu",
+      "options": [
+        {
+          "key": "18",
+          "label": "Mỹ",
+          "count": 0
+        },
+        {
+          "key": "17",
+          "label": "Nhật Bản",
+          "count": 0
+        },
+        {
+          "key": "17",
+          "label": "Canada",
+          "count": 0
+        },
+        {
+          "key": "11",
+          "label": "Việt Nam",
+          "count": 0
+        },
+        {
+          "key": "9",
+          "label": "Pháp",
+          "count": 0
+        },
+        {
+          "key": "4",
+          "label": "Hàn Quốc",
+          "count": 0
+        },
+        {
+          "key": "2",
+          "label": "Malaysia",
+          "count": 0
+        },
+        {
+          "key": "1",
+          "label": "Ðức",
+          "count": 0
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+import type { Metadata } from "next";
+import { CampaignWowView } from "@/components/sites/hasaki/campaign-wow-view";
+import { getCampaignWowData } from "@/lib/campaigns-location";
+
+export const metadata: Metadata = {
+  title: "Khuyến Mãi Mỹ Phẩm Giá Tốt, Ưu Đãi Khủng | Hasaki.vn",
+  description:
+    "Top Deal Mỹ Phẩm, tổng hợp chương trình khuyến mãi mỹ phẩm giá tốt. Săn Deals Mỹ Phẩm Ưu Đãi Lớn Tại Hasaki",
+  openGraph: {
+    title: "Khuyến Mãi Mỹ Phẩm Giá Tốt, Ưu Đãi Khủng | Hasaki.vn",
+    description:
+      "Top Deal Mỹ Phẩm, tổng hợp chương trình khuyến mãi mỹ phẩm giá tốt. Săn Deals Mỹ Phẩm Ưu Đãi Lớn Tại Hasaki",
+    url: "https://hasaki.vn/campaign/wow",
+  },
+};
+
+export default function CampaignWowPage() {
+  const campaignData = getCampaignWowData();
+  return <CampaignWowView campaignData={campaignData} />;
+}
