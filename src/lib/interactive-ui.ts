@@ -272,19 +272,20 @@ function normalizeInternalHref(href: string): string {
 }
 
 function buildMegaMenuTree(defaultBrands: SuggestedBrandCard[]): MegaMenuCategoryItem[] {
-  const featuredBrandsRaw =
+  const logosRaw =
     (
       rawBrandCatalog as {
-        featuredBrands?: Record<string, { name: string; slug?: string; logo?: string }>;
+        logos?: Record<string, { name: string; slug?: string; logo?: string; image?: string }>;
       }
-    ).featuredBrands || {};
+    ).logos || {};
 
-  const extraBrands: SuggestedBrandCard[] = Object.values(featuredBrandsRaw)
-    .filter((b) => b && b.logo)
+  const extraBrands: SuggestedBrandCard[] = Object.values(logosRaw)
+    .filter((b) => b && (b.logo || b.image))
+    .slice(0, 50)
     .map((b) => ({
       name: b.name,
-      href: `/thuong-hieu/${b.slug || b.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
-      logo: b.logo || "",
+      href: `/thuong-hieu/${(b.slug || b.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")).replace(/\.html$/i, "")}.html`,
+      logo: b.logo || b.image || "",
     }));
 
   const brandPool = [...defaultBrands, ...extraBrands];

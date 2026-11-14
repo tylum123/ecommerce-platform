@@ -230,7 +230,8 @@ interface InteractiveUiSnapshot {
     }>;
   }>;
   searchPopup?: {
-    suggestedCategories?: Array<{ name: string; href: string }>;
+    suggestedCategories?: Array<{ name?: string; label?: string; href: string }>;
+    topBarKeywords?: Array<{ label: string; href: string }>;
     topKeywords?: Array<{ label: string; href: string }>;
   };
   categoryPageUi?: {
@@ -259,6 +260,18 @@ function normalizeCatHref(href: string): string {
   uiCategoryTitleMap.set("loa-bluetooth-c2800.html", "Loa Bluetooth");
   uiCategoryTitleMap.set("my-pham-c3.html", "Mỹ Phẩm");
   uiCategoryTitleMap.set("hasaki-clinic-spa-c331.html", "Hasaki Clinic & Spa");
+  uiCategoryTitleMap.set("camera-giam-sat-c2934.html", "Camera Giám Sát");
+  uiCategoryTitleMap.set("dung-cu-so-che-thuc-pham-c2809.html", "Dụng Cụ Sơ Chế Thực Phẩm");
+  uiCategoryTitleMap.set("kem-duong-am-cho-be-c2505.html", "Kem Dưỡng Ẩm Cho Bé");
+  uiCategoryTitleMap.set("pin-tieu-c2733.html", "Pin Tiểu");
+  uiCategoryTitleMap.set("ao-nu-c2593.html", "Áo Nữ");
+  uiCategoryTitleMap.set("vo-c2856.html", "Vớ");
+  uiCategoryTitleMap.set("dac-tri-c1865.html", "Chăm Sóc Chuyên Sâu");
+  uiCategoryTitleMap.set("duong-am-da-c1863.html", "Dưỡng Ẩm");
+  uiCategoryTitleMap.set("dien-lanh-dien-may-c2981.html", "Điện Lạnh & Điện Máy");
+  uiCategoryTitleMap.set("dien-gia-dung-c2761.html", "Điện Gia Dụng");
+  uiCategoryTitleMap.set("dien-thoai-may-tinh-bang-c2926.html", "Điện Thoại & Máy Tính Bảng");
+  uiCategoryTitleMap.set("dien-tu-phu-kien-c2673.html", "Thiết Bị Điện Tử");
 
   const ui = interactiveUiRaw as unknown as InteractiveUiSnapshot;
   for (const root of ui.megaMenu || []) {
@@ -294,16 +307,22 @@ function normalizeCatHref(href: string): string {
   }
   for (const sc of ui.searchPopup?.suggestedCategories || []) {
     const s = normalizeCatHref(sc.href);
-    if (s && sc.name) {
-      uiCategoryTitleMap.set(s, sc.name);
-      uiCategoryTitleMap.set(s.replace(/\.html$/i, ""), sc.name);
+    const label = sc.label || sc.name;
+    if (s && label) {
+      uiCategoryTitleMap.set(s, label);
+      uiCategoryTitleMap.set(s.replace(/\.html$/i, ""), label);
     }
   }
-  for (const kw of ui.searchPopup?.topKeywords || []) {
+  const topKeywords = [
+    ...(ui.searchPopup?.topBarKeywords || []),
+    ...(ui.searchPopup?.topKeywords || []),
+  ];
+  for (const kw of topKeywords) {
     if (kw.href.startsWith("/danh-muc/")) {
       const s = normalizeCatHref(kw.href);
       if (s && kw.label && !uiCategoryTitleMap.has(s)) {
         uiCategoryTitleMap.set(s, kw.label);
+        uiCategoryTitleMap.set(s.replace(/\.html$/i, ""), kw.label);
       }
     }
   }
@@ -311,11 +330,13 @@ function normalizeCatHref(href: string): string {
     const s = normalizeCatHref(node.href);
     if (s && node.label && !uiCategoryTitleMap.has(s)) {
       uiCategoryTitleMap.set(s, node.label);
+      uiCategoryTitleMap.set(s.replace(/\.html$/i, ""), node.label);
     }
     for (const child of node.children || []) {
       const cs = normalizeCatHref(child.href);
       if (cs && child.label && !uiCategoryTitleMap.has(cs)) {
         uiCategoryTitleMap.set(cs, child.label);
+        uiCategoryTitleMap.set(cs.replace(/\.html$/i, ""), child.label);
       }
     }
   }
@@ -431,11 +452,12 @@ export function getAllCatalogProducts(): Product[] {
       map.set(item.slug, item);
     }
   }
-  const featuredBrands = (brandCatalogRaw as { featuredBrands?: Record<string, { name: string; topProducts?: Product[] }> }).featuredBrands || {};
-  for (const brand of Object.values(featuredBrands)) {
-    for (const item of brand.topProducts || []) {
+  const brandProductsRaw =
+    ((brandCatalogRaw as { brandProducts?: Record<string, { products?: Product[] }> }).brandProducts) || {};
+  for (const group of Object.values(brandProductsRaw)) {
+    for (const item of group.products || []) {
       if (item.slug && !map.has(item.slug)) {
-        map.set(item.slug, { ...item, brand: item.brand || brand.name });
+        map.set(item.slug, item);
       }
     }
   }

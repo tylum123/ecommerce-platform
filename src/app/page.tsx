@@ -45,25 +45,25 @@ const topSearches: Array<[string, string]> = [
 const clinicHighlights = [
   {
     name: "Trải Nghiệm Triệt Lông Nách Diode Laser (Nữ) 1 Lần",
-    price: "49.000",
+    price: 49000,
     slug: "triet-long-nach-1-buoi-nu-94461.html",
     image: "https://media.hcdn.vn/catalog/product/t/r/triet-long-nach-1-buoi-nu-94461_img_380x380_622873_fit_center.jpg",
   },
   {
     name: "Lấy Nhân Mụn Chuẩn Y Khoa Bằng Tăm Bông 1 Lần",
-    price: "150.000",
+    price: 150000,
     slug: "lay-nhan-mun-bang-tam-bong-69244.html",
     image: "https://media.hcdn.vn/catalog/product/l/a/lay-nhan-mun-bang-tam-bong-69244_img_380x380_622873_fit_center.jpg",
   },
   {
     name: "Aqua Mesoderm Điện Di Tinh Chất Trắng Sáng Da 1 Lần",
-    price: "400.000",
+    price: 400000,
     slug: "aqua-mesoderm-dien-di-tinh-chat-trang-sang-da-1-lan-86875.html",
     image: "https://media.hcdn.vn/catalog/product/a/q/aqua-mesoderm-dien-di-tinh-chat-trang-sang-da-1-lan-86875_img_380x380_622873_fit_center.jpg",
   },
   {
     name: "Peel Da Ngừa Mụn BHA Salicylic Acid 20% 1 Lần",
-    price: "500.000",
+    price: 500000,
     slug: "peel-bha-1-lan-101781.html",
     image: "https://media.hcdn.vn/catalog/product/p/e/peel-bha-1-lan-101781_img_380x380_622873_fit_center.jpg",
   },
@@ -364,7 +364,7 @@ export default function Home() {
                     <div className={`clinic-image q${i}`} style={{ position: "relative", overflow: "hidden" }}>
                       <Image src={item.image} alt={item.name} width={300} height={150} unoptimized style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     </div>
-                    <b>{item.price} ₫</b>
+                    <b>{money(item.price)}</b>
                     <p>{item.name}</p>
                     <span>★ 5.0　 |　Đặt hẹn ngay</span>
                   </Link>
