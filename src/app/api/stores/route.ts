@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
-import {
-  filterStoreBranches,
-  getStoreCities,
-  getStoreDistricts,
-} from "@/lib/support-stores";
+import { getPostgresDatabase } from "@/lib/server/postgres-database";
+import { listPostgresBranches } from "@/lib/server/postgres-clinic-service";
+import { getStoreCities, getStoreDistricts } from "@/lib/support-stores";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function GET(request: Request) {
   try {
@@ -18,28 +17,40 @@ export async function GET(request: Request) {
 
     const hasClinic = hasClinicParam === "true" || hasClinicParam === "1" ? true : undefined;
 
-    const branches = filterStoreBranches({
+    if (!process.env.NARI_POSTGRES_URL?.trim()) {
+      return NextResponse.json({
+        ok: true,
+        source: "empty",
+        data: [],
+        total: 0,
+        cities: getStoreCities([]),
+        districts: getStoreDistricts(city, []),
+      });
+    }
+
+    const data = await listPostgresBranches(getPostgresDatabase(), {
       city,
       district,
       hasClinic,
       query,
     });
 
-    const cities = getStoreCities();
-    const districts = getStoreDistricts(city);
-
     return NextResponse.json({
       ok: true,
-      data: branches,
-      total: branches.length,
-      cities,
-      districts,
+      source: "postgres",
+      data,
+      total: data.length,
+      cities: getStoreCities(data),
+      districts: getStoreDistricts(city, data),
     });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Internal Server Error";
+  } catch {
     return NextResponse.json(
-      { ok: false, error: message },
-      { status: 500 }
+      {
+        ok: false,
+        code: "STORES_UNAVAILABLE",
+        error: "Hệ thống cửa hàng tạm thời chưa khả dụng. Vui lòng thử lại sau.",
+      },
+      { status: 503, headers: { "Cache-Control": "private, no-store" } }
     );
   }
 }

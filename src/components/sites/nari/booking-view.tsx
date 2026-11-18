@@ -76,12 +76,37 @@ export function BookingView({ initialService = "", branches = [] }: { initialSer
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bookingPayload),
       });
-      if (!response.ok) throw new Error("Dịch vụ đặt lịch hiện chưa khả dụng. Lịch hẹn chưa được tạo; vui lòng đặt trực tiếp với Nari Home.");
-      const result: unknown = await response.json();
-      if (!result || typeof result !== "object" || !("code" in result) || typeof result.code !== "string" || !result.code) {
+      let result: unknown = null;
+      try {
+        result = await response.json();
+      } catch {
+        result = null;
+      }
+
+      if (!response.ok) {
+        const serverError =
+          result && typeof result === "object" && "error" in result && typeof result.error === "string" && result.error.trim()
+            ? result.error.trim()
+            : null;
+        if (response.status === 409) {
+          throw new Error(serverError || "Khung giờ này tại chi nhánh đã có lịch hẹn khác. Vui lòng chọn khung giờ khác.");
+        }
+        if (response.status === 503) {
+          throw new Error(serverError || "Dịch vụ đặt lịch hiện chưa khả dụng. Lịch hẹn chưa được tạo; vui lòng đặt trực tiếp với Nari Home.");
+        }
+        throw new Error(serverError || "Không thể tạo lịch hẹn. Vui lòng kiểm tra lại thông tin.");
+      }
+
+      const code =
+        result && typeof result === "object" && "bookingCode" in result && typeof result.bookingCode === "string"
+          ? result.bookingCode
+          : result && typeof result === "object" && "code" in result && typeof result.code === "string"
+            ? result.code
+            : "";
+      if (!code) {
         throw new Error("Máy chủ chưa trả mã xác nhận lịch hẹn. Vui lòng thử lại sau.");
       }
-      setBookingCode(result.code);
+      setBookingCode(code);
       setPreview(true);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Không thể kết nối dịch vụ đặt lịch. Lịch hẹn chưa được tạo.");
@@ -206,7 +231,10 @@ export function BookingView({ initialService = "", branches = [] }: { initialSer
               className="booking-input"
               placeholder="Nhập tên dịch vụ bạn muốn làm..."
               value={service}
-              onChange={event => setService(event.target.value)}
+              onChange={event => {
+                setService(event.target.value);
+                setPreview(false);
+              }}
             />
           </section>
 
@@ -234,6 +262,7 @@ export function BookingView({ initialService = "", branches = [] }: { initialSer
                     onClick={() => {
                       setDate(value);
                       setTime("");
+                      setPreview(false);
                     }}
                   >
                     {new Intl.DateTimeFormat("vi-VN", { weekday: "short" }).format(day)}
@@ -263,7 +292,10 @@ export function BookingView({ initialService = "", branches = [] }: { initialSer
                   key={value}
                   className={time === value ? "selected" : ""}
                   aria-pressed={time === value}
-                  onClick={() => setTime(value)}
+                  onClick={() => {
+                    setTime(value);
+                    setPreview(false);
+                  }}
                 >
                   {value}
                 </button>
@@ -289,7 +321,7 @@ export function BookingView({ initialService = "", branches = [] }: { initialSer
 
         {preview && (
           <div className="booking-preview" role="status">
-            <h2>Thông tin đặt hẹn mẫu</h2>
+            <h2>Đặt hẹn thành công</h2>
             {bookingCode && (
               <p style={{ color: "#3d2e24" }}>
                 Mã đặt hẹn: <strong>{bookingCode}</strong>
@@ -313,8 +345,10 @@ export function BookingView({ initialService = "", branches = [] }: { initialSer
                 Xem lịch hẹn trong Cổng khách hàng →
               </Link>
             </p>
-            <strong>Chưa gửi lịch hẹn. Vui lòng đặt trực tiếp với Nari Home để xác nhận.</strong>{" "}
-            <a href="https://Nari Home/booking">Mở trang đặt hẹn Nari Home</a>
+            <p>
+              Nếu cần thay đổi lịch hẹn, vui lòng liên hệ tổng đài{" "}
+              <a href="tel:18006324">1800 6324</a> (nhấn phím 2).
+            </p>
           </div>
         )}
       </main>

@@ -20,17 +20,18 @@ import {
   getStoreBranches, 
   getStoreCities, 
   getStoreDistricts, 
-  filterStoreBranches 
+  filterStoreBranches,
+  type StoreBranchInfo,
 } from "@/lib/support-stores";
 
-export function StoreLocatorView() {
+export function StoreLocatorView({ branches = [] }: { branches?: StoreBranchInfo[] }) {
   const [query, setQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState("Tất cả Tỉnh/Thành");
   const [selectedDistrict, setSelectedDistrict] = useState("Tất cả Quận/Huyện");
   const [hasClinicOnly, setHasClinicOnly] = useState(false);
 
-  const cities = useMemo(() => getStoreCities(), []);
-  const districts = useMemo(() => getStoreDistricts(selectedCity), [selectedCity]);
+  const cities = useMemo(() => getStoreCities(branches), [branches]);
+  const districts = useMemo(() => getStoreDistricts(selectedCity, branches), [selectedCity, branches]);
 
   // When city changes, reset district
   const handleCityChange = (city: string) => {
@@ -44,11 +45,12 @@ export function StoreLocatorView() {
       district: selectedDistrict,
       hasClinic: hasClinicOnly,
       query: query
-    });
-  }, [selectedCity, selectedDistrict, hasClinicOnly, query]);
+    }, branches);
+  }, [selectedCity, selectedDistrict, hasClinicOnly, query, branches]);
 
-  const totalAll = getStoreBranches().length;
-  const clinicTotal = getStoreBranches().filter(b => b.hasClinic).length;
+  const allBranches = useMemo(() => getStoreBranches(branches), [branches]);
+  const totalAll = allBranches.length;
+  const clinicTotal = allBranches.filter(b => b.hasClinic).length;
 
   return (
     <div className="store-locator-page min-h-screen flex flex-col bg-slate-50">
@@ -181,14 +183,20 @@ export function StoreLocatorView() {
               >
                 {/* Branch image banner */}
                 <div className="relative h-44 w-full bg-slate-100 overflow-hidden">
-                  <Image
-                    src={branch.image || "https://Nari Home/images/graphics/cuahang-4.jpg"}
-                    alt={branch.name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover"
-                    unoptimized
-                  />
+                  {branch.image ? (
+                    <Image
+                      src={branch.image}
+                      alt={branch.name}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-[#f6ece3] to-[#e6d5c5] flex items-center justify-center p-4 text-center">
+                      <span className="text-sm font-semibold text-[#3d2e24] line-clamp-2">{branch.name}</span>
+                    </div>
+                  )}
                   {branch.hasClinic && (
                     <span className="absolute top-2.5 right-2.5 bg-[#3d2e24] text-white text-[11px] font-semibold px-2.5 py-1 rounded-md shadow-sm flex items-center gap-1">
                       <Sparkles className="w-3 h-3" />
