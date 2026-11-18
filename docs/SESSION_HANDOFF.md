@@ -1,5 +1,15 @@
 # Session handoff — Hasaki clone
 
+## Checkpoint 18/11/2026 (Chrome Ops) — Xác thực Cloudflare Wrangler OAuth & Khớp ID Dashboard
+
+- **Xác thực Cloudflare Wrangler (`tylum123@gmail.com`):**
+  - Hoàn tất OAuth qua Chrome (`127.0.0.1:9222`): `npm run ops:cf -- whoami` xác nhận `Account Name: Tylum123@gmail.com's Account`, `Account ID: c0267fa333fa3b1a5b648ebf8a4b419e`, subdomain `tylum123.workers.dev` (chưa có domain/zone hoặc Workers project).
+  - Điền 2 định danh không nhạy cảm vào `.env`: `SUPABASE_PROJECT_REF=ywrzguhuzekkusoupehf`, `CLOUDFLARE_ACCOUNT_ID=c0267fa333fa3b1a5b648ebf8a4b419e`.
+  - Cập nhật [`scripts/ops-cli.mjs`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/scripts/ops-cli.mjs) để `npm run ops:doctor -- --live` kiểm tra trực tiếp `wrangler whoami` ngay cả khi dùng OAuth (không cần static `CLOUDFLARE_API_TOKEN`); `test/ops-cli.test.mjs` đạt `8/8` pass và `ops:doctor -- --live` trả `Supabase DB: OK` + `Cloudflare Wrangler: OK`.
+- **Trạng thái Supabase CLI & Wave 3 DDL cần quyết định từ chủ dự án:**
+  - `supabase login` từ chối non-TTY (`LoginMissingTokenError`); cần chạy 1 lần trong terminal tương tác (`npm run ops:supabase -- login`) hoặc điền `SUPABASE_ACCESS_TOKEN`.
+  - Chưa tự ý reset mật khẩu DB `postgres` trên Dashboard; chờ người dùng điền `DATABASE_URL` (Pooler IPv4 `aws-1-ap-southeast-2.pooler.supabase.com:5432`) hoặc xác nhận chạy `202611180001..0003` qua Supabase SQL Editor trên Chrome, và xác nhận hướng Cloudflare (**A** Workers/OpenNext hay **B** CDN/R2).
+
 ## Checkpoint 18/11/2026 (Giai đoạn 1–4) — Loại bỏ SQLite & Hasaki, CLI Supabase/Cloudflare & Kết nối PostgreSQL End-to-End
 
 - **Đã hoàn thành & đẩy lên `origin/main` (Giai đoạn 1–2):**

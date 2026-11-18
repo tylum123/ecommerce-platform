@@ -489,17 +489,20 @@ export function runDoctor(options = {}) {
     }
 
     const cfTokenStatus = maskEnvStatus('CLOUDFLARE_API_TOKEN', env);
-    if (cfTokenStatus === 'CONFIGURED') {
+    if (cfTokenStatus === 'PLACEHOLDER') {
+      console.log(`  Cloudflare Wrangler: SKIPPED (CLOUDFLARE_API_TOKEN is ${cfTokenStatus})`);
+    } else {
       const cfCheck = runLocalBin('wrangler', ['whoami'], env, { rootDir });
       const cfOut = redactSecrets((cfCheck.stdout || cfCheck.stderr).trim(), secrets);
-      if (cfCheck.status === 0) {
+      const isNotLoggedIn = /not authenticated|wrangler login/i.test(cfOut);
+      if (cfCheck.status === 0 && !isNotLoggedIn) {
         console.log(`  Cloudflare Wrangler: OK ${cfOut.replace(/\r?\n/g, ' | ')}`);
+      } else if (cfTokenStatus === 'EMPTY' && isNotLoggedIn) {
+        console.log('  Cloudflare Wrangler: SKIPPED (not logged in; run ops:cf -- login or set CLOUDFLARE_API_TOKEN)');
       } else {
         ok = false;
         console.log(`  Cloudflare Wrangler: FAIL ${cfOut || `exit ${cfCheck.status}`}`);
       }
-    } else {
-      console.log(`  Cloudflare Wrangler: SKIPPED (CLOUDFLARE_API_TOKEN is ${cfTokenStatus})`);
     }
   }
 
