@@ -71,18 +71,18 @@ test('server workspace pages reject unknown/cross-role/customer/guest and render
   assert.ok(await page({ params:Promise.resolve({ workspace:'kho' }) }));
 });
 
-test('staff middleware preserves refreshed request/response cookies and keeps ERP on legacy closed gate', async () => {
-  const { middleware,config } = load('src/middleware.ts',{
+test('staff proxy preserves refreshed request/response cookies and keeps ERP on legacy closed gate', async () => {
+  const { proxy,config } = load('src/proxy.ts',{
     '@/lib/server/supabase-session':{ createSupabaseSession:request => ({ response:(() => { const response = NextResponse.json({}); response.cookies.set('sb-token','fresh',{ httpOnly:true }); return response; })(), client:{ auth:{ getUser:async () => { request.cookies.set('sb-token','fresh'); return {}; } } } }) },
   });
   assert.ok(config.matcher.includes('/nhan-vien/:path*'));
   const request = new NextRequest('http://localhost:3036/nhan-vien/kho');
-  const response = await middleware(request);
+  const response = await proxy(request);
   assert.equal(request.cookies.get('sb-token').value,'fresh');
   assert.equal(response.cookies.get('sb-token').value,'fresh');
   assert.equal(response.cookies.get('sb-token').httpOnly,true);
   assert.match(response.headers.get('Cache-Control'),/no-store/);
-  assert.equal((await middleware(new NextRequest('http://localhost:3036/quan-tri'))).status,307);
+  assert.equal((await proxy(new NextRequest('http://localhost:3036/quan-tri'))).status,307);
 });
 
 test('session capabilities reflect server-provisioned roles and never enable business APIs', async () => {

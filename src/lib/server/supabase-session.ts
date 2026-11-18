@@ -2,8 +2,13 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export function readSupabaseSessionConfig() {
-  // The limiter is process-local in this wave. Production needs a shared limiter.
-  if (process.env.NARI_AUTH_ENABLED !== "true" || process.env.NODE_ENV === "production") throw new Error("Local identity is disabled");
+  if (process.env.NARI_AUTH_ENABLED !== "true") throw new Error("Local identity is disabled");
+  if (
+    process.env.NODE_ENV === "production" &&
+    (process.env.NARI_SHARED_RATE_LIMIT !== "postgres" || !process.env.NARI_POSTGRES_URL?.trim())
+  ) {
+    throw new Error("Local identity is disabled");
+  }
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "";
   const origin = process.env.APP_ORIGIN || "";

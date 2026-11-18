@@ -40,6 +40,10 @@ export async function readSessionInput(request: Request): Promise<SessionInput> 
   return { email, password: body.password };
 }
 
+function hashLoginEmail(email: string): string {
+  return createHash("sha256").update(email.trim().toLowerCase()).digest("hex");
+}
+
 /** Local-only defense: never trust user-supplied forwarding headers for keys. */
 export function createSessionRateLimiter() {
   const accounts = new Map<string, { count: number; expires: number }>();
@@ -49,7 +53,7 @@ export function createSessionRateLimiter() {
     global.count += 1;
     if (global.count > 30) return Math.max(1, Math.ceil((global.expires - now) / 1000));
     for (const [key, value] of accounts) if (value.expires <= now) accounts.delete(key);
-    const key = createHash("sha256").update(email.trim().toLowerCase()).digest("hex");
+    const key = hashLoginEmail(email);
     const existing = accounts.get(key);
     if (!existing && accounts.size >= 1024) return 900;
     const entry = existing || { count: 0, expires: now + 900_000 };
@@ -57,4 +61,54 @@ export function createSessionRateLimiter() {
     accounts.set(key, entry);
     return entry.count > 5 ? Math.max(1, Math.ceil((entry.expires - now) / 1000)) : 0;
   };
+}
+
+export interface RateLimitDatabase {
+  query(sql: string, values?: readonly unknown[]): Promise<{ rows: Record<string, unknown>[] }>;
+}
+
+function parseRateLimitResult(row: Record<string, unknown> | undefined): {
+  allowed: boolean;
+  retryAfterSeconds: number;
+} {
+  const raw = row?.result;
+  const parsed = typeof raw === "string" ? (JSON.parse(raw) as unknown) : raw;
+  if (
+    !parsed ||
+    typeof parsed !== "object" ||
+    !("allowed" in parsed) ||
+    typeof parsed.allowed !== "boolean" ||
+    !("retryAfterSeconds" in parsed) ||
+    typeof parsed.retryAfterSeconds !== "number"
+  ) {
+    throw new Error("RATE_LIMIT_RESULT_INVALID");
+  }
+  return { allowed: parsed.allowed, retryAfterSeconds: parsed.retryAfterSeconds };
+}
+
+/** Shared PostgreSQL rate limit for per-account and global login throttling. */
+export async function checkPostgresLoginRateLimit(
+  database: RateLimitDatabase,
+  email: string,
+): Promise<number> {
+  const accountKey = `acct:${hashLoginEmail(email)}`;
+  const accountRes = await database.query(
+    "SELECT nari_identity.check_rate_limit($1, $2, $3) AS result",
+    [accountKey, 5, 900],
+  );
+  const accountLimit = parseRateLimitResult(accountRes.rows[0]);
+  if (!accountLimit.allowed) {
+    return Math.max(1, accountLimit.retryAfterSeconds);
+  }
+
+  const globalRes = await database.query(
+    "SELECT nari_identity.check_rate_limit($1, $2, $3) AS result",
+    ["global:login", 30, 60],
+  );
+  const globalLimit = parseRateLimitResult(globalRes.rows[0]);
+  if (!globalLimit.allowed) {
+    return Math.max(1, globalLimit.retryAfterSeconds);
+  }
+
+  return 0;
 }

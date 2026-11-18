@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseSession, readSupabaseSessionConfig, sessionResponse } from "@/lib/server/supabase-session";
 import { hasTrustedMutationOrigin } from "@/lib/server/supabase-principal";
-import { createSessionRateLimiter, readSessionInput, SessionInputError } from "@/lib/server/session-input";
+import { checkPostgresLoginRateLimit, createSessionRateLimiter, readSessionInput, SessionInputError } from "@/lib/server/session-input";
 import { catalogAdminStatus, readCatalogAdminConfig } from "@/lib/server/catalog-admin-access";
 import { createIdentityRoleRepository } from "@/lib/server/supabase-principal";
 import { getPostgresDatabase } from "@/lib/server/postgres-database";
@@ -32,8 +32,8 @@ export async function GET(request: NextRequest) {
   try {
     session = createSupabaseSession(request);
     const { data, error } = await session.client.auth.getUser();
-    if (error || !data.user) return sessionResponse(session.response, { ok: false, user: null, businessAccess: false }, 401);
-    return sessionResponse(session.response, { ok: true, user: { id: data.user.id, email: data.user.email }, businessAccess: false, catalogAccess: await catalogAccess(session), staffPortalAccess: await staffPortalAccess(session) });
+    if (error || !data.user) return sessionResponse(session.response, { ok: false, user: null, businessAccess: false, customerAccess: false }, 401);
+    return sessionResponse(session.response, { ok: true, user: { id: data.user.id, email: data.user.email }, businessAccess: false, customerAccess: Boolean(data.user), catalogAccess: await catalogAccess(session), staffPortalAccess: await staffPortalAccess(session) });
   } catch { return unavailable(session?.response); }
 }
 
@@ -48,7 +48,10 @@ export async function POST(request: NextRequest) {
     }
     const input = await readSessionInput(request);
     if (!("action" in input)) {
-      const retryAfter = limitLogin(input.email);
+      const retryAfter =
+        process.env.NARI_SHARED_RATE_LIMIT === "postgres"
+          ? await checkPostgresLoginRateLimit(getPostgresDatabase(), input.email)
+          : limitLogin(input.email);
       if (retryAfter) {
         const response = sessionResponse(empty, { ok: false, error: "Đã thử quá nhiều lần. Vui lòng thử lại sau." }, 429);
         response.headers.set("Retry-After", String(retryAfter));
