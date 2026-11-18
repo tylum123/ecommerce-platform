@@ -1,5 +1,13 @@
 # Báo cáo kiểm tra clone Hasaki
 
+## Checkpoint 18/11/2026 (Cloud Live Wave 3) — Đóng khoảng cách Schema Cloud & Xác thực Wrangler OAuth
+
+- **Đã đóng thêm trên Cloud Live:**
+  - Thực thi xong 3 migration Wave 3 (`202611180001..0003`) trên Supabase Project `ywrzguhuzekkusoupehf`; `npm run db:verify` xác nhận `wave3Applied: true`, `runtimePolicies: 44`, `rls: true`, `deniedWrites: true`, `verifiedTls: true` dưới role runtime `nari_catalog_app`.
+  - Bật `NARI_SHARED_RATE_LIMIT=postgres`, `NARI_ORDERS_ENABLED=true`, `NARI_BOOKINGS_ENABLED=true` trong `.env` và xác nhận `npm run ops:doctor -- --live` pass cả `Supabase DB` lẫn `Cloudflare Wrangler` (OAuth `tylum123@gmail.com`).
+- **Còn lại ngoài phạm vi tự động (chủ dự án tự thao tác):**
+  - Chạy `npm run ops:supabase -- login` trong terminal tương tác (CLI từ chối non-TTY) và chọn/triển khai Cloudflare (`tylum123.workers.dev`).
+
 ## Checkpoint 18/11/2026 (Giai đoạn 1–4) — Pure PostgreSQL, Nari Home UI & CLI Supabase/Cloudflare
 
 - **Đã đóng triệt để:**

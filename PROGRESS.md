@@ -1,5 +1,15 @@
 # Tiến độ dự án E-Commerce Platform (Nari Home) & Quản Trị Doanh Nghiệp
 
+## Checkpoint 18/11/2026 (Cloud Live Wave 3) — Kích hoạt thành công Supabase Wave 3 & Cloudflare Wrangler OAuth
+
+- **Supabase Cloud Live (`ywrzguhuzekkusoupehf`):**
+  - Đã thực thi tuần tự 3 file SQL Wave 3 (`202611180001..0003`) qua Supabase SQL Editor trên Chrome (`Success. No rows returned`).
+  - `npm run db:verify` PASS với **`wave3Applied: true`**, **`runtimePolicies: 44`**, `rls: true`, `deniedWrites: true`, `verifiedTls: true`.
+  - Đã bật `NARI_SHARED_RATE_LIMIT=postgres`, `NARI_ORDERS_ENABLED=true`, `NARI_BOOKINGS_ENABLED=true` trong `.env`.
+- **Cloudflare Wrangler CLI (`ops:cf`):**
+  - Xác thực thành công OAuth qua Chrome (`tylum123@gmail.com`, Account ID `c0267fa333fa3b1a5b648ebf8a4b419e`), `npm run ops:doctor -- --live` đạt `Supabase DB: OK` + `Cloudflare Wrangler: OK`.
+- **Phần chủ dự án tự chạy:** Bước 2 (`npm run ops:supabase -- login` trên TTY) và Bước 3 (triển khai Cloudflare trên `tylum123.workers.dev`).
+
 ## Checkpoint 18/11/2026 (Giai đoạn 1–4) — Pure PostgreSQL, Brand Nari Home, CLI Supabase/Cloudflare & FE↔BE End-to-End
 
 - **Giai đoạn 1 & 2 (đã đẩy `5495604..0866457`):**

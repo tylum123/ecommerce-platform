@@ -1,5 +1,17 @@
 # Session handoff — Hasaki clone
 
+## Checkpoint 18/11/2026 (Cloud Live Wave 3) — Áp dụng & Xác minh Wave 3 trên Supabase Live
+
+- **Thực thi Wave 3 SQL qua Supabase SQL Editor (Chrome):**
+  - Chạy tuần tự 3 migration [`202611180001_auth_ratelimit_customers.sql`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/db/migrations/202611180001_auth_ratelimit_customers.sql), [`202611180002_orders_fulfillment.sql`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/db/migrations/202611180002_orders_fulfillment.sql), [`202611180003_clinic_bookings.sql`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/db/migrations/202611180003_clinic_bookings.sql) — cả 3 đều trả `Success. No rows returned` (không reset mật khẩu `postgres`).
+- **Xác minh Live & Kích hoạt runtime Wave 3:**
+  - `npm run db:verify` → PASS: `"ok":true,"wave3Applied":true,"currentUser":"nari_catalog_app","verifiedTls":true,"rls":true,"runtimePolicies":44,"deniedWrites":true` (đủ 18 bảng thuộc `nari_catalog`, `nari_identity`, `nari_orders`, `nari_clinic`).
+  - Bật 3 cờ trong `.env` cục bộ: `NARI_SHARED_RATE_LIMIT=postgres`, `NARI_ORDERS_ENABLED=true`, `NARI_BOOKINGS_ENABLED=true`.
+  - `npm run ops:doctor -- --live` → exit `0` (`Supabase DB: OK`, `Cloudflare Wrangler: OK`).
+- **2 bước chủ dự án sẽ tự thực hiện khi sẵn sàng:**
+  - Chạy `npm run ops:supabase -- login` trong terminal tương tác để cấp phiên CLI Supabase (hoặc điền `SUPABASE_ACCESS_TOKEN`).
+  - Triển khai Cloudflare trên tài khoản `c0267fa333fa3b1a5b648ebf8a4b419e` (`tylum123.workers.dev`) theo kiến trúc đã chọn.
+
 ## Checkpoint 18/11/2026 (Chrome Ops) — Xác thực Cloudflare Wrangler OAuth & Khớp ID Dashboard
 
 - **Xác thực Cloudflare Wrangler (`tylum123@gmail.com`):**
