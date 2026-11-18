@@ -6,7 +6,8 @@ import Link from "next/link";
 import { Header } from "@/components/sites/hasaki/header";
 import { Footer } from "@/components/sites/hasaki/footer";
 import { getAllCatalogProducts, categories, money } from "@/lib/catalog";
-import { newArrivals } from "@/lib/new-arrivals";
+import { getNewArrivals } from "@/lib/new-arrivals";
+import type { LiveCatalogOverridesState } from "@/lib/live-catalog";
 import { addToCart } from "@/lib/cart";
 import { ShoppingCart, Check } from "lucide-react";
 
@@ -34,11 +35,11 @@ const normalise = (text: string) =>
 
 const categoryNameMap = new Map<string, string>(categories.map(([name, slug]) => [slug, name]));
 
-function buildSearchCatalog(): SearchCatalogItem[] {
+function buildSearchCatalog(liveCatalog?: LiveCatalogOverridesState): SearchCatalogItem[] {
   const map = new Map<string, SearchCatalogItem>();
 
   // 1. All products from catalog (core, categories, deals, bestsellers, featured brands)
-  for (const item of getAllCatalogProducts()) {
+  for (const item of getAllCatalogProducts(liveCatalog)) {
     const catName = categoryNameMap.get(item.category) || item.category || "Chăm sóc da & Làm đẹp";
     const discount =
       item.sale ||
@@ -61,7 +62,7 @@ function buildSearchCatalog(): SearchCatalogItem[] {
   }
 
   // 2. New arrivals snapshot
-  for (const item of newArrivals) {
+  for (const item of getNewArrivals(liveCatalog)) {
     if (!map.has(item.slug)) {
       const discount =
         item.numericOld > item.numericPrice
@@ -93,7 +94,7 @@ const sorts = [
   ["price_desc", "Giá cao đến thấp"],
 ] as const;
 
-export function SearchView({ query, sort }: { query: string; sort: string }) {
+export function SearchView({ query, sort, liveCatalog }: { query: string; sort: string; liveCatalog?: LiveCatalogOverridesState }) {
   const [brand, setBrand] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [onSaleOnly, setOnSaleOnly] = useState(false);
@@ -103,7 +104,7 @@ export function SearchView({ query, sort }: { query: string; sort: string }) {
   const [error, setError] = useState("");
   const [addedSlugs, setAddedSlugs] = useState<Record<string, boolean>>({});
 
-  const catalog = buildSearchCatalog();
+  const catalog = buildSearchCatalog(liveCatalog);
   const terms = normalise(query.trim()).split(/\s+/).filter(Boolean);
 
   const matches = terms.length

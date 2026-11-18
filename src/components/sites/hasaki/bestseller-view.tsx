@@ -9,9 +9,11 @@ import {
   getBestsellersSnapshot,
   matchesCategory
 } from "@/lib/deals-bestsellers";
+import type { LiveCatalogOverridesState } from "@/lib/live-catalog";
 import type { Product } from "@/lib/catalog";
 
 interface BestsellerViewProps {
+  liveCatalog?: LiveCatalogOverridesState;
   initialSort?: string;
   initialBrand?: string;
   initialCategory?: string;
@@ -31,7 +33,8 @@ const BESTSELLER_CATEGORIES = [
 export function BestsellerView({
   initialSort = "topsale",
   initialBrand = "",
-  initialCategory = ""
+  initialCategory = "",
+  liveCatalog
 }: BestsellerViewProps) {
   const [brand, setBrand] = useState(initialBrand);
   const [category, setCategory] = useState(initialCategory);
@@ -43,7 +46,7 @@ export function BestsellerView({
   const [appliedMax, setAppliedMax] = useState<number | null>(null);
   const [priceError, setPriceError] = useState("");
 
-  const allProducts = useMemo(() => getBestsellersSnapshot(), []);
+  const allProducts = useMemo(() => getBestsellersSnapshot(liveCatalog), [liveCatalog]);
 
   const brands = useMemo(() => {
     return Array.from(new Set(allProducts.map(product => product.brand))).sort();

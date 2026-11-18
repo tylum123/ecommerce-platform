@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import {
   categories,
-  products,
   categoryProducts,
   getCategoryTitle,
   money,
@@ -28,6 +27,7 @@ import {
   findCatalogProduct,
 } from "@/lib/catalog";
 import { ProductCard } from "@/components/sites/hasaki/product-card";
+import type { LiveCatalogOverridesState } from "@/lib/live-catalog";
 import { ProductRichSections } from "@/components/sites/hasaki/product-rich-sections";
 import { getRichProductDetail } from "@/lib/product-details";
 import {
@@ -53,14 +53,18 @@ const BRAND_SLUG_TO_NAME_MAP: Record<string, string> = {
   "skin1004": "Skin1004",
 };
 
-export function CategoryView({ slug }: { slug: string }) {
+export function CategoryView({ slug, liveCatalog }: { slug: string; liveCatalog?: LiveCatalogOverridesState }) {
   const uiData = useMemo(() => getInteractiveUiData(), []);
   const found: [string, string] = useMemo(() => {
+    if (liveCatalog?.source === "postgres") {
+      const category = liveCatalog.references?.categories.find(item => item.slug === slug);
+      return [category?.label || slug, slug];
+    }
     const exact = categories.find(([, s]) => s === slug);
     if (exact) return [exact[0], exact[1]];
     return [getCategoryTitle(slug), slug];
-  }, [slug]);
-  const all = useMemo(() => categoryProducts(slug), [slug]);
+  }, [slug, liveCatalog]);
+  const all = useMemo(() => categoryProducts(slug, liveCatalog), [slug, liveCatalog]);
 
   const [brand, setBrand] = useState("");
   const [sort, setSort] = useState("snapshot");
@@ -74,7 +78,7 @@ export function CategoryView({ slug }: { slug: string }) {
 
   // Dynamic Nari Home facets filter (all 14 groups from scraped Nari Home facet dataset)
   const [selectedFacets, setSelectedFacets] = useState<Record<string, string[]>>({});
-  const facetGroups = useMemo(() => getCategoryFacets(slug), [slug]);
+  const facetGroups = useMemo(() => liveCatalog?.source === "postgres" ? [] : getCategoryFacets(slug), [slug, liveCatalog]);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
   const available = useMemo(() => [...new Set(all.map((p) => p.brand))], [all]);
 
@@ -198,7 +202,7 @@ export function CategoryView({ slug }: { slug: string }) {
         </div>
 
         {/* 8-Brand Logo Strip Banner (Scraped from live Nari Home Category header) */}
-        {uiData.categoryPageUi.brandBannerLogos.length > 0 && (
+        {liveCatalog?.source !== "postgres" && uiData.categoryPageUi.brandBannerLogos.length > 0 && (
           <div
             className="hasaki-brand-strip"
             aria-label="Thương hiệu nổi bật trong danh mục"
@@ -273,8 +277,8 @@ export function CategoryView({ slug }: { slug: string }) {
         <div className="listing">
           <aside className="filters">
             {/* SỨC KHỎE - LÀM ĐẸP Category Tree (Scraped from live Nari Home Left Sidebar) */}
-            <h3>Sức Khỏe - Làm Đẹp</h3>
-            {uiData.categoryPageUi.sidebarCategoryTree.map((node) => {
+            <h3>{liveCatalog?.source === "postgres" ? "Danh mục" : "Sức Khỏe - Làm Đẹp"}</h3>
+            {(liveCatalog?.source === "postgres" ? (liveCatalog.references?.categories || []).map(item => ({ label: item.label, href: `/danh-muc/${item.slug}` })) : uiData.categoryPageUi.sidebarCategoryTree).map((node) => {
               const nodeSlug = node.href.replace("/danh-muc/", "");
               return (
                 <Link
@@ -790,14 +794,15 @@ export function CategoryView({ slug }: { slug: string }) {
 export function ProductView({
   slug,
   brandHref,
+  liveCatalog,
 }: {
   slug: string;
   brandHref?: string;
+  liveCatalog?: LiveCatalogOverridesState;
 }) {
   const uiData = useMemo(() => getInteractiveUiData(), []);
-  const p =
-    findCatalogProduct(slug) || products.find((item) => item.slug === slug);
-  const richDetail = useMemo(() => getRichProductDetail(slug), [slug]);
+  const p = findCatalogProduct(slug, liveCatalog);
+  const richDetail = useMemo(() => getRichProductDetail(slug, liveCatalog), [slug, liveCatalog]);
   const galleryImages = useMemo(() => {
     const imgs = richDetail?.images?.filter(Boolean) ?? [];
     if (imgs.length > 0) return imgs;
@@ -852,17 +857,21 @@ export function ProductView({
     );
   }
 
-  const breadcrumbs = productBreadcrumbs(p);
-  const englishSubtitle = computeProductEnglishSubtitle(p);
+  const breadcrumbs = liveCatalog?.source === "postgres"
+    ? (liveCatalog.references?.categories || []).filter(category => category.slug === p.category).map(category => [category.label, category.slug] as const)
+    : productBreadcrumbs(p);
+  const englishSubtitle = liveCatalog?.source === "postgres"
+    ? richDetail?.englishName || ""
+    : richDetail?.englishName || computeProductEnglishSubtitle(p);
   const computedPrice = p.price;
   const computedOldPrice = p.old;
   const savingsAmount = Math.max(0, computedOldPrice - computedPrice);
 
-  const relatedProducts = getAllCatalogProducts()
+  const relatedProducts = getAllCatalogProducts(liveCatalog)
     .filter((item) => item.slug !== p.slug && item.category === p.category)
     .slice(0, 6);
 
-  const sameBrandProducts = getAllCatalogProducts()
+  const sameBrandProducts = getAllCatalogProducts(liveCatalog)
     .filter(
       (item) =>
         item.slug !== p.slug &&
@@ -1020,7 +1029,7 @@ export function ProductView({
                     overflowY: "auto",
                   }}
                 >
-                  {galleryImages.slice(0, 7).map((imgUrl, idx) => {
+                  {galleryImages.map((imgUrl, idx) => {
                     const isSelected = idx === activeImageIdx;
                     return (
                       <button
@@ -1149,10 +1158,9 @@ export function ProductView({
             </div>
 
             <p className="detail-rating">
-              ★★★★★{" "}
+              {liveCatalog?.source !== "postgres" && <>★★★★★{" "}</>}
               <span>
-                {p.rating ?? 4.9} ({p.reviewCount ?? 228} đánh giá)　 |　 Mã SP:{" "}
-                <b>{branchStock?.sku || "100220035"}</b>
+                {liveCatalog?.source === "postgres" ? <>{typeof p.rating === "number" ? `★ ${p.rating}` : "Chưa có đánh giá"}{typeof p.reviewCount === "number" ? ` (${p.reviewCount} đánh giá)` : ""}　 |　 Mã SP: <b>{p.sku}</b></> : <>{p.rating ?? 4.9} ({p.reviewCount ?? 228} đánh giá)　 |　 Mã SP: <b>{branchStock?.sku || "100220035"}</b></>}
               </span>
             </p>
 
@@ -1253,8 +1261,8 @@ export function ProductView({
               >
                 <MapPin size={14} />
                 {branchStock
-                  ? `Còn ${branchStock.branchesWithStockCount}/186 CH có hàng (${branchStock.availableStock} SP tại kho)`
-                  : "Còn 186 CH có hàng"}
+                  ? `Còn ${branchStock.branchesWithStockCount}/${branchStock.branches.length} CH có hàng (${branchStock.availableStock} SP tại kho)`
+                  : liveCatalog?.source === "postgres" ? "Chưa có dữ liệu tồn kho" : "Còn 186 CH có hàng"}
               </button>
             </div>
 
@@ -1464,7 +1472,7 @@ export function ProductView({
                 {p.brand} Official
               </div>
               <Link
-                href={`/thuong-hieu/${p.brand
+                href={brandHref || `/thuong-hieu/${p.brand
                   .toLowerCase()
                   .replace(/[^a-z0-9]+/g, "-")}.html`}
                 style={{
@@ -1556,7 +1564,7 @@ export function ProductView({
         {/* Lower 2-Column Product Detail Layout: Left (Specs, Description, Reviews, Q&A) + Right (Sản phẩm xem cùng & Sản phẩm cùng thương hiệu) */}
         <div className="detail-lower-grid" id="description">
           <div style={{ minWidth: 0 }}>
-            <ProductRichSections slug={slug} productName={p.name} />
+            <ProductRichSections slug={slug} productName={p.name} liveCatalog={liveCatalog} />
           </div>
 
           <aside className="detail-lower-side">
@@ -1582,7 +1590,7 @@ export function ProductView({
               {relatedProducts.length > 0 ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                   {relatedProducts.slice(0, 5).map((item) => {
-                    const promo = computeGiftBillPromo(item);
+                    const promo = liveCatalog?.source === "postgres" ? null : computeGiftBillPromo(item);
                     return (
                       <Link
                         key={item.slug}
@@ -1670,7 +1678,7 @@ export function ProductView({
                           >
                             {item.name}
                           </div>
-                          <span
+                          {promo && <span
                             style={{
                               display: "inline-block",
                               maxWidth: "100%",
@@ -1686,7 +1694,7 @@ export function ProductView({
                             }}
                           >
                             {promo.badgeText.replace(/^🎁\s*/, "")}
-                          </span>
+                          </span>}
                         </div>
                       </Link>
                     );

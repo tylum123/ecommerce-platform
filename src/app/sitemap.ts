@@ -2,10 +2,14 @@ import type { MetadataRoute } from "next";
 import { categories, getAllCatalogProducts } from "@/lib/catalog";
 import { clinicServices } from "@/lib/clinic-services";
 import { getSupportTopics } from "@/lib/support-stores";
+import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";
+
+export const dynamic = "force-dynamic";
 
 const BASE_URL = "https://Nari Home";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const liveCatalog = await readStorefrontCatalog();
   const currentDate = new Date().toISOString();
 
   // 1. Core Storefront Pages
@@ -95,7 +99,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // 3. All Catalog Products
   const seenProductSlugs = new Set<string>();
   const productRoutes: MetadataRoute.Sitemap = [];
-  for (const product of getAllCatalogProducts()) {
+  for (const product of getAllCatalogProducts(liveCatalog)) {
     if (product.slug && !seenProductSlugs.has(product.slug)) {
       seenProductSlugs.add(product.slug);
       productRoutes.push({

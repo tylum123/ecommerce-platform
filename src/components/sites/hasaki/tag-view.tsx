@@ -14,9 +14,8 @@ import {
 } from "lucide-react";
 import { Header } from "@/components/sites/hasaki/header";
 import { Footer } from "@/components/sites/hasaki/footer";
-import { getTagPageData } from "@/lib/campaigns-location";
-import { products as baseProducts, money } from "@/lib/catalog";
-import { newArrivals } from "@/lib/new-arrivals";
+import type { TagPageData } from "@/lib/campaigns-location";
+import { money } from "@/lib/catalog";
 import { addToCart } from "@/lib/cart";
 
 interface TagProductItem {
@@ -31,8 +30,7 @@ interface TagProductItem {
   isHighEnd?: boolean;
 }
 
-export function TagView({ slug }: { slug: string }) {
-  const tagData = getTagPageData(slug);
+export function TagView({ tagData, products: allTagProducts }: { tagData: TagPageData; products: TagProductItem[] }) {
 
   const [selectedBrand, setSelectedBrand] = useState<string>("all");
   const [selectedPriceRange, setSelectedPriceRange] = useState<string>("all");
@@ -40,47 +38,6 @@ export function TagView({ slug }: { slug: string }) {
   const [addedItem, setAddedItem] = useState<string>("");
 
   const isDaiTiec = tagData.slug === "dai-tiec-hang-hieu.html";
-
-  // Build unified product pool
-  const allTagProducts: TagProductItem[] = useMemo(() => {
-    const base: TagProductItem[] = baseProducts.map((p) => ({
-      slug: p.slug,
-      name: p.name,
-      brand: p.brand,
-      price: p.price,
-      old: p.old,
-      sale: p.sale,
-      image: p.image,
-      rating: 4.9,
-      isHighEnd: ["Bioderma", "CeraVe", "Skin1004", "Klairs", "Anker"].includes(p.brand),
-    }));
-
-    const arrivals: TagProductItem[] = newArrivals.map((item) => {
-      const p = item.numericPrice || 250000;
-      const o = item.numericOld || Math.round(p * 1.35);
-      const discount = o > p ? Math.round(((o - p) / o) * 100) : 15;
-      return {
-        slug: item.slug,
-        name: item.name,
-        brand: item.brand,
-        price: p,
-        old: o,
-        sale: discount,
-        image: item.image,
-        rating: 4.8,
-        isHighEnd: p > 250000 || ["Cocoon", "Lifebuoy", "Dove"].includes(item.brand),
-      };
-    });
-
-    const pool = [...base, ...arrivals];
-
-    // If "dai-tiec-hang-hieu", prioritize high-end & best brands
-    if (isDaiTiec) {
-      return pool.filter((p) => p.isHighEnd || p.price >= 200000);
-    }
-
-    return pool;
-  }, [isDaiTiec]);
 
   // Extract unique brands for filter buttons
   const availableBrands = useMemo(() => {
@@ -115,8 +72,6 @@ export function TagView({ slug }: { slug: string }) {
       result.sort((a, b) => b.price - a.price);
     } else if (sortBy === "discount") {
       result.sort((a, b) => b.sale - a.sale);
-    } else if (sortBy === "bestseller") {
-      result.sort((a, b) => b.price - a.price);
     }
 
     return result;
@@ -211,7 +166,7 @@ export function TagView({ slug }: { slug: string }) {
                     gap: "5px",
                   }}
                 >
-                  <Flame size={14} /> ƯU ĐÃI ĐẾN 50%
+                  <Flame size={14} /> SẢN PHẨM THEO CHUYÊN ĐỀ
                 </span>
                 <span
                   style={{
@@ -342,7 +297,7 @@ export function TagView({ slug }: { slug: string }) {
                 <span style={{ fontSize: "12px", color: "#6b7280" }}>Sắp xếp:</span>
                 {(
                   [
-                    { id: "bestseller", label: "Bán chạy" },
+                    { id: "bestseller", label: "Mặc định" },
                     { id: "discount", label: "% Giảm nhiều" },
                     { id: "price-asc", label: "Giá tăng dần" },
                     { id: "price-desc", label: "Giá giảm dần" },
@@ -570,7 +525,7 @@ export function TagView({ slug }: { slug: string }) {
             >
               <Tag size={40} color="#9ca3af" style={{ margin: "0 auto 12px" }} />
               <h3 style={{ fontSize: "16px", color: "#374151", margin: "0 0 6px" }}>
-                Không tìm thấy sản phẩm trong danh mục này
+                Chưa có sản phẩm được xác nhận cho chuyên đề này
               </h3>
               <p style={{ fontSize: "13px", margin: "0 0 16px" }}>
                 Hãy thử chọn lại bộ lọc hoặc khoảng giá khác.

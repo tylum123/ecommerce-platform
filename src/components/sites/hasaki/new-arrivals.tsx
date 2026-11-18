@@ -6,7 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/sites/hasaki/header";
 import { Footer } from "@/components/sites/hasaki/footer";
-import snapshot from "../../../../docs/research/hasaki/new-arrivals-2026-11-13.json";
+import { getNewArrivals } from "@/lib/new-arrivals";
+import type { LiveCatalogOverridesState } from "@/lib/live-catalog";
 
 const amount = (value: string) => Number(value.replace(/[^0-9]/g, ""));
 const sorts = [["position", "Mới nhất"], ["topsale", "Bán chạy"], ["price_asc", "Giá thấp đến cao"], ["price_desc", "Giá cao đến thấp"]] as const;
@@ -18,7 +19,8 @@ const categoryLinks = [
   ["Nari Clinic & Spa", "hasaki-clinic-spa-c331.html", false], ["DermaHair", "dermahair-c2298.html", false],
 ] as const;
 
-export function NewArrivals({ initialSort }: { initialSort: string }) {
+export function NewArrivals({ initialSort, liveCatalog }: { initialSort: string; liveCatalog?: LiveCatalogOverridesState }) {
+  const snapshot = getNewArrivals(liveCatalog);
   const router = useRouter();
   const [sort, setSort] = useState(initialSort);
   const [brand, setBrand] = useState("");

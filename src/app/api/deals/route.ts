@@ -1,3 +1,4 @@
+import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";
 import { NextResponse } from "next/server";
 import {
   getDealsSnapshot,
@@ -17,8 +18,9 @@ export async function GET(request: Request) {
     const pageParam = searchParams.get("page");
     const limitParam = searchParams.get("limit");
 
-    const allDeals = getDealsSnapshot();
-    const categories = getDealCategories();
+    const liveCatalog = await readStorefrontCatalog();
+    const allDeals = getDealsSnapshot(liveCatalog);
+    const categories = getDealCategories(liveCatalog);
 
     let filtered: DealProduct[] = allDeals;
 
@@ -48,6 +50,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       ok: true,
+      source: liveCatalog.source === "postgres" ? "postgres-campaigns-not-migrated" : "snapshot-2026-11-13-with-catalog-overrides",
       categories,
       data: {
         items,

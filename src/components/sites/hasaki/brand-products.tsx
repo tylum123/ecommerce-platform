@@ -5,8 +5,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { categories, money } from "@/lib/catalog";
 import { filterBrandProducts } from "@/lib/brand-filter";
+import { ProductCard } from "@/components/sites/hasaki/product-card";
 
 export interface BrandProductItem {
+  catalogSource?: "postgres";
+  englishName?: string;
   id?: number | string;
   sku?: string;
   name: string;
@@ -28,11 +31,15 @@ export function BrandProducts({
   items,
   deals,
   isRealSnapshot = false,
+  source,
+  categoryOptions,
 }: {
   name: string;
   items: BrandProductItem[];
   deals: boolean;
   isRealSnapshot?: boolean;
+  source?: "postgres";
+  categoryOptions?: ReadonlyArray<readonly [string, string]>;
 }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
@@ -45,11 +52,11 @@ export function BrandProducts({
   const [error, setError] = useState("");
   const [sort, setSort] = useState<"default" | "low" | "high">("default");
 
-  const options = categories.filter(([, slug]) =>
+  const options = (source === "postgres" ? categoryOptions || [] : categories).filter(([, slug]) =>
     items.some(item => item.category === slug)
   );
 
-  const list = filterBrandProducts(items, {
+  const list = source === "postgres" && deals ? [] : filterBrandProducts(items, {
     query,
     category,
     min: range.min,
@@ -190,16 +197,16 @@ export function BrandProducts({
             <h2>
               {deals ? "Deals" : "Sản phẩm"} {name}
             </h2>
-            <span aria-live="polite">{list.length} sản phẩm mẫu</span>
+            <span aria-live="polite">{list.length} {source === "postgres" ? "sản phẩm" : "sản phẩm mẫu"}</span>
           </div>
 
           {deals && (
             <p className="demo-note">
-              Deals chỉ lọc sản phẩm mẫu có giá giảm; không phản ánh chương trình thực tế.
+              {source === "postgres" ? "Chưa có sản phẩm được xác nhận cho chương trình Deals của thương hiệu." : "Deals chỉ lọc sản phẩm mẫu có giá giảm; không phản ánh chương trình thực tế."}
             </p>
           )}
 
-          {isRealSnapshot && (
+          {isRealSnapshot && source !== "postgres" && (
             <div
               style={{
                 fontSize: 12,
@@ -223,7 +230,7 @@ export function BrandProducts({
 
           {list.length ? (
             <div className="product-grid">
-              {list.map(product => (
+              {list.map(product => source === "postgres" ? <ProductCard key={product.slug} product={product} /> : (
                 <Link
                   className="product"
                   href={`/san-pham/${product.slug}`}
@@ -280,7 +287,7 @@ export function BrandProducts({
               ))}
             </div>
           ) : (
-            <p role="status">Không tìm thấy sản phẩm mẫu phù hợp.</p>
+            <p role="status">{source === "postgres" ? "Chưa có sản phẩm phù hợp." : "Không tìm thấy sản phẩm mẫu phù hợp."}</p>
           )}
         </section>
       </div>

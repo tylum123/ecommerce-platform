@@ -5,8 +5,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { ShoppingCart, ChevronLeft, ShieldCheck, Trash2 } from "lucide-react";
 import { money, findCatalogProduct } from "@/lib/catalog";
+import type { LiveCatalogOverridesState } from "@/lib/live-catalog";
 import { readCart, saveCart } from "@/lib/cart";
-import { newArrivals } from "@/lib/new-arrivals";
+import { getNewArrivals } from "@/lib/new-arrivals";
 import { Footer } from "@/components/sites/hasaki/footer";
 import { NariHomeLogo } from "@/components/sites/hasaki/nari-home-logo";
 
@@ -33,14 +34,15 @@ export interface CartRowItem {
   };
 }
 
-export function CartView({ checkout = false }: { checkout?: boolean }) {
+export function CartView({ checkout = false, liveCatalog }: { checkout?: boolean; liveCatalog?: LiveCatalogOverridesState }) {
   const cartSnapshot = useSyncExternalStore(subscribe, snapshot, () => "[]");
   const items = cartSnapshot === "[]" ? [] : readCart();
   const [placed, setPlaced] = useState(false);
 
   // Resolve cart items across catalog (core, categories, deals, bestsellers, brands) and new arrivals
   const rows: CartRowItem[] = items.flatMap(item => {
-    const catalogItem = findCatalogProduct(item.slug);
+    if (liveCatalog?.deletedSlugs.includes(item.slug)) return [];
+    const catalogItem = findCatalogProduct(item.slug, liveCatalog);
     if (catalogItem) {
       return [
         {
@@ -56,7 +58,7 @@ export function CartView({ checkout = false }: { checkout?: boolean }) {
       ];
     }
 
-    const observed = newArrivals.find(p => p.slug === item.slug);
+    const observed = getNewArrivals(liveCatalog).find(p => p.slug === item.slug);
     if (observed) {
       return [
         {

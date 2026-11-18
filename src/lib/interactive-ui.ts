@@ -1,3 +1,4 @@
+import type { LiveCatalogOverridesState } from "@/lib/live-catalog";
 /**
  * Data-Driven Interactive UI & Navigation Service for Nari Home Clone.
  * Powered by live Playwright hover/click DOM scraping (docs/research/hasaki/interactive-ui-2026-11-14.json),
@@ -466,7 +467,8 @@ export function getInteractiveUiData(): InteractiveUiDataset {
 
 export function searchCatalogLive(
   query: string,
-  limit = 6
+  limit = 6,
+  liveCatalog?: LiveCatalogOverridesState
 ): {
   products: Product[];
   matchedBrands: Array<{ name: string; href: string }>;
@@ -476,7 +478,7 @@ export function searchCatalogLive(
     return { products: [], matchedBrands: [] };
   }
 
-  const all = getAllCatalogProducts();
+  const all = getAllCatalogProducts(liveCatalog);
   const matched = all.filter(
     (p) =>
       p.name.toLowerCase().includes(q) ||

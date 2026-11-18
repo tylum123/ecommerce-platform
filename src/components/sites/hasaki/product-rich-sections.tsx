@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { getRichProductDetail } from "@/lib/product-details";
 import { findCatalogProduct, categories } from "@/lib/catalog";
+import type { LiveCatalogOverridesState } from "@/lib/live-catalog";
 import type {
   ProductDetailData,
   ProductRatingSummary,
@@ -15,20 +16,23 @@ export interface ProductRichSectionsProps {
   slug: string;
   productName?: string;
   sourceUrl?: string;
+  liveCatalog?: LiveCatalogOverridesState;
 }
 
 export function ProductRichSections({
   slug,
   productName,
   sourceUrl,
+  liveCatalog,
 }: ProductRichSectionsProps) {
   // 1. Resolve product detail: try rich snapshot, then fall back to catalog product
-  const rawDetail: ProductDetailData | null = getRichProductDetail(slug);
+  const rawDetail: ProductDetailData | null = getRichProductDetail(slug, liveCatalog);
 
   const detail: ProductDetailData = (() => {
     if (rawDetail) return rawDetail;
 
-    const catalogItem = findCatalogProduct(slug);
+    if (liveCatalog?.source === "postgres") return { slug, name: productName || slug, brand: "", category: "", price: 0, old: 0, sale: 0, images: [], specs: [], isSample: false };
+    const catalogItem = findCatalogProduct(slug, liveCatalog);
     if (catalogItem) {
       const matchedCategoryName =
         categories.find(c => c[1] === catalogItem.category)?.[0] ||

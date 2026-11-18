@@ -2,8 +2,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { Header } from "@/components/sites/hasaki/header";
 import { Footer } from "@/components/sites/hasaki/footer";
-import brands from "../../../docs/research/hasaki/brands-source.json";
+import snapshotBrands from "../../../docs/research/hasaki/brands-source.json";
 import { getBrandEnhancements } from "@/lib/product-details";
+import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";
+import { getAllCatalogProducts } from "@/lib/catalog";
+
+export const dynamic = "force-dynamic";
 
 const letters = ["0-9", ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")];
 
@@ -23,17 +27,21 @@ const FEATURED_KEYS = [
   "anker.html",
 ];
 
-export default function BrandsPage() {
-  const enhancements = getBrandEnhancements();
+export default async function BrandsPage() {
+  const liveCatalog = await readStorefrontCatalog();
+  const brands = liveCatalog.source === "postgres" ? (liveCatalog.references?.brands || []).map(item => ({ name: item.label, url: `/thuong-hieu/${item.slug}` })) : snapshotBrands;
+  const enhancements: ReturnType<typeof getBrandEnhancements> = liveCatalog.source === "postgres" ? {} : getBrandEnhancements();
+  const matchesLetter = (name: string, letter: string) => {
+    const normalized = liveCatalog.source === "postgres" ? name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "D").toUpperCase() : name.toUpperCase();
+    return letter === "0-9" ? /^[0-9]/.test(normalized) : normalized.startsWith(letter);
+  };
   const populatedLetters = letters.filter(letter =>
     brands.some(brand =>
-      letter === "0-9"
-        ? /^[0-9]/.test(brand.name)
-        : brand.name.toUpperCase().startsWith(letter)
+      matchesLetter(brand.name, letter)
     )
   );
 
-  const featuredBrands = FEATURED_KEYS.map(slug => {
+  const featuredBrands = liveCatalog.source === "postgres" ? (liveCatalog.references?.brands || []).map(brand => ({ name: brand.label, url: `/thuong-hieu/${brand.slug}`, logo: "", productCount: getAllCatalogProducts(liveCatalog).filter(product => product.brandId === brand.id).length })) : FEATURED_KEYS.map(slug => {
     const item = brands.find(b => b.url === `/thuong-hieu/${slug}`);
     const key = slug.replace(".html", "").toLowerCase();
     const meta = enhancements[key] || enhancements[slug] || {};
@@ -62,7 +70,7 @@ export default function BrandsPage() {
         <section aria-label="Thương hiệu nổi bật" style={{ margin: "16px 0 28px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
             <h2 style={{ fontSize: 16, fontWeight: "bold", margin: 0, color: "#3d2e24", textTransform: "uppercase", letterSpacing: 0.5 }}>
-              Thương hiệu nổi bật
+              {liveCatalog.source === "postgres" ? "Thương hiệu hiện có" : "Thương hiệu nổi bật"}
             </h2>
             <span style={{ fontSize: 12, color: "#888" }}>Cập nhật theo dữ liệu thực tế Nari Home</span>
           </div>
@@ -137,9 +145,7 @@ export default function BrandsPage() {
         {/* Brand Groups By Letter */}
         {populatedLetters.map(letter => {
           const items = brands.filter(brand =>
-            letter === "0-9"
-              ? /^[0-9]/.test(brand.name)
-              : brand.name.toUpperCase().startsWith(letter)
+            matchesLetter(brand.name, letter)
           );
           if (!items.length) return null;
           return (

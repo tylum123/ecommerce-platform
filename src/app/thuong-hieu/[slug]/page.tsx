@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";
+import { applyCatalogOverrides } from "@/lib/live-catalog";
 import Image from "next/image";
 import Link from "next/link";
 import { Header } from "@/components/sites/hasaki/header";
@@ -71,6 +74,24 @@ export default async function BrandPage({
 }) {
   const { slug } = await params;
   const { tab } = await searchParams;
+  const liveCatalog = await readStorefrontCatalog();
+  if (liveCatalog.source === "postgres") {
+    const brand = liveCatalog.references?.brands.find(item => item.slug === slug);
+    if (!brand) notFound();
+    const items = getAllCatalogProducts(liveCatalog).filter(product => product.brandId === brand.id);
+    return <>
+      <Header />
+      <main className="wrap brand-detail-page">
+        <div className="breadcrumbs"><Link href="/">Trang chủ</Link> › <Link href="/thuong-hieu">Thương hiệu</Link> › {brand.label}</div>
+        <div className="brand-detail-heading">
+          <div className="brand-detail-logo">{brand.label}</div>
+          <div><h1>{brand.label}</h1><span>{items.length} sản phẩm</span><p>Chưa có mô tả đã xác minh cho thương hiệu {brand.label}.</p></div>
+        </div>
+        <BrandProducts name={brand.label} items={items} deals={tab === "Deal"} source="postgres" categoryOptions={(liveCatalog.references?.categories || []).map(item => [item.label, item.slug])} />
+      </main>
+      <Footer />
+    </>;
+  }
 
   const cleanSlug = slug.replace(/\.html$/i, "").toLowerCase();
 
@@ -122,7 +143,7 @@ export default async function BrandPage({
     getBrandMetadata(cleanSlug);
 
   // 1. Core + full catalog products for this brand
-  const allCatalog = getAllCatalogProducts();
+  const allCatalog = getAllCatalogProducts(liveCatalog);
   const catalogItems = allCatalog.filter(
     product => product.brand.toLocaleLowerCase("vi") === brand.name.toLocaleLowerCase("vi")
   );
@@ -138,7 +159,7 @@ export default async function BrandPage({
   // Merge, avoiding duplicates by slug
   const seenSlugs = new Set(catalogItems.map(p => p.slug));
   const mergedItems = [...catalogItems];
-  for (const item of snapshotItems) {
+  for (const item of applyCatalogOverrides(snapshotItems, liveCatalog).filter((item) => item.brand.toLocaleLowerCase("vi") === brand.name.toLocaleLowerCase("vi"))) {
     if (!seenSlugs.has(item.slug)) {
       seenSlugs.add(item.slug);
       mergedItems.push(item);

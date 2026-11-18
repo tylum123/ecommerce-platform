@@ -1,3 +1,4 @@
+import { applyCatalogOverrides, type LiveCatalogOverridesState } from "@/lib/live-catalog";
 /**
  * Central Deals & Bestsellers Service Module for Nari Home Clone.
  * Indexed by CodeGraph to map deals/bestseller frontend views -> service contracts -> backend adapter.
@@ -5,7 +6,6 @@
 
 import type { ProductSummary } from "@/lib/backend-contracts";
 import {
-  products as sampleProducts,
   categoryProducts as sampleCategoryProducts,
   money
 } from "@/lib/catalog";
@@ -160,50 +160,22 @@ export function matchesCategory(productCategory: string, targetCategory: string 
 }
 
 /**
- * Returns the snapshot of Flash Deals products merged with catalog sample products.
+ * Returns the dated Flash Deals snapshot with runtime catalog values.
  */
-export function getDealsSnapshot(): DealProduct[] {
-  const scrapedDeals: DealProduct[] = ((dealsJson.products as DealProduct[]) || []).map(p => ({
-    ...p,
-    progress: p.deal?.bought_percent ?? (p.sale ? Math.min(95, p.sale + 15) : 50)
+export function getDealsSnapshot(liveCatalog?: LiveCatalogOverridesState): DealProduct[] {
+  // Campaign membership/countdowns are not migrated into PostgreSQL yet.
+  if (liveCatalog?.source === "postgres") return [];
+  const items = ((dealsJson.products as DealProduct[]) || []).map(p => ({
+    ...p, progress: p.deal?.bought_percent,
   }));
-
-  const existingSlugs = new Set(scrapedDeals.map(p => p.slug));
-
-  // Merge sample products from catalog.ts to ensure Anker & other tested items are present
-  const mergedSamples: DealProduct[] = sampleProducts
-    .filter(p => !existingSlugs.has(p.slug))
-    .map(p => ({
-      slug: p.slug,
-      name: p.name,
-      brand: p.brand,
-      category: p.category,
-      price: p.price,
-      old: p.old,
-      sale: p.sale,
-      image: p.category === "phu-kien-dien-thoai-c2474.html"
-        ? "https://media.hcdn.vn/catalog/product/c/u/cu-sac-nhanh-1c-anker-zolo-a2698-30w-mau-den-1731464010.jpg"
-        : undefined,
-      rating: 4.9,
-      reviewCount: 45,
-      sold: 120,
-      isSample: true,
-      deal: {
-        quantity: 100,
-        bought_percent: Math.min(95, p.sale + 20),
-        time_remain: 7200
-      },
-      progress: Math.min(95, p.sale + 20)
-    }));
-
-  return [...scrapedDeals, ...mergedSamples];
+  return applyCatalogOverrides(items, liveCatalog);
 }
 
 /**
  * Returns the category filter options for Flash Deals.
  * Preserves the exact 7 categories expected by tests & adds rich categories from scraped data.
  */
-export function getDealCategories(): DealCategoryOption[] {
+export function getDealCategories(liveCatalog?: LiveCatalogOverridesState): DealCategoryOption[] {
   const baseFilters: DealCategoryOption[] = [
     { label: "Tất cả", id: "", slug: "" },
     { label: "Chăm Sóc Cá Nhân", id: "2049", slug: "cham-soc-ca-nhan-c2049.html" },
@@ -219,7 +191,7 @@ export function getDealCategories(): DealCategoryOption[] {
     { label: "Sản Phẩm Cho Bé", id: "2497", slug: "san-pham-cho-be-c2497.html" }
   ];
 
-  const deals = getDealsSnapshot();
+  const deals = getDealsSnapshot(liveCatalog);
   return baseFilters.map(filter => {
     const count = filter.id === ""
       ? deals.length
@@ -229,42 +201,14 @@ export function getDealCategories(): DealCategoryOption[] {
 }
 
 /**
- * Returns the snapshot of Bestseller products merged with catalog sample products.
+ * Returns the dated Bestseller ordering with runtime catalog values.
  */
-export function getBestsellersSnapshot(): BestsellerProduct[] {
-  const scraped = (bestsellersJson.products as ProductSummary[]) || [];
-  const existingSlugs = new Set(scraped.map(p => p.slug));
-
-  const items: BestsellerProduct[] = scraped.map((p, index) => ({
-    ...p,
-    rank: index + 1,
-    badge: index < 3 ? `#${index + 1}` : undefined
+export function getBestsellersSnapshot(liveCatalog?: LiveCatalogOverridesState): BestsellerProduct[] {
+  if (liveCatalog?.source === "postgres") return [];
+  const items = ((bestsellersJson.products as ProductSummary[]) || []).map((p, index) => ({
+    ...p, rank: index + 1, badge: index < 3 ? `#${index + 1}` : undefined,
   }));
-
-  // Append sample products that aren't already included
-  let nextRank = items.length + 1;
-  for (const sample of sampleProducts) {
-    if (!existingSlugs.has(sample.slug)) {
-      items.push({
-        slug: sample.slug,
-        name: sample.name,
-        brand: sample.brand,
-        category: sample.category,
-        price: sample.price,
-        old: sample.old,
-        sale: sample.sale,
-        rating: 4.9,
-        reviewCount: 30,
-        sold: 25,
-        isSample: true,
-        rank: nextRank,
-        badge: undefined
-      });
-      nextRank++;
-    }
-  }
-
-  return items;
+  return applyCatalogOverrides(items, liveCatalog);
 }
 
 /**
@@ -360,8 +304,6 @@ export function filterDealProducts(
     filtered.sort((a, b) => b.price - a.price);
   } else if (sort === "discount") {
     filtered.sort((a, b) => b.sale - a.sale);
-  } else if (sort === "topsale") {
-    filtered.sort((a, b) => (b.deal?.bought_percent ?? 0) - (a.deal?.bought_percent ?? 0));
   }
 
   return filtered;

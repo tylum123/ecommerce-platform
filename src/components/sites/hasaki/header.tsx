@@ -16,20 +16,15 @@ import {
   Sparkles,
   Flame,
 } from "lucide-react";
-import { money } from "@/lib/catalog";
+import { money, type Product } from "@/lib/catalog";
 import { readCart } from "@/lib/cart";
 import { NariHomeLogo } from "@/components/sites/hasaki/nari-home-logo";
 import { AccountDialog } from "@/components/sites/hasaki/account-dialog";
 import { LocationDialog } from "@/components/sites/hasaki/location-dialog";
 import { readLocation, formatLocationShort } from "@/lib/campaigns-location";
-import {
-  readAuthSession,
-  fetchCurrentSession,
-  AUTH_CHANGE_EVENT,
-  isStaffOrAdminRole,
-  type AuthSessionUser,
-} from "@/lib/auth";
-import { getInteractiveUiData, searchCatalogLive } from "@/lib/interactive-ui";
+import { AUTH_CHANGE_EVENT } from "@/lib/auth";
+import { CLOSED_SESSION_CAPABILITIES, fetchSessionCapabilities } from "@/lib/session-capabilities";
+import { getInteractiveUiData } from "@/lib/interactive-ui";
 
 export function Header() {
   const uiData = useMemo(() => getInteractiveUiData(), []);
@@ -40,7 +35,7 @@ export function Header() {
   const [panel, setPanel] = useState<"account" | "location" | null>(null);
   const [cart, setCart] = useState(0);
   const [locationLabel, setLocationLabel] = useState("Chọn khu vực của bạn");
-  const [authUser, setAuthUser] = useState<AuthSessionUser | null>(null);
+  const [capabilities, setCapabilities] = useState(CLOSED_SESSION_CAPABILITIES);
 
   // Interactive Search Popup state (live Nari Home click/focus behavior)
   const [searchQuery, setSearchQuery] = useState("");
@@ -48,10 +43,29 @@ export function Header() {
   const searchAreaRef = useRef<HTMLDivElement | null>(null);
   const menuTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const liveSearchResults = useMemo(
-    () => searchCatalogLive(searchQuery, 6),
-    [searchQuery]
-  );
+  const [remoteSearch, setRemoteSearch] = useState<{
+    query: string;
+    products: Product[];
+    matchedBrands: Array<{ name: string; href: string }>;
+  }>({ query: "", products: [], matchedBrands: [] });
+  const liveSearchResults = remoteSearch.query === searchQuery
+    ? remoteSearch : { products: [], matchedBrands: [] };
+
+  useEffect(() => {
+    if (!searchQuery.trim()) return;
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      fetch(`/api/ui-config?q=${encodeURIComponent(searchQuery)}`, { signal: controller.signal, cache: "no-store" })
+        .then((response) => response.ok ? response.json() : Promise.reject(new Error("SEARCH_UNAVAILABLE")))
+        .then((result: { products: Product[]; matchedBrands: Array<{ name: string; href: string }> }) => {
+          if (!controller.signal.aborted) setRemoteSearch({ query: searchQuery, products: result.products, matchedBrands: result.matchedBrands });
+        })
+        .catch(() => {
+          if (!controller.signal.aborted) setRemoteSearch({ query: searchQuery, products: [], matchedBrands: [] });
+        });
+    }, 200);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [searchQuery]);
 
   const activeCategory = useMemo(
     () =>
@@ -87,16 +101,17 @@ export function Header() {
   }, []);
 
   useEffect(() => {
-    const refreshAuth = () => setAuthUser(readAuthSession());
+    let active = true;
+    let version = 0;
+    const refreshAuth = () => {
+      const current = ++version;
+      void fetchSessionCapabilities().then(value => { if (active && current === version) setCapabilities(value); });
+    };
     refreshAuth();
-    if (!readAuthSession()) {
-      fetchCurrentSession().then((u) => {
-        if (u) setAuthUser(u);
-      });
-    }
     window.addEventListener(AUTH_CHANGE_EVENT, refreshAuth);
     window.addEventListener("storage", refreshAuth);
     return () => {
+      active = false;
       window.removeEventListener(AUTH_CHANGE_EVENT, refreshAuth);
       window.removeEventListener("storage", refreshAuth);
     };
@@ -605,13 +620,11 @@ export function Header() {
             <button onClick={() => setPanel("account")}>
               <UserRound />
               <span>
-                {authUser ? (
+                {capabilities.authenticated ? (
                   <>
-                    {isStaffOrAdminRole(authUser.role)
-                      ? "Quản trị ERP"
-                      : `Hạng ${authUser.tier || "Member"}`}
+                    Đã đăng nhập
                     <br />
-                    <b>{authUser.fullName} ⌄</b>
+                    <b>Màn hình được cấp quyền ⌄</b>
                   </>
                 ) : (
                   <>
@@ -1018,7 +1031,7 @@ export function Header() {
       )}
 
       {panel === "account" ? (
-        <AccountDialog onClose={() => setPanel(null)} />
+        <AccountDialog onClose={() => setPanel(null)} capabilities={capabilities} onLoggedOut={() => setCapabilities({ ...CLOSED_SESSION_CAPABILITIES })} />
       ) : (
         panel === "location" && (
           <LocationDialog onClose={() => setPanel(null)} />

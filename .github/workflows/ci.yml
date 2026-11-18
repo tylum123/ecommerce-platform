@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - master
+      - main
   pull_request:
     branches:
       - master
+      - main
 
 jobs:
   quality:
@@ -28,6 +30,10 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+      - name: Focused authorization, catalog and route tests
+        # PGlite integration explicitly skips without NARI_TEST_PGLITE_PATH; cloud acceptance is separate.
+        run: node --test test/access-policy.test.mjs test/auth-boundary.test.mjs test/order-boundary.test.mjs test/supabase-principal.test.mjs test/supabase-session.test.mjs test/postgres-foundation.test.cjs test/catalog-admin.test.cjs test/campaign-routing.test.cjs test/catalog-security.test.cjs test/staff-portal.test.cjs test/catalog-storefront.test.cjs test/catalog-api-postgres.test.cjs test/supabase-live-helper.test.mjs
 
       - name: Type check
         run: npm run typecheck

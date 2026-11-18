@@ -34,12 +34,6 @@ export function DealsList({ items }: { items: readonly DealProduct[] }) {
       result.sort((a, b) => b.price - a.price);
     } else if (sortBy === "discount") {
       result.sort((a, b) => b.sale - a.sale);
-    } else if (sortBy === "topsale") {
-      result.sort((a, b) => {
-        const pctA = a.deal?.bought_percent ?? a.progress ?? 0;
-        const pctB = b.deal?.bought_percent ?? b.progress ?? 0;
-        return pctB - pctA;
-      });
     }
 
     return result;

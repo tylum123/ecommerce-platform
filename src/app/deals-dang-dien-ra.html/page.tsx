@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";
 import Link from "next/link";
 import { Header } from "@/components/sites/hasaki/header";
 import { Footer } from "@/components/sites/hasaki/footer";
@@ -14,9 +16,10 @@ export default async function DealsPage({
   searchParams: Promise<{ filter_category?: string; product_list_order?: string }>;
 }) {
   const { filter_category = "", product_list_order = "topsale" } = await searchParams;
-  const filters = getDealCategories();
+  const liveCatalog = await readStorefrontCatalog();
+  const filters = getDealCategories(liveCatalog);
   const selected = filters.find(filter => filter.id === filter_category);
-  const allDeals = getDealsSnapshot();
+  const allDeals = getDealsSnapshot(liveCatalog);
   const items = selected
     ? filterDealProducts(allDeals, {
         categoryId: filter_category,

@@ -6,7 +6,8 @@ import Link from "next/link";
 import { ShoppingCart, CheckCircle2, MapPin, Truck } from "lucide-react";
 import { readCart } from "@/lib/cart";
 import { money, findCatalogProduct } from "@/lib/catalog";
-import { newArrivals } from "@/lib/new-arrivals";
+import type { LiveCatalogOverridesState } from "@/lib/live-catalog";
+import { getNewArrivals } from "@/lib/new-arrivals";
 import {
   readLocation,
   formatLocationShort,
@@ -40,13 +41,14 @@ export interface CheckoutRowItem {
   };
 }
 
-export function CheckoutView() {
+export function CheckoutView({ liveCatalog }: { liveCatalog?: LiveCatalogOverridesState }) {
   const cart = useSyncExternalStore(subscribe, snapshot, () => "[]");
   const items = cart === "[]" ? [] : readCart();
 
   // Resolve cart products from catalog (including deals, bestsellers, brands, categories) or new arrivals
   const rows: CheckoutRowItem[] = items.flatMap(item => {
-    const catalogItem = findCatalogProduct(item.slug);
+    if (liveCatalog?.deletedSlugs.includes(item.slug)) return [];
+    const catalogItem = findCatalogProduct(item.slug, liveCatalog);
     if (catalogItem) {
       return [
         {
@@ -62,7 +64,7 @@ export function CheckoutView() {
       ];
     }
 
-    const observed = newArrivals.find(p => p.slug === item.slug);
+    const observed = getNewArrivals(liveCatalog).find(p => p.slug === item.slug);
     if (observed) {
       return [
         {

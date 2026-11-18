@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { CampaignWowView } from "@/components/sites/hasaki/campaign-wow-view";
 import { getCampaignWowData } from "@/lib/campaigns-location";
+import { getCampaignProducts } from "@/lib/campaign-catalog";
+import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Khuyến Mãi Mỹ Phẩm Giá Tốt, Ưu Đãi Khủng | Nari Home",
@@ -14,7 +18,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function CampaignWowPage() {
+export default async function CampaignWowPage() {
   const campaignData = getCampaignWowData();
-  return <CampaignWowView campaignData={campaignData} />;
+  const catalog = await readStorefrontCatalog();
+  return <CampaignWowView campaignData={campaignData} products={getCampaignProducts(catalog)} />;
 }

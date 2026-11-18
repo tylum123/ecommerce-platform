@@ -23,8 +23,7 @@ import {
   formatLocationShort,
   LOCATION_CHANGE_EVENT,
 } from "@/lib/campaigns-location";
-import { products as baseProducts, money } from "@/lib/catalog";
-import { newArrivals } from "@/lib/new-arrivals";
+import { money } from "@/lib/catalog";
 import { addToCart } from "@/lib/cart";
 
 interface CampaignProductItem {
@@ -39,7 +38,7 @@ interface CampaignProductItem {
   isFlashDeal?: boolean;
 }
 
-export function CampaignWowView({ campaignData }: { campaignData: CampaignWowData }) {
+export function CampaignWowView({ campaignData, products: allCampaignProducts }: { campaignData: CampaignWowData; products: CampaignProductItem[] }) {
   const [selectedSlot, setSelectedSlot] = useState<string>(
     campaignData.flashSlots[0]?.id || "slot-09"
   );
@@ -62,40 +61,6 @@ export function CampaignWowView({ campaignData }: { campaignData: CampaignWowDat
       window.removeEventListener(LOCATION_CHANGE_EVENT, updateLoc);
       window.removeEventListener("storage", updateLoc);
     };
-  }, []);
-
-  // Prepare unified products pool
-  const allCampaignProducts: CampaignProductItem[] = useMemo(() => {
-    const base: CampaignProductItem[] = baseProducts.map((p) => ({
-      slug: p.slug,
-      name: p.name,
-      brand: p.brand,
-      price: p.price,
-      old: p.old,
-      sale: p.sale,
-      image: p.image,
-      rating: 4.9,
-      isFlashDeal: true,
-    }));
-
-    const arrivals: CampaignProductItem[] = newArrivals.map((item) => {
-      const p = item.numericPrice || 250000;
-      const o = item.numericOld || Math.round(p * 1.35);
-      const discount = o > p ? Math.round(((o - p) / o) * 100) : 15;
-      return {
-        slug: item.slug,
-        name: item.name,
-        brand: item.brand,
-        price: p,
-        old: o,
-        sale: discount,
-        image: item.image,
-        rating: 4.8,
-        isFlashDeal: false,
-      };
-    });
-
-    return [...base, ...arrivals];
   }, []);
 
   // Filter brands list
@@ -134,8 +99,6 @@ export function CampaignWowView({ campaignData }: { campaignData: CampaignWowDat
       result.sort((a, b) => b.price - a.price);
     } else if (sortBy === "discount") {
       result.sort((a, b) => b.sale - a.sale);
-    } else if (sortBy === "bestseller") {
-      result.sort((a, b) => (b.isFlashDeal ? 1 : 0) - (a.isFlashDeal ? 1 : 0));
     }
 
     return result;
@@ -245,7 +208,7 @@ export function CampaignWowView({ campaignData }: { campaignData: CampaignWowDat
                     gap: "5px",
                   }}
                 >
-                  <Flame size={14} /> GIẢM SỐC ĐẾN 60%
+                  <Flame size={14} /> SẢN PHẨM THEO CHƯƠNG TRÌNH
                 </span>
                 <span
                   style={{
@@ -501,7 +464,7 @@ export function CampaignWowView({ campaignData }: { campaignData: CampaignWowDat
                 {(
                   [
                     { id: "popular", label: "Nổi bật" },
-                    { id: "bestseller", label: "Bán chạy" },
+                    { id: "bestseller", label: "Mặc định" },
                     { id: "discount", label: "% Giảm nhiều" },
                     { id: "price-asc", label: "Giá tăng dần" },
                     { id: "price-desc", label: "Giá giảm dần" },
@@ -735,7 +698,7 @@ export function CampaignWowView({ campaignData }: { campaignData: CampaignWowDat
             >
               <Tag size={40} color="#9ca3af" style={{ margin: "0 auto 12px" }} />
               <h3 style={{ fontSize: "16px", color: "#374151", margin: "0 0 6px" }}>
-                Không tìm thấy sản phẩm phù hợp với bộ lọc
+                Chưa có sản phẩm được xác nhận cho chương trình này
               </h3>
               <p style={{ fontSize: "13px", margin: "0 0 16px" }}>
                 Hãy thử chọn lại khoảng giá hoặc xem tất cả thương hiệu.

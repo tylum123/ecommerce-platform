@@ -1,2 +1,6 @@
 import { CartView } from "@/components/sites/hasaki/cart-view";
-export default function Page(){return <CartView/>;}
+import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";
+
+export const dynamic = "force-dynamic";
+
+export default async function Page() { return <CartView liveCatalog={await readStorefrontCatalog()} />; }

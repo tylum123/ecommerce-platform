@@ -12,8 +12,10 @@ export function ProductCard({
   product: Product & { progress?: number };
   showSampleRating?: boolean;
 }) {
-  const englishSubtitle = computeProductEnglishSubtitle(product);
-  const giftBill = computeGiftBillPromo(product);
+  const englishSubtitle = product.catalogSource === "postgres"
+    ? product.englishName || ""
+    : product.englishName ?? computeProductEnglishSubtitle(product);
+  const giftBill = product.catalogSource === "postgres" ? null : computeGiftBillPromo(product);
   const hasRealRating = typeof product.rating === "number" && product.rating > 0;
   const hasRealReviews =
     typeof product.reviewCount === "number" && product.reviewCount >= 0;
@@ -145,7 +147,7 @@ export function ProductCard({
         )}
 
         {/* Dashed Terracotta Gift Bill Tag */}
-        <div
+        {giftBill && <div
           style={{
             marginTop: 6,
             padding: "2px 6px",
@@ -162,7 +164,7 @@ export function ProductCard({
           title={giftBill.fullText}
         >
           {giftBill.badgeText}
-        </div>
+        </div>}
 
         {typeof product.progress === "number" && (
           <div className="progress" style={{ marginTop: 8 }}>
