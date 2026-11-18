@@ -1,0 +1,5 @@
+# Minimal Supabase CLI project configuration (no secrets).
+project_id = "ywrzguhuzekkusoupehf"
+
+[db]
+major_version = 17
