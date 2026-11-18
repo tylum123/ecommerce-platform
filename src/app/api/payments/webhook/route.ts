@@ -1,10 +1,17 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getSqliteDb } from "@/lib/sqlite-db";
+import { serviceUnavailable } from "@/lib/server/access-policy";
 
 export const dynamic = "force-dynamic";
 
+// Provider signatures, payment amount and replay protection are not yet verified.
+function isPaymentWebhookReady(): boolean {
+  return false;
+}
+
 export async function POST(request: NextRequest) {
+  if (!isPaymentWebhookReady()) return serviceUnavailable();
   try {
     const url = new URL(request.url);
     const provider = url.searchParams.get("provider") || "vietqr";

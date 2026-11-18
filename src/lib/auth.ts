@@ -1,8 +1,4 @@
-/**
- * Unified Server-Side & Client Authentication System.
- * Uses Web Crypto API (HMAC-SHA256) for universal Edge/Node middleware & server runtime compatibility.
- * Provides HTTP-only Signed Session Cookie (hasaki_session), RBAC roles, and 1-Click Demo Accounts.
- */
+/** Shared identity DTOs and presentation helpers. Server authentication is fail-closed until a maintained provider is configured. */
 
 // ---------------------------------------------------------------------------
 // 1. Types & Roles
@@ -56,18 +52,6 @@ export const AUTH_CHANGE_EVENT = "hasaki-auth-change";
 export const AUTH_UNAVAILABLE_MESSAGE =
   "Chức năng đăng nhập, đăng ký và đặt lại mật khẩu hiện tạm thời chưa khả dụng.";
 export const DEFAULT_SESSION_MAX_AGE = 7 * 24 * 60 * 60; // 7 days in seconds
-
-export const DEFAULT_SESSION_SECRET = "hasaki_super_secure_session_secret_change_in_production_2026";
-
-export function getSessionSecret(): string {
-  return process.env.SESSION_SECRET || DEFAULT_SESSION_SECRET;
-}
-
-export async function hashPasswordWithSalt(password: string, salt: string): Promise<string> {
-  const enc = new TextEncoder();
-  const buffer = await crypto.subtle.digest("SHA-256", enc.encode(`${salt}:${password}`));
-  return Array.from(new Uint8Array(buffer)).map((b) => b.toString(16).padStart(2, "0")).join("");
-}
 
 // ---------------------------------------------------------------------------
 // 2. Demo Accounts (1-Click Login for Evaluation & Testing)
@@ -237,122 +221,14 @@ export function isStaffOrAdminRole(role?: string | null): boolean {
   return typeof role === "string" && STAFF_OR_ADMIN_ROLES.has(role);
 }
 
-// ---------------------------------------------------------------------------
-// 3. Web Crypto HMAC-SHA256 Token Signing & Verification
-// ---------------------------------------------------------------------------
-
-function base64UrlEncode(str: string): string {
-  const bytes = new TextEncoder().encode(str);
-  let binary = "";
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
-
-function base64UrlDecode(base64url: string): string {
-  let base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
-  while (base64.length % 4) {
-    base64 += "=";
-  }
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return new TextDecoder().decode(bytes);
-}
-
-async function getHmacKey(secret: string): Promise<CryptoKey> {
-  const keyBytes = new TextEncoder().encode(secret);
-  return crypto.subtle.importKey(
-    "raw",
-    keyBytes,
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign", "verify"]
-  );
-}
-
-export async function createSignedSessionToken(
-  user: Omit<SessionTokenPayload, "exp" | "iat">,
-  ttlSeconds = DEFAULT_SESSION_MAX_AGE,
-  secret = getSessionSecret()
-): Promise<string> {
-  const now = Math.floor(Date.now() / 1000);
-  const payload: SessionTokenPayload = {
-    ...user,
-    iat: now,
-    exp: now + ttlSeconds,
-  };
-
-  const header = { alg: "HS256", typ: "JWT" };
-  const encodedHeader = base64UrlEncode(JSON.stringify(header));
-  const encodedPayload = base64UrlEncode(JSON.stringify(payload));
-  const dataToSign = `${encodedHeader}.${encodedPayload}`;
-
-  const key = await getHmacKey(secret);
-  const signatureBytes = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    new TextEncoder().encode(dataToSign)
-  );
-
-  let binarySig = "";
-  const sigArray = new Uint8Array(signatureBytes);
-  for (let i = 0; i < sigArray.length; i++) {
-    binarySig += String.fromCharCode(sigArray[i]);
-  }
-  const encodedSig = btoa(binarySig).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-
-  return `${dataToSign}.${encodedSig}`;
-}
-
+/** Legacy token verification is intentionally disabled. Never trust self-signed
+ * cookies or client role claims. Replace with a maintained server auth provider.
+ */
 export async function verifySignedSessionToken(
-  token: string,
-  secret = getSessionSecret()
+  _token: string,
 ): Promise<SessionTokenPayload | null> {
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-
-    const [encodedHeader, encodedPayload, encodedSig] = parts;
-    const dataToVerify = `${encodedHeader}.${encodedPayload}`;
-
-    // Decode signature
-    let base64Sig = encodedSig.replace(/-/g, "+").replace(/_/g, "/");
-    while (base64Sig.length % 4) {
-      base64Sig += "=";
-    }
-    const binarySig = atob(base64Sig);
-    const sigBytes = new Uint8Array(binarySig.length);
-    for (let i = 0; i < binarySig.length; i++) {
-      sigBytes[i] = binarySig.charCodeAt(i);
-    }
-
-    const key = await getHmacKey(secret);
-    const isValid = await crypto.subtle.verify(
-      "HMAC",
-      key,
-      sigBytes,
-      new TextEncoder().encode(dataToVerify)
-    );
-
-    if (!isValid) return null;
-
-    const payloadJson = base64UrlDecode(encodedPayload);
-    const payload: SessionTokenPayload = JSON.parse(payloadJson);
-
-    // Verify expiration
-    const now = Math.floor(Date.now() / 1000);
-    if (payload.exp && payload.exp < now) {
-      return null;
-    }
-
-    return payload;
-  } catch {
-    return null;
-  }
+  void _token;
+  return null;
 }
 
 // ---------------------------------------------------------------------------
@@ -372,7 +248,11 @@ export function serializeClearSessionCookie(): string {
 export function extractSessionTokenFromCookieHeader(cookieHeader?: string | null): string | null {
   if (!cookieHeader) return null;
   const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${AUTH_COOKIE_NAME}=([^;]+)`));
-  return match ? decodeURIComponent(match[1]) : null;
+  try {
+    return match ? decodeURIComponent(match[1]) : null;
+  } catch {
+    return null;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -431,9 +311,11 @@ export async function fetchCurrentSession(): Promise<AuthSessionUser | null> {
         return data.user;
       }
     }
-    return readAuthSession();
+    clearAuthSession();
+    return null;
   } catch {
-    return readAuthSession();
+    clearAuthSession();
+    return null;
   }
 }
 

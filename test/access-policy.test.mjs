@@ -8,10 +8,8 @@ import {
   saveAuthSession,
   clearAuthSession,
   readRegisteredLocalUsers,
-  createSignedSessionToken,
   verifySignedSessionToken,
   isStaffOrAdminRole,
-  hashPasswordWithSalt,
 } from "../src/lib/auth.ts";
 
 // Execute actual TS handler bodies with explicit dependency boundaries; any
@@ -170,18 +168,6 @@ test("forged or invalid credentials are never accepted as authenticated session"
   }
 });
 
-test("password hashing with salt is deterministic and verifies matching passwords", async () => {
-  const salt = "test_salt_123";
-  const hash1 = await hashPasswordWithSalt("SecretPass@2026", salt);
-  const hash2 = await hashPasswordWithSalt("SecretPass@2026", salt);
-  const wrongHash = await hashPasswordWithSalt("WrongPass@2026", salt);
-
-  assert.equal(typeof hash1, "string");
-  assert.equal(hash1.length, 64);
-  assert.equal(hash1, hash2, "Identical password and salt must produce same hash");
-  assert.notEqual(hash1, wrongHash, "Different passwords must produce different hashes");
-});
-
 test("public catalog GET remains available and UI config never loads operational inventory", async () => {
   const products = loadModule("src/app/api/products/route.ts", {
     "next/server": { NextResponse: Response },
@@ -191,13 +177,25 @@ test("public catalog GET remains available and UI config never loads operational
   assert.equal(response.status, 200);
   assert.equal((await response.json()).data.items[0].slug, "public-product");
 
+  const publicCatalog = { updatedAt: "", products: {}, deletedSlugs: ["hidden"], banners: { heroSlides: [], sideBanners: [] } };
   const ui = loadModule("src/app/api/ui-config/route.ts", {
     "next/server": { NextResponse: Response },
+    "@/lib/server/live-catalog-store": { readStorefrontCatalog: () => publicCatalog },
     "@/lib/interactive-ui": {
       getInteractiveUiData: () => ({ source: "snapshot", productDetailPageUi: {} }),
-      searchCatalogLive: () => ({ products: [], matchedBrands: [] }),
+      searchCatalogLive: (query, limit, state) => {
+        assert.equal(query, "public-product");
+        assert.equal(limit, 6);
+        assert.equal(state, publicCatalog);
+        return { products: [{ slug: "public-product", price: 123000 }], matchedBrands: [] };
+      },
     },
-    "@/lib/catalog": { findCatalogProduct: (slug) => slug === "known" ? { slug } : undefined },
+    "@/lib/catalog": {
+      findCatalogProduct: (slug, state) => {
+        assert.equal(state, publicCatalog);
+        return slug === "known" ? { slug } : undefined;
+      },
+    },
   });
   const publicConfig = await ui.GET(new Request("http://localhost/api/ui-config"));
   assert.equal(publicConfig.status, 200);
@@ -206,4 +204,8 @@ test("public catalog GET remains available and UI config never loads operational
   assert.equal(known.branchStock, null);
   assert.equal(known.data.stock, null);
   assert.equal((await ui.GET(new Request("http://localhost/api/ui-config?slug=unknown"))).status, 404);
+  assert.equal((await ui.GET(new Request("http://localhost/api/ui-config?slug=hidden"))).status, 404);
+  const search = await (await ui.GET(new Request("http://localhost/api/ui-config?q=public-product"))).json();
+  assert.deepEqual(search.products, [{ slug: "public-product", price: 123000 }]);
+  assert.equal(search.source, "catalog-runtime-overrides-on-snapshot");
 });

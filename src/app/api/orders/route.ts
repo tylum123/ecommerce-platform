@@ -11,10 +11,18 @@ import {
   isStaffOrAdminRole,
 } from "@/lib/auth";
 import { getProductBySkuOrSlug, listAllBranches } from "@/lib/sqlite-db";
+import { authenticationRequired, serviceUnavailable } from "@/lib/server/access-policy";
 
 export const dynamic = "force-dynamic";
 
+// The legacy order flow does not yet enforce ownership or server-side pricing.
+// Keep it closed until the replacement service is ready and tested.
+function isOrderServiceReady(): boolean {
+  return false;
+}
+
 export async function GET(request: NextRequest) {
+  if (!isOrderServiceReady()) return authenticationRequired();
   try {
     const url = new URL(request.url);
     const cookieHeader = request.headers.get("cookie");
@@ -73,6 +81,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  if (!isOrderServiceReady()) return serviceUnavailable();
   try {
     const body = await request.json().catch(() => ({}));
     const cookieHeader = request.headers.get("cookie");

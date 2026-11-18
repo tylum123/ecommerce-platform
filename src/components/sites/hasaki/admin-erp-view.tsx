@@ -677,6 +677,12 @@ export function AdminErpView() {
           </div>
 
           <div className="flex items-center gap-3 text-xs">
+            <Link href="/quan-tri/san-pham" className="rounded-md border border-[#6e5a4f] px-3 py-2 hover:bg-white/10">
+              Quản lý sản phẩm
+            </Link>
+            <Link href="/nhan-vien" className="rounded-md border border-[#6e5a4f] px-3 py-2 hover:bg-white/10">
+              Màn hình nhân viên
+            </Link>
             <div className="flex items-center gap-2 bg-[#2a1f18]/40 px-3 py-1.5 rounded-md border border-[#6e5a4f]/40">
               <span className="w-2 h-2 rounded-full bg-[#d4af37] animate-pulse" />
               <span>Hệ thống: 100% Hoạt động</span>

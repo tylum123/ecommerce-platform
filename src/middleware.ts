@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { createSupabaseSession } from "@/lib/server/supabase-session";
 import {
   AUTH_COOKIE_NAME,
   verifySignedSessionToken,
@@ -7,6 +8,21 @@ import {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  // These pages own their provisioned-role gates; middleware only refreshes cookies.
+  if (pathname === "/quan-tri/san-pham" || pathname === "/nhan-vien" || pathname.startsWith("/nhan-vien/")) {
+    let session: ReturnType<typeof createSupabaseSession> | undefined;
+    try {
+      session = createSupabaseSession(request);
+      await session.client.auth.getUser();
+    } catch { /* The server page renders a closed state when unavailable. */ }
+    const response = NextResponse.next({ request: { headers: request.headers } });
+    if (session) {
+      for (const [name, value] of session.response.headers) if (name.toLowerCase() !== "set-cookie" && name.toLowerCase() !== "content-type") response.headers.set(name, value);
+      for (const cookie of session.response.cookies.getAll()) response.cookies.set(cookie);
+    }
+    response.headers.set("Cache-Control", "private, no-store, max-age=0");
+    return response;
+  }
   const cookieHeader = request.headers.get("cookie") || "";
 
   // Extract session token from cookie
@@ -50,5 +66,6 @@ export const config = {
   matcher: [
     "/quan-tri/:path*",
     "/khach-hang/:path*",
+    "/nhan-vien/:path*",
   ],
 };

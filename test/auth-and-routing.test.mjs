@@ -5,7 +5,6 @@ import {
   AUTH_COOKIE_NAME,
   DEMO_AUTH_ACCOUNTS,
   isStaffOrAdminRole,
-  createSignedSessionToken,
   verifySignedSessionToken,
   serializeSessionCookie,
   serializeClearSessionCookie,
@@ -42,37 +41,9 @@ test("DEMO_AUTH_ACCOUNTS provides valid roles for Admin, Staff, and Customer", (
   assert.equal(isStaffOrAdminRole(doctor.user.role), true);
 });
 
-test("Web Crypto HMAC-SHA256 session token creates, signs, and verifies tokens", async () => {
-  const userPayload = {
-    id: "usr-admin-test",
-    email: "admin@hasaki.vn",
-    phone: "0903112233",
-    fullName: "Trần Đình Khoa (Admin)",
-    role: "admin",
-    roleLabel: "Quản Trị Viên",
-    tier: "Diamond",
-  };
-
-  const token = await createSignedSessionToken(userPayload, 3600);
-  assert.ok(typeof token === "string");
-  assert.equal(token.split(".").length, 3, "JWT must consist of header.payload.signature");
-
-  const verified = await verifySignedSessionToken(token);
-  assert.ok(verified, "Token verification must succeed");
-  assert.equal(verified?.id, userPayload.id);
-  assert.equal(verified?.email, userPayload.email);
-  assert.equal(verified?.role, userPayload.role);
-  assert.ok(verified?.exp && verified.exp > Math.floor(Date.now() / 1000));
-
-  // Tampered token must fail verification
-  const tampered = token.slice(0, -5) + "abcde";
-  const invalidResult = await verifySignedSessionToken(tampered);
-  assert.equal(invalidResult, null, "Tampered signature must fail verification");
-
-  // Expired token must fail verification
-  const expiredToken = await createSignedSessionToken(userPayload, -100);
-  const expiredResult = await verifySignedSessionToken(expiredToken);
-  assert.equal(expiredResult, null, "Expired token must fail verification");
+test("legacy signed tokens are rejected until a maintained provider is configured", async () => {
+  assert.equal(await verifySignedSessionToken("header.payload.signature"), null);
+  assert.equal(await verifySignedSessionToken(""), null);
 });
 
 test("Cookie serialization and extraction operates properly", () => {
