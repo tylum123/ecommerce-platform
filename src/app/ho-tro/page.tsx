@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SupportView } from "@/components/sites/hasaki/support-view";
+import { SupportView } from "@/components/sites/nari/support-view";
 
 export const metadata: Metadata = {
   title: "Trung Tâm Hỗ Trợ Khách Hàng | Nari Home",

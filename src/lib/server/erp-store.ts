@@ -229,7 +229,7 @@ function createInitialUsers(): UserRecord[] {
       id: "usr-002",
       fullName: "Trần Thị Thu Hà",
       phone: "0912345678",
-      email: "thuha.tran@hasaki-demo.vn",
+      email: "thuha.tran@narihome.vn",
       tier: "Diamond",
       loyaltyPoints: 1280,
       totalSpent: 12890000,
@@ -370,7 +370,7 @@ function createInitialStaff(): StaffRecord[] {
       id: "stf-004",
       employeeCode: "NV-HSK-004",
       fullName: "BS. CKI Nguyễn Thị Mai",
-      email: "mai.nguyen.md@hasakiclinic.vn",
+      email: "mai.nguyen.md@narihome.vn",
       phone: "0903445566",
       role: "clinic_doctor",
       roleLabel: ROLE_LABELS.clinic_doctor,
@@ -430,7 +430,7 @@ function createInitialStaff(): StaffRecord[] {
       id: "stf-008",
       employeeCode: "NV-HSK-008",
       fullName: "BS. Trần Bảo Ngọc",
-      email: "ngoc.tran.md@hasakiclinic.vn",
+      email: "ngoc.tran.md@narihome.vn",
       phone: "0903889900",
       role: "clinic_doctor",
       roleLabel: ROLE_LABELS.clinic_doctor,
@@ -761,7 +761,7 @@ function createInitialOrders(inventory: InventoryRecord[]): ErpOrderRecord[] {
 // 4. In-Memory Store Singleton (Global across Next.js API Routes)
 // ---------------------------------------------------------------------------
 
-interface HasakiErpStoreState {
+interface NariErpStoreState {
   users: UserRecord[];
   staff: StaffRecord[];
   inventory: InventoryRecord[];
@@ -770,13 +770,13 @@ interface HasakiErpStoreState {
 }
 
 declare global {
-  var __hasakiErpStore__: HasakiErpStoreState | undefined;
+  var __nariErpStore__: NariErpStoreState | undefined;
 }
 
-function getStore(): HasakiErpStoreState {
-  if (!globalThis.__hasakiErpStore__) {
+function getStore(): NariErpStoreState {
+  if (!globalThis.__nariErpStore__) {
     const { records: inventoryRecords, logs: auditLogs } = createInitialInventory();
-    globalThis.__hasakiErpStore__ = {
+    globalThis.__nariErpStore__ = {
       users: createInitialUsers(),
       staff: createInitialStaff(),
       inventory: inventoryRecords,
@@ -784,7 +784,7 @@ function getStore(): HasakiErpStoreState {
       orders: createInitialOrders(inventoryRecords),
     };
   }
-  return globalThis.__hasakiErpStore__;
+  return globalThis.__nariErpStore__;
 }
 
 // ---------------------------------------------------------------------------

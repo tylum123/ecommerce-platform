@@ -1,15 +1,11 @@
-import type { LiveCatalogOverridesState } from "@/lib/live-catalog";
-/**
- * Data-Driven Interactive UI & Navigation Service for Nari Home Clone.
- * Powered by live Playwright hover/click DOM scraping (docs/research/hasaki/interactive-ui-2026-11-14.json),
- * category facets, and brand catalog — eliminating hardcoded UI arrays across Header, Search, Category, and Product views.
- */
-
-import rawInteractiveUi from "../../docs/research/hasaki/interactive-ui-2026-11-14.json";
-import rawBrandCatalog from "../../docs/research/hasaki/brand-catalog-2026-11-13.json";
+import { getStaticCatalogOverrides, type LiveCatalogOverridesState } from "@/lib/live-catalog";
 import { categories, getAllCatalogProducts, type Product } from "@/lib/catalog";
 import { getSubcategoriesForCategory } from "@/lib/category-facets";
-import { brandDeep } from "@/lib/brand-config";
+
+/**
+ * Data-Driven Interactive UI & Navigation Service for Nari Home.
+ * Mega menu and search autocomplete derive dynamically from live catalog references and products.
+ */
 
 export interface TopKeywordItem {
   label: string;
@@ -131,160 +127,128 @@ export interface InteractiveUiDataset {
   giftBillsByBrand: Record<string, ProductGiftBill>;
 }
 
-export const BRAND_GIFT_BILLS: ProductGiftBill[] = [
-  {
-    brand: "Klairs",
-    minBill: 399000,
-    giftName: "Nước Hoa Hồng Không Mùi 30ml",
-    badgeText: "Bill Klairs từ 399K Tặng Nước Hoa Hồng Không Mùi 30ml",
-    fullText: "Bill Klairs từ 399K Tặng Nước Hoa Hồng Không Mùi Cho Da Nhạy Cảm 30ml (SL Có Hạn)",
-  },
-  {
-    brand: "L'Oreal",
-    minBill: 239000,
-    giftName: "Nước Tẩy Trang L'Oreal 95ml",
-    badgeText: "Bill 239K L'Oreal Tặng Nước Tẩy Trang L'Oreal 95ml",
-    fullText: "Bill 239K L'Oreal Tặng Nước Tẩy Trang L'Oreal 95ml (SL có hạn)",
-  },
-  {
-    brand: "Bioderma",
-    minBill: 499000,
-    giftName: "Nước Tẩy Trang Bioderma 100ml",
-    badgeText: "Bill 499K Bioderma Tặng Tẩy Trang Sensibio 100ml",
-    fullText: "Bill Bioderma từ 499K Tặng Nước Tẩy Trang Bioderma Sensibio H2O 100ml (SL Có Hạn)",
-  },
-  {
-    brand: "CeraVe",
-    minBill: 319000,
-    giftName: "Bông Tẩy Trang 80 Miếng & SRM 30ml",
-    badgeText: "Bill CeraVe 319K Tặng Bông Tẩy Trang 80 Miếng",
-    fullText: "Bill CeraVe từ 319K Tặng Sữa Rửa Mặt CeraVe Sạch Sâu 30ml + Bông Tẩy Trang (SL Có Hạn)",
-  },
-  {
-    brand: "Cocoon",
-    minBill: 299000,
-    giftName: "Kem Mặt Nạ Nghệ Hưng Yên 30ml",
-    badgeText: "Bill 299K Cocoon Mua Kem Mặt Nạ Nghệ Tặng Gel Rửa Mặt",
-    fullText: "Bill 299K Cocoon Mua Kem Mặt Nạ Nghệ Hưng Yên Tặng Gel Rửa Mặt Bí Đao 30ml",
-  },
-  {
-    brand: "Cetaphil",
-    minBill: 299000,
-    giftName: "Sữa Rửa Mặt Cetaphil 59ml",
-    badgeText: "Bill 299K Cetaphil, Benzac tặng Sữa Rửa Mặt 59ml",
-    fullText: "Bill 299K Cetaphil, Benzac Tặng Sữa Rửa Mặt Dịu Nhẹ Cetaphil 59ml Trị Giá 120K",
-  },
-  {
-    brand: "La Roche-Posay",
-    minBill: 499000,
-    giftName: "Kem Dưỡng B5+ 15ml & Xịt Khoáng 50ml",
-    badgeText: "Đơn từ 499K Tặng Kem Dưỡng B5+ & Xịt Khoáng 50ml",
-    fullText: "Đơn La Roche-Posay từ 499K Tặng Kem Dưỡng Cicaplast Baume B5+ 15ml (SL Có Hạn)",
-  },
-  {
-    brand: "Skin1004",
-    minBill: 299000,
-    giftName: "Tinh Chất Rau Má Madagascar 30ml",
-    badgeText: "Bill Skin1004 299K Tặng Tinh Chất Rau Má 30ml",
-    fullText: "Bill Skin1004 từ 299K Tặng Tinh Chất Rau Má Centella Ampoule 30ml (SL Có Hạn)",
-  },
-  {
-    brand: "Garnier",
-    minBill: 159000,
-    giftName: "Nước Tẩy Trang Garnier 50ml",
-    badgeText: "Bill 159K Garnier Tặng Nước Tẩy Trang 50ml",
-    fullText: "Bill 159K Garnier Tặng Nước Tẩy Trang Micellar Cleansing Water 50ml",
-  },
-];
-
-const ENGLISH_SUBTITLES_BY_KEYWORD: Array<{ match: RegExp; subtitle: string }> = [
-  { match: /bioderma.*nhạy cảm|sensibio/i, subtitle: "Sensibio H2O Micellar Water" },
-  { match: /bioderma.*dầu|sébium|sebium/i, subtitle: "Sébium H2O Purifying Micellar Water" },
-  { match: /cerave.*sạch sâu|cerave.*dầu/i, subtitle: "Foaming Cleanser For Normal To Oily Skin" },
-  { match: /cerave.*dịu nhẹ|cerave.*khô/i, subtitle: "Hydrating Facial Cleanser" },
-  { match: /cetaphil.*rửa mặt/i, subtitle: "Gentle Skin Cleanser (New Formula)" },
-  { match: /klairs.*không mùi|klairs.*toner/i, subtitle: "Supple Preparation Unscented Toner" },
-  { match: /l'oreal.*tươi mát|l'oreal.*3-in-1/i, subtitle: "Micellar Water 3-in-1 Refreshing Even For Sensitive Skin" },
-  { match: /l'oreal.*sạch sâu/i, subtitle: "Micellar Water 3-in-1 Deep Cleansing" },
-  { match: /cocoon.*bí đao/i, subtitle: "Winter Melon Micellar Water & Cleanser" },
-  { match: /skin1004.*chống nắng|skin1004.*rau má/i, subtitle: "Madagascar Centella Air-Fit Suncream Plus SPF50+" },
-  { match: /la roche-posay.*chống nắng|anthelios/i, subtitle: "Anthelios UVMune 400 Oil Control Gel-Cream" },
-  { match: /la roche-posay.*b5|cicaplast/i, subtitle: "Cicaplast Baume B5+ Ultra-Repairing Soothing Balm" },
-  { match: /hada labo.*rửa mặt/i, subtitle: "Advanced Nourish Hyaluron Cleanser" },
-  { match: /anessa/i, subtitle: "Perfect UV Sunscreen Skincare Milk N SPF50+ PA++++" },
-  { match: /paula's choice.*bha/i, subtitle: "Skin Perfecting 2% BHA Liquid Exfoliant" },
-  { match: /anker.*zolo|anker.*30w/i, subtitle: "Anker Zolo PD 30W Fast Charger Type-C" },
-];
+export const BRAND_GIFT_BILLS: ProductGiftBill[] = [];
 
 export function computeProductEnglishSubtitle(product: {
   name: string;
   brand: string;
+  englishName?: string;
   description?: string;
-}): string {
-  if (product.description && product.description.length > 3 && product.description.length < 75 && product.description !== product.name) {
-    return product.description;
-  }
-  for (const rule of ENGLISH_SUBTITLES_BY_KEYWORD) {
-    if (rule.match.test(product.name)) {
-      return rule.subtitle;
-    }
-  }
-  return `${product.brand} Official Authentic Skincare Formula`;
+}): string | null {
+  return product.englishName?.trim() || null;
 }
 
 export function computeGiftBillPromo(product: {
   brand: string;
   price: number;
   name: string;
-}): ProductGiftBill {
+}): ProductGiftBill | null {
   const brandLower = product.brand.toLowerCase();
   const matched = BRAND_GIFT_BILLS.find((b) => b.brand.toLowerCase() === brandLower);
-  if (matched) {
-    return matched;
+  return matched ?? null;
+}
+
+function buildBrandSlug(nameOrSlug: string): string {
+  const clean = nameOrSlug
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/\.html$/i, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return `${clean || "brand"}.html`;
+}
+
+function extractSuggestedBrands(liveCatalog: LiveCatalogOverridesState): SuggestedBrandCard[] {
+  const brandRefs = liveCatalog.references?.brands || [];
+  if (brandRefs.length > 0) {
+    return brandRefs.slice(0, 24).map((b) => ({
+      name: b.label,
+      href: `/thuong-hieu/${b.slug.endsWith(".html") ? b.slug : `${b.slug}.html`}`,
+      logo: "",
+    }));
   }
 
-  const rawThreshold = Math.max(199, Math.ceil((product.price * 1.2) / 10000) * 10);
-  const minBill = rawThreshold * 1000;
-  const lowerName = product.name.toLowerCase();
-  let giftName = `Quà Tặng Mini ${product.brand}`;
-  if (lowerName.includes("chống nắng")) giftName = `Kem Chống Nắng Mini ${product.brand} 15ml`;
-  else if (lowerName.includes("rửa mặt")) giftName = `Sữa Rửa Mặt ${product.brand} 30ml`;
-  else if (lowerName.includes("tẩy trang")) giftName = `Nước Tẩy Trang ${product.brand} 95ml`;
-  else if (lowerName.includes("toner") || lowerName.includes("hoa hồng")) giftName = `Toner ${product.brand} 30ml`;
-
-  return {
-    brand: product.brand,
-    minBill,
-    giftName,
-    badgeText: `Bill ${rawThreshold}K ${product.brand} Tặng ${giftName}`,
-    fullText: `Bill ${product.brand} từ ${rawThreshold}K Tặng ${giftName} (SL Có Hạn)`,
-  };
+  const deleted = new Set(liveCatalog.deletedSlugs);
+  const seen = new Set<string>();
+  const derived: SuggestedBrandCard[] = [];
+  for (const prod of Object.values(liveCatalog.products)) {
+    if (!prod.slug || deleted.has(prod.slug) || !prod.brand) continue;
+    const key = prod.brand.trim().toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    derived.push({
+      name: prod.brand,
+      href: `/thuong-hieu/${buildBrandSlug(prod.brand)}`,
+      logo: "",
+    });
+    if (derived.length >= 24) break;
+  }
+  return derived;
 }
 
-function normalizeInternalHref(href: string): string {
-  if (!href) return "/";
-  const stripped = href.replace(/^https?:\/\/(www\.)?hasaki\.vn/i, "").split("?")[0];
-  return stripped || "/";
-}
+function buildMegaMenuTree(
+  defaultBrands: SuggestedBrandCard[],
+  liveCatalog: LiveCatalogOverridesState
+): MegaMenuCategoryItem[] {
+  const refCats = liveCatalog.references?.categories || [];
 
-function buildMegaMenuTree(defaultBrands: SuggestedBrandCard[]): MegaMenuCategoryItem[] {
-  const logosRaw =
-    (
-      rawBrandCatalog as {
-        logos?: Record<string, { name: string; slug?: string; logo?: string; image?: string }>;
-      }
-    ).logos || {};
+  if (refCats.length > 0) {
+    const roots = refCats.filter((c) => !c.parentId).slice(0, 16);
+    const effectiveRoots = roots.length > 0 ? roots : refCats.slice(0, 16);
 
-  const extraBrands: SuggestedBrandCard[] = Object.values(logosRaw)
-    .filter((b) => b && (b.logo || b.image))
-    .slice(0, 50)
-    .map((b) => ({
-      name: b.name,
-      href: `/thuong-hieu/${(b.slug || b.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")).replace(/\.html$/i, "")}.html`,
-      logo: b.logo || b.image || "",
-    }));
+    return effectiveRoots.map((root, idx) => {
+      const children = refCats.filter((c) => c.parentId === root.id);
+      const group1Items = children.slice(0, 5).map((child) => ({
+        label: child.label,
+        href: `/danh-muc/${child.slug}`,
+      }));
+      const group2Items = children.slice(5, 10).map((child) => ({
+        label: child.label,
+        href: `/danh-muc/${child.slug}`,
+      }));
 
-  const brandPool = [...defaultBrands, ...extraBrands];
+      const rotatedBrands = defaultBrands.slice(idx % Math.max(1, defaultBrands.length), (idx % Math.max(1, defaultBrands.length)) + 6);
+
+      return {
+        name: root.label,
+        slug: root.slug,
+        href: `/danh-muc/${root.slug}`,
+        groups: [
+          {
+            title: `Danh mục ${root.label}`,
+            href: `/danh-muc/${root.slug}`,
+            items: group1Items.length > 0 ? group1Items : [{ label: root.label, href: `/danh-muc/${root.slug}` }],
+          },
+          {
+            title: "Chăm sóc chuyên sâu & Xu hướng",
+            href: `/danh-muc/${root.slug}`,
+            items:
+              group2Items.length > 0
+                ? group2Items
+                : [
+                    { label: "Sản Phẩm Bán Chạy Nhất", href: "/san-pham-ban-chay.html" },
+                    { label: "Hàng Mới Về Chính Hãng", href: "/hang-moi-ve.html" },
+                    { label: "Flash Deal Giảm Sâu", href: "/deals-dang-dien-ra.html" },
+                    { label: "Dược Mỹ Phẩm Cao Cấp", href: "/danh-muc/my-pham-high-end-c1907.html" },
+                  ],
+          },
+          {
+            title: "Dịch vụ & Trải nghiệm Nari Home",
+            href: "/dich-vu-phong-kham.html",
+            items: [
+              { label: "Phòng Khám Da Liễu Nari Clinic & Spa", href: "/dich-vu-phong-kham.html" },
+              { label: "Bảng Giá Dịch Vụ Điều Trị", href: "/bang-gia-dich-vu.html" },
+              { label: "Cẩm Nang Làm Đẹp Y Khoa", href: "/cam-nang.html" },
+              { label: "Đặt Lịch Khám Da Miễn Phí", href: "/dat-lich-kham" },
+            ],
+          },
+        ],
+        featuredBrands: rotatedBrands.length > 0 ? rotatedBrands : defaultBrands.slice(0, 6),
+      };
+    });
+  }
 
   const rootCategories = categories.slice(0, 16);
   return rootCategories.map(([catName, catSlug], idx) => {
@@ -333,7 +297,7 @@ function buildMegaMenuTree(defaultBrands: SuggestedBrandCard[]): MegaMenuCategor
       },
     ];
 
-    const rotatedBrands = brandPool.slice(idx % 3, (idx % 3) + 6);
+    const rotatedBrands = defaultBrands.slice(idx % Math.max(1, defaultBrands.length), (idx % Math.max(1, defaultBrands.length)) + 6);
 
     return {
       name: catName,
@@ -345,71 +309,80 @@ function buildMegaMenuTree(defaultBrands: SuggestedBrandCard[]): MegaMenuCategor
   });
 }
 
-let cachedInteractiveData: InteractiveUiDataset | null = null;
+export function getInteractiveUiData(
+  liveCatalog: LiveCatalogOverridesState = getStaticCatalogOverrides()
+): InteractiveUiDataset {
+  const suggestedBrands = extractSuggestedBrands(liveCatalog);
+  const refCats = liveCatalog.references?.categories || [];
 
-export function getInteractiveUiData(): InteractiveUiDataset {
-  if (cachedInteractiveData) return cachedInteractiveData;
+  const promoPills: PromoPillItem[] = [
+    { label: "Flash Deals", href: "/deals-dang-dien-ra.html" },
+    { label: "Bán Chạy Nhất", href: "/san-pham-ban-chay.html" },
+    { label: "Hàng Mới Về", href: "/hang-moi-ve.html" },
+  ];
 
-  const suggestedBrands: SuggestedBrandCard[] = (rawInteractiveUi.searchPopup?.suggestedBrands || []).map((b) => ({
-    name: b.name,
-    href: normalizeInternalHref(b.href),
-    logo: b.logo,
-  }));
+  const topBarKeywords: TopKeywordItem[] =
+    refCats.length > 0
+      ? refCats.slice(0, 6).map((c) => ({ label: c.label, href: `/danh-muc/${c.slug}` }))
+      : categories.slice(0, 6).map(([label, slug]) => ({ label, href: `/danh-muc/${slug}` }));
 
-  const promoPills: PromoPillItem[] = (rawInteractiveUi.searchPopup?.promoPills || []).map((p) => ({
-    label: p.label,
-    href: normalizeInternalHref(p.href),
-  }));
+  const suggestedCategories: SuggestedCategoryCard[] =
+    refCats.length > 0
+      ? refCats.slice(0, 8).map((c) => ({
+          label: c.label,
+          href: `/danh-muc/${c.slug}`,
+          img: "",
+          imgAlt: c.label,
+        }))
+      : categories.slice(0, 8).map(([label, slug]) => ({
+          label,
+          href: `/danh-muc/${slug}`,
+          img: "",
+          imgAlt: label,
+        }));
 
-  const suggestedCategories: SuggestedCategoryCard[] = (
-    rawInteractiveUi.searchPopup?.suggestedCategories || []
-  ).map((c) => ({
-    label: c.label,
-    href: normalizeInternalHref(c.href),
-    img: c.img,
-    imgAlt: c.imgAlt || c.label,
-  }));
+  const sidebarCategoryTree: TopKeywordItem[] =
+    refCats.length > 0
+      ? refCats.slice(0, 12).map((c) => ({ label: c.label, href: `/danh-muc/${c.slug}` }))
+      : categories.slice(0, 12).map(([label, slug]) => ({ label, href: `/danh-muc/${slug}` }));
 
-  const topBarKeywords: TopKeywordItem[] = (rawInteractiveUi.searchPopup?.topBarKeywords || [])
-    .slice(0, 6)
-    .map((k) => ({
-      label: k.label,
-      href: normalizeInternalHref(k.href),
-    }));
+  const firstBanner = liveCatalog.banners?.heroSlides?.[0];
 
-  const brandBannerLogos: BrandBannerLogo[] = (rawInteractiveUi.categoryPageUi?.brandBannerLogos || []).map((b) => ({
-    name: b.name,
-    src: b.src,
-    href: b.href,
-  }));
-
-  const rawSidebarTree = rawInteractiveUi.categoryPageUi?.sidebarCategoryTree || [];
-  const startTreeIdx = rawSidebarTree.findIndex((s) => s.label === "Sản Phẩm Cao Cấp");
-  const sidebarCategoryTree: TopKeywordItem[] = (
-    startTreeIdx >= 0 ? rawSidebarTree.slice(startTreeIdx) : rawSidebarTree
-  ).map((s) => ({
-    label: s.label,
-    href: normalizeInternalHref(s.href),
-  }));
-
-  const cleanCategoryPills = (rawInteractiveUi.dealsPageUi?.categoryPills || []).filter(
-    (p: string) => !p.startsWith("-") && !p.includes("₫")
-  );
+  const shippingPolicies: ShippingPolicyItem[] = [
+    {
+      badge: "NariNow 2H",
+      title: "Giao Nhanh Miễn Phí 2H.",
+      subtitle: "Trễ tặng 100K",
+    },
+    {
+      badge: "Hàng Chính Hãng 100%",
+      title: "Nari Home đền bù 200%",
+      subtitle: "cam kết 100% chính hãng nếu phát hiện hàng giả",
+    },
+    {
+      badge: "Freeship Toàn Quốc",
+      title: "Giao Hàng Miễn Phí",
+      subtitle: "(từ 90K tại nội thành, toàn Quốc từ 249K)",
+    },
+    {
+      badge: "Đổi Trả 30 Ngày",
+      title: "Đổi trả",
+      subtitle: "trong 30 ngày",
+    },
+  ];
 
   const giftBillsByBrand: Record<string, ProductGiftBill> = {};
   for (const g of BRAND_GIFT_BILLS) {
     giftBillsByBrand[g.brand.toLowerCase()] = g;
   }
 
-  cachedInteractiveData = brandDeep({
-    scrapedAt: rawInteractiveUi.scrapedAt || "2026-11-14T03:49:14.377Z",
-    source: rawInteractiveUi.source || "https://Nari Home/",
+  return {
+    scrapedAt: liveCatalog.updatedAt || "",
+    source: "https://narihome.vn/",
     topBanner: {
-      alt: rawInteractiveUi.topBanner?.alt || "9/11 - 30/11 Combo Giá Tốt Mua 1 Tặng 1 Fullsize",
-      src:
-        rawInteractiveUi.topBanner?.src ||
-        "https://media.hcdn.vn/hsk/17939497221793948460613-1320-x-50.jpg",
-      href: "/campaign/wow",
+      alt: firstBanner?.alt || "Nari Home Beauty & Clinic — Mỹ phẩm chính hãng 100%",
+      src: firstBanner?.src || "/nari-home-banner.jpg",
+      href: firstBanner?.href || "/campaign/wow",
     },
     searchPopup: {
       topBarKeywords,
@@ -417,39 +390,23 @@ export function getInteractiveUiData(): InteractiveUiDataset {
       suggestedCategories,
       suggestedBrands,
     },
-    megaMenu: buildMegaMenuTree(suggestedBrands),
+    megaMenu: buildMegaMenuTree(suggestedBrands, liveCatalog),
     categoryPageUi: {
-      brandBannerLogos,
+      brandBannerLogos: [],
       sidebarCategoryTree,
-      sortTabs: rawInteractiveUi.categoryPageUi?.sortTabs || [
-        "Mới nhất",
-        "Bán chạy",
-        "Giá thấp đến cao",
-        "Giá cao đến thấp",
-      ],
-      pageSizeOptions: rawInteractiveUi.categoryPageUi?.pageSizeOptions || [
-        "Hiển thị 40",
-        "Hiển thị 60",
-        "Hiển thị 80",
-      ],
+      sortTabs: ["Mới nhất", "Bán chạy", "Giá thấp đến cao", "Giá cao đến thấp"],
+      pageSizeOptions: ["Hiển thị 40", "Hiển thị 60", "Hiển thị 80"],
     },
     dealsPageUi: {
-      categoryPills: cleanCategoryPills.length > 0 ? cleanCategoryPills : ["Tất cả", "Chăm Sóc Da Mặt", "Trang Điểm"],
+      categoryPills: ["Tất cả", ...categories.slice(0, 8).map(([name]) => name)],
     },
     productDetailPageUi: {
-      ministryBadgePrefix:
-        rawInteractiveUi.productDetailPageUi?.ministryBadgePrefix || "Số công bố với Bộ Y Tế",
-      defaultMinistryCode:
-        rawInteractiveUi.productDetailPageUi?.defaultMinistryCode || "278237/25/CBMP-QLD",
-      shippingPolicies: rawInteractiveUi.productDetailPageUi?.shippingPolicies || [],
-      capacityOptions: rawInteractiveUi.productDetailPageUi?.capacityOptions || [
-        "Combo 1000ml",
-        "100ml",
-        "250ml",
-        "500ml",
-      ],
-      skinVariantSwatches: rawInteractiveUi.productDetailPageUi?.skinVariantSwatches || [],
-      sectionAnchors: rawInteractiveUi.productDetailPageUi?.sectionAnchors || [
+      ministryBadgePrefix: "Số công bố với Bộ Y Tế",
+      defaultMinistryCode: "278237/25/CBMP-QLD",
+      shippingPolicies,
+      capacityOptions: ["100ml", "250ml", "500ml"],
+      skinVariantSwatches: [],
+      sectionAnchors: [
         "Thông tin sản phẩm",
         "Thông số sản phẩm",
         "Thành phần sản phẩm",
@@ -460,9 +417,7 @@ export function getInteractiveUiData(): InteractiveUiDataset {
     },
     giftBills: BRAND_GIFT_BILLS,
     giftBillsByBrand,
-  });
-
-  return cachedInteractiveData;
+  };
 }
 
 export function searchCatalogLive(
@@ -486,12 +441,26 @@ export function searchCatalogLive(
       p.slug.toLowerCase().includes(q)
   );
 
-  const uniqueBrands = Array.from(new Set(matched.map((p) => p.brand))).slice(0, 5);
+  const refBrands = (liveCatalog?.references?.brands || [])
+    .filter((b) => b.label.toLowerCase().includes(q))
+    .map((b) => ({
+      name: b.label,
+      href: `/thuong-hieu/${b.slug.endsWith(".html") ? b.slug : `${b.slug}.html`}`,
+    }));
+
+  const brandNamesFromProducts = Array.from(new Set(matched.map((p) => p.brand))).map((name) => ({
+    name,
+    href: `/thuong-hieu/${buildBrandSlug(name)}`,
+  }));
+
+  const mergedBrandsMap = new Map<string, { name: string; href: string }>();
+  for (const b of [...refBrands, ...brandNamesFromProducts]) {
+    const key = b.name.toLowerCase();
+    if (!mergedBrandsMap.has(key)) mergedBrandsMap.set(key, b);
+  }
+
   return {
     products: matched.slice(0, limit),
-    matchedBrands: uniqueBrands.map((name) => ({
-      name,
-      href: `/thuong-hieu/${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.html`,
-    })),
+    matchedBrands: Array.from(mergedBrandsMap.values()).slice(0, 5),
   };
 }

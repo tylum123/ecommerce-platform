@@ -1,4 +1,4 @@
-import { ClinicView } from "@/components/sites/hasaki/clinic-view";
+import { ClinicView } from "@/components/sites/nari/clinic-view";
 
 export default async function ClinicServiceLandingPage({
   searchParams,

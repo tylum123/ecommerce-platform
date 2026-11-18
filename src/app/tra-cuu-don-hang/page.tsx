@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Header } from "@/components/sites/hasaki/header";
-import { Footer } from "@/components/sites/hasaki/footer";
+import { Header } from "@/components/sites/nari/header";
+import { Footer } from "@/components/sites/nari/footer";
 import { Search, PackageCheck, PhoneCall } from "lucide-react";
 
 export default function OrderLookupPage() {

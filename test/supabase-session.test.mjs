@@ -102,7 +102,7 @@ test("session routes reject untrusted input before provider, keep business close
   assert.equal(current.businessAccess, false);
   assert.equal(current.user.role, undefined);
   const logout = await route.POST(request({ action: "logout" }));
-  assert.equal(logout.cookies.get("hasaki_session").maxAge, 0);
+  assert.equal(logout.cookies.get("nari_session").maxAge, 0);
   failLogout = true;
   const failed = await route.POST(request({ action: "logout" }));
   assert.equal(failed.status, 503);

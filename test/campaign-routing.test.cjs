@@ -44,8 +44,8 @@ test('unknown pages throw 404 before catalog access; known routes await authorit
   const stubs = {
     'next/navigation': { notFound: () => { throw Error('NEXT_HTTP_ERROR_FALLBACK;404'); } },
     '@/lib/server/live-catalog-store': { readStorefrontCatalog: async () => { reads++; return catalog; } },
-    '@/components/sites/hasaki/tag-view': { TagView: () => null },
-    '@/components/sites/hasaki/campaign-wow-view': { CampaignWowView: () => null },
+    '@/components/sites/nari/tag-view': { TagView: () => null },
+    '@/components/sites/nari/campaign-wow-view': { CampaignWowView: () => null },
   };
   for (const file of ['src/app/tag/[slug]/page.tsx', 'src/app/campaign/[slug]/page.tsx']) {
     const { default: Page } = load(file, stubs);

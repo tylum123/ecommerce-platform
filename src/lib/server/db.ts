@@ -1,9 +1,6 @@
 /**
- * Central In-Memory Backend Repository & Database Store for Nari Home Clone.
- * Indexed by CodeGraph to unify data snapshots, runtime mutations, and API route handlers.
- *
- * Implements strict TypeScript types, runtime persistence across dev reloads via globalThis,
- * seeded datasets, and query optimizer indexing.
+ * Central In-Memory Backend Repository & Database Store for Nari Home.
+ * Unifies domain services, runtime mutations, and API route handlers.
  */
 
 import {
@@ -12,9 +9,8 @@ import {
   categories as catalogCategories,
 } from "@/lib/catalog";
 import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";
-import {
-  matchesCategory,
-} from "@/lib/deals-bestsellers";
+import { matchesCategory } from "@/lib/deals-bestsellers";
+import { getCategoryFacets } from "@/lib/category-facets";
 import {
   getStoreBranches,
   lookupWarrantyDraft,
@@ -44,8 +40,6 @@ import type {
   FacetOption,
   FacetGroup,
 } from "@/lib/backend-contracts";
-
-import categoryFacetsRaw from "../../../docs/research/hasaki/category-facets-2026-11-13.json";
 
 // ----------------------------------------------------------------------
 // Domain Data Types & Contracts
@@ -172,10 +166,10 @@ export interface QueryProductsResult {
 }
 
 // ----------------------------------------------------------------------
-// Seeded Datasets (MOCK_ORDERS, MOCK_APPOINTMENTS, etc.)
+// Seeded Datasets (empty unless live history exists)
 // ----------------------------------------------------------------------
 
-export const MOCK_ORDERS: OrderRecord[] = getDemoOrderHistory().map(o => ({
+export const MOCK_ORDERS: OrderRecord[] = getDemoOrderHistory().map((o) => ({
   id: o.code || o.id,
   code: o.code || o.id,
   createdAt: o.createdAt,
@@ -185,7 +179,7 @@ export const MOCK_ORDERS: OrderRecord[] = getDemoOrderHistory().map(o => ({
   address: o.shippingAddress,
   paymentMethod: o.paymentMethod,
   deliveryType: o.deliveryType,
-  items: o.items.map(i => ({
+  items: o.items.map((i) => ({
     sku: i.sku,
     name: i.name,
     brand: i.brand,
@@ -198,11 +192,11 @@ export const MOCK_ORDERS: OrderRecord[] = getDemoOrderHistory().map(o => ({
   total: o.total,
 }));
 
-export const MOCK_APPOINTMENTS: BookingRecord[] = getDemoBookingHistory().map(b => ({
+export const MOCK_APPOINTMENTS: BookingRecord[] = getDemoBookingHistory().map((b) => ({
   id: b.code || b.id,
   code: b.code || b.id,
-  customerName: "Nguyễn Văn An",
-  customerPhone: "0901234567",
+  customerName: "",
+  customerPhone: "",
   serviceName: b.serviceName,
   branchName: b.branchName,
   branchAddress: b.branchAddress,
@@ -210,7 +204,7 @@ export const MOCK_APPOINTMENTS: BookingRecord[] = getDemoBookingHistory().map(b 
   status: b.status,
   doctorAssigned: b.doctorAssigned,
   note: b.note,
-  createdAt: "10/11/2026",
+  createdAt: "",
 }));
 
 // ----------------------------------------------------------------------
@@ -225,7 +219,7 @@ interface DatabaseState {
   initialCatalogCache: CatalogProduct[] | null;
 }
 
-const GLOBAL_DB_KEY = "__hasaki_inmemory_db__";
+const GLOBAL_DB_KEY = "__nari_inmemory_db__";
 
 interface GlobalWithDb {
   [GLOBAL_DB_KEY]?: DatabaseState;
@@ -250,9 +244,9 @@ function getStore(): DatabaseState {
 // ----------------------------------------------------------------------
 
 export function createOrderRecord(input: CreateOrderInput): OrderRecord {
-  const orderId = `HSK-${Date.now().toString().slice(-6)}`;
+  const orderId = `NARI-${Date.now().toString().slice(-6)}`;
   const items = input.items || [];
-  const calculatedSubtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const calculatedSubtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shipping = input.shippingFee ?? (calculatedSubtotal >= 90000 ? 0 : 25000);
 
   const newOrder: OrderRecord = {
@@ -268,7 +262,7 @@ export function createOrderRecord(input: CreateOrderInput): OrderRecord {
     items,
     subtotal: input.subtotal ?? calculatedSubtotal,
     shippingFee: shipping,
-    total: input.total ?? (calculatedSubtotal + shipping),
+    total: input.total ?? calculatedSubtotal + shipping,
   };
 
   getStore().orders.unshift(newOrder);
@@ -281,7 +275,7 @@ export function listOrderRecords(): OrderRecord[] {
 
 export function findOrderById(idOrCode: string): OrderRecord | undefined {
   const clean = idOrCode.trim();
-  return getStore().orders.find(o => o.id === clean || o.code === clean);
+  return getStore().orders.find((o) => o.id === clean || o.code === clean);
 }
 
 // ----------------------------------------------------------------------
@@ -290,7 +284,8 @@ export function findOrderById(idOrCode: string): OrderRecord | undefined {
 
 export function createBookingRecord(input: CreateBookingInput): BookingRecord {
   const bookingId = `SPA-${Date.now().toString().slice(-5)}`;
-  const timeDisplay = input.appointmentTime ||
+  const timeDisplay =
+    input.appointmentTime ||
     `${input.time || "09:00"} - ${input.date || new Date().toLocaleDateString("vi-VN")}`;
 
   const newBooking: BookingRecord = {
@@ -317,7 +312,7 @@ export function listBookingRecords(): BookingRecord[] {
 
 export function findBookingById(idOrCode: string): BookingRecord | undefined {
   const clean = idOrCode.trim();
-  return getStore().appointments.find(b => b.id === clean || b.code === clean);
+  return getStore().appointments.find((b) => b.id === clean || b.code === clean);
 }
 
 // ----------------------------------------------------------------------
@@ -406,10 +401,9 @@ export function lookupWarranty(query: string): WarrantyLookupResult {
     };
   }
 
-  // Check runtime claims first
   const store = getStore();
   const runtimeClaim = store.warrantyClaims.find(
-    c => c.ticketId === clean || c.phone === clean || (c.serialNumber && c.serialNumber === clean)
+    (c) => c.ticketId === clean || c.phone === clean || (c.serialNumber && c.serialNumber === clean)
   );
 
   if (runtimeClaim) {
@@ -455,41 +449,35 @@ export async function queryProducts(params: ProductQueryParams = {}): Promise<Qu
 
   let filtered = all;
 
-  // 1. Filter by category
   if (category && category.trim()) {
     const targetCat = category.trim();
-    filtered = filtered.filter(p => matchesCategory(p.category, targetCat));
+    filtered = filtered.filter((p) => matchesCategory(p.category, targetCat));
   }
 
-  // 2. Filter by brand
   if (brand && brand.trim()) {
     const brandLower = brand.trim().toLowerCase();
-    filtered = filtered.filter(p => p.brand.toLowerCase() === brandLower);
+    filtered = filtered.filter((p) => p.brand.toLowerCase() === brandLower);
   }
 
-  // 3. Search query
   if (q && q.trim()) {
     const searchTerms = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
-    filtered = filtered.filter(p => {
+    filtered = filtered.filter((p) => {
       const targetText = `${p.name} ${p.englishName || ""} ${p.brand} ${p.category} ${p.description || ""}`.toLowerCase();
-      return searchTerms.every(term => targetText.includes(term));
+      return searchTerms.every((term) => targetText.includes(term));
     });
   }
 
-  // 4. Price range
   if (minPrice !== undefined && !isNaN(minPrice)) {
-    filtered = filtered.filter(p => p.price >= minPrice);
+    filtered = filtered.filter((p) => p.price >= minPrice);
   }
   if (maxPrice !== undefined && !isNaN(maxPrice)) {
-    filtered = filtered.filter(p => p.price <= maxPrice);
+    filtered = filtered.filter((p) => p.price <= maxPrice);
   }
 
-  // 5. On Sale
   if (onSale) {
-    filtered = filtered.filter(p => (p.sale && p.sale > 0) || (p.old && p.old > p.price));
+    filtered = filtered.filter((p) => (p.sale && p.sale > 0) || (p.old && p.old > p.price));
   }
 
-  // 6. Compute Facets before pagination
   const brandCountMap = new Map<string, number>();
   const categoryCountMap = new Map<string, number>();
 
@@ -499,15 +487,12 @@ export async function queryProducts(params: ProductQueryParams = {}): Promise<Qu
   let countAbove500 = 0;
 
   for (const item of filtered) {
-    // Brand facets
     if (item.brand) {
       brandCountMap.set(item.brand, (brandCountMap.get(item.brand) || 0) + 1);
     }
-    // Category facets
     if (item.category) {
       categoryCountMap.set(item.category, (categoryCountMap.get(item.category) || 0) + 1);
     }
-    // Price range facets
     if (item.price < 100000) countUnder100++;
     else if (item.price <= 300000) count100to300++;
     else if (item.price <= 500000) count300to500++;
@@ -518,10 +503,10 @@ export async function queryProducts(params: ProductQueryParams = {}): Promise<Qu
     .map(([bName, count]) => ({ label: bName, value: bName, count }))
     .sort((a, b) => (b.count || 0) - (a.count || 0));
 
-  const categoryRefMap = new Map((live.references?.categories || []).map(c => [c.slug, c.label]));
+  const categoryRefMap = new Map((live.references?.categories || []).map((c) => [c.slug, c.label]));
   const categoryFacets: FacetOption[] = Array.from(categoryCountMap.entries())
     .map(([catSlug, count]) => {
-      const match = isPostgres ? undefined : catalogCategories.find(c => c[1] === catSlug);
+      const match = isPostgres ? undefined : catalogCategories.find((c) => c[1] === catSlug);
       return {
         label: categoryRefMap.get(catSlug) || (match ? match[0] : catSlug),
         value: catSlug,
@@ -537,22 +522,9 @@ export async function queryProducts(params: ProductQueryParams = {}): Promise<Qu
     { label: "Trên 500.000 ₫", value: "500000-max", count: countAbove500 },
   ];
 
-  // Optional category-facets enrichment from scraped file (disabled when authoritative postgres)
-  let additionalGroups: FacetGroup[] | undefined;
-  if (!isPostgres && category && (categoryFacetsRaw as Record<string, Array<{ code: string; name: string; options: Array<{ key: string; label: string; count: number }> }>>)[category]) {
-    const rawGroups = (categoryFacetsRaw as Record<string, Array<{ code: string; name: string; options: Array<{ key: string; label: string; count: number }> }>>)[category];
-    additionalGroups = rawGroups.map(g => ({
-      key: g.code,
-      name: g.name,
-      options: g.options.map(opt => ({
-        label: opt.label,
-        value: opt.key,
-        count: opt.count,
-      })),
-    }));
-  }
+  const dynamicGroups = category ? getCategoryFacets(category, filtered) : [];
+  const additionalGroups = dynamicGroups.length > 0 ? dynamicGroups : undefined;
 
-  // 7. Sorting
   const sorted = [...filtered];
   switch (sort) {
     case "topsale":
@@ -569,11 +541,10 @@ export async function queryProducts(params: ProductQueryParams = {}): Promise<Qu
       break;
     case "popular":
     default:
-      sorted.sort((a, b) => ((b.rating ?? 0) * (b.reviewCount ?? 0)) - ((a.rating ?? 0) * (a.reviewCount ?? 0)));
+      sorted.sort((a, b) => (b.rating ?? 0) * (b.reviewCount ?? 0) - (a.rating ?? 0) * (a.reviewCount ?? 0));
       break;
   }
 
-  // 8. Pagination
   const safePage = Math.max(1, page);
   const safeLimit = Math.max(1, Math.min(100, limit));
   const total = sorted.length;
@@ -633,8 +604,9 @@ export interface CodeGraphManifest {
 export function getCodeGraphManifest(): CodeGraphManifest {
   return {
     version: "2.0.0",
-    project: "Nari Home Fullstack Next.js Clone",
-    description: "Reverse-engineered Next.js App Router codebase with 1:1 fidelity, typed domain services, and in-memory mock repository.",
+    project: "Nari Home Fullstack Platform",
+    description:
+      "Next.js App Router codebase with typed domain services, PostgreSQL catalog adapter, and in-memory fallback repository.",
     contracts: {
       file: "src/lib/backend-contracts.ts",
       interfaces: [
@@ -659,12 +631,26 @@ export function getCodeGraphManifest(): CodeGraphManifest {
       {
         file: "src/lib/catalog.ts",
         domain: "Product Catalog & Category Filtering",
-        exportedFunctions: ["categories", "productBreadcrumbs", "categoryProducts", "getAllCatalogProducts", "findCatalogProduct", "money"],
+        exportedFunctions: [
+          "categories",
+          "productBreadcrumbs",
+          "categoryProducts",
+          "getAllCatalogProducts",
+          "findCatalogProduct",
+          "money",
+        ],
       },
       {
         file: "src/lib/deals-bestsellers.ts",
         domain: "Flash Deals, Bestsellers & Category Rollups",
-        exportedFunctions: ["matchesCategory", "getDealsSnapshot", "getDealCategories", "getBestsellersSnapshot", "getScrapedCategoryProducts", "getAllScrapedProducts"],
+        exportedFunctions: [
+          "matchesCategory",
+          "getDealsSnapshot",
+          "getDealCategories",
+          "getBestsellersSnapshot",
+          "getScrapedCategoryProducts",
+          "getAllScrapedProducts",
+        ],
       },
       {
         file: "src/lib/product-details.ts",
@@ -673,22 +659,40 @@ export function getCodeGraphManifest(): CodeGraphManifest {
       },
       {
         file: "src/lib/campaigns-location.ts",
-        domain: "Campaign Banners, 63 Provinces/Districts & Demo History",
-        exportedFunctions: ["VIETNAM_LOCATIONS", "getDemoOrderHistory", "getDemoBookingHistory", "getDemoLoyaltySummary", "getDemoUserProfile"],
+        domain: "Campaign Banners, Vietnam Provinces/Districts & Customer Contracts",
+        exportedFunctions: [
+          "VIETNAM_LOCATIONS",
+          "getDemoOrderHistory",
+          "getDemoBookingHistory",
+          "getDemoLoyaltySummary",
+          "getDemoUserProfile",
+        ],
       },
       {
         file: "src/lib/support-stores.ts",
-        domain: "Store Locator, 350+ Branches, Warranty & CSKH FAQ",
-        exportedFunctions: ["getStoreBranches", "getStoreCities", "getStoreDistricts", "filterStoreBranches", "getSupportCategories", "getSupportTopics", "getSupportTopicBySlug", "searchSupportTopics", "getWarrantyPolicyData", "lookupWarrantyDraft", "getFooterData"],
+        domain: "Store Locator, Warranty & CSKH FAQ",
+        exportedFunctions: [
+          "getStoreBranches",
+          "getStoreCities",
+          "getStoreDistricts",
+          "filterStoreBranches",
+          "getSupportCategories",
+          "getSupportTopics",
+          "getSupportTopicBySlug",
+          "searchSupportTopics",
+          "getWarrantyPolicyData",
+          "lookupWarrantyDraft",
+          "getFooterData",
+        ],
       },
       {
         file: "src/lib/clinic-services.ts",
         domain: "Clinic & Spa Medical Dermatology Services",
-        exportedFunctions: ["clinicServices"],
+        exportedFunctions: ["clinicServices", "getClinicServices", "getClinicServiceRichDetail"],
       },
       {
         file: "src/lib/interactive-ui.ts",
-        domain: "Data-Driven Interactive UI Config, Search Popup, Hover Mega Menu, Gift Bills & Multi-Branch Stock",
+        domain: "Data-Driven Interactive UI Config, Search Popup, Hover Mega Menu & Live Search",
         exportedFunctions: [
           "getInteractiveUiData",
           "computeGiftBillPromo",
@@ -723,28 +727,28 @@ export function getCodeGraphManifest(): CodeGraphManifest {
       { path: "/api/bookings", methods: ["GET", "POST"], description: "Clinic consultation listing and appointment booking" },
       { path: "/api/stores", methods: ["GET"], description: "Branch store locator with city, district, and clinic filters" },
       { path: "/api/warranty", methods: ["GET", "POST"], description: "Electronic warranty claim lookup and ticket registration" },
-      { path: "/api/ui-config", methods: ["GET"], description: "Data-driven interactive UI config, Search Popup suggestions, 3-column Mega Menu, Gift Bills, and live ERP Multi-Branch stock" },
-      { path: "/api/auth", methods: ["GET", "POST"], description: "Customer & Staff authentication, registration, and RBAC demo role switcher" },
+      { path: "/api/ui-config", methods: ["GET"], description: "Data-driven interactive UI config, Search Popup suggestions, and Mega Menu" },
+      { path: "/api/auth", methods: ["GET", "POST"], description: "Customer & Staff authentication" },
       { path: "/api/admin/erp", methods: ["GET", "POST"], description: "Enterprise ERP management for Users, Staff/RBAC, Orders, and Multi-Branch Inventory" },
       { path: "/api/admin/seo", methods: ["GET", "POST"], description: "Technical SEO audit, JSON-LD schema generator, and Meta Registry" },
-      { path: "/api/mcp", methods: ["GET", "POST"], description: "Standardized JSON-RPC 2.0 MCP Server with 9 tools, 4 resources, and 3 prompt templates" },
+      { path: "/api/mcp", methods: ["GET", "POST"], description: "Standardized JSON-RPC 2.0 MCP Server (src/lib/mcp/nari-mcp.ts)" },
       { path: "/api/codegraph", methods: ["GET"], description: "System architectural dependency graph manifest" },
     ],
     frontendRoutes: [
       { path: "/", title: "Trang chủ Nari Home", dynamic: false },
-      { path: "/deal-dau-ngay", title: "Flash Deals Giờ Vàng", dynamic: false },
-      { path: "/ban-chay", title: "Top Bán Chạy", dynamic: false },
-      { path: "/danh-muc/[category]", title: "Danh mục sản phẩm", dynamic: true },
+      { path: "/deals-dang-dien-ra.html", title: "Flash Deals Giờ Vàng", dynamic: false },
+      { path: "/san-pham-ban-chay.html", title: "Top Bán Chạy", dynamic: false },
+      { path: "/danh-muc/[slug]", title: "Danh mục sản phẩm", dynamic: true },
       { path: "/san-pham/[slug]", title: "Chi tiết sản phẩm", dynamic: true },
-      { path: "/thuong-hieu/[brand]", title: "Thương hiệu chính hãng", dynamic: true },
+      { path: "/thuong-hieu/[slug]", title: "Thương hiệu chính hãng", dynamic: true },
       { path: "/gio-hang", title: "Giỏ hàng", dynamic: false },
       { path: "/dat-hang", title: "Thanh toán đơn hàng", dynamic: false },
       { path: "/clinic", title: "Nari Clinic & Spa", dynamic: false },
       { path: "/booking", title: "Đặt hẹn Clinic", dynamic: false },
-      { path: "/he-thong-cua-hang", title: "Hệ thống 350+ Cửa hàng", dynamic: false },
+      { path: "/he-thong-cua-hang", title: "Hệ thống Cửa hàng", dynamic: false },
       { path: "/bao-hanh", title: "Tra cứu Bảo hành", dynamic: false },
       { path: "/ho-tro", title: "Trung tâm Hỗ trợ", dynamic: false },
-      { path: "/tai-khoan", title: "Tài khoản người dùng", dynamic: false },
+      { path: "/khach-hang/tai-khoan", title: "Tài khoản người dùng", dynamic: false },
     ],
   };
 }

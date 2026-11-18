@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { Header } from "@/components/sites/hasaki/header";
-import { Footer } from "@/components/sites/hasaki/footer";
-import { SupabaseLoginForm } from "@/components/sites/hasaki/supabase-login-form";
+import { Header } from "@/components/sites/nari/header";
+import { Footer } from "@/components/sites/nari/footer";
+import { SupabaseLoginForm } from "@/components/sites/nari/supabase-login-form";
 import { isSupabaseSessionConfigured } from "@/lib/server/supabase-session";
 
 export const dynamic = "force-dynamic";

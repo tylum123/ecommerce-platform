@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";
-import { BestsellerView } from "@/components/sites/hasaki/bestseller-view";
+import { BestsellerView } from "@/components/sites/nari/bestseller-view";
 
 export default async function BestsellerPage({
   searchParams

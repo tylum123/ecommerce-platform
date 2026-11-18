@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 
-const base = process.env.HASAKI_TEST_URL || "http://127.0.0.1:3035";
+const base = process.env.NARI_TEST_URL || "http://127.0.0.1:3035";
 const privatePaths = ["/api/admin/users", "/api/admin/staff", "/api/admin/orders", "/api/admin/inventory", "/api/admin/seo", "/api/orders", "/api/bookings", "/api/mcp", "/api/codegraph"];
 for (const path of privatePaths) {
   const response = await fetch(`${base}${path}`);

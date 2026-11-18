@@ -1,4 +1,4 @@
-import { HomeView } from "@/components/sites/hasaki/home-view";
+import { HomeView } from "@/components/sites/nari/home-view";
 import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";
 
 export const dynamic = "force-dynamic";

@@ -24,9 +24,9 @@ test("staff cannot escalate through permission claims or cross branches", () => 
 
 test("legacy and malformed cookies never authenticate", async () => {
   assert.equal(await verifySignedSessionToken("eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYWRtaW4ifQ.fake"), null);
-  assert.equal(extractSessionTokenFromCookieHeader("hasaki_session=%E0%A4%A"), null);
+  assert.equal(extractSessionTokenFromCookieHeader("nari_session=%E0%A4%A"), null);
   const result = await authorizeRequest(new Request("https://example.test/api/admin/staff", {
-    headers: { Cookie: "hasaki_session=forged", Authorization: "Bearer admin" },
+    headers: { Cookie: "nari_session=forged", Authorization: "Bearer admin" },
   }), "staff:manage");
   assert.equal(result.user, null);
   assert.equal(result.response.status, 401);

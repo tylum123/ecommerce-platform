@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { NextRequest } from "next/server";
 import { notFound, redirect } from "next/navigation";
 import { authorizeStaffPortalPage } from "@/lib/server/staff-portal-access";
-import { StaffWorkspaceView } from "@/components/sites/hasaki/staff-workspace-view";
+import { StaffWorkspaceView } from "@/components/sites/nari/staff-workspace-view";
 
 export const dynamic = "force-dynamic";
 

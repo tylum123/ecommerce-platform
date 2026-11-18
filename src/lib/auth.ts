@@ -45,10 +45,10 @@ export interface SessionTokenPayload {
   iat: number; // Issued at in seconds
 }
 
-export const AUTH_COOKIE_NAME = "hasaki_session";
-export const AUTH_STORAGE_KEY = "hasaki-auth-session";
-export const AUTH_USERS_REGISTRY_KEY = "hasaki-registered-users";
-export const AUTH_CHANGE_EVENT = "hasaki-auth-change";
+export const AUTH_COOKIE_NAME = "nari_session";
+export const AUTH_STORAGE_KEY = "nari-auth-session";
+export const AUTH_USERS_REGISTRY_KEY = "nari-registered-users";
+export const AUTH_CHANGE_EVENT = "nari-auth-change";
 export const AUTH_UNAVAILABLE_MESSAGE =
   "Chức năng đăng nhập, đăng ký và đặt lại mật khẩu hiện tạm thời chưa khả dụng.";
 export const DEFAULT_SESSION_MAX_AGE = 7 * 24 * 60 * 60; // 7 days in seconds

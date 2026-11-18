@@ -41,10 +41,10 @@ function loadModule(file, dependencies = {}) {
         extractSessionTokenFromCookieHeader: () => null,
         verifySignedSessionToken: async () => null,
         isStaffOrAdminRole: () => false,
-        AUTH_COOKIE_NAME: "hasaki_session",
+        AUTH_COOKIE_NAME: "nari_session",
       };
     }
-    if (name === "@/lib/server/erp-store" || name === "@/lib/sqlite-db" || name === "@/lib/db/repository") {
+    if (name === "@/lib/server/erp-store" || name === "@/lib/db/repository") {
       return forbiddenRepoProxy;
     }
     if (Object.hasOwn(dependencies, name)) return dependencies[name];
@@ -91,9 +91,9 @@ test("private page entry points redirect unauthenticated visitors to login", asy
   const quanTriPage = loadModule("src/app/quan-tri/page.tsx", {
     "next/headers": { cookies: async () => ({ get: () => undefined }) },
     "next/navigation": { redirect: mockRedirect },
-    "@/components/sites/hasaki/admin-erp-view": { AdminErpView: () => null },
+    "@/components/sites/nari/admin-erp-view": { AdminErpView: () => null },
     "@/lib/auth": {
-      AUTH_COOKIE_NAME: "hasaki_session",
+      AUTH_COOKIE_NAME: "nari_session",
       verifySignedSessionToken: async () => null,
       isStaffOrAdminRole: () => false,
     },
@@ -110,9 +110,9 @@ test("private page entry points redirect unauthenticated visitors to login", asy
   const customerPage = loadModule("src/app/khach-hang/[section]/page.tsx", {
     "next/headers": { cookies: async () => ({ get: () => undefined }) },
     "next/navigation": { redirect: mockRedirect },
-    "@/components/sites/hasaki/customer-portal-view": { CustomerPortalView: () => null },
+    "@/components/sites/nari/customer-portal-view": { CustomerPortalView: () => null },
     "@/lib/auth": {
-      AUTH_COOKIE_NAME: "hasaki_session",
+      AUTH_COOKIE_NAME: "nari_session",
       verifySignedSessionToken: async () => null,
     },
     "react/jsx-runtime": { jsx: () => null, jsxs: () => null },
@@ -151,7 +151,7 @@ test("forged or invalid credentials are never accepted as authenticated session"
     const validUser = {
       id: "usr-123",
       fullName: "Test User",
-      email: "test@hasaki.vn",
+      email: "test@narihome.vn",
       phone: "0901234567",
       role: "customer",
       roleLabel: "Khách Hàng",

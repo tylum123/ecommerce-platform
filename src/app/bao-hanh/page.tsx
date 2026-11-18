@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { WarrantyView } from "@/components/sites/hasaki/warranty-view";
+import { WarrantyView } from "@/components/sites/nari/warranty-view";
 
 export const metadata: Metadata = {
   title: "Tra Cứu Bảo Hành Điện Tử & Chính Sách Hậu Mãi | Nari Home",

@@ -68,7 +68,7 @@ test('JSON and multipart routes return 413 for oversized streams without declare
 test('authoritative catalog cards display managed English and suppress unsupported gift promotions', () => {
   const React = require('react');
   const { renderToStaticMarkup } = require('react-dom/server');
-  const { ProductCard } = load('src/components/sites/hasaki/product-card.tsx', {
+  const { ProductCard } = load('src/components/sites/nari/product-card.tsx', {
     'next/link': { __esModule: true, default: ({ children, ...props }) => React.createElement('a', props, children) },
     'next/image': { __esModule: true, default: () => null },
   });
@@ -84,18 +84,18 @@ test('authoritative catalog cards display managed English and suppress unsupport
   const empty = render({ ...card, englishName:'' });
   assert.doesNotMatch(empty, /Merchant authored English|Official Authentic Skincare Formula|Bill|Tặng/);
   const legacy = render({ ...card, catalogSource:undefined });
-  assert.match(legacy, /Bill Bioderma/);
+  assert.doesNotMatch(legacy, /Bill Bioderma|Tặng/);
 });
 
 test('PostgreSQL home omits synthetic category sales and unverified clinic offers', () => {
   const React = require('react');
   const { renderToStaticMarkup } = require('react-dom/server');
-  const { HomeView } = load('src/components/sites/hasaki/home-view.tsx', {
+  const { HomeView } = load('src/components/sites/nari/home-view.tsx', {
     'next/link': { __esModule:true, default:({ children,...props }) => React.createElement('a',props,children) },
     'next/image': { __esModule:true, default:() => null },
-    '@/components/sites/hasaki/header':{ Header:() => null },
-    '@/components/sites/hasaki/footer':{ Footer:() => null },
-    '@/components/sites/hasaki/product-card':{ ProductCard:() => null },
+    '@/components/sites/nari/header':{ Header:() => null },
+    '@/components/sites/nari/footer':{ Footer:() => null },
+    '@/components/sites/nari/product-card':{ ProductCard:() => null },
   });
   const state = { source:'postgres', products:{}, deletedSlugs:[], banners:{ heroSlides:[],sideBanners:[] },updatedAt:'' };
   const html = renderToStaticMarkup(React.createElement(HomeView,{ liveCatalog:state }));

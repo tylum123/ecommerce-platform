@@ -1,7 +1,7 @@
 /**
- * Technical SEO & Schema.org JSON-LD Engine for Nari Home Clone.
+ * Technical SEO & Schema.org JSON-LD Engine for Nari Home.
  * Provides Schema.org structured data generators, automated route audits,
- * and runtime metadata overrides for modern search engines & AI crawlers.
+ * and runtime metadata overrides for search engines & AI crawlers.
  */
 
 import type { ProductSummary } from "@/lib/backend-contracts";
@@ -78,6 +78,9 @@ export interface FaqItemInput {
   answer: string;
 }
 
+const SITE_ORIGIN = "https://narihome.vn";
+const DEFAULT_BRAND_IMAGE = "https://narihome.vn/nari-home-banner.jpg";
+
 // ----------------------------------------------------------------------
 // Schema.org Generators
 // ----------------------------------------------------------------------
@@ -89,71 +92,72 @@ export function generateOrganizationJsonLd(): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
     "@type": ["Organization", "OnlineStore", "MedicalBusiness"],
-    "name": "Nari Home Beauty & Clinic",
-    "alternateName": "Nari Home - Mỹ Phẩm Chính Hãng & Clinic Spa",
-    "url": "https://Nari Home",
-    "logo": "https://media.hcdn.vn/images/logo-hasaki.png",
-    "image": "https://Nari Home/images/graphics/logo-hasaki.png",
-    "description": "Nari Home - Hệ thống phân phối mỹ phẩm chính hãng 100% và chuỗi phòng khám da liễu Nari Clinic & Spa hàng đầu Việt Nam. Cam kết đền bù 200% nếu phát hiện hàng giả.",
-    "telephone": "1800 6324",
-    "email": "hotro@narihome.vn",
-    "address": {
+    name: "Nari Home Beauty & Clinic",
+    alternateName: "Nari Home - Mỹ Phẩm Chính Hãng & Clinic Spa",
+    url: SITE_ORIGIN,
+    logo: DEFAULT_BRAND_IMAGE,
+    image: DEFAULT_BRAND_IMAGE,
+    description:
+      "Nari Home - Hệ thống phân phối mỹ phẩm chính hãng 100% và chuỗi phòng khám da liễu Nari Clinic & Spa hàng đầu Việt Nam. Cam kết đền bù 200% nếu phát hiện hàng giả.",
+    telephone: "1800 6324",
+    email: "hotro@narihome.vn",
+    address: {
       "@type": "PostalAddress",
-      "streetAddress": "71 Hoàng Hoa Thám, Phường 13",
-      "addressLocality": "Quận Tân Bình",
-      "addressRegion": "Hồ Chí Minh",
-      "postalCode": "700000",
-      "addressCountry": "VN"
+      streetAddress: "71 Hoàng Hoa Thám, Phường 13",
+      addressLocality: "Quận Tân Bình",
+      addressRegion: "Hồ Chí Minh",
+      postalCode: "700000",
+      addressCountry: "VN",
     },
-    "geo": {
+    geo: {
       "@type": "GeoCoordinates",
-      "latitude": 10.799767,
-      "longitude": 106.650893
+      latitude: 10.799767,
+      longitude: 106.650893,
     },
-    "openingHoursSpecification": [
+    openingHoursSpecification: [
       {
         "@type": "OpeningHoursSpecification",
-        "dayOfWeek": [
+        dayOfWeek: [
           "Monday",
           "Tuesday",
           "Wednesday",
           "Thursday",
           "Friday",
           "Saturday",
-          "Sunday"
+          "Sunday",
         ],
-        "opens": "08:00",
-        "closes": "22:00"
-      }
+        opens: "08:00",
+        closes: "22:00",
+      },
     ],
-    "contactPoint": [
+    contactPoint: [
       {
         "@type": "ContactPoint",
-        "telephone": "1800 6324",
-        "contactType": "customer service",
-        "areaServed": "VN",
-        "availableLanguage": ["Vietnamese", "English"]
+        telephone: "1800 6324",
+        contactType: "customer service",
+        areaServed: "VN",
+        availableLanguage: ["Vietnamese", "English"],
       },
       {
         "@type": "ContactPoint",
-        "telephone": "1800 6324",
-        "contactType": "clinic appointment",
-        "areaServed": "VN",
-        "availableLanguage": ["Vietnamese"]
-      }
+        telephone: "1800 6324",
+        contactType: "clinic appointment",
+        areaServed: "VN",
+        availableLanguage: ["Vietnamese"],
+      },
     ],
-    "sameAs": [
-      "https://www.facebook.com/Nari Home",
-      "https://www.facebook.com/hasakiclinic",
-      "https://www.youtube.com/c/HasakiBeautyClinic",
-      "https://www.instagram.com/hasakivn/",
-      "https://www.tiktok.com/@hasakivn"
+    sameAs: [
+      "https://www.facebook.com/narihome.vn",
+      "https://www.facebook.com/nariclinic.vn",
+      "https://www.youtube.com/@narihomevn",
+      "https://www.instagram.com/narihome.vn/",
+      "https://www.tiktok.com/@narihome.vn",
     ],
-    "potentialAction": {
+    potentialAction: {
       "@type": "SearchAction",
-      "target": "https://Nari Home/tim-kiem?q={search_term_string}",
-      "query-input": "required name=search_term_string"
-    }
+      target: `${SITE_ORIGIN}/tim-kiem?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
   };
 }
 
@@ -166,76 +170,80 @@ export function generateProductJsonLd(
   const priceNumber = typeof product.price === "number" ? product.price : 0;
   const ratingValue = (product as ProductJsonLdInput).rating ?? 4.9;
   const reviewCount = (product as ProductJsonLdInput).reviewCount ?? 120;
-  const canonicalUrl = `https://Nari Home/san-pham/${product.slug}`;
-  const skuCode = product.sku || (product.id ? String(product.id) : product.slug.replace(/[^0-9]/g, "") || "HSK-PROD");
+  const canonicalUrl = `${SITE_ORIGIN}/san-pham/${product.slug}`;
+  const skuCode =
+    product.sku ||
+    (product.id ? String(product.id) : product.slug.replace(/[^0-9]/g, "") || "NARI-PROD");
 
   return {
     "@context": "https://schema.org",
     "@type": "Product",
-    "name": product.name,
-    "image": product.image ? [product.image] : ["https://media.hcdn.vn/images/logo-hasaki.png"],
-    "description": product.description || `${product.name} chính hãng 100% tại Nari Home. Giao nhanh 2H NariNow miễn phí, đền bù 200% nếu phát hiện hàng giả.`,
-    "sku": skuCode,
-    "mpn": skuCode,
-    "brand": {
+    name: product.name,
+    image: product.image ? [product.image] : [DEFAULT_BRAND_IMAGE],
+    description:
+      product.description ||
+      `${product.name} chính hãng 100% tại Nari Home. Giao nhanh 2H NariNow miễn phí, đền bù 200% nếu phát hiện hàng giả.`,
+    sku: skuCode,
+    mpn: skuCode,
+    brand: {
       "@type": "Brand",
-      "name": product.brand || "Nari Home"
+      name: product.brand || "Nari Home",
     },
-    "aggregateRating": {
+    aggregateRating: {
       "@type": "AggregateRating",
-      "ratingValue": ratingValue,
-      "reviewCount": reviewCount,
-      "bestRating": "5",
-      "worstRating": "1"
+      ratingValue,
+      reviewCount,
+      bestRating: "5",
+      worstRating: "1",
     },
-    "offers": {
+    offers: {
       "@type": "Offer",
-      "url": canonicalUrl,
-      "priceCurrency": "VND",
-      "price": priceNumber,
-      "priceValidUntil": "2027-12-31",
-      "itemCondition": "https://schema.org/NewCondition",
-      "availability": "https://schema.org/InStock",
-      "seller": {
+      url: canonicalUrl,
+      priceCurrency: "VND",
+      price: priceNumber,
+      priceValidUntil: "2027-12-31",
+      itemCondition: "https://schema.org/NewCondition",
+      availability: "https://schema.org/InStock",
+      seller: {
         "@type": "Organization",
-        "name": "Nari Home Beauty & Clinic"
+        name: "Nari Home Beauty & Clinic",
       },
-      "hasMerchantReturnPolicy": {
+      hasMerchantReturnPolicy: {
         "@type": "MerchantReturnPolicy",
-        "applicableCountry": "VN",
-        "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
-        "merchantReturnDays": 30,
-        "returnMethod": "https://schema.org/ReturnInStore",
-        "returnFees": "https://schema.org/FreeReturn"
+        applicableCountry: "VN",
+        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 30,
+        returnMethod: "https://schema.org/ReturnInStore",
+        returnFees: "https://schema.org/FreeReturn",
       },
-      "shippingDetails": {
+      shippingDetails: {
         "@type": "OfferShippingDetails",
-        "shippingRate": {
+        shippingRate: {
           "@type": "MonetaryAmount",
-          "value": "0",
-          "currency": "VND"
+          value: "0",
+          currency: "VND",
         },
-        "shippingDestination": {
+        shippingDestination: {
           "@type": "DefinedRegion",
-          "addressCountry": "VN"
+          addressCountry: "VN",
         },
-        "deliveryTime": {
+        deliveryTime: {
           "@type": "ShippingDeliveryTime",
-          "handlingTime": {
+          handlingTime: {
             "@type": "QuantitativeValue",
-            "minValue": 0,
-            "maxValue": 1,
-            "unitCode": "DAY"
+            minValue: 0,
+            maxValue: 1,
+            unitCode: "DAY",
           },
-          "transitTime": {
+          transitTime: {
             "@type": "QuantitativeValue",
-            "minValue": 1,
-            "maxValue": 2,
-            "unitCode": "HOUR"
-          }
-        }
-      }
-    }
+            minValue: 1,
+            maxValue: 2,
+            unitCode: "HOUR",
+          },
+        },
+      },
+    },
   };
 }
 
@@ -245,72 +253,74 @@ export function generateProductJsonLd(
 export function generateClinicServiceJsonLd(
   service: ClinicServiceJsonLdInput
 ): Record<string, unknown> {
-  const numericPrice = typeof service.price === "number"
-    ? service.price
-    : typeof service.price === "string"
-      ? parseInt(service.price.replace(/[^0-9]/g, ""), 10) || 0
-      : 0;
+  const numericPrice =
+    typeof service.price === "number"
+      ? service.price
+      : typeof service.price === "string"
+        ? parseInt(service.price.replace(/[^0-9]/g, ""), 10) || 0
+        : 0;
 
   return {
     "@context": "https://schema.org",
     "@type": ["MedicalProcedure", "Service"],
-    "name": service.name,
-    "description": service.description || `Dịch vụ khám, chăm sóc và điều trị da liễu chuyên sâu tại Nari Clinic & Spa: ${service.name}. Bác sĩ da liễu trực tiếp thăm khám và điều trị.`,
-    "provider": {
+    name: service.name,
+    description:
+      service.description ||
+      `Dịch vụ khám, chăm sóc và điều trị da liễu chuyên sâu tại Nari Clinic & Spa: ${service.name}. Bác sĩ da liễu trực tiếp thăm khám và điều trị.`,
+    provider: {
       "@type": "MedicalBusiness",
-      "name": "Nari Clinic & Spa",
-      "telephone": "1800 6324",
-      "url": "https://Nari Home/clinic",
-      "priceRange": "$$"
+      name: "Nari Clinic & Spa",
+      telephone: "1800 6324",
+      url: `${SITE_ORIGIN}/clinic`,
+      priceRange: "$$",
     },
-    "serviceType": service.category || "Dịch Vụ Da Liễu & Thẩm Mỹ",
-    "url": `https://Nari Home/dich-vu/${service.slug}`,
-    "image": service.image || "https://media.hcdn.vn/images/logo-hasaki.png",
-    "offers": numericPrice > 0 ? {
-      "@type": "Offer",
-      "priceCurrency": "VND",
-      "price": numericPrice,
-      "availability": "https://schema.org/InStock",
-      "validFrom": "2026-01-01"
-    } : undefined
+    serviceType: service.category || "Dịch Vụ Da Liễu & Thẩm Mỹ",
+    url: `${SITE_ORIGIN}/dich-vu/${service.slug}`,
+    image: service.image || DEFAULT_BRAND_IMAGE,
+    offers:
+      numericPrice > 0
+        ? {
+            "@type": "Offer",
+            priceCurrency: "VND",
+            price: numericPrice,
+            availability: "https://schema.org/InStock",
+            validFrom: "2026-01-01",
+          }
+        : undefined,
   };
 }
 
 /**
  * Generates Schema.org BreadcrumbList.
  */
-export function generateBreadcrumbJsonLd(
-  items: BreadcrumbItemInput[]
-): Record<string, unknown> {
+export function generateBreadcrumbJsonLd(items: BreadcrumbItemInput[]): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    "itemListElement": items.map((item, index) => ({
+    itemListElement: items.map((item, index) => ({
       "@type": "ListItem",
-      "position": index + 1,
-      "name": item.name,
-      "item": item.url.startsWith("http") ? item.url : `https://Nari Home${item.url}`
-    }))
+      position: index + 1,
+      name: item.name,
+      item: item.url.startsWith("http") ? item.url : `${SITE_ORIGIN}${item.url}`,
+    })),
   };
 }
 
 /**
  * Generates Schema.org FAQPage for Support and Product Q&A.
  */
-export function generateFaqJsonLd(
-  faqs: FaqItemInput[]
-): Record<string, unknown> {
+export function generateFaqJsonLd(faqs: FaqItemInput[]): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": faqs.map(item => ({
+    mainEntity: faqs.map((item) => ({
       "@type": "Question",
-      "name": item.question,
-      "acceptedAnswer": {
+      name: item.question,
+      acceptedAnswer: {
         "@type": "Answer",
-        "text": item.answer
-      }
-    }))
+        text: item.answer,
+      },
+    })),
   };
 }
 
@@ -337,7 +347,7 @@ export function upsertSeoOverride(
   seoOverridesMap.set(normalizedPath, updated);
 
   const report = auditAllRoutesSeo();
-  const found = report.items.find(i => i.path === normalizedPath);
+  const found = report.items.find((i) => i.path === normalizedPath);
   if (found) return found;
 
   return buildRouteAudit(
@@ -345,7 +355,7 @@ export function upsertSeoOverride(
     updated.title || "Nari Home Beauty & Clinic",
     updated.description || "Mỹ phẩm chính hãng 100% tại Nari Home",
     updated.ogType || "website",
-    updated.keywords || ["hasaki", "mỹ phẩm"],
+    updated.keywords || ["nari home", "mỹ phẩm"],
     updated.schemaTypes || ["WebSite"]
   );
 }
@@ -356,7 +366,7 @@ export function upsertSeoOverride(
 export function getSeoForPath(path: string): SeoRouteAuditItem | undefined {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const report = auditAllRoutesSeo();
-  return report.items.find(i => i.path === normalizedPath);
+  return report.items.find((i) => i.path === normalizedPath);
 }
 
 // ----------------------------------------------------------------------
@@ -376,123 +386,138 @@ const DEFAULT_AUDIT_ROUTES: DefaultRouteMetadata[] = [
   {
     path: "/",
     title: "Nari Home | Mỹ Phẩm Chính Hãng 100% & Clinic Spa Hàng Đầu",
-    description: "Nari Home cung cấp mỹ phẩm chính hãng 100% từ hơn 1.000 thương hiệu hàng đầu thế giới. Giao nhanh 2H NariNow miễn phí, đền bù 200% nếu phát hiện hàng giả.",
+    description:
+      "Nari Home cung cấp mỹ phẩm chính hãng 100% từ hơn 1.000 thương hiệu hàng đầu thế giới. Giao nhanh 2H NariNow miễn phí, đền bù 200% nếu phát hiện hàng giả.",
     ogType: "website",
-    keywords: ["hasaki", "mỹ phẩm chính hãng", "clinic spa", "giao nhanh 2h", "NariNow", "skincare"],
-    schemaTypes: ["Organization", "OnlineStore", "MedicalBusiness", "WebSite"]
+    keywords: ["nari home", "mỹ phẩm chính hãng", "clinic spa", "giao nhanh 2h", "NariNow", "skincare"],
+    schemaTypes: ["Organization", "OnlineStore", "MedicalBusiness", "WebSite"],
   },
   {
     path: "/deals-dang-dien-ra.html",
     title: "Flash Deals Đang Diễn Ra - Giảm Giá Sốc Đến 80% | Nari Home",
-    description: "Săn deal hot giá sốc mỗi ngày tại Nari Home. Khuyến mãi mỹ phẩm, chăm sóc da, son môi, nước hoa chính hãng giảm sâu tới 80% với số lượng giới hạn.",
+    description:
+      "Săn deal hot giá sốc mỗi ngày tại Nari Home. Khuyến mãi mỹ phẩm, chăm sóc da, son môi, nước hoa chính hãng giảm sâu tới 80% với số lượng giới hạn.",
     ogType: "website",
-    keywords: ["flash deal", "khuyến mãi mỹ phẩm", "giảm giá sốc", "deal hasaki", "mỹ phẩm giảm giá"],
-    schemaTypes: ["OfferCatalog", "CollectionPage"]
+    keywords: ["flash deal", "khuyến mãi mỹ phẩm", "giảm giá sốc", "deal nari home", "mỹ phẩm giảm giá"],
+    schemaTypes: ["OfferCatalog", "CollectionPage"],
   },
   {
     path: "/san-pham-ban-chay.html",
     title: "Top Sản Phẩm Bán Chạy Nhất Tháng - Mỹ Phẩm Hot | Nari Home",
-    description: "Khám phá danh sách mỹ phẩm và sản phẩm chăm sóc sắc đẹp bán chạy nhất tại Nari Home. Tổng hợp sản phẩm được triệu tín đồ làm đẹp tin dùng và đánh giá 5 sao.",
+    description:
+      "Khám phá danh sách mỹ phẩm và sản phẩm chăm sóc sắc đẹp bán chạy nhất tại Nari Home. Tổng hợp sản phẩm được triệu tín đồ làm đẹp tin dùng và đánh giá 5 sao.",
     ogType: "website",
     keywords: ["bán chạy", "top mỹ phẩm", "best seller", "kem chống nắng bán chạy", "sữa rửa mặt hot"],
-    schemaTypes: ["ItemList", "CollectionPage"]
+    schemaTypes: ["ItemList", "CollectionPage"],
   },
   {
     path: "/campaign/wow",
     title: "Đại Tiệc Siêu Sale WOW - Ưu Đãi Độc Quyền Chính Hãng | Nari Home",
-    description: "Chương trình ưu đãi WOW độc quyền tại Nari Home: Voucher giảm thêm 15%, freeship NariNow 2H toàn quốc, quà tặng 0đ từ các thương hiệu làm đẹp nổi tiếng.",
+    description:
+      "Chương trình ưu đãi WOW độc quyền tại Nari Home: Voucher giảm thêm 15%, freeship NariNow 2H toàn quốc, quà tặng 0đ từ các thương hiệu làm đẹp nổi tiếng.",
     ogType: "website",
-    keywords: ["campaign wow", "đại tiệc thương hiệu", "siêu sale hasaki", "voucher mỹ phẩm", "quà tặng 0đ"],
-    schemaTypes: ["Event", "SpecialAnnouncement", "CollectionPage"]
+    keywords: ["campaign wow", "đại tiệc thương hiệu", "siêu sale nari home", "voucher mỹ phẩm", "quà tặng 0đ"],
+    schemaTypes: ["Event", "SpecialAnnouncement", "CollectionPage"],
   },
   {
     path: "/tag/dai-tiec-hang-hieu.html",
     title: "Đại Tiệc Hàng Hiệu - Mỹ Phẩm High-End Chính Hãng | Nari Home",
-    description: "Mua sắm mỹ phẩm cao cấp High-End chính hãng tại Nari Home. Ưu đãi độc quyền thương hiệu Kiehl's, Shu Uemura, Estee Lauder, Lancome, Shiseido cam kết 100%.",
+    description:
+      "Mua sắm mỹ phẩm cao cấp High-End chính hãng tại Nari Home. Ưu đãi độc quyền thương hiệu Kiehl's, Shu Uemura, Estee Lauder, Lancome, Shiseido cam kết 100%.",
     ogType: "website",
     keywords: ["đại tiệc hàng hiệu", "mỹ phẩm high-end", "hàng hiệu chính hãng", "kiehls", "shu uemura"],
-    schemaTypes: ["CollectionPage", "Brand"]
+    schemaTypes: ["CollectionPage", "Brand"],
   },
   {
     path: "/thuong-hieu",
     title: "Hơn 1.000+ Thương Hiệu Mỹ Phẩm Chính Hãng Nổi Tiếng | Nari Home",
-    description: "Tra cứu đầy đủ hơn 1.000 thương hiệu mỹ phẩm chính hãng tại Nari Home: La Roche-Posay, Cerave, Bioderma, L'Oreal, Anker, Cocoon, Klairs, Vichy, Paula's Choice.",
+    description:
+      "Tra cứu đầy đủ hơn 1.000 thương hiệu mỹ phẩm chính hãng tại Nari Home: La Roche-Posay, Cerave, Bioderma, L'Oreal, Anker, Cocoon, Klairs, Vichy, Paula's Choice.",
     ogType: "website",
     keywords: ["thương hiệu mỹ phẩm", "chính hãng 100%", "bioderma", "cerave", "la roche-posay", "loreal"],
-    schemaTypes: ["Brand", "CollectionPage"]
+    schemaTypes: ["Brand", "CollectionPage"],
   },
   {
     path: "/danh-muc/cham-soc-da-mat-c4.html",
     title: "Chăm Sóc Da Mặt Chuyên Sâu - Trị Mụn, Dưỡng Trắng | Nari Home",
-    description: "Bộ sưu tập chăm sóc da mặt toàn diện: Sữa rửa mặt, nước tẩy trang, serum, kem dưỡng, mặt nạ, kem chống nắng chính hãng giá ưu đãi nhất tại Nari Home.",
+    description:
+      "Bộ sưu tập chăm sóc da mặt toàn diện: Sữa rửa mặt, nước tẩy trang, serum, kem dưỡng, mặt nạ, kem chống nắng chính hãng giá ưu đãi nhất tại Nari Home.",
     ogType: "website",
     keywords: ["chăm sóc da mặt", "trị mụn", "dưỡng trắng", "serum", "kem dưỡng ẩm", "kem chống nắng"],
-    schemaTypes: ["CollectionPage", "BreadcrumbList"]
+    schemaTypes: ["CollectionPage", "BreadcrumbList"],
   },
   {
-    path: "/danh-muc/hasaki-clinic-spa-c331.html",
+    path: "/danh-muc/nari-clinic-spa.html",
     title: "Nari Clinic & Spa - Dịch Vụ Khám Da & Trị Liệu Chuyên Nghiệp",
-    description: "Hệ thống phòng khám da liễu Nari Clinic & Spa với đội ngũ bác sĩ chuyên khoa. Trị mụn Aqua Mesoderm, triệt lông Diode Laser, chăm sóc da chuẩn y khoa.",
+    description:
+      "Hệ thống phòng khám da liễu Nari Clinic & Spa với đội ngũ bác sĩ chuyên khoa. Trị mụn Aqua Mesoderm, triệt lông Diode Laser, chăm sóc da chuẩn y khoa.",
     ogType: "website",
     keywords: ["Nari Clinic & Spa", "spa trị mụn", "bác sĩ da liễu", "triệt lông diode laser", "khám da miễn phí"],
-    schemaTypes: ["MedicalBusiness", "MedicalProcedure", "Service"]
+    schemaTypes: ["MedicalBusiness", "MedicalProcedure", "Service"],
   },
   {
     path: "/bang-gia-dich-vu.html",
     title: "Bảng Giá Dịch Vụ Nari Clinic & Spa Cập Nhật Mới Nhất 2026",
-    description: "Xem bảng giá chi tiết dịch vụ thẩm mỹ y khoa tại Nari Clinic & Spa: Điều trị mụn, thâm, sẹo rỗ, triệt lông vĩnh viễn, trẻ hóa da công nghệ cao không phát sinh chi phí.",
+    description:
+      "Xem bảng giá chi tiết dịch vụ thẩm mỹ y khoa tại Nari Clinic & Spa: Điều trị mụn, thâm, sẹo rỗ, triệt lông vĩnh viễn, trẻ hóa da công nghệ cao không phát sinh chi phí.",
     ogType: "website",
-    keywords: ["bảng giá clinic", "bảng giá dịch vụ spa", "giá triệt lông", "giá trị mụn hasaki"],
-    schemaTypes: ["PriceSpecification", "Service"]
+    keywords: ["bảng giá clinic", "bảng giá dịch vụ spa", "giá triệt lông", "giá trị mụn nari clinic"],
+    schemaTypes: ["PriceSpecification", "Service"],
   },
   {
     path: "/cam-nang.html",
     title: "Cẩm Nang Làm Đẹp & Kinh Nghiệm Chăm Sóc Da Khoa Học | Nari Home",
-    description: "Cập nhật kiến thức làm đẹp, quy trình skincare khoa học, review mỹ phẩm chân thực và tư vấn từ chuyên gia da liễu hàng đầu cùng Nari Home Beauty Blog.",
+    description:
+      "Cập nhật kiến thức làm đẹp, quy trình skincare khoa học, review mỹ phẩm chân thực và tư vấn từ chuyên gia da liễu hàng đầu cùng Nari Home Beauty Blog.",
     ogType: "article",
     keywords: ["cẩm nang làm đẹp", "review mỹ phẩm", "kinh nghiệm chăm sóc da", "skincare routine", "tips làm đẹp"],
-    schemaTypes: ["Blog", "Article", "BreadcrumbList"]
+    schemaTypes: ["Blog", "Article", "BreadcrumbList"],
   },
   {
     path: "/he-thong-cua-hang",
-    title: "Hệ Thống 350+ Cửa Hàng & Clinic Toàn Quốc | Nari Home",
-    description: "Tìm kiếm cửa hàng Nari Home Beauty & Clinic gần bạn nhất trên toàn quốc. Hơn 350 chi nhánh tại TP.HCM, Hà Nội, Đà Nẵng, Cần Thơ, Hải Phòng mở cửa 8h00 - 22h00.",
+    title: "Hệ Thống Cửa Hàng & Clinic Toàn Quốc | Nari Home",
+    description:
+      "Tìm kiếm cửa hàng Nari Home Beauty & Clinic gần bạn nhất trên toàn quốc tại TP.HCM, Hà Nội, Đà Nẵng, Cần Thơ, Hải Phòng mở cửa 8h00 - 22h00.",
     ogType: "website",
-    keywords: ["hệ thống cửa hàng hasaki", "chi nhánh hasaki", "hasaki gần đây", "địa chỉ hasaki tphcm", "hasaki hà nội"],
-    schemaTypes: ["LocalBusiness", "MedicalBusiness"]
+    keywords: ["hệ thống cửa hàng nari home", "chi nhánh nari home", "nari home gần đây", "địa chỉ nari home tphcm", "nari home hà nội"],
+    schemaTypes: ["LocalBusiness", "MedicalBusiness"],
   },
   {
     path: "/ho-tro",
     title: "Trung Tâm Trợ Giúp & Giải Đáp Thắc Mắc Khách Hàng | Nari Home",
-    description: "Trung tâm hỗ trợ khách hàng Nari Home: Hướng dẫn mua hàng, quy định giao hàng 2H NariNow, chính sách bảo hành 30 ngày đổi trả, phương thức thanh toán an toàn.",
+    description:
+      "Trung tâm hỗ trợ khách hàng Nari Home: Hướng dẫn mua hàng, quy định giao hàng 2H NariNow, chính sách bảo hành 30 ngày đổi trả, phương thức thanh toán an toàn.",
     ogType: "website",
-    keywords: ["hỗ trợ khách hàng", "câu hỏi thường gặp", "faq hasaki", "giao nhanh 2h", "đổi trả hasaki"],
-    schemaTypes: ["FAQPage", "ContactPage"]
+    keywords: ["hỗ trợ khách hàng", "câu hỏi thường gặp", "faq nari home", "giao nhanh 2h", "đổi trả nari home"],
+    schemaTypes: ["FAQPage", "ContactPage"],
   },
   {
     path: "/bao-hanh",
     title: "Tra Cứu Kích Hoạt Bảo Hành & Hỗ Trợ Kỹ Thuật Chính Hãng | Nari Home",
-    description: "Hệ thống tra cứu bảo hành điện tử chính hãng tại Nari Home bằng số điện thoại hoặc mã serial sản phẩm. Hỗ trợ máy rửa mặt, phụ kiện Anker, Halio 1 đổi 1 nhanh chóng.",
+    description:
+      "Hệ thống tra cứu bảo hành điện tử chính hãng tại Nari Home bằng số điện thoại hoặc mã serial sản phẩm. Hỗ trợ máy rửa mặt, phụ kiện Anker, Halio 1 đổi 1 nhanh chóng.",
     ogType: "website",
-    keywords: ["tra cứu bảo hành", "bảo hành hasaki", "bảo hành anker", "bảo hành halio", "chính hãng 1 đổi 1"],
-    schemaTypes: ["WebPage", "FAQPage"]
+    keywords: ["tra cứu bảo hành", "bảo hành nari home", "bảo hành anker", "bảo hành halio", "chính hãng 1 đổi 1"],
+    schemaTypes: ["WebPage", "FAQPage"],
   },
   {
     path: "/khach-hang/tai-khoan",
     title: "Tài Khoản Khách Hàng Thân Thiết - Tích Điểm Nari Rewards",
-    description: "Quản lý tài khoản Nari Home: Theo dõi đơn hàng, tích lũy điểm thưởng thành viên, voucher ưu đãi sinh nhật và lịch hẹn chăm sóc da Clinic của bạn.",
+    description:
+      "Quản lý tài khoản Nari Home: Theo dõi đơn hàng, tích lũy điểm thưởng thành viên, voucher ưu đãi sinh nhật và lịch hẹn chăm sóc da Clinic của bạn.",
     ogType: "profile",
-    keywords: ["tài khoản hasaki", "hasaki member", "tích điểm", "quản lý đơn hàng", "voucher sinh nhật"],
-    schemaTypes: ["WebPage"]
+    keywords: ["tài khoản nari home", "nari rewards member", "tích điểm", "quản lý đơn hàng", "voucher sinh nhật"],
+    schemaTypes: ["WebPage"],
   },
   {
     path: "/quan-tri",
     title: "Hệ Thống Quản Trị Vận Hành Doanh Nghiệp (ERP) | Nari Home Internal",
-    description: "Cổng thông tin quản trị nội bộ Nari Home: Quản lý kho vận ERP, đơn hàng đa kênh, nhân sự chi nhánh, danh mục sản phẩm và điều phối Clinic toàn quốc.",
+    description:
+      "Cổng thông tin quản trị nội bộ Nari Home: Quản lý kho vận ERP, đơn hàng đa kênh, nhân sự chi nhánh, danh mục sản phẩm và điều phối Clinic toàn quốc.",
     ogType: "website",
     keywords: ["quản trị", "erp", "internal portal", "vận hành", "kho hàng"],
-    schemaTypes: ["WebPage"]
-  }
+    schemaTypes: ["WebPage"],
+  },
 ];
 
 function buildRouteAudit(
@@ -503,134 +528,125 @@ function buildRouteAudit(
   rawKeywords: string[],
   rawSchemaTypes: string[]
 ): SeoRouteAuditItem {
-  // Apply any runtime override
   const override = seoOverridesMap.get(path);
   const title = override?.title || rawTitle;
   const description = override?.description || rawDescription;
   const ogType = override?.ogType || rawOgType;
   const keywords = override?.keywords || rawKeywords;
   const schemaTypes = override?.schemaTypes || rawSchemaTypes;
-  const canonical = override?.canonical || (path === "/" ? "https://Nari Home" : `https://Nari Home${path}`);
+  const canonical = override?.canonical || (path === "/" ? SITE_ORIGIN : `${SITE_ORIGIN}${path}`);
 
   const checks: SeoCheckResult[] = [];
 
-  // Check 1: Title length (optimal: 40 - 65 chars)
   const titleLen = title.trim().length;
   if (titleLen >= 35 && titleLen <= 70) {
     checks.push({
       name: "Title Length",
       passed: true,
       message: `Tiêu đề tối ưu (${titleLen} ký tự, khuyến nghị 35-70 ký tự)`,
-      impact: "high"
+      impact: "high",
     });
   } else {
     checks.push({
       name: "Title Length",
       passed: false,
       message: `Độ dài tiêu đề chưa lý tưởng (${titleLen} ký tự, khuyến nghị 35-70 ký tự)`,
-      impact: "high"
+      impact: "high",
     });
   }
 
-  // Check 2: Description length (optimal: 120 - 170 chars)
   const descLen = description.trim().length;
   if (descLen >= 110 && descLen <= 180) {
     checks.push({
       name: "Meta Description Length",
       passed: true,
       message: `Thẻ mô tả đạt chuẩn (${descLen} ký tự, khuyến nghị 110-180 ký tự)`,
-      impact: "high"
+      impact: "high",
     });
   } else {
     checks.push({
       name: "Meta Description Length",
       passed: false,
       message: `Thẻ mô tả cần điều chỉnh (${descLen} ký tự, khuyến nghị 110-180 ký tự)`,
-      impact: "high"
+      impact: "high",
     });
   }
 
-  // Check 3: Canonical URL defined & valid
-  if (canonical.startsWith("https://Nari Home")) {
+  if (canonical.startsWith(SITE_ORIGIN)) {
     checks.push({
       name: "Canonical Self-Reference",
       passed: true,
       message: `Canonical hợp lệ: ${canonical}`,
-      impact: "medium"
+      impact: "medium",
     });
   } else {
     checks.push({
       name: "Canonical Self-Reference",
       passed: false,
-      message: `Canonical URL không đúng định dạng domain chính hãng`,
-      impact: "medium"
+      message: "Canonical URL không đúng định dạng domain chính hãng",
+      impact: "medium",
     });
   }
 
-  // Check 4: Open Graph & Social Cards
   if (ogType) {
     checks.push({
       name: "Open Graph Tags",
       passed: true,
       message: `OG Type được định nghĩa chính xác: "${ogType}"`,
-      impact: "medium"
+      impact: "medium",
     });
   } else {
     checks.push({
       name: "Open Graph Tags",
       passed: false,
-      message: `Thiếu cấu hình og:type cho chia sẻ mạng xã hội`,
-      impact: "medium"
+      message: "Thiếu cấu hình og:type cho chia sẻ mạng xã hội",
+      impact: "medium",
     });
   }
 
-  // Check 5: Schema.org Structured Data
   if (schemaTypes && schemaTypes.length > 0) {
     checks.push({
       name: "Schema.org Rich Results",
       passed: true,
       message: `Đã tích hợp Schema.org (${schemaTypes.join(", ")})`,
-      impact: "high"
+      impact: "high",
     });
   } else {
     checks.push({
       name: "Schema.org Rich Results",
       passed: false,
-      message: `Chưa có cấu hình dữ liệu có cấu trúc Schema.org`,
-      impact: "high"
+      message: "Chưa có cấu hình dữ liệu có cấu trúc Schema.org",
+      impact: "high",
     });
   }
 
-  // Check 6: Keyword density & topical authority
   if (keywords && keywords.length >= 3) {
     checks.push({
       name: "Target Keywords",
       passed: true,
       message: `Đầy đủ từ khóa mục tiêu (${keywords.length} từ khóa)`,
-      impact: "low"
+      impact: "low",
     });
   } else {
     checks.push({
       name: "Target Keywords",
       passed: false,
-      message: `Cần bổ sung tối thiểu 3 từ khóa định vị tìm kiếm`,
-      impact: "low"
+      message: "Cần bổ sung tối thiểu 3 từ khóa định vị tìm kiếm",
+      impact: "low",
     });
   }
 
-  // Check 7: Crawl protection for admin route
   if (path === "/quan-tri") {
     checks.push({
       name: "Internal Access Control (Robots)",
       passed: true,
-      message: `Route quản trị được chặn hợp lệ trong robots.txt (Disallow: /quan-tri)`,
-      impact: "high"
+      message: "Route quản trị được chặn hợp lệ trong robots.txt (Disallow: /quan-tri)",
+      impact: "high",
     });
   }
 
-  // Calculate score
   const totalChecks = checks.length;
-  const passedChecks = checks.filter(c => c.passed).length;
+  const passedChecks = checks.filter((c) => c.passed).length;
   const score = Math.round((passedChecks / totalChecks) * 100);
 
   let status: "optimal" | "warning" | "error" = "optimal";
@@ -650,7 +666,7 @@ function buildRouteAudit(
     schemaTypes,
     score,
     status,
-    checks
+    checks,
   };
 }
 
@@ -658,7 +674,7 @@ function buildRouteAudit(
  * Executes a full SEO audit across all core storefront & operational routes.
  */
 export function auditAllRoutesSeo(): SeoAuditReport {
-  const items = DEFAULT_AUDIT_ROUTES.map(route =>
+  const items = DEFAULT_AUDIT_ROUTES.map((route) =>
     buildRouteAudit(
       route.path,
       route.title,
@@ -672,15 +688,13 @@ export function auditAllRoutesSeo(): SeoAuditReport {
   const totalScore = items.reduce((acc, curr) => acc + curr.score, 0);
   const averageScore = Math.round(totalScore / items.length);
 
-  // Dynamic count of indexed URLs
-  const corePagesCount = DEFAULT_AUDIT_ROUTES.length - 1; // exclude /quan-tri
+  const corePagesCount = DEFAULT_AUDIT_ROUTES.length - 1;
   const categoriesCount = categories.length;
   const productsCount = getAllCatalogProducts().length;
   const clinicCount = clinicServices.length;
   const supportCount = getSupportTopics().length;
   const totalIndexedUrls = corePagesCount + categoriesCount + productsCount + clinicCount + supportCount;
 
-  // Distinct schema types
   const schemaSet = new Set<string>();
   for (const item of items) {
     for (const s of item.schemaTypes) {
@@ -694,9 +708,10 @@ export function auditAllRoutesSeo(): SeoAuditReport {
       averageScore,
       totalIndexedUrls,
       schemaCount: schemaSet.size,
-      robotsStatus: "Valid (Disallow: /api/, /quan-tri; Sitemap: https://Nari Home/sitemap.xml)",
-      sitemapStatus: "Valid (Next.js Dynamic Sitemap with Core, 36 Categories, Catalog Products, Clinic Services & Support)",
-      lastAuditAt: new Date().toISOString()
-    }
+      robotsStatus: `Valid (Disallow: /api/, /quan-tri; Sitemap: ${SITE_ORIGIN}/sitemap.xml)`,
+      sitemapStatus:
+        "Valid (Next.js Dynamic Sitemap with Core, 36 Categories, Catalog Products, Clinic Services & Support)",
+      lastAuditAt: new Date().toISOString(),
+    },
   };
 }

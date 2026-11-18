@@ -54,7 +54,7 @@ test('server workspace pages reject unknown/cross-role/customer/guest and render
     'next/headers':{ headers:async () => new Headers() },
     'next/navigation':{ notFound:() => { throw Error('404'); },redirect:url => { throw Error(`REDIRECT:${url}`); } },
     '@/lib/server/staff-portal-access':{ authorizeStaffPortalPage:async () => { calls++; return access; } },
-    '@/components/sites/hasaki/staff-workspace-view':{ StaffWorkspaceView:() => null },
+    '@/components/sites/nari/staff-workspace-view':{ StaffWorkspaceView:() => null },
   };
   const page = load('src/app/nhan-vien/[workspace]/page.tsx',stubs).default;
   await assert.rejects(() => page({ params:Promise.resolve({ workspace:'unknown' }) }),/404/);
@@ -111,7 +111,7 @@ test('staff workspaces render disabled tasks without fixture business data', () 
   const React = require('react');
   const { renderToStaticMarkup } = require('react-dom/server');
   const { STAFF_WORKSPACES } = load('src/lib/staff-workspaces.ts');
-  const { StaffWorkspaceView } = load('src/components/sites/hasaki/staff-workspace-view.tsx',{
+  const { StaffWorkspaceView } = load('src/components/sites/nari/staff-workspace-view.tsx',{
     'next/link':{ __esModule:true,default:({ children,...props }) => React.createElement('a',props,children) },
   });
   const html = renderToStaticMarkup(React.createElement(StaffWorkspaceView,{ session:{ role:'admin',fullName:'Verified',roleLabel:'Admin' },workspace:STAFF_WORKSPACES[0] }));
@@ -132,7 +132,7 @@ test('storefront capability navigation ignores role claims and logs out through 
     assert.equal(capabilities.catalogAccess,true);
     const React = require('react');
     const { renderToStaticMarkup } = require('react-dom/server');
-    const { AccountDialog } = load('src/components/sites/hasaki/account-dialog.tsx',{
+    const { AccountDialog } = load('src/components/sites/nari/account-dialog.tsx',{
       'next/link':{ __esModule:true,default:({ children,...props }) => React.createElement('a',props,children) },
     });
     const html = renderToStaticMarkup(React.createElement(AccountDialog,{ capabilities,onClose:() => {},onLoggedOut:() => {} }));

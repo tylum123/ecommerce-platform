@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { NextRequest } from "next/server";
 import { notFound, redirect } from "next/navigation";
 import { authorizeCatalogRequest } from "@/lib/server/catalog-admin-access";
-import { AdminProductsView } from "@/components/sites/hasaki/admin-products-view";
+import { AdminProductsView } from "@/components/sites/nari/admin-products-view";
 
 export const dynamic = "force-dynamic";
 

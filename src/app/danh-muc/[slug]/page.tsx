@@ -1,4 +1,4 @@
-import { CategoryView } from "@/components/sites/hasaki/catalog-view";
+import { CategoryView } from "@/components/sites/nari/catalog-view";
 import { notFound } from "next/navigation";
 import { resolveCategorySlug } from "@/lib/catalog";
 import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";

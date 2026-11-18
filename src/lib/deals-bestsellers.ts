@@ -1,23 +1,11 @@
-import { applyCatalogOverrides, type LiveCatalogOverridesState } from "@/lib/live-catalog";
 /**
- * Central Deals & Bestsellers Service Module for Nari Home Clone.
- * Indexed by CodeGraph to map deals/bestseller frontend views -> service contracts -> backend adapter.
+ * Central Deals & Bestsellers Service Module for Nari Home.
+ * Operates strictly on LiveCatalogOverridesState (returning [] when empty).
  */
 
 import type { ProductSummary } from "@/lib/backend-contracts";
-import {
-  categoryProducts as sampleCategoryProducts,
-  money
-} from "@/lib/catalog";
-
-import rawDealsJson from "../../docs/research/hasaki/deals-2026-11-13.json";
-import rawBestsellersJson from "../../docs/research/hasaki/bestsellers-2026-11-13.json";
-import rawCategoryProductsJson from "../../docs/research/hasaki/category-products-2026-11-13.json";
-import { brandDeep } from "@/lib/brand-config";
-
-const dealsJson = brandDeep(rawDealsJson);
-const bestsellersJson = brandDeep(rawBestsellersJson);
-const categoryProductsJson = brandDeep(rawCategoryProductsJson);
+import { money } from "@/lib/catalog";
+import { getStaticCatalogOverrides, type LiveCatalogOverridesState } from "@/lib/live-catalog";
 
 export interface DealProduct extends ProductSummary {
   deal?: {
@@ -42,7 +30,7 @@ export interface DealCategoryOption {
   count?: number;
 }
 
-// Canonical category mappings matching Nari Home source navigation & catalog.ts
+// Canonical category mappings matching Nari Home navigation & catalog.ts
 const CATEGORY_ID_TO_SLUG: Record<string, string> = {
   "": "",
   "4": "cham-soc-da-mat-c4.html",
@@ -61,7 +49,7 @@ const CATEGORY_ID_TO_SLUG: Record<string, string> = {
   "103": "nuoc-hoa-c103.html",
   "156": "thuc-pham-chuc-nang-c156.html",
   "323": "cham-soc-rang-mieng-c323.html",
-  "331": "hasaki-clinic-spa-c331.html",
+  "331": "nari-clinic-spa.html",
   "1855": "lam-sach-da-c1855.html",
   "1857": "toner-c1857.html",
   "1901": "ve-sinh-phu-nu-c1901.html",
@@ -79,10 +67,9 @@ const CATEGORY_ID_TO_SLUG: Record<string, string> = {
   "2497": "san-pham-cho-be-c2497.html",
   "2693": "cap-sac-c2693.html",
   "2749": "balo-tui-xach-c2749.html",
-  "2930": "thiet-bi-am-thanh-c2930.html"
+  "2930": "thiet-bi-am-thanh-c2930.html",
 };
 
-// Facial categories grouping from catalog.ts
 const FACIAL_SLUGS = [
   "cham-soc-da-mat-c4.html",
   "sua-rua-mat-c19.html",
@@ -92,49 +79,47 @@ const FACIAL_SLUGS = [
   "serum-tinh-chat-c75.html",
   "mat-na-giay-c31.html",
   "kem-duong-dau-duong-c9.html",
-  "tay-te-bao-chet-da-mat-c35.html"
+  "tay-te-bao-chet-da-mat-c35.html",
 ];
 
-// Personal care grouping
 const PERSONAL_CARE_SLUGS = [
   "cham-soc-ca-nhan-c2049.html",
   "khan-bong-tay-trang-c47.html",
   "cham-soc-rang-mieng-c323.html",
-  "ve-sinh-phu-nu-c1901.html"
+  "ve-sinh-phu-nu-c1901.html",
 ];
 
-// Hair care grouping
 const HAIR_CARE_SLUGS = [
   "cham-soc-toc-c96.html",
   "dau-goi-c97.html",
-  "bo-goi-xa-c2152.html"
+  "bo-goi-xa-c2152.html",
 ];
 
-// Phone accessories grouping
 const PHONE_ACCESSORIES_SLUGS = [
   "phu-kien-dien-thoai-c2474.html",
-  "cap-sac-c2693.html"
+  "cap-sac-c2693.html",
 ];
 
-// Makeup grouping
 const MAKEUP_SLUGS = [
   "trang-diem-c23.html",
-  "son-kem-tint-c49.html"
+  "son-kem-tint-c49.html",
 ];
 
 /**
  * Normalizes category matching to handle hierarchy rollups.
  */
-export function matchesCategory(productCategory: string, targetCategory: string | { id?: string; slug?: string }): boolean {
-  let targetSlug = typeof targetCategory === "string" ? targetCategory : (targetCategory.slug || "");
-  const targetId = typeof targetCategory === "string" ? "" : (targetCategory.id || "");
+export function matchesCategory(
+  productCategory: string,
+  targetCategory: string | { id?: string; slug?: string }
+): boolean {
+  let targetSlug = typeof targetCategory === "string" ? targetCategory : targetCategory.slug || "";
+  const targetId = typeof targetCategory === "string" ? "" : targetCategory.id || "";
 
   if (!targetSlug && targetId && CATEGORY_ID_TO_SLUG[targetId]) {
     targetSlug = CATEGORY_ID_TO_SLUG[targetId];
   }
 
-  if (!targetSlug) return true; // "Tất cả"
-
+  if (!targetSlug) return true;
   if (productCategory === targetSlug) return true;
 
   if (targetSlug === "cham-soc-da-mat-c4.html") {
@@ -160,22 +145,42 @@ export function matchesCategory(productCategory: string, targetCategory: string 
 }
 
 /**
- * Returns the dated Flash Deals snapshot with runtime catalog values.
+ * Derives active Flash Deals strictly from live catalog state.
  */
-export function getDealsSnapshot(liveCatalog?: LiveCatalogOverridesState): DealProduct[] {
-  // Campaign membership/countdowns are not migrated into PostgreSQL yet.
-  if (liveCatalog?.source === "postgres") return [];
-  const items = ((dealsJson.products as DealProduct[]) || []).map(p => ({
-    ...p, progress: p.deal?.bought_percent,
-  }));
-  return applyCatalogOverrides(items, liveCatalog);
+export function getDealsSnapshot(
+  liveCatalog: LiveCatalogOverridesState = getStaticCatalogOverrides()
+): DealProduct[] {
+  const deleted = new Set(liveCatalog.deletedSlugs);
+  const items = Object.values(liveCatalog.products)
+    .filter((p) => p.slug && !deleted.has(p.slug) && (p.sale > 0 || (p.old > 0 && p.old > p.price)))
+    .sort((a, b) => (b.sale || 0) - (a.sale || 0))
+    .map<DealProduct>((p) => ({
+      id: p.id || p.sku,
+      sku: p.sku,
+      slug: p.slug,
+      name: p.name,
+      brand: p.brand,
+      category: p.category,
+      price: p.price,
+      old: p.old,
+      sale: p.sale,
+      image: p.image,
+      rating: p.rating,
+      reviewCount: p.reviewCount,
+      sold: p.sold,
+      description: p.description,
+      isSample: false,
+    }));
+
+  return items;
 }
 
 /**
- * Returns the category filter options for Flash Deals.
- * Preserves the exact 7 categories expected by tests & adds rich categories from scraped data.
+ * Returns category filter options with live Flash Deal counts.
  */
-export function getDealCategories(liveCatalog?: LiveCatalogOverridesState): DealCategoryOption[] {
+export function getDealCategories(
+  liveCatalog: LiveCatalogOverridesState = getStaticCatalogOverrides()
+): DealCategoryOption[] {
   const baseFilters: DealCategoryOption[] = [
     { label: "Tất cả", id: "", slug: "" },
     { label: "Chăm Sóc Cá Nhân", id: "2049", slug: "cham-soc-ca-nhan-c2049.html" },
@@ -188,76 +193,90 @@ export function getDealCategories(liveCatalog?: LiveCatalogOverridesState): Deal
     { label: "Balo & Túi Xách", id: "2749", slug: "balo-tui-xach-c2749.html" },
     { label: "Thiết Bị Âm Thanh", id: "2930", slug: "thiet-bi-am-thanh-c2930.html" },
     { label: "Vệ Sinh Nhà Cửa", id: "2462", slug: "ve-sinh-nha-cua-c2462.html" },
-    { label: "Sản Phẩm Cho Bé", id: "2497", slug: "san-pham-cho-be-c2497.html" }
+    { label: "Sản Phẩm Cho Bé", id: "2497", slug: "san-pham-cho-be-c2497.html" },
   ];
 
   const deals = getDealsSnapshot(liveCatalog);
-  return baseFilters.map(filter => {
-    const count = filter.id === ""
-      ? deals.length
-      : deals.filter(d => matchesCategory(d.category, filter)).length;
+  return baseFilters.map((filter) => {
+    const count =
+      filter.id === ""
+        ? deals.length
+        : deals.filter((d) => matchesCategory(d.category, filter)).length;
     return { ...filter, count };
   });
 }
 
 /**
- * Returns the dated Bestseller ordering with runtime catalog values.
+ * Derives Bestseller rankings strictly from live catalog state.
  */
-export function getBestsellersSnapshot(liveCatalog?: LiveCatalogOverridesState): BestsellerProduct[] {
-  if (liveCatalog?.source === "postgres") return [];
-  const items = ((bestsellersJson.products as ProductSummary[]) || []).map((p, index) => ({
-    ...p, rank: index + 1, badge: index < 3 ? `#${index + 1}` : undefined,
-  }));
-  return applyCatalogOverrides(items, liveCatalog);
-}
+export function getBestsellersSnapshot(
+  liveCatalog: LiveCatalogOverridesState = getStaticCatalogOverrides()
+): BestsellerProduct[] {
+  const deleted = new Set(liveCatalog.deletedSlugs);
+  const sorted = Object.values(liveCatalog.products)
+    .filter((p) => p.slug && !deleted.has(p.slug))
+    .sort((a, b) => (b.sold ?? 0) - (a.sold ?? 0) || (b.reviewCount ?? 0) - (a.reviewCount ?? 0));
 
-/**
- * Returns scraped category products for a given category slug.
- */
-export function getScrapedCategoryProducts(categorySlug?: string): ProductSummary[] {
-  const record = categoryProductsJson as Record<string, ProductSummary[]>;
-  if (!categorySlug) {
-    const all: ProductSummary[] = [];
-    const seen = new Set<string>();
-    for (const list of Object.values(record)) {
-      for (const item of list) {
-        if (!seen.has(item.slug)) {
-          seen.add(item.slug);
-          all.push(item);
-        }
-      }
-    }
-    return all;
-  }
-
-  if (record[categorySlug]) {
-    return record[categorySlug];
-  }
-
-  // Fallback to sample products matching category
-  return sampleCategoryProducts(categorySlug).map(p => ({
-    ...p,
-    isSample: true
+  return sorted.map((p, index) => ({
+    id: p.id || p.sku,
+    sku: p.sku,
+    slug: p.slug,
+    name: p.name,
+    brand: p.brand,
+    category: p.category,
+    price: p.price,
+    old: p.old,
+    sale: p.sale,
+    image: p.image,
+    rating: p.rating,
+    reviewCount: p.reviewCount,
+    sold: p.sold,
+    description: p.description,
+    isSample: false,
+    rank: index + 1,
+    badge: index < 3 ? `#${index + 1}` : undefined,
   }));
 }
 
 /**
- * Returns all scraped products deduplicated across datasets.
+ * Returns live category products for a given category slug.
  */
-export function getAllScrapedProducts(): ProductSummary[] {
-  const map = new Map<string, ProductSummary>();
+export function getScrapedCategoryProducts(
+  categorySlug?: string,
+  liveCatalog: LiveCatalogOverridesState = getStaticCatalogOverrides()
+): ProductSummary[] {
+  const deleted = new Set(liveCatalog.deletedSlugs);
+  return Object.values(liveCatalog.products)
+    .filter((p) => {
+      if (!p.slug || deleted.has(p.slug)) return false;
+      return categorySlug ? matchesCategory(p.category, categorySlug) : true;
+    })
+    .map((p) => ({
+      id: p.id || p.sku,
+      sku: p.sku,
+      slug: p.slug,
+      name: p.name,
+      brand: p.brand,
+      category: p.category,
+      price: p.price,
+      old: p.old,
+      sale: p.sale,
+      image: p.image,
+      rating: p.rating,
+      reviewCount: p.reviewCount,
+      sold: p.sold,
+      description: p.description,
+      isSample: false,
+    }));
+}
 
-  for (const p of getBestsellersSnapshot()) {
-    map.set(p.slug, p);
-  }
-  for (const p of getDealsSnapshot()) {
-    if (!map.has(p.slug)) map.set(p.slug, p);
-  }
-  for (const p of getScrapedCategoryProducts()) {
-    if (!map.has(p.slug)) map.set(p.slug, p);
-  }
-
-  return Array.from(map.values());
+/**
+ * Returns all live catalog products as ProductSummary[].
+ */
+export function getAllScrapedProducts(
+  liveCatalog: LiveCatalogOverridesState = getStaticCatalogOverrides()
+): ProductSummary[] {
+  return getScrapedCategoryProducts(undefined, liveCatalog);
 }
 
 /**
@@ -276,7 +295,7 @@ export function filterDealProducts(
 ): DealProduct[] {
   const { categoryId = "", query = "", brand = "", sort = "topsale", minPrice = null, maxPrice = null } = options;
 
-  const filtered = items.filter(product => {
+  const filtered = items.filter((product) => {
     if (categoryId && !matchesCategory(product.category, { id: categoryId })) {
       return false;
     }
@@ -324,7 +343,7 @@ export function filterBestsellerProducts(
 ): BestsellerProduct[] {
   const { brand = "", category = "", sort = "topsale", minPrice = null, maxPrice = null } = options;
 
-  const filtered = items.filter(product => {
+  const filtered = items.filter((product) => {
     if (brand && product.brand !== brand) {
       return false;
     }

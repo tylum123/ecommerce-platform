@@ -1,9 +1,9 @@
 export const dynamic = "force-dynamic";
 import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";
 import Link from "next/link";
-import { Header } from "@/components/sites/hasaki/header";
-import { Footer } from "@/components/sites/hasaki/footer";
-import { DealsList } from "@/components/sites/hasaki/deals-list";
+import { Header } from "@/components/sites/nari/header";
+import { Footer } from "@/components/sites/nari/footer";
+import { DealsList } from "@/components/sites/nari/deals-list";
 import {
   getDealsSnapshot,
   getDealCategories,

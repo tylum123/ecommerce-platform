@@ -26,9 +26,9 @@ const catalog = { source:'postgres',products:{ [product.slug]:product },deletedS
 const renderStubs = {
   'next/link':{ __esModule:true,default:({ children,...props }) => React.createElement('a',props,children) },
   'next/image':{ __esModule:true,default:() => null },
-  '@/components/sites/hasaki/header':{ Header:() => null },
-  '@/components/sites/hasaki/footer':{ Footer:() => null },
-  '@/components/sites/hasaki/product-rich-sections':{ ProductRichSections:() => null },
+  '@/components/sites/nari/header':{ Header:() => null },
+  '@/components/sites/nari/footer':{ Footer:() => null },
+  '@/components/sites/nari/product-rich-sections':{ ProductRichSections:() => null },
 };
 
 test('current category hierarchy uses merchant IDs/slugs with no snapshot equivalence', () => {
@@ -42,9 +42,9 @@ test('new and empty merchant brand/category routes render; unknown static/guesse
   const stubs = { ...renderStubs,
     'next/navigation':{ notFound:() => { throw Error('404'); } },
     '@/lib/server/live-catalog-store':{ readStorefrontCatalog:async () => catalog },
-    '@/components/sites/hasaki/catalog-view':{ CategoryView:() => null,ProductView:() => null },
-    '@/components/sites/hasaki/brand-products':{ BrandProducts:() => null },
-    '@/components/sites/hasaki/new-product-view':{ NewProductView:() => null },
+    '@/components/sites/nari/catalog-view':{ CategoryView:() => null,ProductView:() => null },
+    '@/components/sites/nari/brand-products':{ BrandProducts:() => null },
+    '@/components/sites/nari/new-product-view':{ NewProductView:() => null },
   };
   const CategoryPage = load('src/app/danh-muc/[slug]/page.tsx',stubs).default;
   for (const slug of ['merchant-parent.html','empty-category']) assert.equal((await CategoryPage({ params:Promise.resolve({ slug }) })).props.slug,slug);
@@ -65,15 +65,15 @@ test('new and empty merchant brand/category routes render; unknown static/guesse
 });
 
 test('merchant brand card and product detail render managed English without synthetic claims', () => {
-  const { ProductCard } = load('src/components/sites/hasaki/product-card.tsx',renderStubs);
-  const { BrandProducts } = load('src/components/sites/hasaki/brand-products.tsx',{ ...renderStubs,'@/components/sites/hasaki/product-card':{ ProductCard } });
+  const { ProductCard } = load('src/components/sites/nari/product-card.tsx',renderStubs);
+  const { BrandProducts } = load('src/components/sites/nari/brand-products.tsx',{ ...renderStubs,'@/components/sites/nari/product-card':{ ProductCard } });
   const html = renderToStaticMarkup(React.createElement(BrandProducts,{ name:'Merchant Brand',items:[product],deals:false,source:'postgres',categoryOptions:[['Merchant Child','merchant-child.html']] }));
   assert.match(html,/Actual English/);
   assert.match(html,/Merchant Child/);
   assert.doesNotMatch(html,/sản phẩm mẫu|tháng 11\/2026|Bill /);
   const deals = renderToStaticMarkup(React.createElement(BrandProducts,{ name:'Merchant Brand',items:[product],deals:true,source:'postgres' }));
   assert.doesNotMatch(deals,/href="\/san-pham\/merchant-product.html"/);
-  const { ProductView } = load('src/components/sites/hasaki/catalog-view.tsx',{ ...renderStubs,'@/components/sites/hasaki/product-card':{ ProductCard } });
+  const { ProductView } = load('src/components/sites/nari/catalog-view.tsx',{ ...renderStubs,'@/components/sites/nari/product-card':{ ProductCard } });
   const detail = renderToStaticMarkup(React.createElement(ProductView,{ slug:product.slug,liveCatalog:catalog,brandHref:'/thuong-hieu/merchant-brand' }));
   assert.match(detail,/Actual English/);
   assert.match(detail,/REAL_SKU/);

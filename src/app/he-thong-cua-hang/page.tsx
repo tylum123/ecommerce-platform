@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { StoreLocatorView } from "@/components/sites/hasaki/store-locator-view";
+import { StoreLocatorView } from "@/components/sites/nari/store-locator-view";
 
 export const metadata: Metadata = {
   title: "Hệ Thống Cửa Hàng & Nari Clinic & Spa Toàn Quốc | Nari Home",

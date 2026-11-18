@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { AdminErpView, AdminAccessDenied } from "@/components/sites/hasaki/admin-erp-view";
+import { AdminErpView, AdminAccessDenied } from "@/components/sites/nari/admin-erp-view";
 import {
   AUTH_COOKIE_NAME,
   verifySignedSessionToken,

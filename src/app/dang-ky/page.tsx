@@ -3,8 +3,8 @@
 import { useState, useTransition, Suspense } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Header } from "@/components/sites/hasaki/header";
-import { Footer } from "@/components/sites/hasaki/footer";
+import { Header } from "@/components/sites/nari/header";
+import { Footer } from "@/components/sites/nari/footer";
 import {
   saveAuthSession,
   DEMO_AUTH_ACCOUNTS,
@@ -336,7 +336,7 @@ function RegisterForm() {
               <span>Bảo mật & Quyền riêng tư</span>
             </div>
             <p className="mt-1 text-[11px] text-[#3d2e24]">
-              Thông tin đăng ký được lưu trữ bảo mật trong cơ sở dữ liệu SQLite/PostgreSQL nội bộ, cấp quyền RBAC vai trò Thành Viên (Member) có điểm thưởng tích lũy.
+              Thông tin đăng ký được lưu trữ bảo mật trong cơ sở dữ liệu PostgreSQL, cấp quyền RBAC vai trò Thành Viên (Member) có điểm thưởng tích lũy.
             </p>
           </div>
         </div>

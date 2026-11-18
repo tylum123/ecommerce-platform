@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { CampaignWowView } from "@/components/sites/hasaki/campaign-wow-view";
+import { CampaignWowView } from "@/components/sites/nari/campaign-wow-view";
 import { getCampaignWowData } from "@/lib/campaigns-location";
 import { getCampaignProducts } from "@/lib/campaign-catalog";
 import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";

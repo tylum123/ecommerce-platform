@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Header } from "@/components/sites/hasaki/header";
-import { Footer } from "@/components/sites/hasaki/footer";
+import { Header } from "@/components/sites/nari/header";
+import { Footer } from "@/components/sites/nari/footer";
 import {
   clinicServices,
   CLINIC_SERVICE_CATEGORIES,
@@ -35,9 +35,9 @@ export default function BangGiaDichVuPage() {
       <Header />
       <nav className="booking-clinic-nav" aria-label="Nari Clinic & Spa">
         <div className="wrap">
-          <Link href="/danh-muc/hasaki-clinic-spa-c331.html">Nari Clinic & Spa &amp; SPA</Link>
+          <Link href="/danh-muc/nari-clinic-spa.html">Nari Clinic & Spa &amp; SPA</Link>
           <Link href="/ho-tro/gioi-thieu">GIỚI THIỆU</Link>
-          <Link href="/danh-muc/hasaki-clinic-spa-c331.html">DỊCH VỤ</Link>
+          <Link href="/danh-muc/nari-clinic-spa.html">DỊCH VỤ</Link>
           <Link href="/bang-gia-dich-vu.html" style={{ fontWeight: "bold", color: "#f47722" }}>
             BẢNG GIÁ
           </Link>
@@ -50,7 +50,7 @@ export default function BangGiaDichVuPage() {
       <main className="wrap clinic-page" style={{ paddingTop: "14px" }}>
         <div className="breadcrumbs">
           <Link href="/">Trang chủ</Link> ›{" "}
-          <Link href="/danh-muc/hasaki-clinic-spa-c331.html">Nari Clinic & Spa &amp; Spa</Link> › Bảng giá dịch vụ
+          <Link href="/danh-muc/nari-clinic-spa.html">Nari Clinic & Spa &amp; Spa</Link> › Bảng giá dịch vụ
         </div>
 
         {/* Page Banner / Title Header */}

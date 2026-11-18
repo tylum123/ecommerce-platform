@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     if ("action" in input) {
       const { error } = await session.client.auth.signOut({ scope: "local" });
       if (error) return unavailable(session.response);
-      session.response.cookies.set("hasaki_session", "", { maxAge: 0, httpOnly: true, secure: config.origin.startsWith("https:"), sameSite: "lax", path: "/" });
+      session.response.cookies.set("nari_session", "", { maxAge: 0, httpOnly: true, secure: config.origin.startsWith("https:"), sameSite: "lax", path: "/" });
       return sessionResponse(session.response, { ok: true, businessAccess: false });
     }
     const { data, error } = await session.client.auth.signInWithPassword(input);

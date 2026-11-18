@@ -1,4 +1,4 @@
-import { CampaignWowView } from "@/components/sites/hasaki/campaign-wow-view";
+import { CampaignWowView } from "@/components/sites/nari/campaign-wow-view";
 import { getCampaignWowData } from "@/lib/campaigns-location";
 import { notFound } from "next/navigation";
 import { isKnownCampaign, getCampaignProducts } from "@/lib/campaign-catalog";

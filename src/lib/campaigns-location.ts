@@ -1,7 +1,6 @@
 import type { LocationSelection, ProductSummary, CampaignBanner } from "@/lib/backend-contracts";
 export type { LocationSelection, ProductSummary, CampaignBanner };
-import campaignsData from "../../docs/research/hasaki/campaigns-home-2026-11-13.json";
-import { BRAND_CONFIG, brandDeep, brandText } from "@/lib/brand-config";
+import { BRAND_CONFIG } from "@/lib/brand-config";
 
 export interface ProvinceLocation {
   name: string;
@@ -408,8 +407,8 @@ export const VIETNAM_LOCATIONS: ProvinceLocation[] = [
   },
 ];
 
-const LOCATION_STORAGE_KEY = "hasaki-demo-location";
-export const LOCATION_CHANGE_EVENT = "hasaki-location-change";
+const LOCATION_STORAGE_KEY = "nari-location";
+export const LOCATION_CHANGE_EVENT = "nari-location-change";
 
 /**
  * Reads user's selected location from localStorage.
@@ -503,22 +502,6 @@ export interface CampaignWowData {
   flashSlots: CampaignFlashSlot[];
 }
 
-export function getCampaignWowData(): CampaignWowData {
-  const wow = campaignsData.campaignWow;
-  return brandDeep({
-    url: wow.url,
-    title: wow.title,
-    description: wow.description,
-    ogImage: wow.ogImage,
-    banners: wow.observedImages,
-    flashSlots: (wow.flashSlots as CampaignFlashSlot[]) || [],
-  });
-}
-
-export function getHomeWidgetsSnapshot() {
-  return brandDeep(campaignsData.homeWidgets);
-}
-
 export interface TagPageData {
   slug: string;
   url: string;
@@ -529,32 +512,119 @@ export interface TagPageData {
   observedImages?: Array<{ src: string; alt?: string }>;
 }
 
+export const CAMPAIGN_WOW_DATA: CampaignWowData = {
+  url: `https://${BRAND_CONFIG.domain}/campaign/wow`,
+  title: `Khuyến Mãi Mỹ Phẩm Giá Tốt, Ưu Đãi Khủng | ${BRAND_CONFIG.name}`,
+  description: `Top Deal Mỹ Phẩm, tổng hợp chương trình khuyến mãi mỹ phẩm giá tốt. Săn Deals Mỹ Phẩm Ưu Đãi Lớn Tại ${BRAND_CONFIG.name}`,
+  ogImage: "/nari-home-banner.jpg",
+  banners: [],
+  flashSlots: [
+    {
+      id: "slot-09",
+      time: "09:00 - 12:00",
+      label: "Đang diễn ra",
+      status: "active",
+      badge: "Deal Sốc Nửa Giá",
+    },
+    {
+      id: "slot-12",
+      time: "12:00 - 18:00",
+      label: "Sắp diễn ra",
+      status: "upcoming",
+      badge: "Freeship 2H",
+    },
+    {
+      id: "slot-18",
+      time: "18:00 - 22:00",
+      label: "Sắp diễn ra",
+      status: "upcoming",
+      badge: "Mua 1 Tặng 1",
+    },
+    {
+      id: "slot-22",
+      time: "22:00 - 24:00",
+      label: "Khung giờ đêm",
+      status: "upcoming",
+      badge: "Giảm Thêm 50K",
+    },
+  ],
+};
+
+export const KNOWN_TAG_PAGES: Record<string, TagPageData> = {
+  "dai-tiec-hang-hieu.html": {
+    slug: "dai-tiec-hang-hieu.html",
+    url: `https://${BRAND_CONFIG.domain}/tag/dai-tiec-hang-hieu.html`,
+    title: `Đại Tiệc Hàng Hiệu | ${BRAND_CONFIG.name}`,
+    heading: "Đại Tiệc Hàng Hiệu - Sản Phẩm Cao Cấp",
+    description:
+      "Đại Tiệc Hàng Hiệu - Tuyển chọn mỹ phẩm và sản phẩm làm đẹp cao cấp chính hãng từ các thương hiệu hàng đầu thế giới với ưu đãi hấp dẫn.",
+    ogImage: "/nari-home-banner.jpg",
+    observedImages: [],
+  },
+  "deal-for-men.html": {
+    slug: "deal-for-men.html",
+    url: `https://${BRAND_CONFIG.domain}/tag/deal-for-men.html`,
+    title: `Deal For Men - Sản Phẩm Phái Mạnh | ${BRAND_CONFIG.name}`,
+    heading: "Deal For Men - Chăm Sóc Toàn Diện Phái Mạnh",
+    description:
+      "Bộ sưu tập sản phẩm chăm sóc da mặt, cơ thể và tóc chuyên biệt dành riêng cho nam giới từ các thương hiệu uy tín.",
+    ogImage: "/nari-home-banner.jpg",
+    observedImages: [],
+  },
+};
+
+export function getCampaignWowData(): CampaignWowData {
+  return CAMPAIGN_WOW_DATA;
+}
+
+export function getHomeWidgetsSnapshot() {
+  return {
+    heroBanners: [] as Array<{ id: string; title: string; image: string; href: string }>,
+    rightBanners: [] as Array<{ id: string; title: string; image: string; href: string }>,
+    shortcuts: [] as Array<{ id: string; name: string; icon: string; url: string }>,
+    subBanners: [] as Array<{ id: string; title: string; image: string; href: string }>,
+    flashDeal: {
+      title: "Flash deals",
+      titleColorHex: "#ffffff",
+      backgroundColor: "#FF8E4D",
+      countdown: 0,
+      url: "/deals-dang-dien-ra.html",
+      products: [] as Array<Record<string, unknown>>,
+    },
+    featuredCategories: [] as Array<{ name: string; image: string; url: string }>,
+    featuredBrands: {
+      title: "Thương hiệu",
+      banners: [] as Array<{ id: string; title: string; image: string; href: string }>,
+      brands: [] as Array<{ name: string; image: string; logo: string; url: string }>,
+    },
+    topSales: [] as Array<{ image: string; url: string; totalSold: string }>,
+  };
+}
+
 export function getTagPageData(slug: string): TagPageData {
   const normalizedSlug = slug.endsWith(".html") ? slug : `${slug}.html`;
-  const knownTags = campaignsData.tagPages as Record<string, TagPageData>;
 
-  if (knownTags[normalizedSlug]) {
-    return brandDeep(knownTags[normalizedSlug]);
+  if (Object.hasOwn(KNOWN_TAG_PAGES, normalizedSlug)) {
+    return KNOWN_TAG_PAGES[normalizedSlug];
   }
 
-  // Fallback for any generic tag slug
   const cleanName = slug
     .replace(/\.html$/, "")
     .replace(/-/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
 
-  return brandDeep({
+  return {
     slug: normalizedSlug,
     url: `https://${BRAND_CONFIG.domain}/tag/${normalizedSlug}`,
     title: `${cleanName} | ${BRAND_CONFIG.name}`,
     heading: cleanName,
     description: `Danh sách các sản phẩm và deal nổi bật theo chuyên đề ${cleanName} tại ${BRAND_CONFIG.name}`,
-    ogImage: "https://media.Nari Home/hsk/banner/hasaki_slogan_2020.jpg",
-  });
+    ogImage: "/nari-home-banner.jpg",
+  };
 }
 
 // ----------------------------------------------------------------------
-// Customer Portal Demo Contracts
+// Customer Portal Contracts
 // ----------------------------------------------------------------------
 
 export interface CustomerMenuLink {
@@ -611,64 +681,7 @@ export interface DemoOrder {
 }
 
 export function getDemoOrderHistory(): DemoOrder[] {
-  return brandDeep([
-    {
-      id: "ord-202611-0941",
-      code: `${BRAND_CONFIG.orderPrefix}-202611-0941`,
-      createdAt: "12/11/2026 14:32",
-      status: "Đang giao hàng",
-      paymentMethod: "Thanh toán khi nhận hàng (COD)",
-      deliveryType: BRAND_CONFIG.deliveryName,
-      shippingAddress: "71 Hoàng Hoa Thám, Phường 13, Quận Tân Bình, TP. Hồ Chí Minh",
-      recipientName: "Nguyễn Văn An",
-      recipientPhone: "0901234567",
-      items: [
-        {
-          sku: "422208973",
-          name: "Sữa Rửa Mặt CeraVe Sạch Sâu Cho Da Thường Đến Da Dầu 473ml",
-          brand: "CeraVe",
-          price: 314000,
-          quantity: 1,
-          slug: "sua-rua-mat-cerave-sach-sau-cho-da-thuong-den-da-dau-473ml-102959.html",
-        },
-        {
-          sku: "200400003",
-          name: "Nước Tẩy Trang Bioderma Dành Cho Da Nhạy Cảm 500ml",
-          brand: "Bioderma",
-          price: 360000,
-          quantity: 1,
-          slug: "nuoc-tay-trang-bioderma-danh-cho-da-nhay-cam-500ml-9740.html",
-        },
-      ],
-      subtotal: 674000,
-      shippingFee: 0,
-      total: 674000,
-    },
-    {
-      id: "ord-202610-8812",
-      code: `${BRAND_CONFIG.orderPrefix}-202610-8812`,
-      createdAt: "28/10/2026 10:15",
-      status: "Đã giao thành công",
-      paymentMethod: "Chuyển khoản VNPAY-QR",
-      deliveryType: BRAND_CONFIG.deliveryName,
-      shippingAddress: "71 Hoàng Hoa Thám, Phường 13, Quận Tân Bình, TP. Hồ Chí Minh",
-      recipientName: "Nguyễn Văn An",
-      recipientPhone: "0901234567",
-      items: [
-        {
-          sku: "253900006",
-          name: "Kem Chống Nắng Skin1004 Cho Da Nhạy Cảm SPF 50+ 50ml",
-          brand: "Skin1004",
-          price: 249000,
-          quantity: 2,
-          slug: "kem-chong-nang-skin1004-chiet-xuat-rau-ma-spf50-pa-50ml-86167.html",
-        },
-      ],
-      subtotal: 498000,
-      shippingFee: 0,
-      total: 498000,
-    },
-  ]);
+  return [];
 }
 
 export interface DemoBooking {
@@ -684,29 +697,7 @@ export interface DemoBooking {
 }
 
 export function getDemoBookingHistory(): DemoBooking[] {
-  return brandDeep([
-    {
-      id: "bk-202611-192",
-      code: "CLINIC-19240",
-      serviceName: "Lấy Nhân Mụn Y Khoa Chuẩn Y Khoa + Điện Di Trị Thâm",
-      branchName: `${BRAND_CONFIG.shortName} Clinic Hoàng Hoa Thám`,
-      branchAddress: "71 Hoàng Hoa Thám, P. 13, Q. Tân Bình, TP.HCM",
-      appointmentTime: "15:00 - Thứ Bảy, 15/11/2026",
-      status: "Sắp tới",
-      doctorAssigned: "BS. CKI Da Liễu Nguyễn Thị Mai",
-      note: "Khách hàng lưu ý đến trước 10 phút để được khám soi da miễn phí",
-    },
-    {
-      id: "bk-202610-104",
-      code: "CLINIC-10482",
-      serviceName: "Chăm Sóc Da Mặt Chuyên Sâu Tái Tạo Cấp Ẩm Hyaluronic Acid",
-      branchName: `${BRAND_CONFIG.shortName} Clinic 3/2`,
-      branchAddress: "555 Đường 3 Tháng 2, P. 8, Q. 10, TP.HCM",
-      appointmentTime: "10:30 - Chủ Nhật, 26/10/2026",
-      status: "Đã hoàn thành",
-      doctorAssigned: "KTV. Trần Bảo Ngọc",
-    },
-  ]);
+  return [];
 }
 
 export interface DemoLoyaltySummary {
@@ -726,47 +717,16 @@ export interface DemoLoyaltySummary {
 }
 
 export function getDemoLoyaltySummary(): DemoLoyaltySummary {
-  return brandDeep({
-    memberCode: `${BRAND_CONFIG.orderPrefix}-GOLD-88219`,
-    points: 420,
-    tier: "Gold",
+  return {
+    memberCode: "",
+    points: 0,
+    tier: "Silver",
     nextTierPoints: 500,
-    pointsExpiringSoon: 50,
-    expiryDate: "31/12/2026",
-    benefits: [
-      `Tích lũy 3% giá trị mọi đơn hàng mỹ phẩm & dịch vụ Clinic`,
-      `Miễn phí vận chuyển ${BRAND_CONFIG.deliveryName} không giới hạn đơn từ 99K`,
-      "Tặng Voucher 100.000₫ và quà sinh nhật độc quyền trong tháng sinh nhật",
-      `Ưu tiên đặt hẹn bác sĩ da liễu tại toàn bộ hệ thống ${BRAND_CONFIG.clinicName}`,
-      "Đặc quyền tham gia các đợt Siêu Sale Private Sale trước 24H",
-    ],
-    recentTransactions: [
-      {
-        date: "12/11/2026",
-        description: `Tích điểm đơn hàng ${BRAND_CONFIG.orderPrefix}-202611-0941`,
-        pointsChange: +20,
-        type: "earn",
-      },
-      {
-        date: "28/10/2026",
-        description: `Tích điểm đơn hàng ${BRAND_CONFIG.orderPrefix}-202610-8812`,
-        pointsChange: +15,
-        type: "earn",
-      },
-      {
-        date: "26/10/2026",
-        description: `Tích điểm dịch vụ ${BRAND_CONFIG.clinicName} CLINIC-10482`,
-        pointsChange: +35,
-        type: "earn",
-      },
-      {
-        date: "15/09/2026",
-        description: "Đổi điểm nhận Voucher Giảm 50K",
-        pointsChange: -100,
-        type: "redeem",
-      },
-    ],
-  });
+    pointsExpiringSoon: 0,
+    expiryDate: "",
+    benefits: [],
+    recentTransactions: [],
+  };
 }
 
 export interface DemoUserProfile {
@@ -781,11 +741,11 @@ export interface DemoUserProfile {
 
 export function getDemoUserProfile(): DemoUserProfile {
   return {
-    fullName: "Nguyễn Văn An",
-    phone: "0901234567",
-    email: `nguyenvanan.demo@${BRAND_CONFIG.emailDomain}`,
-    gender: "Nam",
-    birthday: "1995-08-15",
-    joinedDate: "15/03/2023",
+    fullName: "",
+    phone: "",
+    email: "",
+    gender: "Khác",
+    birthday: "",
+    joinedDate: "",
   };
 }

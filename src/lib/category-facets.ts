@@ -1,74 +1,121 @@
 import type { FacetGroup, FacetOption } from "@/lib/backend-contracts";
 import { categories, type Product } from "@/lib/catalog";
-import facetsRaw from "../../docs/research/hasaki/category-facets-2026-11-13.json";
-
-interface RawFacetOption {
-  key: string | number;
-  label: string;
-  count?: number;
-}
-
-interface RawFacetGroup {
-  code: string;
-  name: string;
-  options: RawFacetOption[];
-}
-
-const facetsMap = facetsRaw as Record<string, RawFacetGroup[] | undefined>;
-
-const excludedCodes = new Set(["filter_brand", "filter_category"]);
 
 const facetPriority: Record<string, number> = {
-  filter_hsk_skin_type: 1, // Loại da
-  filter_hsk_uses: 2, // Công dụng chính
-  filter_origin: 3, // Xuất xứ thương hiệu
-  filter_hsk_structure: 4, // Kết cấu
-  filter_hsk_size: 5, // Dung tích
-  filter_hsk_ingredient: 6, // Thành phần nổi bật
-  filter_hsk_skin_problem: 7, // Vấn đề về da
-  filter_hsk_product_type: 8, // Loại sản phẩm
-  filter_dac_tinh: 9, // Đặc tính
-  filter_sex: 10, // Giới tính
-  filter_hsk_tones: 11, // Màu sắc
-  filter_hsk_product_line: 12, // Dòng sản phẩm
+  filter_brand: 1,
+  filter_price: 2,
+  filter_category: 3,
+  filter_origin: 4,
+  filter_nari_skin_type: 5,
+  filter_nari_uses: 6,
+  filter_nari_structure: 7,
+  filter_nari_size: 8,
+  filter_nari_ingredient: 9,
+  filter_nari_skin_problem: 10,
+  filter_nari_product_type: 11,
+  filter_dac_tinh: 12,
+  filter_sex: 13,
+  filter_nari_tones: 14,
+  filter_nari_product_line: 15,
 };
 
+const originBrandsMap: Record<string, string[]> = {
+  "Pháp": ["bioderma", "la roche-posay", "l'oreal", "vichy", "avene", "svr", "caudalie", "nuxe", "laroche posay"],
+  "Hàn Quốc": ["skin1004", "klairs", "some by mi", "banobagi", "bnbg", "cosrx", "torriden", "round lab", "beauty of joseon", "3ce", "anua", "medicube", "b.o.m", "judydoll"],
+  "Việt Nam": ["cocoon", "cỏ mềm", "thorakao", "milaganics", "avander"],
+  "Nhật Bản": ["hada labo", "rohto", "senka", "anessa", "biore", "dhc", "sk-ii", "curel", "sunplay"],
+  "Mỹ": ["cerave", "paula's choice", "neutrogena", "clinique", "estee lauder", "anker", "kiehl's", "tresemme"],
+  "Đức": ["eucerin", "nivea", "sebamed"],
+  "Anh": ["simple", "the body shop"],
+  "Úc": ["australis", "sukkin"],
+  "Thụy Sĩ": ["skincode"],
+  "Canada": ["the ordinary"],
+};
+
+function normalizeText(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d");
+}
+
 /**
- * Returns the scraped facet groups for a category slug, excluding duplicate
- * Brand and Category groups which are rendered as dedicated sections.
- * Falls back to cham-soc-da-mat-c4.html when the requested category has no facets.
+ * Computes dynamic brand, price, category, and origin facets from supplied items.
+ * Returns [] when no items are provided.
  */
-export function getCategoryFacets(slug: string): FacetGroup[] {
-  const rawList = facetsMap[slug] && facetsMap[slug]!.length > 0
-    ? facetsMap[slug]!
-    : facetsMap["cham-soc-da-mat-c4.html"] || [];
+export function getCategoryFacets(slug: string, items: readonly Product[] = []): FacetGroup[] {
+  void slug;
+  if (!items || items.length === 0) return [];
 
-  const filtered = rawList.filter(group => {
-    if (excludedCodes.has(group.code)) return false;
-    const nameLower = group.name.toLowerCase();
-    if (nameLower.includes("thương hiệu") || nameLower === "danh mục") return false;
-    return Array.isArray(group.options) && group.options.length > 0;
-  });
+  const brandCounts = new Map<string, number>();
+  const categoryCounts = new Map<string, number>();
+  const originCounts = new Map<string, number>();
 
-  // Sort groups by priority so key groups (Loại da, Công dụng, Xuất xứ, Kết cấu) appear first
-  filtered.sort((a, b) => {
-    const pA = facetPriority[a.code] ?? 99;
-    const pB = facetPriority[b.code] ?? 99;
-    return pA - pB;
-  });
+  let priceUnder100 = 0;
+  let price100to300 = 0;
+  let price300to500 = 0;
+  let priceAbove500 = 0;
 
-  return filtered.map(group => {
-    const options: FacetOption[] = group.options.map(opt => ({
-      label: opt.label.replace(/&amp;/g, "&"),
-      value: opt.key,
-      count: opt.count ?? 0,
-    }));
-    return {
-      key: group.code,
-      name: group.name,
-      options,
-    };
-  });
+  for (const item of items) {
+    if (item.brand) {
+      brandCounts.set(item.brand, (brandCounts.get(item.brand) || 0) + 1);
+      const brandNorm = normalizeText(item.brand);
+      for (const [country, brands] of Object.entries(originBrandsMap)) {
+        if (brands.some((b) => brandNorm.includes(normalizeText(b)))) {
+          originCounts.set(country, (originCounts.get(country) || 0) + 1);
+          break;
+        }
+      }
+    }
+    if (item.category) {
+      categoryCounts.set(item.category, (categoryCounts.get(item.category) || 0) + 1);
+    }
+    if (item.price < 100000) priceUnder100++;
+    else if (item.price <= 300000) price100to300++;
+    else if (item.price <= 500000) price300to500++;
+    else priceAbove500++;
+  }
+
+  const groups: FacetGroup[] = [];
+
+  if (brandCounts.size > 0) {
+    const options: FacetOption[] = Array.from(brandCounts.entries())
+      .map(([name, count]) => ({ label: name, value: name, count }))
+      .sort((a, b) => (b.count ?? 0) - (a.count ?? 0));
+    groups.push({ key: "filter_brand", name: "Thương hiệu", options });
+  }
+
+  const priceOptions: FacetOption[] = [
+    { label: "Dưới 100.000 ₫", value: "0-100000", count: priceUnder100 },
+    { label: "100.000 ₫ - 300.000 ₫", value: "100000-300000", count: price100to300 },
+    { label: "300.000 ₫ - 500.000 ₫", value: "300000-500000", count: price300to500 },
+    { label: "Trên 500.000 ₫", value: "500000-max", count: priceAbove500 },
+  ].filter((opt) => (opt.count ?? 0) > 0);
+
+  if (priceOptions.length > 0) {
+    groups.push({ key: "filter_price", name: "Khoảng giá", options: priceOptions });
+  }
+
+  if (categoryCounts.size > 0) {
+    const options: FacetOption[] = Array.from(categoryCounts.entries())
+      .map(([catSlug, count]) => {
+        const match = categories.find((c) => c[1] === catSlug);
+        return { label: match ? match[0] : catSlug, value: catSlug, count };
+      })
+      .sort((a, b) => (b.count ?? 0) - (a.count ?? 0));
+    groups.push({ key: "filter_category", name: "Danh mục", options });
+  }
+
+  if (originCounts.size > 0) {
+    const options: FacetOption[] = Array.from(originCounts.entries())
+      .map(([country, count]) => ({ label: country, value: country, count }))
+      .sort((a, b) => (b.count ?? 0) - (a.count ?? 0));
+    groups.push({ key: "filter_origin", name: "Xuất xứ thương hiệu", options });
+  }
+
+  groups.sort((a, b) => (facetPriority[a.key] ?? 99) - (facetPriority[b.key] ?? 99));
+  return groups;
 }
 
 const subcategorySlugsMap: Record<string, string[]> = {
@@ -121,31 +168,10 @@ const subcategorySlugsMap: Record<string, string[]> = {
  */
 export function getSubcategoriesForCategory(slug: string): Array<readonly [string, string]> {
   const childSlugs = subcategorySlugsMap[slug] || [];
-  return childSlugs.flatMap(childSlug => {
-    const item = categories.find(c => c[1] === childSlug);
+  return childSlugs.flatMap((childSlug) => {
+    const item = categories.find((c) => c[1] === childSlug);
     return item ? [item] : [];
   });
-}
-
-const originBrandsMap: Record<string, string[]> = {
-  "Pháp": ["bioderma", "la roche-posay", "l'oreal", "vichy", "avene", "svr", "caudalie", "nuxe", "laroche posay"],
-  "Hàn Quốc": ["skin1004", "klairs", "some by mi", "banobagi", "bnbg", "cosrx", "torriden", "round lab", "beauty of joseon", "3ce", "anua", "medicube", "b.o.m", "judydoll"],
-  "Việt Nam": ["cocoon", "cỏ mềm", "thorakao", "milaganics", "avander"],
-  "Nhật Bản": ["hada labo", "rohto", "senka", "anessa", "biore", "dhc", "sk-ii", "curel", "sunplay"],
-  "Mỹ": ["cerave", "paula's choice", "neutrogena", "clinique", "estee lauder", "anker", "kiehl's", "tresemme"],
-  "Đức": ["eucerin", "nivea", "sebamed"],
-  "Anh": ["simple", "the body shop"],
-  "Úc": ["australis", "sukkin"],
-  "Thụy Sĩ": ["skincode"],
-  "Canada": ["the ordinary"],
-};
-
-function normalizeText(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d");
 }
 
 /**
@@ -162,11 +188,31 @@ export function matchesDynamicFacet(
   const descNormalized = normalizeText(product.description || "");
   const fullText = `${nameNormalized} ${brandNormalized} ${descNormalized}`;
 
+  if (facetCode === "filter_brand") {
+    return brandNormalized === optNormalized;
+  }
+
+  if (facetCode === "filter_category") {
+    const matchedCat = categories.find((c) => normalizeText(c[0]) === optNormalized);
+    return product.category === optionLabel || (matchedCat ? product.category === matchedCat[1] : false);
+  }
+
+  if (facetCode === "filter_price") {
+    if (optNormalized.includes("duoi 100")) return product.price < 100000;
+    if (optNormalized.includes("100.000") && optNormalized.includes("300.000")) {
+      return product.price >= 100000 && product.price <= 300000;
+    }
+    if (optNormalized.includes("300.000") && optNormalized.includes("500.000")) {
+      return product.price > 300000 && product.price <= 500000;
+    }
+    if (optNormalized.includes("tren 500")) return product.price > 500000;
+  }
+
   // 1. ORIGIN (Xuất xứ thương hiệu)
   if (facetCode === "filter_origin" || optNormalized.includes("xuat xu")) {
     for (const [country, brands] of Object.entries(originBrandsMap)) {
       if (normalizeText(country) === optNormalized || optNormalized.includes(normalizeText(country))) {
-        if (brands.some(b => brandNormalized.includes(normalizeText(b)))) {
+        if (brands.some((b) => brandNormalized.includes(normalizeText(b)))) {
           return true;
         }
       }
@@ -176,7 +222,7 @@ export function matchesDynamicFacet(
   }
 
   // 2. SKIN TYPE (Loại da)
-  if (facetCode === "filter_hsk_skin_type") {
+  if (facetCode === "filter_nari_skin_type") {
     if (optNormalized.includes("dau") || optNormalized.includes("hon hop dau")) {
       return (
         fullText.includes("dau") ||
@@ -214,13 +260,12 @@ export function matchesDynamicFacet(
       );
     }
     if (optNormalized.includes("moi loai da") || optNormalized.includes("da thuong")) {
-      // General skincare items typically suit normal/all skin
       return true;
     }
   }
 
   // 3. USES (Công dụng chính)
-  if (facetCode === "filter_hsk_uses") {
+  if (facetCode === "filter_nari_uses") {
     if (optNormalized.includes("duong am") || optNormalized.includes("cap nuoc")) {
       return (
         fullText.includes("duong am") ||
@@ -285,7 +330,7 @@ export function matchesDynamicFacet(
   }
 
   // 4. STRUCTURE (Kết cấu)
-  if (facetCode === "filter_hsk_structure") {
+  if (facetCode === "filter_nari_structure") {
     if (optNormalized.includes("kem")) {
       return fullText.includes("kem") || fullText.includes("cream");
     }
@@ -307,7 +352,7 @@ export function matchesDynamicFacet(
   }
 
   // 5. SIZE (Dung tích)
-  if (facetCode === "filter_hsk_size") {
+  if (facetCode === "filter_nari_size") {
     if (optNormalized.includes("fullsize")) {
       return (
         product.price >= 120000 ||
@@ -332,7 +377,7 @@ export function matchesDynamicFacet(
   }
 
   // 6. INGREDIENTS (Thành phần nổi bật)
-  if (facetCode === "filter_hsk_ingredient") {
+  if (facetCode === "filter_nari_ingredient") {
     if (optNormalized.includes("rau ma")) return fullText.includes("rau ma") || fullText.includes("centella");
     if (optNormalized.includes("bha") || optNormalized.includes("salicylic")) return fullText.includes("bha") || fullText.includes("salicylic");
     if (optNormalized.includes("hyaluronic") || optNormalized.includes("ha")) return fullText.includes("hyaluronic") || fullText.includes("ha") || fullText.includes("hada labo");
@@ -341,9 +386,10 @@ export function matchesDynamicFacet(
     if (optNormalized.includes("vitamin c")) return fullText.includes("vitamin c");
   }
 
-  // Fallback: match any significant words (length >= 3) from optionLabel against product text
-  const words = optNormalized.split(/\s+/).filter(w => w.length >= 3 && !["cho", "cac", "danh", "dang"].includes(w));
-  if (words.length > 0 && words.some(w => fullText.includes(w))) {
+  const words = optNormalized
+    .split(/\s+/)
+    .filter((w) => w.length >= 3 && !["cho", "cac", "danh", "dang"].includes(w));
+  if (words.length > 0 && words.some((w) => fullText.includes(w))) {
     return true;
   }
 

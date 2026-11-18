@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { CustomerPortalView } from "@/components/sites/hasaki/customer-portal-view";
+import { CustomerPortalView } from "@/components/sites/nari/customer-portal-view";
 import { AUTH_COOKIE_NAME, verifySignedSessionToken } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";

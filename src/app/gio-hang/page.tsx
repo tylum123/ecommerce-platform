@@ -1,4 +1,4 @@
-import { CartView } from "@/components/sites/hasaki/cart-view";
+import { CartView } from "@/components/sites/nari/cart-view";
 import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";
 
 export const dynamic = "force-dynamic";

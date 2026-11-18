@@ -2,7 +2,7 @@
  * Centralized White-Label Brand Configuration & Dynamic Token System.
  *
  * Change the environment variables (`NEXT_PUBLIC_BRAND_*`) or default values here
- * to rebrand the entire E-Commerce & Clinic platform in one place.
+ * to configure the E-Commerce & Clinic platform in one place.
  */
 
 export interface BrandConfig {
@@ -81,132 +81,16 @@ export const BRAND_CONFIG: BrandConfig = {
 };
 
 /**
- * Checks whether a string looks like a URL, file path, asset path, or route slug
- * that must NOT be altered by brand text replacement.
- */
-function isProtectedPathOrSlug(value: string): boolean {
-  const trimmed = value.trim();
-  if (!trimmed) return true;
-  if (
-    trimmed.startsWith("/") ||
-    trimmed.startsWith("http://") ||
-    trimmed.startsWith("https://") ||
-    trimmed.startsWith("data:") ||
-    trimmed.endsWith(".html") ||
-    trimmed.endsWith(".png") ||
-    trimmed.endsWith(".jpg") ||
-    trimmed.endsWith(".jpeg") ||
-    trimmed.endsWith(".webp") ||
-    trimmed.endsWith(".svg") ||
-    trimmed.endsWith(".gif")
-  ) {
-    return true;
-  }
-  // Single token with no spaces that looks like a slug/id/code (unless it contains hasaki or nowfree)
-  if (
-    !trimmed.includes(" ") &&
-    /^[a-z0-9._-]+$/i.test(trimmed) &&
-    !/hasaki|nowfree/i.test(trimmed)
-  ) {
-    return true;
-  }
-  return false;
-}
-
-/**
- * Replaces legacy "Hasaki" / "NowFree" brand occurrences in display text with
- * the active `BRAND_CONFIG` tokens while preserving URLs and slugs.
+ * Identity/trimming helper for display text.
  */
 export function brandText(input: string): string {
   if (!input || typeof input !== "string") return input;
-  if (isProtectedPathOrSlug(input)) return input;
-
-  // Preserve media asset CDN URLs so images remain loadable
-  const mediaTokens: string[] = [];
-  const placeholderPrefix = "__CDN_MEDIA_KEEP_";
-  const masked = input.replace(/https?:\/\/(?:media\.hasaki\.vn|media\.hcdn\.vn)[^\s"'<>)]*/gi, (match) => {
-    const idx = mediaTokens.length;
-    mediaTokens.push(match);
-    return `${placeholderPrefix}${idx}__`;
-  });
-
-  const replaced = masked
-    .replace(/CÔNG TY CỔ PHẦN HASAKI BEAUTY & CLINIC/gi, BRAND_CONFIG.companyName)
-    .replace(/Hasaki Beauty\s*&\s*Clinic/gi, `${BRAND_CONFIG.name} Beauty & Clinic`)
-    .replace(/Hasaki Clinic\s*&\s*Spa/gi, BRAND_CONFIG.clinicName)
-    .replace(/Hasaki Clinic/gi, BRAND_CONFIG.clinicName)
-    .replace(/HASAKI DEALS/g, BRAND_CONFIG.dealsUpper)
-    .replace(/Hasaki Deals/gi, BRAND_CONFIG.dealsLabel)
-    .replace(/Hasaki Rewards/gi, BRAND_CONFIG.loyaltyName)
-    .replace(/NOWFREE\s*2H/g, BRAND_CONFIG.deliveryName.toUpperCase())
-    .replace(/NowFree\s*2H/gi, BRAND_CONFIG.deliveryName)
-    .replace(/NowFree/gi, `${BRAND_CONFIG.shortName}Now`)
-    .replace(/@hasaki\.vn/gi, `@${BRAND_CONFIG.emailDomain}`)
-    .replace(/HASAKI\.VN/g, BRAND_CONFIG.upperName)
-    .replace(/Hasaki\.vn/gi, BRAND_CONFIG.name)
-    .replace(/hasaki\.vn/g, BRAND_CONFIG.domain)
-    .replace(/\bHASAKI\b/g, BRAND_CONFIG.upperName)
-    .replace(/\bHasaki\b/g, BRAND_CONFIG.name)
-    .replace(/\bhasaki\b/g, BRAND_CONFIG.shortName.toLowerCase());
-
-  // Restore preserved media URLs
-  return replaced.replace(new RegExp(`${placeholderPrefix}(\\d+)__`, "g"), (_, idx) => {
-    return mediaTokens[Number(idx)] || "";
-  });
+  return input.trim();
 }
 
-const PROTECTED_OBJECT_KEYS = new Set([
-  "id",
-  "sku",
-  "slug",
-  "href",
-  "url",
-  "image",
-  "images",
-  "thumbnail",
-  "thumbnailUrl",
-  "logo",
-  "logoUrl",
-  "banner",
-  "icon",
-  "code",
-  "categorySlug",
-  "parentSlug",
-  "brandSlug",
-  "productSlug",
-  "username",
-  "passwordHint",
-]);
-
 /**
- * Recursively transforms all human-readable display strings inside a data structure
- * (arrays, objects, JSON datasets) to use `BRAND_CONFIG` tokens without touching
- * URLs, slugs, IDs, asset paths, or third-party cosmetic brand names.
+ * Identity helper preserving typed data structures.
  */
 export function brandDeep<T>(data: T): T {
-  if (typeof data === "string") {
-    return brandText(data) as unknown as T;
-  }
-  if (Array.isArray(data)) {
-    return data.map((item) => brandDeep(item)) as unknown as T;
-  }
-  if (data && typeof data === "object") {
-    const out: Record<string, unknown> = {};
-    for (const [key, val] of Object.entries(data as Record<string, unknown>)) {
-      if (PROTECTED_OBJECT_KEYS.has(key)) {
-        out[key] = val;
-      } else if (key === "brand") {
-        // Only brand token "Hasaki" gets rebranded; third-party brands (Bioderma, La Roche-Posay, etc.) remain untouched
-        if (typeof val === "string" && /^hasaki$/i.test(val.trim())) {
-          out[key] = BRAND_CONFIG.name;
-        } else {
-          out[key] = val;
-        }
-      } else {
-        out[key] = brandDeep(val);
-      }
-    }
-    return out as T;
-  }
   return data;
 }

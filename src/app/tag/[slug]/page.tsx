@@ -1,4 +1,4 @@
-import { TagView } from "@/components/sites/hasaki/tag-view";
+import { TagView } from "@/components/sites/nari/tag-view";
 import { notFound } from "next/navigation";
 import { getKnownTagPage, getCampaignProducts } from "@/lib/campaign-catalog";
 import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";

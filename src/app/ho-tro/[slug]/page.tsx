@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { SupportArticleView } from "@/components/sites/hasaki/support-view";
+import { SupportArticleView } from "@/components/sites/nari/support-view";
 import { getSupportTopicBySlug, getSupportTopics } from "@/lib/support-stores";
 
 export async function generateStaticParams() {
