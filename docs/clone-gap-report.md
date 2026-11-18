@@ -1,5 +1,31 @@
 # Báo cáo kiểm tra clone Hasaki
 
+## Checkpoint 18/11/2026 — Đóng khoảng cách API Catalog/Quote & Đồng bộ Git
+
+- **Đã đóng:**
+  - `/api/products` không còn vấp `CATALOG_LEGACY_SQLITE_DISABLED` khi bật `NARI_CATALOG_BACKEND=postgres` (đã chuyển `queryProducts` sang `await readStorefrontCatalog()`).
+  - `/api/products/[slug]` không còn fallback rating/sold/xuất xứ giả lập trong chế độ PostgreSQL.
+  - `/api/cart/quote` đã tách khỏi `sqlite-db.ts` khi chạy `postgres` và tính giá 100% từ server (`readStorefrontCatalog()`), từ chối SKU lạ/số lượng sai và bỏ qua `item.price` client gửi.
+  - Xác nhận live Supabase (`verify-supabase-live.mjs --database` & `--storage-check`) đạt với 18 runtime policies (`0003` đã có trên cloud).
+- **Khoảng cách còn lại:**
+  - Sản phẩm thật trong `nari_catalog.products` hiện bằng 0 (chỉ có 1 banner hero; `scripts/prepare-snapshot-catalog.mjs` vẫn còn 145 mục quarantine chưa xử lý provenance/SKU).
+  - `NODE_ENV=production` auth gate vẫn bị đóng do chưa có distributed rate limiter trên PostgreSQL; toàn bộ luồng Orders/Inventory/ERP/Booking/Warranty/Webhook/MCP vẫn đóng có chủ đích (Bước 2–4).
+  - `src/middleware.ts` vẫn giữ cấu trúc cũ (cần chuyển `src/proxy.ts` + hợp nhất Supabase Principal ở Bước 2).
+
+## Checkpoint 17/11/2026 (Wave F — Chuẩn bị môi trường & cấu hình đẩy Schema lên Supabase)
+
+- **Chuẩn bị môi trường (cục bộ):** `hydrogen-env` đã rà soát toàn bộ `process.env` qua CodeGraph, cập nhật `.env.example` và tạo `.env` mẫu (được `.gitignore` bỏ qua). `hydrogen-migration` đã kiểm tra `db/migrations/202611160001_catalog_inventory.sql` và `db/migrations/202611170001_identity.sql`, tạo `scripts/push-supabase-schema.mjs` (`--dry-run`, `--apply`, `--with-roles`).
+- **Kiểm chứng cục bộ đạt:** `node --test test/postgres-foundation.test.cjs` (5/5 pass), `node scripts/push-supabase-schema.mjs --dry-run` (exit 0), `node scripts/push-supabase-schema.mjs --dry-run --with-roles` (exit 0), `git check-ignore -v .env` (pass).
+- **Khoảng cách / Blocker còn lại:** Chưa thực thi `--apply` lên Supabase cloud và chưa nghiệm thu PostgreSQL/Storage/Auth thật trên staging do đang chờ người dùng điền thông tin kết nối thật vào `.env`. Lệnh sẵn sàng sau khi điền `.env`: `node --env-file=.env scripts/push-supabase-schema.mjs --dry-run --with-roles` và `node --env-file=.env scripts/push-supabase-schema.mjs --apply` (thêm `--with-roles` nếu áp dụng cả identity SQL).
+
+## Checkpoint bảo mật/backend 17/11/2026 — Wave A/B freeze, chưa nghiệm thu tích hợp
+
+- **Identity (worker report):** focused tests 15/15 pass; Supabase dependencies và `@types/pg` đã pin; `/api/session` local-only qua `NARI_AUTH_ENABLED`, production unavailable 503 và `businessAccess: false`. Production TypeScript check sau khi loại bỏ check trùng chưa chạy lại. Provider role SQL chưa áp dụng.
+- **Catalog (worker report):** PostgreSQL pool/transaction và Storage adapter; public catalog async, authoritative từ PostgreSQL, không fallback khi nguồn lỗi/rỗng. SQLite chỉ là default dev; production cần PostgreSQL. Membership cho deals/bestseller/new-arrivals rỗng chờ migrate; admin mutations vẫn đóng. Worker báo 5 foundation tests, PGlite và SQLite storage readback pass.
+- **Kiểm tra Root:** 10 file `node --test` đạt 36/36; typecheck pass; lint exit 0, 0 errors và 1 warning cũ (`campaigns-location.ts`, unused `brandText`); isolated production build pass exit 0, 369/369 pages. Cảnh báo middleware deprecated/external lockfile chưa xử lý; build sandbox ban đầu lỗi fetch Google Fonts, retry được duyệt network pass. Chưa có browser cuối sau freeze. Baseline trước đó trên dev cô lập 3035 xác nhận home desktop/mobile không overflow; login unavailable; console có auth 401. HTTP private endpoints đều denied. Unknown tag vẫn 200 và chưa sửa vì Wave D đã dừng.
+- **Backlog chưa làm:** Wave C orders/inventory và Wave D route/CI chưa triển khai. Không coi worker reports là nghiệm thu tích hợp hay tuyên bố backlog hoàn tất.
+- **Blockers staging:** chưa có cấu hình/credential Supabase hoặc PostgreSQL trong môi trường, chưa áp dụng migration/cloud changes, chưa kiểm tra PostgreSQL server thật hoặc provision Storage bucket/roles.
+
 ## Bàn Giao Kiểm Tra Wave 7 — Interactive Hover/Click DOM Scraping & Data-Driven Backend — 14/11/2026
 
 1. **Giải quyết khoảng cách tương tác Hover & Click trên giao diện gốc Hasaki.vn**:

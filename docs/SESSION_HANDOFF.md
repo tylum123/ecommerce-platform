@@ -1,5 +1,51 @@
 # Session handoff — Hasaki clone
 
+## Checkpoint 18/11/2026 — Bước 0 & Bước 1 (Fullstack/BA Playbook, Vá API PostgreSQL & Đồng bộ Git)
+
+- **Chuẩn hóa Skill & Quy tắc tác chiến (Bước 0):**
+  - Tạo skill dự án [`.agents/skills/nari-fullstack-ba/SKILL.md`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/.agents/skills/nari-fullstack-ba/SKILL.md) đúc kết các pattern đã nghiên cứu cho Next.js 16 (`proxy.ts`, Server/Client boundary, `next/font/local`), Supabase SSR (`getClaims()` vs `getUser()`, RLS `(select auth.uid())`, Supavisor Port 6543), Distributed Rate Limiter trên PostgreSQL, ACID Inventory Locking (`SELECT ... FOR NO KEY UPDATE` + `idempotency_keys` + HMAC webhook), `EXCLUDE USING gist` cho Clinic Booking, và quy trình BA 5 điểm.
+  - Cập nhật [`AGENTS.md`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/AGENTS.md) cố định nguyên tắc: Senior Fullstack + BA, Plan-First, CodeGraph-First, Handoff sau mỗi bước và đẩy Git liên tục lên `origin/main`.
+- **Kiểm chứng Cloud Supabase hiện tại & Vá API (Bước 1):**
+  - Chạy `node --env-file=.env scripts/verify-supabase-live.mjs --database` -> **PASS** (`currentUser: nari_catalog_app`, `verifiedTls: true`, `rls: true`, `runtimePolicies: 18`, `deniedWrites: true`, `home_banners: 1`, `provisioned_identities: 1`), xác nhận `202611170003_catalog_reference_authoring.sql` đã được áp dụng trên Supabase và `NARI_POSTGRES_CA` hoạt động bình thường.
+  - Chạy `node --env-file=.env scripts/verify-supabase-live.mjs --storage-check` -> **PASS** (`bucket: nari-catalog`, `public: true`, `maxBytes: 5242880`, JPEG/PNG/WebP).
+  - Chuyển [`src/lib/server/db.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/server/db.ts) (`queryProducts`) và [`src/app/api/products/route.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/app/api/products/route.ts) sang `await readStorefrontCatalog()` (không còn gọi SQLite `readLiveCatalog()` khi bật PostgreSQL; trả `503` an toàn khi mất kết nối).
+  - Loại bỏ fallback giả (`rating ?? 4.9`, `reviewCount ?? 12`, `sold ?? 50`, `"Chính hãng Nari Home"`) và chặn fallback snapshot ở [`src/app/api/products/[slug]/route.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/app/api/products/%5Bslug%5D/route.ts) khi `live.source === "postgres"`.
+  - Chuyển [`src/app/api/cart/quote/route.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/app/api/cart/quote/route.ts) sang `readStorefrontCatalog()`, bỏ hoàn toàn việc đọc SQLite khi ở chế độ `postgres` và **không tin `item.price` do client gửi** (luôn tra giá từ catalog server, từ chối SKU lạ/số lượng sai).
+  - Sửa lỗi lint `<a href>` → `<Link>` tại [`src/components/sites/hasaki/supabase-login-form.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/hasaki/supabase-login-form.tsx).
+  - Bổ sung [`test/catalog-api-postgres.test.cjs`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/test/catalog-api-postgres.test.cjs) và đưa vào [`.github/workflows/ci.yml`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/.github/workflows/ci.yml).
+- **Kiểm tra:** 53/53 test trong bộ CI (gồm PGlite qua `NARI_TEST_PGLITE_PATH`) + 10/10 test bổ sung (`auth-and-routing`, `catalog-import`, `snapshot-import`) pass; `npm run typecheck` pass; `npm run lint` 0 errors (1 warning cũ không đổi ở `campaigns-location.ts`).
+- **Việc tiếp theo (Bước 2):** Tạo Distributed Rate Limiter trên PostgreSQL để gỡ chặn `NODE_ENV=production` ở `supabase-session.ts`, thống nhất `authorizeBusinessPrincipal` thay các điểm gọi `verifySignedSessionToken`, chuyển `middleware.ts` → `proxy.ts`, và nối luồng đăng nhập/hồ sơ khách hàng.
+
+## Checkpoint 17/11/2026 (Wave F — Chuẩn bị môi trường & cấu hình đẩy Schema lên Supabase)
+
+- **Biến môi trường (`hydrogen-env`):** Đã dùng CodeGraph / `process.env` lookup rà soát toàn bộ biến môi trường Supabase/PostgreSQL/Storage/Auth/Brand, cập nhật `.env.example` (4 nhóm có hướng dẫn Supabase Dashboard) và tạo `.env` khung mẫu (đã xác nhận gitignored tại `.gitignore:13`).
+- **Script đẩy Schema (`hydrogen-migration`):** Đã kiểm tra `db/migrations/202611160001_catalog_inventory.sql` (schema `nari_catalog`, 10 bảng, RLS + revokes) và `db/migrations/202611170001_identity.sql` (schema `nari_identity`, bảng `provisioned_identities`); tạo `scripts/push-supabase-schema.mjs` hỗ trợ `--dry-run`, `--apply`, `--with-roles`, chặn placeholder và thực thi transaction an toàn qua `pg` (không phụ thuộc `psql`/Docker).
+- **Kiểm chứng cục bộ bởi Root:** `node --test test/postgres-foundation.test.cjs` (5/5 pass), `node scripts/push-supabase-schema.mjs --dry-run` (exit 0), `node scripts/push-supabase-schema.mjs --dry-run --with-roles` (exit 0), `git check-ignore -v .env` (pass).
+- **Lệnh triển khai tiếp theo khi có credentials trong `.env`:**
+  - `node --env-file=.env scripts/push-supabase-schema.mjs --dry-run --with-roles`
+  - `node --env-file=.env scripts/push-supabase-schema.mjs --apply` (hoặc `--apply --with-roles` để đẩy cả `202611170001_identity.sql`).
+- **Trạng thái cloud:** Chưa đẩy lên Supabase cloud và chưa nghiệm thu staging (chờ người dùng điền biến thật vào `.env`).
+
+## Checkpoint 17/11/2026 — kiểm tra cục bộ đạt, nghiệm thu cloud pending
+
+Phiên này ưu tiên tiết kiệm: tối đa một worker; model nhẹ cho tài liệu/tác vụ hẹp, `gpt-6.1-sol` medium cho code thường quy, Astra chỉ review mốc quan trọng và không chạy nền liên tục. Dùng CodeGraph truy vấn có mục tiêu, không đọc toàn bộ codebase. Commander đã dừng và không viết application code.
+
+- **Identity — worker report và Root check:** 15/15 focused auth/order tests pass theo worker; pin `@supabase/ssr` 0.12.7, `@supabase/supabase-js` 2.119.0, `@types/pg` 8.23.1. Worker bỏ một production TypeScript check trùng; Root typecheck sau đó pass. `/api/session` chỉ local khi `NARI_AUTH_ENABLED`; production 503; `businessAccess: false`. Provider-role SQL đã chuẩn bị, chưa áp dụng.
+- **Catalog — worker report, chưa xác minh tích hợp:** PostgreSQL pool/transaction, Storage adapter và authoritative async public catalog dùng `source: 'postgres'`; SQLite mặc định dev, production yêu cầu PostgreSQL, không fallback khi lỗi/rỗng. Deals/bestseller/new-arrivals membership rỗng chờ migrate; admin mutations vẫn đóng. Worker báo foundation 5 tests, PGlite và SQLite storage readback pass.
+- **Root verification:** `node --test` trên 10 file: 36/36 pass; `npm run typecheck` pass; `npm run lint` exit 0, 0 errors và 1 warning cũ (`campaigns-location.ts`, unused `brandText`); isolated production build pass exit 0, 369/369 pages. Có cảnh báo middleware deprecated/external lockfile chưa xử lý. Build sandbox đầu không fetch được Google Fonts; retry được duyệt network pass. Chưa chạy browser cuối sau freeze; baseline browser trước đó trên dev cô lập 3035: home desktop/mobile không tràn ngang, login unavailable; console chỉ auth 401. HTTP private endpoints bị từ chối; `/tag/unknown-verification` vẫn trả 200 và chưa sửa do Wave D đã dừng. Đây không phải nghiệm thu toàn bộ backlog.
+- **Điều kiện ngoài repo:** không có `.env` hoặc cấu hình Supabase/PostgreSQL trong process; chưa có credential, cloud mutation, migration hay PostgreSQL server thật. Chưa nghiệm thu staging, provider roles hoặc Storage bucket.
+- **Chưa triển khai:** Wave C orders/inventory và Wave D route/CI. Giữ nguyên các thay đổi đã có; tiếp tục từ kiểm tra tích hợp Root, rồi chỉ mở wave tiếp theo theo ngân sách và blockers.
+
+## Checkpoint 16/11/2026 — backend, phân quyền và màn hình nhân viên
+
+- Kiểm tra Supabase qua dashboard: project `tylum123's Project` thuộc tổ chức Narihome, nhánh `main` có nhãn Production, PostgreSQL 17.11. Table Editor của schema `public` hiển thị không có bảng hoặc view; chưa kiểm tra toàn bộ schema khác. Đây là quan sát đọc, chưa chạy SQL hay thay đổi cloud. Docker engine trên máy chưa chạy, chưa thấy cài PostgreSQL cục bộ.
+
+- Đây là công việc đang triển khai, chưa phải backend hoàn chỉnh. Giữ toàn bộ thay đổi Git chưa commit. Đăng nhập, API quản trị và luồng đơn hàng vẫn đóng an toàn; chưa có provider xác thực hoặc phiên admin thật. Policy định nghĩa admin có mọi quyền và phạm vi chi nhánh; từng API vẫn phải thực thi quyền và ownership khi mở.
+- Có khung `/nhan-vien` cho cửa hàng, kho, clinic và CSKH; các tác vụ chưa kết nối bị vô hiệu. Chưa nghiệm thu sau đăng nhập.
+- Catalog API đọc overrides SQLite runtime; API sản phẩm/ảnh quản trị có mã xử lý nhưng bị chặn do chưa có auth. Trang chủ, danh mục, chi tiết, tìm kiếm, thương hiệu, deals, hàng mới, giỏ và checkout đã nối runtime ở mức mã, chưa nghiệm thu browser hay toàn bộ landing. SQLite mặc định trong thư mục tạm, deploy cần volume bền vững; PostgreSQL theo ENGINEERING_RULES chưa được triển khai.
+- `/api/orders` tạm trả 401/503 để tránh lộ thông tin và nhận đơn bằng luồng giá chưa an toàn. Không mở lại trước khi có ownership, server pricing, transaction và idempotency. CodeGraph auto-sync bị tắt do không mở được database index; đối chiếu mã thực tế.
+- Người dùng đã tạo project Supabase. Migration nháp `db/migrations/202611160001_catalog_inventory.sql` đã thử trên PGlite trong bộ nhớ, chưa chạy trên Supabase/PostgreSQL server thật; xem `docs/POSTGRES_CATALOG_MIGRATION.md`. Tiếp theo: thử trên PostgreSQL staging; tích hợp Supabase Auth, PostgreSQL repository và Storage; backup/đối chiếu dữ liệu cũ; hoàn thành orders/inventory/booking, RBAC và nghiệm thu browser theo vai trò. Không gửi hoặc yêu cầu secret qua chat.
+
 ## Note Bàn Giao Chi Tiết Từng Task (Wave 7 — Interactive Hover/Click Scraping & Data-Driven UI/Backend) — 14/11/2026
 
 Bàn giao đợt nâng cấp **Wave 7 (14/11/2026)**: Thực thi Playwright Chrome thao tác `hover` và `click` trực tiếp trên các nút và ô tìm kiếm của `https://hasaki.vn/`, trích xuất toàn bộ giao diện tương tác động, xây dựng kiến trúc **Data-Driven Backend (`/api/ui-config`, `src/lib/interactive-ui.ts`) không hardcode**, tối ưu hóa mã nguồn không dư thừa, và đồng bộ 1:1 lên toàn bộ hệ thống Storefront, Category, Product Detail và ERP.

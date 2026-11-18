@@ -1,5 +1,36 @@
 # Tiến độ dự án E-Commerce Platform (Nari Home) & Quản Trị Doanh Nghiệp
 
+## Checkpoint 18/11/2026 — Bước 0 & Bước 1 (Chuẩn hóa Skill/Git & Vá API Catalog PostgreSQL)
+
+- **Quy trình & Skill (Bước 0):** Đã tạo [`.agents/skills/nari-fullstack-ba/SKILL.md`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/.agents/skills/nari-fullstack-ba/SKILL.md) và cập nhật [`AGENTS.md`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/AGENTS.md) với quy tắc CodeGraph-First, Plan-First, Fullstack/BA standards, Handoff và đẩy Git liên tục lên `origin/main`.
+- **Cloud & API Catalog (Bước 1):**
+  - Xác minh live Supabase: `verify-supabase-live.mjs --database` PASS (`nari_catalog_app`, TLS verified, RLS on, `runtimePolicies: 18` — migration `0003` đã áp dụng) và `--storage-check` PASS (`nari-catalog` bucket public 5 MiB JPEG/PNG/WebP).
+  - Vá `/api/products`, `/api/products/[slug]`, `/api/cart/quote` sử dụng `readStorefrontCatalog()` (PostgreSQL authoritative, không còn đọc SQLite khi bật `postgres`, bỏ fallback rating/sold giả và bỏ tin `item.price` từ client).
+  - Sửa lỗi lint `next/link` trong `supabase-login-form.tsx`, thêm [`test/catalog-api-postgres.test.cjs`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/test/catalog-api-postgres.test.cjs) vào CI.
+- **Kiểm chứng:** 53/53 test CI (kèm PGlite) + 10/10 unit tests khác pass; `npm run typecheck` pass; `npm run lint` 0 errors. Toàn bộ thay đổi được phân nhóm commit sạch và đẩy lên `origin/main`.
+
+## Checkpoint 17/11/2026 (Wave F — Chuẩn bị môi trường & cấu hình đẩy Schema lên Supabase)
+
+- **Subagent `hydrogen-env`:** Đã dùng CodeGraph / symbol lookup rà soát toàn bộ biến môi trường trong dự án, cập nhật [`.env.example`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/.env.example) (4 nhóm biến kèm hướng dẫn lấy từ Supabase Dashboard) và tạo file `.env` khung mẫu (đã xác nhận bị ignore qua `git check-ignore -v .env` -> `.gitignore:13`) với placeholder an toàn.
+- **Subagent `hydrogen-migration`:** Đã kiểm tra [`db/migrations/202611160001_catalog_inventory.sql`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/db/migrations/202611160001_catalog_inventory.sql) và [`db/migrations/202611170001_identity.sql`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/db/migrations/202611170001_identity.sql), đồng thời tạo script [`scripts/push-supabase-schema.mjs`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/scripts/push-supabase-schema.mjs) (ESM dùng `pg`, hỗ trợ `--dry-run`, `--apply`, `--with-roles`, chặn placeholder, chạy trong transaction `BEGIN/COMMIT/ROLLBACK` và che giấu connection string trong log).
+- **Kiểm chứng cục bộ đạt:** `node --test test/postgres-foundation.test.cjs` (5/5 pass), `node scripts/push-supabase-schema.mjs --dry-run` (exit 0), `node scripts/push-supabase-schema.mjs --dry-run --with-roles` (exit 0), `git check-ignore -v .env` (pass).
+- **Lệnh sẵn sàng chạy sau khi điền thông tin thật vào `.env`:**
+  - Kiểm tra cấu hình: `node --env-file=.env scripts/push-supabase-schema.mjs --dry-run --with-roles`
+  - Đẩy schema lên Supabase: `node --env-file=.env scripts/push-supabase-schema.mjs --apply` (thêm `--with-roles` để chạy kèm `202611170001_identity.sql`).
+- **Giới hạn / Blocker:** Chưa chạy đẩy schema hay nghiệm thu thực tế trên Supabase cloud do đang chờ người dùng điền thông tin kết nối thật vào `.env`.
+
+## Checkpoint 17/11/2026 — kiểm tra cục bộ đạt, nghiệm thu cloud pending
+
+- **Identity worker report:** focused auth/order tests 15/15 pass; `@supabase/ssr` 0.12.7, `@supabase/supabase-js` 2.119.0 và `@types/pg` 8.23.1 được pin. Worker bỏ production TypeScript check trùng; Root typecheck sau đó pass. `/api/session` local-only với `NARI_AUTH_ENABLED`; production trả 503, `businessAccess: false`; provider roles SQL chưa áp dụng.
+- **Catalog worker report:** PostgreSQL pool/transaction, Storage adapter và public catalog async authoritative từ PostgreSQL (`source: 'postgres'`), không fallback khi DB rỗng/lỗi; SQLite mặc định dev, production cần PostgreSQL. Deals/bestseller/new-arrivals membership đang rỗng chờ migrate; admin mutations vẫn đóng. Worker báo 5 foundation tests, PGlite và SQLite storage readback pass.
+- **Root kiểm chứng:** `node --test` trên 10 file 36/36 pass; typecheck pass; lint exit 0, 0 errors và 1 warning cũ (`campaigns-location.ts`, unused `brandText`); isolated production build pass exit 0, 369/369 pages. Có cảnh báo middleware deprecated/external lockfile chưa xử lý; build sandbox đầu lỗi fetch Google Fonts, retry được duyệt network pass. Chưa có browser cuối sau freeze. Baseline browser dev cô lập 3035: home desktop/mobile không tràn ngang, login unavailable, console chỉ auth 401. HTTP private APIs denied; unknown tag vẫn 200 và chưa sửa.
+- Wave C (orders/inventory) và Wave D (route/CI) **chưa làm**. Không đánh dấu toàn bộ backlog hoàn tất. Chưa có `.env`/provider/database config hoặc credentials, chưa chạy cloud mutation/migration, chưa nghiệm thu PostgreSQL server/Storage staging.
+- Chính sách chi phí từ checkpoint này: tối đa 1 worker; model nhẹ cho tài liệu/tác vụ hẹp; Sol medium cho code thường quy; Astra chỉ review mốc trọng yếu, không chạy nền liên tục; CodeGraph targeted, không đọc toàn codebase. Xem `docs/MULTI_AGENT_DELIVERY_PLAN.md` và `docs/SESSION_HANDOFF.md`.
+
+## Checkpoint 16/11/2026 — đang triển khai backend và phân quyền
+
+Đã thêm policy admin toàn quyền, khung màn hình nhân viên, giao diện quản trị sản phẩm và nền catalog SQLite runtime. Đăng nhập và API quản trị vẫn đóng do chưa có provider xác thực; tác vụ nhân viên chưa kết nối. Đã nối runtime nhiều trang storefront nhưng chưa nghiệm thu browser và mọi landing. Người dùng chọn PostgreSQL/Supabase; migration mới ở dạng nháp chưa chạy, đơn hàng an toàn và kiểm thử đầu cuối chưa hoàn tất. Chi tiết tiếp nối: `docs/SESSION_HANDOFF.md`.
+
 ## Checkpoint Wave 10 (Chuyển Đổi Hoàn Tất Nhận Diện Thương Hiệu & Tone Màu **Nari Home — Phương Án A**) — 14/11/2026 [HOÀN TẤT & ĐÃ XÁC MINH]
 
 - **Tài liệu kế hoạch chi tiết**: [docs/NARI_HOME_REBRAND_PLAN.md](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/docs/NARI_HOME_REBRAND_PLAN.md)
