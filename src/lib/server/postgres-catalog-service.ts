@@ -4,7 +4,7 @@ import type { LiveProductOverride } from "@/lib/live-catalog";
 import { readPostgresCatalog, replacePostgresBanners, setPostgresProductHidden, upsertPostgresProduct } from "@/lib/server/postgres-catalog-repository";
 
 /** Internal domain capability, never an authorization boundary or a public route.
- * Server entry points must authorize before calling mutations. No SQLite fallback.
+ * Server entry points must authorize before calling mutations. PostgreSQL authoritative only.
  */
 export function createPostgresCatalogService(database: CatalogSqlDatabase) {
   return {

@@ -58,12 +58,9 @@ const pgCatalog = {
   },
 };
 
-test("/api/products reads authoritative postgres catalog without SQLite or snapshot facets", async () => {
+test("/api/products reads authoritative postgres catalog without fallback facets", async () => {
   const dbMod = load("src/lib/server/db.ts", {
     "@/lib/server/live-catalog-store": {
-      readLiveCatalog: () => {
-        throw new Error("SQLite readLiveCatalog must not be called in postgres mode");
-      },
       readStorefrontCatalog: async () => pgCatalog,
     },
   });
@@ -93,14 +90,14 @@ test("/api/products reads authoritative postgres catalog without SQLite or snaps
   assert.equal(failBody.code, "CATALOG_POSTGRES_UNAVAILABLE");
 });
 
-test("/api/products/[slug] never synthesizes fake stats or falls back to snapshots in postgres mode", async () => {
+test("/api/products/[slug] never synthesizes fake stats or falls back to snapshots", async () => {
   const route = load("src/app/api/products/[slug]/route.ts", {
     "@/lib/server/live-catalog-store": {
       readStorefrontCatalog: async () => pgCatalog,
     },
     "@/lib/server/db": {
       getProductFeedback: () => {
-        throw new Error("SQLite feedback must not be called in postgres mode");
+        throw new Error("Legacy feedback must not be called in postgres mode");
       },
     },
   });
@@ -131,14 +128,6 @@ test("/api/cart/quote enforces server-authoritative catalog pricing and rejects 
     "@/lib/server/live-catalog-store": {
       catalogBackend: () => "postgres",
       readStorefrontCatalog: async () => pgCatalog,
-    },
-    "@/lib/sqlite-db": {
-      getProductBySkuOrSlug: () => {
-        throw new Error("SQLite must not be called in postgres mode");
-      },
-      listAllBranches: () => {
-        throw new Error("SQLite must not be called in postgres mode");
-      },
     },
     "@/lib/db/repository": {
       generateVietQrPaymentDetails: ({ amount, orderCode }) => ({

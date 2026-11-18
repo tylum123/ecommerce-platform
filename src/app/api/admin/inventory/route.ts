@@ -11,7 +11,6 @@ import {
   adjustInventoryStock,
   listInventoryAuditLogs,
 } from "@/lib/server/erp-store";
-import { adjustInventoryStockSqlite } from "@/lib/sqlite-db";
 
 export const dynamic = "force-dynamic";
 
@@ -69,19 +68,6 @@ export async function POST(request: NextRequest) {
       staffCode: session.id,
       branchId: branchId || "CN1",
     });
-
-    // Also sync to SQLite database
-    try {
-      adjustInventoryStockSqlite({
-        branchId: branchId || "CN1",
-        sku,
-        delta,
-        reason: reason || "Điều chỉnh tồn kho từ Quản trị ERP",
-        staffCode: session.id,
-      });
-    } catch {
-      // Best-effort sync
-    }
 
     if (!result) {
       return NextResponse.json(

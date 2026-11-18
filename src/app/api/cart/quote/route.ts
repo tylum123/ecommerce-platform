@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
     const district = typeof body.district === "string" ? body.district.trim().slice(0, 80) : "";
     const deliveryType = body.deliveryType === "Tiêu chuẩn" ? "Tiêu chuẩn" : "NariNow 2H";
 
+    catalogBackend();
     const live = await readStorefrontCatalog();
     const catalogProducts = getAllCatalogProducts(live);
     const byKey = new Map<string, (typeof catalogProducts)[number]>();
@@ -84,11 +85,8 @@ export async function POST(request: NextRequest) {
     const shippingFee = deliveryType === "NariNow 2H" && subtotal >= 90000 ? 0 : 25000;
     const total = subtotal + shippingFee;
 
-    let branches: Array<{ supportsNowFree2H: boolean; supportsClinic: boolean }> = [];
-    if (catalogBackend() === "sqlite") {
-      const { listAllBranches } = await import("@/lib/sqlite-db");
-      branches = listAllBranches(true);
-    }
+    // Stage 3 will wire PostgreSQL branches.
+    const branches: Array<{ supportsNowFree2H: boolean; supportsClinic: boolean }> = [];
     const NariNowBranches = branches.filter((b) => b.supportsNowFree2H);
     const clinicBranches = branches.filter((b) => b.supportsClinic);
     const isNariNowAvailable = NariNowBranches.length > 0;
@@ -102,7 +100,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      source: live.source === "postgres" ? "postgres" : "sqlite",
+      source: "postgres",
       quote: {
         subtotal,
         shippingFee,
