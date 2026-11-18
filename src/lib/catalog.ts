@@ -3,6 +3,7 @@ import dealsRaw from "../../docs/research/hasaki/deals-2026-11-13.json";
 import bestsellersRaw from "../../docs/research/hasaki/bestsellers-2026-11-13.json";
 import brandCatalogRaw from "../../docs/research/hasaki/brand-catalog-2026-11-13.json";
 import interactiveUiRaw from "../../docs/research/hasaki/interactive-ui-2026-11-14.json";
+import { getStaticCatalogOverrides, type LiveProductOverride, type LiveCatalogOverridesState } from "@/lib/live-catalog";
 
 export const categories = [
   ["Chăm Sóc Da Mặt", "cham-soc-da-mat-c4.html"],
@@ -44,6 +45,10 @@ export const categories = [
 ] as const;
 
 export interface Product {
+  catalogSource?: "postgres";
+  englishName?: string;
+  brandId?: string;
+  categoryId?: string;
   id?: number | string;
   sku?: string;
   brand: string;
@@ -89,7 +94,7 @@ export function productBreadcrumbs(product: Product) {
   });
 }
 
-export const products: readonly Product[] = [
+const baseProducts: readonly Product[] = [
   {
     brand: "CeraVe",
     name: "Sữa Rửa Mặt CeraVe Sạch Sâu Cho Da Thường Đến Da Dầu 473ml",
@@ -195,6 +200,61 @@ export const products: readonly Product[] = [
     sold: 27,
   },
 ];
+
+function mergeWithOverride(p: Product, ov: LiveProductOverride): Product {
+  return {
+    ...p,
+    id: ov.id || p.id,
+    sku: ov.sku || p.sku,
+    slug: ov.slug || p.slug,
+    name: ov.name || p.name,
+    englishName: ov.englishName ?? p.englishName,
+    brand: ov.brand || p.brand,
+    category: ov.category || p.category,
+    price: typeof ov.price === "number" ? ov.price : p.price,
+    old: typeof ov.old === "number" ? ov.old : p.old,
+    sale: typeof ov.sale === "number" ? ov.sale : p.sale,
+    image: ov.image || p.image,
+    rating: typeof ov.rating === "number" ? ov.rating : p.rating,
+    reviewCount: typeof ov.reviewCount === "number" ? ov.reviewCount : p.reviewCount,
+    sold: typeof ov.sold === "number" ? ov.sold : p.sold,
+    description: ov.description ?? p.description,
+  };
+}
+
+export function getFeaturedProducts(live: LiveCatalogOverridesState = getStaticCatalogOverrides()): Product[] {
+  if (live.source === "postgres") return Object.values(live.products).filter(p => !live.deletedSlugs.includes(p.slug)).map(p => ({ ...p, catalogSource: "postgres" }));
+  const deleted = new Set(live.deletedSlugs);
+  const existingSlugs = new Set(baseProducts.map((p) => p.slug));
+
+  const customList: Product[] = Object.values(live.products)
+    .filter((ov) => !deleted.has(ov.slug) && !existingSlugs.has(ov.slug))
+    .map((ov) => ({
+      id: ov.id || ov.sku,
+      sku: ov.sku,
+      slug: ov.slug,
+      name: ov.name,
+      englishName: ov.englishName,
+      brand: ov.brand,
+      category: ov.category,
+      price: ov.price,
+      old: ov.old,
+      sale: ov.sale,
+      image: ov.image,
+      rating: ov.rating ?? 5.0,
+      reviewCount: ov.reviewCount ?? 1,
+      sold: ov.sold ?? 1,
+      description: ov.description,
+    }));
+
+  const updatedBase = baseProducts
+    .filter((p) => !deleted.has(p.slug))
+    .map((p) => (live.products[p.slug] ? mergeWithOverride(p, live.products[p.slug]) : p));
+
+  return [...customList, ...updatedBase];
+}
+
+export const products: readonly Product[] = getFeaturedProducts();
 
 export const money = (value: number) => new Intl.NumberFormat("vi-VN").format(value) + " ₫";
 
@@ -395,18 +455,36 @@ export function resolveCategorySlug(inputSlug: string): string {
   return "";
 }
 
-export function categoryProducts(slug: string): Product[] {
+export function categoryProducts(slug: string, live: LiveCatalogOverridesState = getStaticCatalogOverrides()): Product[] {
+  const deleted = new Set(live.deletedSlugs);
+  const currentProducts = getFeaturedProducts(live);
+  if (live.source === "postgres") {
+    const references = live.references?.categories || [];
+    const root = references.find(category => category.slug === slug);
+    if (!root) return [];
+    const ids = new Set([root.id]);
+    for (;;) {
+      const before = ids.size;
+      for (const category of references) if (category.parentId && ids.has(category.parentId)) ids.add(category.id);
+      if (before === ids.size) break;
+    }
+    const slugs = new Set(references.filter(category => ids.has(category.id)).map(category => category.slug));
+    return currentProducts.filter(product => slugs.has(product.category));
+  }
   const resolved = (categories.some(([, s]) => s === slug) || categoryProductsMap[slug])
     ? slug
     : resolveCategorySlug(slug);
   const facial = ["sua-rua-mat-c19.html", "tay-trang-mat-c48.html", "toner-c1857.html", "chong-nang-da-mat-c11.html"];
+  const belongsToCategory = (category: string) => category === resolved ||
+    (resolved === "cham-soc-da-mat-c4.html" && facial.includes(category)) ||
+    (resolved === "lam-sach-da-c1855.html" && ["sua-rua-mat-c19.html", "tay-trang-mat-c48.html"].includes(category));
   let base: Product[] = [];
   if (resolved === "cham-soc-da-mat-c4.html") {
-    base = products.filter(p => facial.includes(p.category));
+    base = currentProducts.filter(p => facial.includes(p.category) || p.category === resolved);
   } else if (resolved === "lam-sach-da-c1855.html") {
-    base = products.filter(p => ["sua-rua-mat-c19.html", "tay-trang-mat-c48.html"].includes(p.category));
+    base = currentProducts.filter(p => ["sua-rua-mat-c19.html", "tay-trang-mat-c48.html", resolved].includes(p.category));
   } else {
-    base = products.filter(p => p.category === resolved);
+    base = currentProducts.filter(p => p.category === resolved);
   }
 
   const scraped = categoryProductsMap[resolved] || [];
@@ -414,13 +492,12 @@ export function categoryProducts(slug: string): Product[] {
   const merged = [...base];
 
   for (const item of scraped) {
-    if (!seen.has(item.slug)) {
+    if (!seen.has(item.slug) && !deleted.has(item.slug)) {
       seen.add(item.slug);
-      merged.push(item);
+      const ov = live.products[item.slug];
+      if (ov && !belongsToCategory(ov.category)) continue;
+      merged.push(ov ? mergeWithOverride(item, ov) : item);
     }
-  }
-  if (merged.length === 0 && resolved) {
-    return [...products];
   }
   return merged;
 }
@@ -428,44 +505,76 @@ export function categoryProducts(slug: string): Product[] {
 /**
  * Returns all unique products across core catalog, category snapshots, deals, bestsellers, and brand snapshots.
  */
-export function getAllCatalogProducts(): Product[] {
+export function getAllCatalogProducts(live: LiveCatalogOverridesState = getStaticCatalogOverrides()): Product[] {
+  if (live.source === "postgres") return getFeaturedProducts(live);
+  const deleted = new Set(live.deletedSlugs);
   const map = new Map<string, Product>();
-  for (const p of products) {
-    map.set(p.slug, p);
+
+  for (const ov of Object.values(live.products)) {
+    if (ov.slug && !deleted.has(ov.slug)) {
+      map.set(ov.slug, {
+        id: ov.id || ov.sku,
+        sku: ov.sku,
+        slug: ov.slug,
+        name: ov.name,
+        englishName: ov.englishName,
+        brand: ov.brand,
+        category: ov.category,
+        price: ov.price,
+        old: ov.old,
+        sale: ov.sale,
+        image: ov.image,
+        rating: ov.rating ?? 5.0,
+        reviewCount: ov.reviewCount ?? 1,
+        sold: ov.sold ?? 1,
+        description: ov.description,
+      });
+    }
+  }
+
+  for (const p of baseProducts) {
+    if (!deleted.has(p.slug)) {
+      const ov = live.products[p.slug];
+      map.set(p.slug, ov ? mergeWithOverride(p, ov) : p);
+    }
   }
   for (const list of Object.values(categoryProductsMap)) {
     for (const item of list) {
-      if (item.slug && !map.has(item.slug)) {
-        map.set(item.slug, item);
+      if (item.slug && !deleted.has(item.slug) && !map.has(item.slug)) {
+        const ov = live.products[item.slug];
+        map.set(item.slug, ov ? mergeWithOverride(item, ov) : item);
       }
     }
   }
   const dealsList = ((dealsRaw as { products?: Product[] }).products) || [];
   for (const item of dealsList) {
-    if (item.slug && !map.has(item.slug)) {
-      map.set(item.slug, item);
+    if (item.slug && !deleted.has(item.slug) && !map.has(item.slug)) {
+      const ov = live.products[item.slug];
+      map.set(item.slug, ov ? mergeWithOverride(item, ov) : item);
     }
   }
   const bestList = ((bestsellersRaw as { products?: Product[] }).products) || [];
   for (const item of bestList) {
-    if (item.slug && !map.has(item.slug)) {
-      map.set(item.slug, item);
+    if (item.slug && !deleted.has(item.slug) && !map.has(item.slug)) {
+      const ov = live.products[item.slug];
+      map.set(item.slug, ov ? mergeWithOverride(item, ov) : item);
     }
   }
   const brandProductsRaw =
     ((brandCatalogRaw as { brandProducts?: Record<string, { products?: Product[] }> }).brandProducts) || {};
   for (const group of Object.values(brandProductsRaw)) {
     for (const item of group.products || []) {
-      if (item.slug && !map.has(item.slug)) {
-        map.set(item.slug, item);
+      if (item.slug && !deleted.has(item.slug) && !map.has(item.slug)) {
+        const ov = live.products[item.slug];
+        map.set(item.slug, ov ? mergeWithOverride(item, ov) : item);
       }
     }
   }
   return Array.from(map.values());
 }
 
-export function findCatalogProduct(slug: string): Product | undefined {
-  const all = getAllCatalogProducts();
+export function findCatalogProduct(slug: string, live: LiveCatalogOverridesState = getStaticCatalogOverrides()): Product | undefined {
+  const all = getAllCatalogProducts(live);
   const exact = all.find(item => item.slug === slug || item.slug === `${slug}.html`);
   if (exact) {
     return exact;

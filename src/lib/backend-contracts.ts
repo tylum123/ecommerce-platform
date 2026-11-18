@@ -64,6 +64,7 @@ export interface ProductCommentItem {
 }
 
 export interface ProductDetailData extends ProductSummary {
+  englishName?: string;
   images: string[];
   specs: ProductSpecRow[];
   overviewHtml?: string;

@@ -1,7 +1,8 @@
 import { serviceUnavailable } from "@/lib/server/access-policy";
 import { NextResponse } from "next/server";
 import { getRichProductDetail } from "@/lib/product-details";
-import { findCatalogProduct } from "@/lib/catalog";
+import { getAllCatalogProducts } from "@/lib/catalog";
+import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";
 import { getProductFeedback } from "@/lib/server/db";
 import type { ProductDetailData, ProductRatingSummary } from "@/lib/backend-contracts";
 
@@ -18,11 +19,13 @@ export async function GET(request: Request, context: RouteContext) {
     const { slug } = await context.params;
     const decodedSlug = decodeURIComponent(slug);
 
-    let detail = getRichProductDetail(decodedSlug);
+    const live = await readStorefrontCatalog();
+    if (live.deletedSlugs.includes(decodedSlug)) return NextResponse.json({ ok: false, error: "Không tìm thấy sản phẩm." }, { status: 404 });
+    let detail = getRichProductDetail(decodedSlug, live);
 
-    // Fallback to static catalog item if rich detail not found
-    if (!detail) {
-      const fallback = findCatalogProduct(decodedSlug);
+    // Fallback to static catalog item only in non-postgres development snapshots
+    if (!detail && live.source !== "postgres") {
+      const fallback = getAllCatalogProducts(live).find((product) => product.slug === decodedSlug);
       if (fallback) {
         detail = {
           id: fallback.id,
@@ -36,17 +39,15 @@ export async function GET(request: Request, context: RouteContext) {
           sale: fallback.sale,
           image: fallback.image,
           images: fallback.image ? [fallback.image] : [],
-          rating: fallback.rating ?? 4.9,
-          reviewCount: fallback.reviewCount ?? 12,
-          sold: fallback.sold ?? 50,
+          rating: fallback.rating,
+          reviewCount: fallback.reviewCount,
+          sold: fallback.sold,
           description: fallback.description,
           isSample: fallback.isSample,
           specs: [
             { label: "Thương hiệu", value: fallback.brand },
-            { label: "Xuất xứ", value: "Chính hãng Nari Home" },
             { label: "Danh mục", value: fallback.category },
           ],
-          sourceUrl: `https://Nari Home/san-pham/${fallback.slug}`,
         };
       }
     }
@@ -59,7 +60,7 @@ export async function GET(request: Request, context: RouteContext) {
     }
 
     // Merge runtime reviews and comments
-    const runtimeFb = getProductFeedback(decodedSlug);
+    const runtimeFb = live.source === "postgres" ? { reviews: [], comments: [] } : getProductFeedback(decodedSlug);
     const mergedDetail: ProductDetailData = { ...detail };
 
     if (runtimeFb.reviews.length > 0) {

@@ -5,13 +5,19 @@ import type {
   ProductSummary,
   BrandSummary,
 } from "@/lib/backend-contracts";
-import { products as catalogProducts } from "@/lib/catalog";
+import { products as catalogProducts, getAllCatalogProducts } from "@/lib/catalog";
 import rawBrandCatalog from "../../docs/research/hasaki/brand-catalog-2026-11-13.json";
 import rawRichDetails from "../../docs/research/hasaki/product-rich-details-2026-11-13.json";
-import { brandDeep } from "@/lib/brand-config";
+import { brandDeep, BRAND_CONFIG } from "@/lib/brand-config";
+import { getStaticCatalogOverrides, type LiveCatalogOverridesState } from "@/lib/live-catalog";
 
 const brandCatalogRaw = brandDeep(rawBrandCatalog);
 const richDetailsRaw = brandDeep(rawRichDetails);
+
+// Admin-authored rich text is displayed as text until a maintained sanitizer is configured.
+function escapeCatalogText(value: string | undefined): string | undefined {
+  return value?.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
 
 interface RawBrandItem {
   id?: number | string | null;
@@ -104,27 +110,104 @@ const brandsLookupList = (brandCatalogRaw as { brandsLookup?: RawBrandItem[] }).
 /**
  * Normalizes slug or id key into rich product details.
  */
-export function getRichProductDetail(slugOrId: string): ProductDetailData | null {
+export function getRichProductDetail(slugOrId: string, live: LiveCatalogOverridesState = getStaticCatalogOverrides()): ProductDetailData | null {
   if (!slugOrId) return null;
-  const direct = richDetailsMap[slugOrId];
+  if (live.deletedSlugs.includes(slugOrId)) return null;
+
+  const liveOverride =
+    live.products[slugOrId] ||
+    live.products[`${slugOrId}.html`] ||
+    Object.values(live.products).find((p) => p.sku === slugOrId || p.slug.endsWith(`-${slugOrId}.html`));
+
+  const applyOverrideToDetail = (baseDetail: ProductDetailData): ProductDetailData => {
+    if (!liveOverride) return baseDetail;
+    const mergedImages =
+      liveOverride.images && liveOverride.images.length > 0
+        ? liveOverride.images
+        : liveOverride.image
+          ? [liveOverride.image, ...(baseDetail.images || []).filter((img) => img !== liveOverride.image)]
+          : baseDetail.images;
+    return {
+      ...baseDetail,
+      id: liveOverride.id || baseDetail.id,
+      sku: liveOverride.sku || baseDetail.sku,
+      slug: liveOverride.slug || baseDetail.slug,
+      name: liveOverride.name || baseDetail.name,
+      englishName: liveOverride.englishName ?? baseDetail.englishName,
+      brand: liveOverride.brand || baseDetail.brand,
+      category: liveOverride.category || baseDetail.category,
+      price: typeof liveOverride.price === "number" ? liveOverride.price : baseDetail.price,
+      old: typeof liveOverride.old === "number" ? liveOverride.old : baseDetail.old,
+      sale: typeof liveOverride.sale === "number" ? liveOverride.sale : baseDetail.sale,
+      image: liveOverride.image || mergedImages[0] || baseDetail.image,
+      images: mergedImages,
+      description: liveOverride.description ?? baseDetail.description,
+      overviewHtml: escapeCatalogText(liveOverride.overviewHtml || liveOverride.description) ?? baseDetail.overviewHtml,
+      ingredientsText: escapeCatalogText(liveOverride.ingredientsHtml) ?? baseDetail.ingredientsText,
+      usageText: escapeCatalogText(liveOverride.usageHtml) ?? baseDetail.usageText,
+      specs: liveOverride.specs && liveOverride.specs.length > 0 ? liveOverride.specs : baseDetail.specs,
+    };
+  };
+
+  if (live.source === "postgres" && (!liveOverride || live.deletedSlugs.includes(liveOverride.slug))) return null;
+  const direct = live.source === "postgres" ? undefined : richDetailsMap[slugOrId];
   if (direct) {
-    return transformRichProduct(direct);
+    return applyOverrideToDetail(transformRichProduct(direct));
   }
 
   // Extract numeric id if slug ends with -<id>.html
   const match = slugOrId.match(/(\d+)\.html$/);
-  if (match) {
+  if (match && live.source !== "postgres") {
     const idKey = match[1];
     const byId = richDetailsMap[idKey];
     if (byId) {
-      return transformRichProduct(byId);
+      return applyOverrideToDetail(transformRichProduct(byId));
     }
   }
 
+  if (liveOverride) {
+    const imgs =
+      liveOverride.images && liveOverride.images.length > 0
+        ? liveOverride.images
+        : liveOverride.image
+          ? [liveOverride.image]
+          : [];
+    return {
+      id: liveOverride.id || liveOverride.sku,
+      sku: liveOverride.sku,
+      slug: liveOverride.slug,
+      name: liveOverride.name,
+      englishName: liveOverride.englishName,
+      brand: liveOverride.brand,
+      category: liveOverride.category,
+      price: liveOverride.price,
+      old: liveOverride.old,
+      sale: liveOverride.sale,
+      image: liveOverride.image || imgs[0],
+      images: imgs,
+      rating: liveOverride.rating, reviewCount: liveOverride.reviewCount, sold: liveOverride.sold,
+      description: liveOverride.description,
+      overviewHtml: escapeCatalogText(liveOverride.overviewHtml || liveOverride.description),
+      ingredientsText: escapeCatalogText(liveOverride.ingredientsHtml),
+      usageText: escapeCatalogText(liveOverride.usageHtml),
+      specs:
+        liveOverride.specs && liveOverride.specs.length > 0
+          ? liveOverride.specs
+          : [
+              { label: "Thương Hiệu", value: liveOverride.brand },
+              { label: "Danh Mục", value: liveOverride.category },
+              { label: "Mã Sản Phẩm (SKU)", value: liveOverride.sku },
+            ],
+      isSample: false,
+      sourceUrl: `https://${BRAND_CONFIG.domain}/san-pham/${liveOverride.slug}`,
+    };
+  }
+
   // Fallback to static catalog item if available
-  const catalogItem = catalogProducts.find(
-    p => p.slug === slugOrId || p.slug.endsWith(`-${slugOrId}.html`)
-  );
+  const allProducts = getAllCatalogProducts();
+  const catalogItem =
+    allProducts.find(p => p.slug === slugOrId || p.slug.endsWith(`-${slugOrId}.html`)) ||
+    catalogProducts.find(p => p.slug === slugOrId || p.slug.endsWith(`-${slugOrId}.html`));
   if (catalogItem) {
     return {
       slug: catalogItem.slug,
@@ -134,13 +217,14 @@ export function getRichProductDetail(slugOrId: string): ProductDetailData | null
       price: catalogItem.price,
       old: catalogItem.old,
       sale: catalogItem.sale,
-      images: [],
+      image: catalogItem.image,
+      images: catalogItem.image ? [catalogItem.image] : [],
       specs: [
         { label: "Thương Hiệu", value: catalogItem.brand },
         { label: "Danh Mục", value: catalogItem.category },
       ],
       isSample: true,
-      sourceUrl: `https://Nari Home/san-pham/${catalogItem.slug}`,
+      sourceUrl: `https://${BRAND_CONFIG.domain}/san-pham/${catalogItem.slug}`,
     };
   }
 

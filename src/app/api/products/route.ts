@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     const page = pageParam ? parseInt(pageParam, 10) : 1;
     const limit = limitParam ? parseInt(limitParam, 10) : 20;
 
-    const result = queryProducts({
+    const result = await queryProducts({
       category,
       brand,
       q,
@@ -46,10 +46,11 @@ export async function GET(request: Request) {
       data: result,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Internal Server Error";
+    const code = error instanceof Error ? error.message : "";
+    const unavailable = code === "CATALOG_POSTGRES_UNAVAILABLE" || code === "CATALOG_BACKEND_REQUIRED";
     return NextResponse.json(
-      { ok: false, error: message },
-      { status: 500 }
+      { ok: false, code: unavailable ? code : "PRODUCTS_QUERY_FAILED", error: unavailable ? "Danh mục hiện chưa sẵn sàng." : "Không thể tải danh sách sản phẩm." },
+      { status: unavailable ? 503 : 500 }
     );
   }
 }

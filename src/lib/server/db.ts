@@ -11,6 +11,7 @@ import {
   type Product as CatalogProduct,
   categories as catalogCategories,
 } from "@/lib/catalog";
+import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";
 import {
   matchesCategory,
 } from "@/lib/deals-bestsellers";
@@ -435,12 +436,10 @@ export function lookupWarranty(query: string): WarrantyLookupResult {
 // Catalog & Search Optimizer: queryProducts
 // ----------------------------------------------------------------------
 
-export function queryProducts(params: ProductQueryParams = {}): QueryProductsResult {
-  const store = getStore();
-  if (!store.initialCatalogCache) {
-    store.initialCatalogCache = getAllCatalogProducts();
-  }
-  const all = store.initialCatalogCache;
+export async function queryProducts(params: ProductQueryParams = {}): Promise<QueryProductsResult> {
+  const live = await readStorefrontCatalog();
+  const isPostgres = live.source === "postgres";
+  const all = getAllCatalogProducts(live);
 
   const {
     category,
@@ -472,7 +471,7 @@ export function queryProducts(params: ProductQueryParams = {}): QueryProductsRes
   if (q && q.trim()) {
     const searchTerms = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
     filtered = filtered.filter(p => {
-      const targetText = `${p.name} ${p.brand} ${p.category} ${p.description || ""}`.toLowerCase();
+      const targetText = `${p.name} ${p.englishName || ""} ${p.brand} ${p.category} ${p.description || ""}`.toLowerCase();
       return searchTerms.every(term => targetText.includes(term));
     });
   }
@@ -519,11 +518,12 @@ export function queryProducts(params: ProductQueryParams = {}): QueryProductsRes
     .map(([bName, count]) => ({ label: bName, value: bName, count }))
     .sort((a, b) => (b.count || 0) - (a.count || 0));
 
+  const categoryRefMap = new Map((live.references?.categories || []).map(c => [c.slug, c.label]));
   const categoryFacets: FacetOption[] = Array.from(categoryCountMap.entries())
     .map(([catSlug, count]) => {
-      const match = catalogCategories.find(c => c[1] === catSlug);
+      const match = isPostgres ? undefined : catalogCategories.find(c => c[1] === catSlug);
       return {
-        label: match ? match[0] : catSlug,
+        label: categoryRefMap.get(catSlug) || (match ? match[0] : catSlug),
         value: catSlug,
         count,
       };
@@ -537,9 +537,9 @@ export function queryProducts(params: ProductQueryParams = {}): QueryProductsRes
     { label: "Trên 500.000 ₫", value: "500000-max", count: countAbove500 },
   ];
 
-  // Optional category-facets enrichment from scraped file
+  // Optional category-facets enrichment from scraped file (disabled when authoritative postgres)
   let additionalGroups: FacetGroup[] | undefined;
-  if (category && (categoryFacetsRaw as Record<string, Array<{ code: string; name: string; options: Array<{ key: string; label: string; count: number }> }>>)[category]) {
+  if (!isPostgres && category && (categoryFacetsRaw as Record<string, Array<{ code: string; name: string; options: Array<{ key: string; label: string; count: number }> }>>)[category]) {
     const rawGroups = (categoryFacetsRaw as Record<string, Array<{ code: string; name: string; options: Array<{ key: string; label: string; count: number }> }>>)[category];
     additionalGroups = rawGroups.map(g => ({
       key: g.code,
@@ -569,7 +569,7 @@ export function queryProducts(params: ProductQueryParams = {}): QueryProductsRes
       break;
     case "popular":
     default:
-      sorted.sort((a, b) => ((b.rating || 4.5) * (b.reviewCount || 10)) - ((a.rating || 4.5) * (a.reviewCount || 10)));
+      sorted.sort((a, b) => ((b.rating ?? 0) * (b.reviewCount ?? 0)) - ((a.rating ?? 0) * (a.reviewCount ?? 0)));
       break;
   }
 

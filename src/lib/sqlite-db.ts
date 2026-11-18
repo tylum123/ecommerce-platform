@@ -21,27 +21,17 @@ function resolveDatabasePath(): string {
     return process.env.SQLITE_DB_PATH.trim();
   }
 
-  // Use OS temp dir or local folder to avoid OneDrive file-locking issues on Windows
+  // Preserve the existing database location; deployments should configure a persistent volume.
   const targetDir = path.join(os.tmpdir(), "hasaki-db");
-  try {
-    if (!fs.existsSync(targetDir)) {
-      fs.mkdirSync(targetDir, { recursive: true });
-    }
-    return path.join(targetDir, "hasaki-store.db");
-  } catch {
-    return ":memory:";
-  }
+  fs.mkdirSync(targetDir, { recursive: true });
+  return path.join(targetDir, "hasaki-store.db");
 }
 
 export function getSqliteDb(): DatabaseSync {
   if (!dbInstance) {
     const dbPath = resolveDatabasePath();
-    try {
-      dbInstance = new DatabaseSync(dbPath);
-    } catch {
-      // In case of any filesystem lock, fallback safely to memory
-      dbInstance = new DatabaseSync(":memory:");
-    }
+    if (dbPath === ":memory:") throw new Error("Persistent SQLite path required");
+    dbInstance = new DatabaseSync(dbPath);
 
     // Enable WAL mode & foreign keys for optimal speed and reliability
     try {

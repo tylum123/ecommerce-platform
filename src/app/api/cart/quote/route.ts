@@ -1,36 +1,82 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getProductBySkuOrSlug, listAllBranches } from "@/lib/sqlite-db";
+import { getAllCatalogProducts } from "@/lib/catalog";
+import { catalogBackend, readStorefrontCatalog } from "@/lib/server/live-catalog-store";
 import { generateVietQrPaymentDetails } from "@/lib/db/repository";
 
 export const dynamic = "force-dynamic";
 
+const MAX_CART_ITEMS = 50;
+const MAX_ITEM_QUANTITY = 99;
+
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json().catch(() => ({}));
-    const rawItems: Array<{ sku?: string; slug?: string; quantity?: number; price?: number }> = body.items || [];
-    const province = body.province || "";
-    const district = body.district || "";
+    const body = await request.json().catch(() => null);
+    if (!body || typeof body !== "object") {
+      return NextResponse.json(
+        { success: false, code: "INVALID_BODY", error: "Dữ liệu giỏ hàng không hợp lệ." },
+        { status: 400 }
+      );
+    }
+
+    const rawItems: Array<{ sku?: string; slug?: string; quantity?: number }> = Array.isArray(body.items) ? body.items : [];
+    if (rawItems.length === 0 || rawItems.length > MAX_CART_ITEMS) {
+      return NextResponse.json(
+        { success: false, code: "INVALID_CART_ITEMS", error: "Giỏ hàng cần ít nhất 1 sản phẩm và tối đa 50 dòng." },
+        { status: 400 }
+      );
+    }
+
+    const province = typeof body.province === "string" ? body.province.trim().slice(0, 80) : "";
+    const district = typeof body.district === "string" ? body.district.trim().slice(0, 80) : "";
     const deliveryType = body.deliveryType === "Tiêu chuẩn" ? "Tiêu chuẩn" : "NariNow 2H";
+
+    const live = await readStorefrontCatalog();
+    const catalogProducts = getAllCatalogProducts(live);
+    const byKey = new Map<string, (typeof catalogProducts)[number]>();
+    for (const product of catalogProducts) {
+      if (product.sku) byKey.set(product.sku.toLowerCase(), product);
+      if (product.slug) byKey.set(product.slug.toLowerCase(), product);
+    }
 
     let subtotal = 0;
     const resolvedItems = [];
 
     for (const item of rawItems) {
-      const qty = Math.max(1, Number(item.quantity) || 1);
-      const prod = item.sku || item.slug ? getProductBySkuOrSlug(item.sku || item.slug || "") : null;
+      const lookup = typeof item.sku === "string" && item.sku.trim()
+        ? item.sku.trim()
+        : typeof item.slug === "string" && item.slug.trim()
+          ? item.slug.trim()
+          : "";
+      const qty = Number(item.quantity);
+      if (!lookup || !Number.isInteger(qty) || qty < 1 || qty > MAX_ITEM_QUANTITY) {
+        return NextResponse.json(
+          { success: false, code: "INVALID_CART_ITEM", error: "Sản phẩm hoặc số lượng không hợp lệ." },
+          { status: 400 }
+        );
+      }
 
-      const price = typeof item.price === "number" && item.price > 0 ? item.price : (prod ? prod.price : 100000);
+      const prod = byKey.get(lookup.toLowerCase());
+      if (!prod || typeof prod.price !== "number" || !Number.isFinite(prod.price) || prod.price < 0) {
+        return NextResponse.json(
+          { success: false, code: "PRODUCT_NOT_FOUND", error: "Không tìm thấy sản phẩm hợp lệ trong danh mục." },
+          { status: 404 }
+        );
+      }
+
+      // Server-authoritative pricing: never trust client-submitted prices.
+      const price = Math.trunc(prod.price);
       const lineSubtotal = price * qty;
       subtotal += lineSubtotal;
 
       resolvedItems.push({
-        sku: prod ? prod.sku : (item.sku || "10023401"),
-        name: prod ? prod.name : "Sản phẩm",
+        sku: prod.sku || prod.slug,
+        slug: prod.slug,
+        name: prod.name,
         price,
         quantity: qty,
         subtotal: lineSubtotal,
-        thumbnailUrl: prod ? prod.thumbnailUrl : null,
+        thumbnailUrl: prod.image || null,
       });
     }
 
@@ -38,11 +84,13 @@ export async function POST(request: NextRequest) {
     const shippingFee = deliveryType === "NariNow 2H" && subtotal >= 90000 ? 0 : 25000;
     const total = subtotal + shippingFee;
 
-    // Multi-Branch NariNow 2H & Clinic capability checking
-    const branches = listAllBranches(true);
+    let branches: Array<{ supportsNowFree2H: boolean; supportsClinic: boolean }> = [];
+    if (catalogBackend() === "sqlite") {
+      const { listAllBranches } = await import("@/lib/sqlite-db");
+      branches = listAllBranches(true);
+    }
     const NariNowBranches = branches.filter((b) => b.supportsNowFree2H);
     const clinicBranches = branches.filter((b) => b.supportsClinic);
-
     const isNariNowAvailable = NariNowBranches.length > 0;
 
     // Provisional VietQR preview
@@ -54,6 +102,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      source: live.source === "postgres" ? "postgres" : "sqlite",
       quote: {
         subtotal,
         shippingFee,
@@ -98,9 +147,15 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
+    const code = error instanceof Error ? error.message : "";
+    const unavailable = code === "CATALOG_POSTGRES_UNAVAILABLE" || code === "CATALOG_BACKEND_REQUIRED";
     return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : "Lỗi tính toán báo giá đơn hàng" },
-      { status: 500 }
+      {
+        success: false,
+        code: unavailable ? code : "CART_QUOTE_FAILED",
+        error: unavailable ? "Hệ thống báo giá tạm chưa sẵn sàng." : "Lỗi tính toán báo giá đơn hàng.",
+      },
+      { status: unavailable ? 503 : 500 }
     );
   }
 }

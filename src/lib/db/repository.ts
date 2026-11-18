@@ -1,7 +1,7 @@
 /**
  * Enterprise Database Repository Layer.
  * Unified interface for White-label Retail + Clinic system.
- * Transparently delegates to SQLite (local zero-config) or PostgreSQL (when DATABASE_URL is configured).
+ * Currently delegates to SQLite. PostgreSQL is planned, not implemented here.
  */
 
 import {
