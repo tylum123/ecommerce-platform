@@ -27,6 +27,12 @@ const PROVIDER_ROLE_MIGRATIONS = [
   'db/migrations/202611170001_identity.sql',
 ];
 
+const WAVE3_BACKEND_MIGRATIONS = [
+  'db/migrations/202611180001_auth_ratelimit_customers.sql',
+  'db/migrations/202611180002_orders_fulfillment.sql',
+  'db/migrations/202611180003_clinic_bookings.sql',
+];
+
 const PLACEHOLDER_PATTERNS = [
   /YOUR_/i,
   /\[YOUR-/i,
@@ -162,6 +168,7 @@ function parseArgs(argv) {
   let mode = null;
   let withRoles = false;
   let runtimeOnly = false;
+  let wave3Backend = false;
   let help = false;
 
   for (const arg of argv) {
@@ -175,6 +182,8 @@ function parseArgs(argv) {
       withRoles = true;
     } else if (arg === '--catalog-runtime-only') {
       runtimeOnly = true;
+    } else if (arg === '--wave3-backend') {
+      wave3Backend = true;
     } else if (arg === '--help' || arg === '-h') {
       help = true;
     } else {
@@ -183,7 +192,8 @@ function parseArgs(argv) {
   }
 
   if (runtimeOnly && withRoles) throw new Error('--catalog-runtime-only cannot combine with --with-roles; prerequisites must already exist.');
-  return { mode, withRoles, runtimeOnly, help };
+  if (wave3Backend && (runtimeOnly || withRoles)) throw new Error('--wave3-backend cannot combine with --catalog-runtime-only or --with-roles.');
+  return { mode, withRoles, runtimeOnly, wave3Backend, help };
 }
 
 function printUsage() {
@@ -193,6 +203,7 @@ function printUsage() {
       '  node --env-file=.env scripts/push-supabase-schema.mjs --dry-run [--with-roles]',
       '  node --env-file=.env scripts/push-supabase-schema.mjs --apply [--with-roles]',
       '  node --env-file=.env scripts/push-supabase-schema.mjs --dry-run|--apply --catalog-runtime-only',
+      '  node --env-file=.env scripts/push-supabase-schema.mjs --dry-run|--apply --wave3-backend',
     ].join('\n')
   );
 }
@@ -240,6 +251,13 @@ async function runApply(files) {
   await client.connect();
 
   try {
+    const { rows: [roleInfo] } = await client.query(
+      "SELECT current_user AS name, r.rolsuper, r.rolcreaterole, has_database_privilege(current_user, current_database(), 'CREATE') AS can_create_schema FROM pg_roles r WHERE r.rolname = current_user"
+    );
+    if (!roleInfo || (!roleInfo.rolsuper && !roleInfo.can_create_schema)) {
+      throw new Error('Connected role lacks schema-owner CREATE privileges (runtime role detected). Set DATABASE_URL to the postgres/schema-owner URI before running --apply.');
+    }
+
     for (const file of loadedFiles) {
       const body = stripOuterTransaction(file.content);
       console.log(`[apply] Applying ${file.relPath} inside transaction...`);
@@ -266,7 +284,7 @@ async function runApply(files) {
 async function main() {
   loadDotEnvIfPresent(path.join(ROOT_DIR, '.env'));
 
-  const { mode, withRoles, runtimeOnly, help } = parseArgs(process.argv.slice(2));
+  const { mode, withRoles, runtimeOnly, wave3Backend, help } = parseArgs(process.argv.slice(2));
   if (help) {
     printUsage();
     return;
@@ -277,9 +295,13 @@ async function main() {
     return;
   }
 
-  const files = runtimeOnly ? ['db/migrations/202611170002_catalog_runtime.sql'] : withRoles
-    ? [...CORE_MIGRATIONS, ...PROVIDER_ROLE_MIGRATIONS]
-    : [...CORE_MIGRATIONS];
+  const files = wave3Backend
+    ? [...WAVE3_BACKEND_MIGRATIONS]
+    : runtimeOnly
+      ? ['db/migrations/202611170002_catalog_runtime.sql']
+      : withRoles
+        ? [...CORE_MIGRATIONS, ...PROVIDER_ROLE_MIGRATIONS]
+        : [...CORE_MIGRATIONS];
 
   if (mode === 'dry-run') {
     await runDryRun(files);

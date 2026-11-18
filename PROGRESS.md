@@ -1,5 +1,24 @@
 # Tiến độ dự án E-Commerce Platform (Nari Home) & Quản Trị Doanh Nghiệp
 
+## Checkpoint 18/11/2026 (Giai đoạn 1–4) — Pure PostgreSQL, Brand Nari Home, CLI Supabase/Cloudflare & FE↔BE End-to-End
+
+- **Giai đoạn 1 & 2 (đã đẩy `5495604..0866457`):**
+  - Gỡ hoàn toàn SQLite (`sqlite-db.ts`, `schema.sql`, `hasaki-local.db`) và ép 100% PostgreSQL ở lớp catalog/quote/admin/orders.
+  - Gỡ toàn bộ snapshot & định danh Hasaki (`docs/research/hasaki/`, `scripts/scrape-*.mjs`, `hasaki-source.html`), giữ nguyên UI/CSS và di chuyển sang `src/components/sites/nari/` + `src/lib/mcp/nari-mcp.ts`.
+  - Cài đặt CLI dự án `supabase` (`3.2.0`) và Cloudflare `wrangler` (`4.164.0`), cấu hình `supabase/config.toml` và `scripts/ops-cli.mjs` (`ops:doctor`, `ops:supabase`, `ops:cf`, `db:push`, `db:verify`).
+- **Giai đoạn 3 & 4 (Wave 3 FE↔BE PostgreSQL & Tooling):**
+  - **Wave 3.1 (Auth / Next 16 Proxy / Rate Limit):** Migration `202611180001_auth_ratelimit_customers.sql`, `src/proxy.ts` thay `src/middleware.ts`, `src/lib/server/business-access.ts`, PostgreSQL rate limiter, nối `/api/session` và `/khach-hang/*`.
+  - **Wave 3.2 (ACID Orders & Kho):** Migration `202611180002_orders_fulfillment.sql`, `src/lib/server/postgres-order-service.ts`, nối `/api/orders`, `checkout-view.tsx`, `tra-cuu-don-hang/page.tsx` (fail-closed `503` nếu `NARI_ORDERS_ENABLED` chưa bật).
+  - **Wave 3.3 (Branches & Clinic Booking):** Migration `202611180003_clinic_bookings.sql` (`btree_gist` + `EXCLUDE USING gist`), `src/lib/server/postgres-clinic-service.ts`, nối `/api/stores`, `/api/bookings`, SSR & UI (fail-closed `503` nếu `NARI_BOOKINGS_ENABLED` chưa bật).
+  - **Ops & CI:** Cập nhật `scripts/push-supabase-schema.mjs` (`--wave3-backend` + kiểm tra quyền owner trước DDL), `scripts/verify-supabase-live.mjs` (`expectedDatabaseSpec`), `.github/workflows/ci.yml`, `.gitignore`.
+- **Kiểm chứng tổng thể sau sửa cuối:**
+  - `node --test test/*.mjs test/*.cjs` (PGlite): **`85/85` PASS** (`0` fail, `0` skipped).
+  - `next typegen` + `npm run typecheck` + `npm run lint`: **0 lỗi, 0 cảnh báo**.
+  - `NARI_ISOLATED_BUILD=1 npm run build`: **PASS** (`34.1s`, `22/22` static pages, `ƒ Proxy (Middleware)`).
+  - Live Supabase (`verify-supabase-live.mjs --database`): **PASS** (`ok: true`, `wave3Applied: false`, `runtimePolicies: 18`, `nari_catalog_app`).
+  - `git grep` xác nhận `0` tham chiếu SQLite runtime và `0` tham chiếu Hasaki trong mã nguồn/assets.
+- **Trạng thái Cloud chờ kích hoạt:** Cần bổ sung `DATABASE_URL` (quyền owner) vào `.env` để chạy `node --env-file=.env scripts/push-supabase-schema.mjs --apply --wave3-backend` trước khi bật `NARI_SHARED_RATE_LIMIT=postgres`, `NARI_ORDERS_ENABLED=true`, `NARI_BOOKINGS_ENABLED=true`.
+
 ## Checkpoint 18/11/2026 — Bước 0 & Bước 1 (Chuẩn hóa Skill/Git & Vá API Catalog PostgreSQL)
 
 - **Quy trình & Skill (Bước 0):** Đã tạo [`.agents/skills/nari-fullstack-ba/SKILL.md`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/.agents/skills/nari-fullstack-ba/SKILL.md) và cập nhật [`AGENTS.md`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/AGENTS.md) với quy tắc CodeGraph-First, Plan-First, Fullstack/BA standards, Handoff và đẩy Git liên tục lên `origin/main`.

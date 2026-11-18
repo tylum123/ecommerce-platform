@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { runtimePostgresConfig, validateBucket, main, safeFailureCode } from '../scripts/verify-supabase-live.mjs';
+import { runtimePostgresConfig, validateBucket, main, safeFailureCode, expectedDatabaseSpec } from '../scripts/verify-supabase-live.mjs';
 
 test('safe diagnostics expose only fixed codes and never driver messages or arbitrary codes', () => {
   for (const code of ['ENOTFOUND','ETIMEDOUT','ECONNREFUSED','SELF_SIGNED_CERT_IN_CHAIN','UNABLE_TO_VERIFY_LEAF_SIGNATURE','UNABLE_TO_GET_ISSUER_CERT_LOCALLY','28P01','28000','42501']) assert.equal(safeFailureCode({ code, message:'postgres://secret-user:private-password@private-host' }), code);
@@ -26,4 +26,15 @@ test('Storage policy accepts only exact public bucket and restrictions', () => {
 
 test('CLI rejects ambiguous modes/path options before external calls', async () => {
   for (const argv of [[], ['--database','--storage-setup'], ['--storage-setup','--path','catalog/a.png'], ['--storage-check','--path']]) await assert.rejects(() => main(argv), /INVALID_ARGUMENTS/);
+});
+
+test('expectedDatabaseSpec distinguishes baseline catalog from Wave 3 multi-schema boundaries', () => {
+  const baseline = expectedDatabaseSpec(false);
+  assert.deepEqual(baseline.schemas, ['nari_catalog', 'nari_identity']);
+  assert.equal(baseline.exactPolicies, 18);
+  const wave3 = expectedDatabaseSpec(true);
+  assert.deepEqual(wave3.schemas, ['nari_catalog', 'nari_identity', 'nari_orders', 'nari_clinic']);
+  assert.deepEqual(wave3.expected['nari_identity.auth_rate_limits'], [false, false, false, false]);
+  assert.deepEqual(wave3.expected['nari_orders.orders'], [true, true, true, false]);
+  assert.deepEqual(wave3.expected['nari_clinic.appointments'], [true, true, true, false]);
 });

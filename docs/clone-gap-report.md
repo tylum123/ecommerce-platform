@@ -1,5 +1,16 @@
 # Báo cáo kiểm tra clone Hasaki
 
+## Checkpoint 18/11/2026 (Giai đoạn 1–4) — Pure PostgreSQL, Nari Home UI & CLI Supabase/Cloudflare
+
+- **Đã đóng triệt để:**
+  - Loại bỏ 100% SQLite (`node:sqlite`, `sqlite-db.ts`, `schema.sql`, `hasaki-local.db`) khỏi runtime và test; chỉ còn một assertion âm tính trong `test/postgres-foundation.test.cjs` xác minh hệ thống từ chối `NARI_CATALOG_BACKEND=sqlite`.
+  - Xóa sạch toàn bộ dữ liệu cào & định danh Hasaki (`docs/research/hasaki/`, `scripts/scrape-*.mjs`, HTML snapshot), chuyển toàn bộ UI sang `src/components/sites/nari/` và MCP helper sang `src/lib/mcp/nari-mcp.ts`, `git grep -in "hasaki"` trả về `0` kết quả trên `src/ public/ scripts/ test/ next.config.ts package.json .env.example db/`.
+  - Hoàn thiện mã nguồn + migration + test cho 3 mạch FE↔BE trên PostgreSQL: Auth/Next 16 `proxy.ts`/Distributed Rate Limit (`202611180001`), ACID Orders + `FOR NO KEY UPDATE` + Idempotency (`202611180002`), Chi nhánh & Clinic Booking `EXCLUDE USING gist` (`202611180003`), với `85/85` test Node/PGlite PASS, `typecheck`/`lint` 0 lỗi, `npm run build` cô lập PASS.
+  - Sẵn sàng điều phối đa nền tảng qua `supabase` (`3.2.0`) và `wrangler` (`4.164.0`) (`npm run ops:doctor`, `ops:supabase`, `ops:cf`, `db:push`, `db:verify`).
+- **Khoảng cách Cloud còn lại (bị chặn bởi cấu hình `.env` runtime-only):**
+  - `.env` hiện kết nối bằng role runtime `nari_catalog_app` (không có quyền `CREATE SCHEMA` / `CREATE EXTENSION`) và chưa có `SUPABASE_ACCESS_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`.
+  - Vì vậy Wave 3 SQL (`202611180001..0003`) **chưa được đẩy lên Supabase Cloud** (`verify-supabase-live.mjs --database` xác nhận `wave3Applied: false`, `runtimePolicies: 18`), và các cờ `NARI_SHARED_RATE_LIMIT`, `NARI_ORDERS_ENABLED`, `NARI_BOOKINGS_ENABLED` vẫn tắt có chủ đích (fail-closed `503`) cho đến khi chạy `--apply --wave3-backend` bằng `DATABASE_URL` quyền owner.
+
 ## Checkpoint 18/11/2026 — Đóng khoảng cách API Catalog/Quote & Đồng bộ Git
 
 - **Đã đóng:**

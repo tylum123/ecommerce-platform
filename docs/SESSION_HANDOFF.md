@@ -1,5 +1,31 @@
 # Session handoff — Hasaki clone
 
+## Checkpoint 18/11/2026 (Giai đoạn 1–4) — Loại bỏ SQLite & Hasaki, CLI Supabase/Cloudflare & Kết nối PostgreSQL End-to-End
+
+- **Đã hoàn thành & đẩy lên `origin/main` (Giai đoạn 1–2):**
+  - `5495604` — Gỡ bỏ hoàn toàn SQLite (`src/lib/sqlite-db.ts`, `src/lib/db/schema.sql`, `hasaki-local.db`, import cũ) và ép runtime chạy 100% PostgreSQL (`live-catalog-store.ts`, `postgres-catalog-service.ts`).
+  - `bbd2c86` — Xóa toàn bộ snapshot/script/identifier Hasaki (`docs/research/hasaki/`, `scripts/scrape-*.mjs`, `hasaki-source.html`, `hasaki-product.html`), giữ nguyên giao diện và chuyển toàn bộ component sang `src/components/sites/nari/` và `src/lib/mcp/nari-mcp.ts`.
+  - `0866457` — Tích hợp CLI project-scoped `supabase` (`3.2.0`) và Cloudflare `wrangler` (`4.164.0`), `supabase/config.toml` (`ywrzguhuzekkusoupehf`), và `scripts/ops-cli.mjs` (`ops:doctor`, `ops:supabase`, `ops:cf`, `db:push`, `db:verify`).
+- **Đã hoàn thành & kiểm chứng trên Working Tree (Giai đoạn 3–4, chuẩn bị commit `feat(auth)`, `feat(orders)`, `feat(clinic)`, `chore(ops,docs)`):**
+  - **Wave 3.1 Auth / Proxy / Rate Limit:** `db/migrations/202611180001_auth_ratelimit_customers.sql`, `src/proxy.ts` (thay `src/middleware.ts` theo Next.js 16), `src/lib/server/business-access.ts`, distributed rate limiter trên PostgreSQL (`NARI_SHARED_RATE_LIMIT=postgres`), cập nhật `/api/session` và `/khach-hang/*`, `test/postgres-auth-ratelimit.test.cjs`.
+  - **Wave 3.2 Đơn hàng ACID:** `db/migrations/202611180002_orders_fulfillment.sql`, `src/lib/server/postgres-order-service.ts` (`FOR NO KEY UPDATE`, `idempotency_keys`, optimistic locking khi hủy), cập nhật `/api/orders`, `checkout-view.tsx`, `tra-cuu-don-hang/page.tsx`, `test/postgres-orders.test.cjs`. Gate vẫn fail-closed (`503`) khi `NARI_ORDERS_ENABLED` chưa bật.
+  - **Wave 3.3 Chi nhánh & Đặt lịch Clinic:** `db/migrations/202611180003_clinic_bookings.sql` (`btree_gist` + `EXCLUDE USING gist` chống trùng lịch tại DB), `src/lib/server/postgres-clinic-service.ts`, cập nhật `/api/stores`, `/api/bookings`, SSR pages và `store-locator-view.tsx` / `booking-view.tsx`, `test/postgres-clinic-booking.test.cjs`. Gate vẫn fail-closed (`503`) khi `NARI_BOOKINGS_ENABLED` chưa bật.
+  - **Công cụ triển khai & CI:** Cập nhật `scripts/push-supabase-schema.mjs` (`--wave3-backend` + kiểm tra quyền schema-owner trước DDL), `scripts/verify-supabase-live.mjs` (`expectedDatabaseSpec(wave3Applied)`), `test/supabase-live-helper.test.mjs`, `.github/workflows/ci.yml`, `.gitignore` (`supabase/.temp/`).
+- **Kết quả kiểm chứng mới nhất:**
+  - `node scripts/push-supabase-schema.mjs --dry-run --wave3-backend` → PASS (exit `0`).
+  - `node --test test/*.mjs test/*.cjs` (với `@electric-sql/pglite`) → **`85/85` PASS** (`0` fail, `0` skipped, `0` cancelled).
+  - `npx next typegen`, `npm run typecheck`, `npm run lint` → exit `0` (`0` errors, `0` warnings).
+  - `NARI_ISOLATED_BUILD=1 npm run build` → exit `0` (`34.1s`, `22/22` static pages, `ƒ Proxy (Middleware)` active).
+  - Live Supabase DB (`verify-supabase-live.mjs --database` & `ops:doctor -- --live`) → PASS (`ok: true`, `wave3Applied: false`, `currentUser: "nari_catalog_app"`, `verifiedTls: true`, `rls: true`, `runtimePolicies: 18`, `deniedWrites: true`).
+  - `git grep -in "sqlite" -- src/ public/ scripts/` → `0` matches; `git grep -in "hasaki" -- src/ public/ scripts/ test/ next.config.ts package.json .env.example db/` → `0` matches.
+- **Lưu ý Cloud / Tác vụ tiếp theo cần khóa quyền từ chủ dự án:**
+  - `.env` hiện dùng role runtime `nari_catalog_app` (chưa có `DATABASE_URL` schema-owner, `SUPABASE_ACCESS_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`), nên Wave 3 SQL (`202611180001..0003`) mới kiểm chứng cục bộ trên PGlite & `--dry-run`, **chưa áp dụng lên Supabase Cloud**.
+  - Khi bổ sung đủ biến môi trường vào `.env`, chạy theo thứ tự:
+    1. `node --env-file=.env scripts/push-supabase-schema.mjs --apply --wave3-backend`
+    2. `node --env-file=.env scripts/verify-supabase-live.mjs --database` (xác nhận `"wave3Applied":true`)
+    3. Bật cờ trong `.env`: `NARI_SHARED_RATE_LIMIT=postgres`, `NARI_ORDERS_ENABLED=true`, `NARI_BOOKINGS_ENABLED=true`
+    4. `npm run ops:doctor -- --live`
+
 ## Checkpoint 18/11/2026 — Bước 0 & Bước 1 (Fullstack/BA Playbook, Vá API PostgreSQL & Đồng bộ Git)
 
 - **Chuẩn hóa Skill & Quy tắc tác chiến (Bước 0):**
