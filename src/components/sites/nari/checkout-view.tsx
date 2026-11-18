@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useSyncExternalStore } from "react";
+import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingCart, CheckCircle2, MapPin, Truck } from "lucide-react";
+import { ShoppingCart, CheckCircle2, MapPin, Truck, AlertTriangle } from "lucide-react";
 import { readCart } from "@/lib/cart";
 import { money, findCatalogProduct } from "@/lib/catalog";
 import type { LiveCatalogOverridesState } from "@/lib/live-catalog";
@@ -41,61 +41,85 @@ export interface CheckoutRowItem {
   };
 }
 
+interface CheckoutVietQrSummary {
+  qrUrl: string;
+  bankId?: string;
+  accountNo?: string;
+  accountName?: string;
+  amount?: number;
+  orderCode?: string;
+}
+
+interface SubmittedOrderSummary {
+  orderCode: string;
+  recipientName: string;
+  recipientPhone: string;
+  shippingAddress: string;
+  note: string;
+  paymentMethod: string;
+  totalAmount: number;
+  vietQr: CheckoutVietQrSummary | null;
+}
+
+function parseVietQr(raw: unknown): CheckoutVietQrSummary | null {
+  if (!raw || typeof raw !== "object") return null;
+  const record = raw as Record<string, unknown>;
+  if (typeof record.qrUrl !== "string" || !record.qrUrl) return null;
+  return {
+    qrUrl: record.qrUrl,
+    bankId: typeof record.bankId === "string" ? record.bankId : undefined,
+    accountNo: typeof record.accountNo === "string" ? record.accountNo : undefined,
+    accountName: typeof record.accountName === "string" ? record.accountName : undefined,
+    amount: typeof record.amount === "number" ? record.amount : undefined,
+    orderCode: typeof record.orderCode === "string" ? record.orderCode : undefined,
+  };
+}
+
 export function CheckoutView({ liveCatalog }: { liveCatalog?: LiveCatalogOverridesState }) {
   const cart = useSyncExternalStore(subscribe, snapshot, () => "[]");
   const items = cart === "[]" ? [] : readCart();
 
-  // Resolve cart products from catalog (including deals, bestsellers, brands, categories) or new arrivals
-  const rows: CheckoutRowItem[] = items.flatMap(item => {
-    if (liveCatalog?.deletedSlugs.includes(item.slug)) return [];
+  const rows: CheckoutRowItem[] = [];
+  const unknownSlugs: string[] = [];
+
+  for (const item of items) {
+    if (liveCatalog?.deletedSlugs.includes(item.slug)) continue;
     const catalogItem = findCatalogProduct(item.slug, liveCatalog);
     if (catalogItem) {
-      return [
-        {
-          ...item,
-          product: {
-            slug: catalogItem.slug,
-            brand: catalogItem.brand,
-            name: catalogItem.name,
-            price: catalogItem.price,
-            image: catalogItem.image,
-          },
+      rows.push({
+        ...item,
+        product: {
+          slug: catalogItem.slug,
+          brand: catalogItem.brand,
+          name: catalogItem.name,
+          price: catalogItem.price,
+          image: catalogItem.image,
         },
-      ];
+      });
+      continue;
     }
 
     const observed = getNewArrivals(liveCatalog).find(p => p.slug === item.slug);
     if (observed) {
-      return [
-        {
-          ...item,
-          product: {
-            slug: observed.slug,
-            brand: observed.brand,
-            name: observed.name,
-            price: observed.numericPrice,
-            image: observed.detail?.images[0] || observed.image,
-          },
-        },
-      ];
-    }
-
-    const cleanName = item.slug.replace(/\.html$/, "").replace(/-/g, " ");
-    return [
-      {
+      rows.push({
         ...item,
         product: {
-          slug: item.slug,
-          brand: "Nari Home",
-          name: cleanName,
-          price: 150000,
-          image: undefined,
+          slug: observed.slug,
+          brand: observed.brand,
+          name: observed.name,
+          price: observed.numericPrice,
+          image: observed.detail?.images[0] || observed.image,
         },
-      },
-    ];
-  });
+      });
+      continue;
+    }
 
-  const total = rows.reduce((sum, row) => sum + row.product.price * row.quantity, 0);
+    unknownSlugs.push(item.slug);
+  }
+
+  const subtotal = rows.reduce((sum, row) => sum + row.product.price * row.quantity, 0);
+  const estimatedShippingFee = rows.length > 0 && subtotal < 90000 ? 25000 : 0;
+  const estimatedTotal = subtotal + estimatedShippingFee;
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -112,10 +136,15 @@ export function CheckoutView({ liveCatalog }: { liveCatalog?: LiveCatalogOverrid
   const [review, setReview] = useState(false);
   const [savedLoc, setSavedLoc] = useState<LocationSelection | null>(() => readLocation());
   const [createdOrderCode, setCreatedOrderCode] = useState<string>("");
+  const [submittedSummary, setSubmittedSummary] = useState<SubmittedOrderSummary | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const idempotencyKeyRef = useRef<string | null>(null);
 
-  // Keep delivery area in sync with location updates
+  useEffect(() => {
+    idempotencyKeyRef.current = null;
+  }, [cart, name, phone, address, note, payment]);
+
   useEffect(() => {
     const handleLocChange = () => {
       const loc = readLocation();
@@ -142,25 +171,79 @@ export function CheckoutView({ liveCatalog }: { liveCatalog?: LiveCatalogOverrid
     setSubmitting(true);
     setSubmitError("");
     setReview(false);
+
+    if (!idempotencyKeyRef.current) {
+      idempotencyKeyRef.current = crypto.randomUUID();
+    }
+
     try {
       const response = await fetch("/api/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": idempotencyKeyRef.current,
+        },
         body: JSON.stringify({
-          recipientName: name, recipientPhone: phone, shippingAddress: address,
-          note, paymentMethod: payment,
+          recipientName: name,
+          recipientPhone: phone,
+          shippingAddress: address,
+          note,
+          deliveryType: "NariNow 2H",
+          paymentMethod: payment,
           items: rows.map(row => ({ slug: row.slug, quantity: row.quantity })),
         }),
       });
-      if (!response.ok) throw new Error("Chưa thể tạo đơn hàng. Dịch vụ đặt hàng hiện chưa khả dụng; giỏ hàng của bạn được giữ nguyên.");
-      const result: unknown = await response.json();
-      if (!result || typeof result !== "object" || !("code" in result) || typeof result.code !== "string" || !result.code) {
+
+      const payload: unknown = await response.json().catch(() => null);
+      const obj = payload && typeof payload === "object" ? (payload as Record<string, unknown>) : null;
+
+      if (!response.ok) {
+        if (response.status >= 400 && response.status < 500) {
+          idempotencyKeyRef.current = null;
+        }
+        const serverError = obj && typeof obj.error === "string" && obj.error ? obj.error : null;
+        throw new Error(
+          serverError ||
+            "Chưa thể tạo đơn hàng. Dịch vụ đặt hàng hiện chưa khả dụng; giỏ hàng của bạn được giữ nguyên.",
+        );
+      }
+
+      const returnedCode =
+        obj && typeof obj.orderCode === "string" && obj.orderCode
+          ? obj.orderCode
+          : obj && typeof obj.code === "string" && obj.code
+            ? obj.code
+            : "";
+      if (!returnedCode) {
         throw new Error("Máy chủ chưa trả mã xác nhận đơn hàng. Vui lòng thử lại sau.");
       }
-      setCreatedOrderCode(result.code);
+
+      const orderRecord =
+        obj?.order && typeof obj.order === "object" ? (obj.order as Record<string, unknown>) : null;
+      const serverTotal =
+        orderRecord && typeof orderRecord.totalAmount === "number" ? orderRecord.totalAmount : estimatedTotal;
+      const vietQr = parseVietQr(obj?.vietQr);
+
+      setSubmittedSummary({
+        orderCode: returnedCode,
+        recipientName: name,
+        recipientPhone: phone,
+        shippingAddress: address,
+        note,
+        paymentMethod: payment,
+        totalAmount: serverTotal,
+        vietQr,
+      });
+
+      localStorage.removeItem("nari-cart");
+      window.dispatchEvent(new Event("demo-cart-change"));
+      idempotencyKeyRef.current = null;
+      setCreatedOrderCode(returnedCode);
       setReview(true);
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : "Không thể kết nối dịch vụ đặt hàng. Vui lòng thử lại sau.");
+      setSubmitError(
+        error instanceof Error ? error.message : "Không thể kết nối dịch vụ đặt hàng. Vui lòng thử lại sau.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -185,23 +268,45 @@ export function CheckoutView({ liveCatalog }: { liveCatalog?: LiveCatalogOverrid
           <Link href="/">Trang chủ</Link> › <Link href="/gio-hang">Giỏ hàng</Link> › Thanh toán
         </div>
         <h1>
-          Thông tin đặt hàng <small>({rows.length} sản phẩm mẫu)</small>
+          Thông tin đặt hàng <small>({rows.length} sản phẩm)</small>
         </h1>
 
-        {!rows.length ? (
+        {unknownSlugs.length > 0 && (
+          <div
+            role="alert"
+            style={{
+              padding: "10px 14px",
+              marginBottom: 14,
+              background: "#fffbeb",
+              border: "1px solid #fde68a",
+              borderRadius: 6,
+              color: "#92400e",
+              fontSize: 13,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <AlertTriangle size={16} />
+            <span>
+              {unknownSlugs.length} sản phẩm không còn khớp với danh mục trực tiếp nên đã được loại khỏi đơn thanh toán.
+            </span>
+          </div>
+        )}
+
+        {!rows.length && !review ? (
           <section className="cart-empty">
             <ShoppingCart size={52} />
             <p>Giỏ hàng của bạn đang trống</p>
             <Link href="/">TIẾP TỤC MUA SẮM</Link>
           </section>
-        ) : (
+        ) : !review ? (
           <div className="cart-layout">
             <div>
-              <form id="checkout-demo" className="cart-box checkout-form" onSubmit={submit}>
+              <form id="checkout-form" className="cart-box checkout-form" onSubmit={submit}>
                 <h2>Thông tin nhận hàng</h2>
                 <p className="checkout-note">
-                  Giao diện thử nghiệm Nari Home. Thông tin được lưu vào Cổng khách hàng để theo dõi đơn
-                  hàng demo.
+                  Giá và tồn kho được xác thực trực tiếp từ máy chủ khi xác nhận đơn hàng.
                 </p>
 
                 {savedLoc && (
@@ -294,11 +399,11 @@ export function CheckoutView({ liveCatalog }: { liveCatalog?: LiveCatalogOverrid
                     <Truck size={16} className="text-[#3d2e24]" />
                     <strong>Giao hàng NariNow 2H</strong>
                     <span style={{ color: "#b86b4b", marginLeft: "auto", fontWeight: 600 }}>
-                      Miễn phí
+                      {estimatedShippingFee === 0 ? "Miễn phí" : money(estimatedShippingFee)}
                     </span>
                   </div>
                   <p style={{ margin: "4px 0 0 0", fontSize: 12, color: "#6b7280" }}>
-                    Áp dụng cho đơn hàng giao trong khu vực hỗ trợ NariNow của Nari Home.
+                    Miễn phí vận chuyển cho đơn từ {money(90000)} trong khu vực hỗ trợ NariNow của Nari Home.
                   </p>
                 </fieldset>
 
@@ -318,13 +423,23 @@ export function CheckoutView({ liveCatalog }: { liveCatalog?: LiveCatalogOverrid
                     <input
                       type="radio"
                       name="payment"
+                      value="vietqr"
+                      checked={payment === "vietqr"}
+                      onChange={e => setPayment(e.target.value)}
+                    />{" "}
+                    Chuyển khoản nhanh VietQR (NAPAS 247)
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="payment"
                       value="online"
                       checked={payment === "online"}
                       onChange={e => setPayment(e.target.value)}
                     />{" "}
                     Thanh toán trực tuyến (VNPAY-QR / Thẻ ATM / Ví MoMo)
                   </label>
-                  <p>Hệ thống mô phỏng thanh toán an toàn chuẩn Nari Home.</p>
+                  <p>Đơn hàng được xác thực số tiền và mã giao dịch trực tiếp từ máy chủ Nari Home.</p>
                 </fieldset>
               </form>
 
@@ -363,27 +478,29 @@ export function CheckoutView({ liveCatalog }: { liveCatalog?: LiveCatalogOverrid
               <h2>Thông tin đơn hàng</h2>
               <div>
                 <span>Tạm tính</span>
-                <b>{money(total)}</b>
+                <b>{money(subtotal)}</b>
               </div>
               <div>
                 <span>Phí vận chuyển</span>
-                <span style={{ color: "#b86b4b", fontWeight: 600 }}>Miễn phí</span>
+                <span style={{ color: "#b86b4b", fontWeight: 600 }}>
+                  {estimatedShippingFee === 0 ? "Miễn phí" : money(estimatedShippingFee)}
+                </span>
               </div>
               <hr />
               <div>
                 <strong>Tổng thanh toán</strong>
-                <strong style={{ color: "#b86b4b", fontSize: 18 }}>{money(total)}</strong>
+                <strong style={{ color: "#b86b4b", fontSize: 18 }}>{money(estimatedTotal)}</strong>
               </div>
               <p>Giá đã bao gồm thuế VAT và dịch vụ NariNow 2H.</p>
-              {submitError && <p role="alert">{submitError}</p>}
-              <button type="submit" form="checkout-demo" disabled={submitting || review} style={{ background: "#3d2e24", color: "#fff", fontWeight: "bold" }}>
+              {submitError && <p role="alert" style={{ color: "#b91c1c", fontSize: 13 }}>{submitError}</p>}
+              <button type="submit" form="checkout-form" disabled={submitting || review} style={{ background: "#3d2e24", color: "#fff", fontWeight: "bold" }}>
                 {submitting ? "ĐANG GỬI..." : "ĐẶT HÀNG NGAY"}
               </button>
             </aside>
           </div>
-        )}
+        ) : null}
 
-        {review && rows.length > 0 && (
+        {review && submittedSummary && (
           <section className="cart-box checkout-review" role="status" style={{ borderLeft: "4px solid #3d2e24" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
               <CheckCircle2 className="text-[#3d2e24]" size={24} />
@@ -395,18 +512,58 @@ export function CheckoutView({ liveCatalog }: { liveCatalog?: LiveCatalogOverrid
               </p>
             )}
             <p>
-              Người nhận: <strong>{name}</strong> · SĐT: <strong>{phone}</strong>
+              Người nhận: <strong>{submittedSummary.recipientName}</strong> · SĐT: <strong>{submittedSummary.recipientPhone}</strong>
             </p>
             <p>
-              Địa chỉ nhận hàng: <strong>{address}</strong>
+              Địa chỉ nhận hàng: <strong>{submittedSummary.shippingAddress}</strong>
             </p>
-            {note && <p>Ghi chú: {note}</p>}
+            {submittedSummary.note && <p>Ghi chú: {submittedSummary.note}</p>}
             <p>
-              Hình thức thanh toán: <strong>{payment === "cod" ? "Thanh toán khi nhận hàng (COD)" : "Thanh toán trực tuyến"}</strong>
+              Hình thức thanh toán:{" "}
+              <strong>
+                {submittedSummary.paymentMethod === "cod"
+                  ? "Thanh toán khi nhận hàng (COD)"
+                  : submittedSummary.paymentMethod === "vietqr"
+                    ? "Chuyển khoản nhanh VietQR (NAPAS 247)"
+                    : "Thanh toán trực tuyến"}
+              </strong>
             </p>
-            <p style={{ marginTop: 12 }}>
+            <p>
+              Tổng thanh toán: <strong style={{ color: "#b86b4b" }}>{money(submittedSummary.totalAmount)}</strong>
+            </p>
+
+            {submittedSummary.vietQr && (
+              <div
+                style={{
+                  marginTop: 14,
+                  padding: 14,
+                  background: "#f9fafb",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: 8,
+                }}
+              >
+                <p style={{ margin: "0 0 8px", fontWeight: 700, fontSize: 13 }}>
+                  Quét mã VietQR để thanh toán đơn hàng {submittedSummary.orderCode}
+                </p>
+                <Image
+                  src={submittedSummary.vietQr.qrUrl}
+                  alt={`Mã VietQR thanh toán đơn ${submittedSummary.orderCode}`}
+                  width={220}
+                  height={220}
+                  unoptimized
+                  style={{ borderRadius: 6, border: "1px solid #e5e7eb", background: "#fff" }}
+                />
+                <p style={{ margin: "8px 0 0", fontSize: 12, color: "#4b5563" }}>
+                  Ngân hàng: <strong>{submittedSummary.vietQr.bankId}</strong> · STK:{" "}
+                  <strong>{submittedSummary.vietQr.accountNo}</strong> · Chủ TK:{" "}
+                  <strong>{submittedSummary.vietQr.accountName}</strong>
+                </p>
+              </div>
+            )}
+
+            <div style={{ marginTop: 14, display: "flex", flexWrap: "wrap", gap: 10 }}>
               <Link
-                href="/khach-hang/don-hang"
+                href="/tra-cuu-don-hang"
                 className="checkout-portal-link"
                 style={{
                   display: "inline-block",
@@ -419,24 +576,23 @@ export function CheckoutView({ liveCatalog }: { liveCatalog?: LiveCatalogOverrid
                   textDecoration: "none",
                 }}
               >
-                Quản lý đơn hàng trong Cổng khách hàng →
+                Tra cứu trạng thái đơn hàng →
               </Link>
-            </p>
-            <div style={{ marginTop: 12 }}>
-              <button
-                type="button"
-                onClick={() => setReview(false)}
+              <Link
+                href="/"
                 style={{
-                  padding: "6px 14px",
+                  display: "inline-block",
+                  padding: "8px 16px",
                   background: "#f3f4f6",
-                  border: "1px solid #d1d5db",
-                  borderRadius: 4,
-                  fontSize: 12,
-                  cursor: "pointer",
+                  color: "#1f2937",
+                  borderRadius: 6,
+                  fontWeight: 600,
+                  fontSize: 13,
+                  textDecoration: "none",
                 }}
               >
-                Đóng bản xem lại
-              </button>
+                Tiếp tục mua sắm
+              </Link>
             </div>
           </section>
         )}
