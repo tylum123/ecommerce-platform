@@ -406,6 +406,9 @@ export function runLocalBin(binName, args, env, options = {}) {
 
   const isWin = process.platform === 'win32';
   const cliEnv = prepareCliEnv(env);
+  const stdio = options.inheritStdio
+    ? 'inherit'
+    : [options.inheritStdin ? 'inherit' : 'ignore', 'pipe', 'pipe'];
 
   const result = isWin
     ? spawnSync([quoteWinCmdArg(binPath), ...args.map(quoteWinCmdArg)].join(' '), {
@@ -413,14 +416,14 @@ export function runLocalBin(binName, args, env, options = {}) {
         env: cliEnv,
         shell: true,
         encoding: 'utf8',
-        stdio: [options.inheritStdin ? 'inherit' : 'ignore', 'pipe', 'pipe'],
+        stdio,
       })
     : spawnSync(binPath, args, {
         cwd: rootDir,
         env: cliEnv,
         shell: false,
         encoding: 'utf8',
-        stdio: [options.inheritStdin ? 'inherit' : 'ignore', 'pipe', 'pipe'],
+        stdio,
       });
 
   const stdout = redactSecrets(result.stdout || '', secrets);
@@ -529,9 +532,11 @@ export function main(argv = process.argv.slice(2)) {
   }
 
   const binName = parsed.command === 'supabase' ? 'supabase' : 'wrangler';
+  const useTty = Boolean(process.stdin.isTTY && process.stdout.isTTY);
   const result = runLocalBin(binName, parsed.args, childEnv, {
     rootDir: ROOT_DIR,
     inheritStdin: true,
+    inheritStdio: useTty,
   });
   if (result.stdout) process.stdout.write(result.stdout);
   if (result.stderr) process.stderr.write(result.stderr);
