@@ -1,0 +1,57 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "nari-home",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-11-18",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "nari-home"
+    }
+  ],
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "650301fdebbf4bdfac223cb90ddaa1cd"
+    }
+  ],
+  "vars": {
+    "APP_ORIGIN": "https://nari-home.tylum123.workers.dev",
+    "NEXT_PUBLIC_SUPABASE_URL": "https://ywrzguhuzekkusoupehf.supabase.co",
+    "SUPABASE_URL": "https://ywrzguhuzekkusoupehf.supabase.co",
+    "NARI_STORAGE_BUCKET": "nari-catalog",
+    "NARI_STORAGE_PUBLIC_ORIGIN": "https://ywrzguhuzekkusoupehf.supabase.co",
+    "NARI_CATALOG_BACKEND": "postgres",
+    "NARI_POSTGRES_SSL_MODE": "verify-full",
+    "NARI_POSTGRES_POOL_MAX": "5",
+    "NARI_SHARED_RATE_LIMIT": "postgres",
+    "NARI_AUTH_ENABLED": "true",
+    "NARI_ORDERS_ENABLED": "true",
+    "NARI_BOOKINGS_ENABLED": "true",
+    "NARI_CATALOG_ADMIN_ENABLED": "true",
+    "NARI_STAFF_PORTAL_ENABLED": "true",
+    "NEXT_PUBLIC_BRAND_SHORT": "Nari",
+    "NEXT_PUBLIC_BRAND_NAME": "Nari Home",
+    "NEXT_PUBLIC_BRAND_SLOGAN": "Khơi nguồn vẻ đẹp - Kiến tạo khí chất",
+    "NEXT_PUBLIC_BRAND_DOMAIN": "narihome.vn",
+    "NEXT_PUBLIC_BRAND_COMPANY": "CÔNG TY CỔ PHẦN NARI HOME BEAUTY & CLINIC",
+    "NEXT_PUBLIC_BRAND_DEALS": "Nari Deals",
+    "NEXT_PUBLIC_BRAND_DEALS_UPPER": "NARI DEALS",
+    "NEXT_PUBLIC_BRAND_CLINIC": "Nari Clinic & Spa",
+    "NEXT_PUBLIC_BRAND_DELIVERY": "NariNow 2H",
+    "NEXT_PUBLIC_BRAND_LOYALTY": "Nari Rewards",
+    "NEXT_PUBLIC_BRAND_HOTLINE": "1800 6324",
+    "NEXT_PUBLIC_BRAND_EMAIL": "cskh@narihome.vn",
+    "NEXT_PUBLIC_BRAND_EMAIL_DOMAIN": "narihome.vn",
+    "NEXT_PUBLIC_BRAND_ORDER_PREFIX": "NARI",
+    "NEXT_PUBLIC_BRAND_BANNER": "/nari-home-banner.jpg"
+  }
+}

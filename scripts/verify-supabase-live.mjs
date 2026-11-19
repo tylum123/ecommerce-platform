@@ -36,6 +36,9 @@ export function runtimePostgresConfig(env = process.env) {
   const requireModule = createRequire(import.meta.url);
   new Function('module', 'exports', 'require', output)(mod, mod.exports, id => {
     if (id === 'server-only') return {};
+    if (id === '@opennextjs/cloudflare') {
+      return { getCloudflareContext() { throw new Error('NO_CLOUDFLARE_CONTEXT'); } };
+    }
     requireCheck(id === 'pg', 'CONFIG_DEPENDENCY_CHANGED');
     return requireModule(id);
   });

@@ -73,7 +73,35 @@ export function AdminProductsView() {
     }
   }, []);
 
-  useEffect(() => { void loadProducts(); }, [loadProducts]);
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const data = await requestCatalog("/api/admin/products");
+        if (cancelled) return;
+        if (!Array.isArray(data.products) || !Array.isArray(data.categories) || !Array.isArray(data.brands)) {
+          throw new Error("Dữ liệu trả về không hợp lệ.");
+        }
+        setProducts(data.products);
+        setCategories(data.categories);
+        setBrands(data.brands);
+        if (data.banners && Array.isArray(data.banners.heroSlides) && Array.isArray(data.banners.sideBanners)) {
+          setBanners(data.banners);
+        }
+      } catch (cause) {
+        if (!cancelled) {
+          setError(cause instanceof Error ? cause.message : "Không thể tải danh mục.");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function createReference(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

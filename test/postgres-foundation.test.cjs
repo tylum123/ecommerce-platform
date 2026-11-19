@@ -15,6 +15,7 @@ function load(file, stubs = {}) {
   const requireModule = id => {
     if (id === 'server-only') return {};
     if (Object.hasOwn(stubs, id)) return stubs[id];
+    if (id === '@opennextjs/cloudflare') return { getCloudflareContext() { throw new Error('NO_CLOUDFLARE_CONTEXT'); } };
     if (id.startsWith('@/')) return load(`src/${id.slice(2)}.ts`, stubs);
     return localRequire(id);
   };
@@ -149,4 +150,187 @@ test('authoritative PG projection stays empty and escaped editorial fields canno
     assert.match(rendered, /&lt;script&gt;/);
   }
   assert.equal(details.getRichProductDetail(slug, { ...state, deletedSlugs: [slug] }), null);
+});
+
+test('Hyperdrive database opens a fresh Client per query and transaction, rolls back, guards escaped handles and closes cleanly', async () => {
+  const clients = [];
+  let behavior = {};
+  class FakeClient {
+    constructor(config) {
+      this.config = config;
+      this.events = [];
+      this.queries = [];
+      clients.push(this);
+    }
+    async connect() {
+      this.events.push('connect');
+      if (behavior.failConnect) throw Error('connect boom');
+    }
+    async query(sql, values) {
+      this.events.push(`query:${sql}`);
+      this.queries.push({ sql, values });
+      if (behavior.failSql && behavior.failSql(sql)) throw Error(behavior.failMessage || 'query boom');
+      return { rows: [{ ok: true, sql }] };
+    }
+    async end() {
+      this.events.push('end');
+      if (behavior.failEnd) throw Error('end error');
+    }
+  }
+
+  const connectionString = 'postgres://hyperdrive.local/db';
+  const { createHyperdriveDatabase } = load('src/lib/server/postgres-database.ts', {
+    pg: { Pool: class {}, Client: FakeClient },
+  });
+  const db = createHyperdriveDatabase(connectionString);
+  assert.deepEqual(db.status(), { closing: false, idleConnectionErrors: 0 });
+
+  const inputValues = [42];
+  const res1 = await db.query('SELECT $1::int AS n', inputValues);
+  assert.deepEqual(res1, { rows: [{ ok: true, sql: 'SELECT $1::int AS n' }] });
+  assert.equal(clients.length, 1);
+  assert.deepEqual(clients[0].config, { connectionString });
+  assert.equal('ssl' in clients[0].config, false);
+  assert.deepEqual(clients[0].events, ['connect', 'query:SELECT $1::int AS n', 'end']);
+  assert.equal(typeof clients[0].queries[0].sql, 'string');
+  assert.deepEqual(clients[0].queries[0].values, [42]);
+  assert.notEqual(clients[0].queries[0].values, inputValues);
+
+  await db.query('SELECT 1');
+  assert.equal(clients.length, 2);
+  assert.notEqual(clients[0], clients[1]);
+  assert.equal(clients[1].queries[0].values, undefined);
+
+  behavior = { failSql: sql => sql === 'SELECT broken', failMessage: 'query boom' };
+  await assert.rejects(() => db.query('SELECT broken'), /query boom/);
+  assert.deepEqual(clients[2].events, ['connect', 'query:SELECT broken', 'end']);
+
+  behavior = { failConnect: true };
+  await assert.rejects(() => db.query('SELECT never'), /connect boom/);
+  assert.deepEqual(clients[3].events, ['connect', 'end']);
+
+  behavior = { failEnd: true };
+  assert.deepEqual(await db.query('SELECT 2'), { rows: [{ ok: true, sql: 'SELECT 2' }] });
+  assert.deepEqual(clients[4].events, ['connect', 'query:SELECT 2', 'end']);
+
+  behavior = {};
+  let escapedCommitted;
+  const txResult = await db.transaction(async connection => {
+    escapedCommitted = connection;
+    await connection.query('INSERT INTO t VALUES ($1)', ['a']);
+    return 7;
+  });
+  assert.equal(txResult, 7);
+  assert.deepEqual(clients[5].events, ['connect', 'query:BEGIN', 'query:INSERT INTO t VALUES ($1)', 'query:COMMIT', 'end']);
+  await assert.rejects(() => escapedCommitted.query('late'), /POSTGRES_TRANSACTION_FINISHED/);
+  assert.equal(clients[5].queries.length, 3);
+
+  let escapedFailed;
+  await assert.rejects(() => db.transaction(async connection => {
+    escapedFailed = connection;
+    await connection.query('UPDATE t SET x = 1');
+    throw Error('business conflict');
+  }), /business conflict/);
+  assert.deepEqual(clients[6].events, ['connect', 'query:BEGIN', 'query:UPDATE t SET x = 1', 'query:ROLLBACK', 'end']);
+  await assert.rejects(() => escapedFailed.query('late after rollback'), /POSTGRES_TRANSACTION_FINISHED/);
+
+  behavior = { failSql: sql => sql === 'ROLLBACK', failMessage: 'rollback disconnected' };
+  await assert.rejects(() => db.transaction(async () => {
+    throw Error('original failure');
+  }), /original failure/);
+  assert.deepEqual(clients[7].events, ['connect', 'query:BEGIN', 'query:ROLLBACK', 'end']);
+
+  behavior = { failSql: sql => sql === 'COMMIT', failMessage: 'commit disconnected' };
+  await assert.rejects(() => db.transaction(async () => 1), /commit disconnected/);
+  assert.deepEqual(clients[8].events, ['connect', 'query:BEGIN', 'query:COMMIT', 'query:ROLLBACK', 'end']);
+
+  behavior = {};
+  const countBeforeClose = clients.length;
+  await Promise.all([db.close(), db.close()]);
+  assert.deepEqual(db.status(), { closing: true, idleConnectionErrors: 0 });
+  await assert.rejects(() => db.query('SELECT 3'), /POSTGRES_DATABASE_CLOSED/);
+  await assert.rejects(() => db.transaction(async () => 1), /POSTGRES_DATABASE_CLOSED/);
+  assert.equal(clients.length, countBeforeClose);
+});
+
+test('getPostgresDatabase selects fresh Hyperdrive adapter in Workers and singleton Pool fallback outside Workers', async () => {
+  const previousUrl = process.env.NARI_POSTGRES_URL;
+  const previousSsl = process.env.NARI_POSTGRES_SSL_MODE;
+  delete process.env.NARI_POSTGRES_URL;
+  delete process.env.NARI_POSTGRES_SSL_MODE;
+
+  try {
+    let poolCreations = 0;
+    const clientConfigs = [];
+    const contextCalls = [];
+    class FakePool extends EventEmitter {
+      constructor(config) {
+        super();
+        this.config = config;
+        poolCreations += 1;
+      }
+      async query() { return { rows: [] }; }
+      async end() {}
+    }
+    class FakeClient {
+      constructor(config) {
+        clientConfigs.push(config);
+      }
+      async connect() {}
+      async query() { return { rows: [{ source: 'hyperdrive' }] }; }
+      async end() {}
+    }
+
+    const hyperdriveMod = load('src/lib/server/postgres-database.ts', {
+      pg: { Pool: FakePool, Client: FakeClient },
+      '@opennextjs/cloudflare': {
+        getCloudflareContext(options) {
+          contextCalls.push(options);
+          return { env: { HYPERDRIVE: { connectionString: '  postgres://hyperdrive.local/db  ' } } };
+        },
+      },
+    });
+
+    assert.equal(hyperdriveMod.readHyperdriveConnectionString(), 'postgres://hyperdrive.local/db');
+    assert.deepEqual(contextCalls, [{ async: false }]);
+    const hd1 = hyperdriveMod.getPostgresDatabase();
+    const hd2 = hyperdriveMod.getPostgresDatabase();
+    assert.notEqual(hd1, hd2);
+    assert.equal(poolCreations, 0);
+    assert.deepEqual(await hd1.query('SELECT 1'), { rows: [{ source: 'hyperdrive' }] });
+    assert.deepEqual(clientConfigs, [{ connectionString: 'postgres://hyperdrive.local/db' }]);
+    await hyperdriveMod.closePostgresDatabase();
+
+    const throwingContextMod = load('src/lib/server/postgres-database.ts', {
+      pg: { Pool: FakePool, Client: FakeClient },
+    });
+    assert.equal(throwingContextMod.readHyperdriveConnectionString(), null);
+    assert.throws(() => throwingContextMod.getPostgresDatabase(), /POSTGRES_URL_REQUIRED/);
+
+    process.env.NARI_POSTGRES_URL = 'postgresql://user:pass@db.example/catalog';
+    const nodeDb1 = throwingContextMod.getPostgresDatabase();
+    const nodeDb2 = throwingContextMod.getPostgresDatabase();
+    assert.equal(nodeDb1, nodeDb2);
+    assert.equal(poolCreations, 1);
+    await throwingContextMod.closePostgresDatabase();
+
+    for (const env of [{}, { HYPERDRIVE: {} }, { HYPERDRIVE: { connectionString: '   ' } }]) {
+      const poolsBefore = poolCreations;
+      const missingBindingMod = load('src/lib/server/postgres-database.ts', {
+        pg: { Pool: FakePool, Client: FakeClient },
+        '@opennextjs/cloudflare': {
+          getCloudflareContext() { return { env }; },
+        },
+      });
+      assert.equal(missingBindingMod.readHyperdriveConnectionString(), null);
+      const fallback1 = missingBindingMod.getPostgresDatabase();
+      const fallback2 = missingBindingMod.getPostgresDatabase();
+      assert.equal(fallback1, fallback2);
+      assert.equal(poolCreations, poolsBefore + 1);
+      await missingBindingMod.closePostgresDatabase();
+    }
+  } finally {
+    if (previousUrl === undefined) delete process.env.NARI_POSTGRES_URL; else process.env.NARI_POSTGRES_URL = previousUrl;
+    if (previousSsl === undefined) delete process.env.NARI_POSTGRES_SSL_MODE; else process.env.NARI_POSTGRES_SSL_MODE = previousSsl;
+  }
 });

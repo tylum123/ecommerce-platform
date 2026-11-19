@@ -131,6 +131,149 @@ const DEFAULT_SEO_ROUTES: SeoRouteAudit[] = [
   { route: "/san-pham/sua-rua-mat-cerave-sach-sau-cho-da-thuong-den-da-dau-473ml-102959.html", name: "Chi tiết Sữa Rửa Mặt CeraVe", score: 100, schemaType: "Product, BreadcrumbList", ogImage: true, status: "Pass" },
 ];
 
+// Helper simulation if MCP route is returning 404/500 during build
+function simulateMcpToolExecution(
+  toolName: string,
+  args: Record<string, unknown>,
+  data: { inventory: InventoryRecord[]; orders: ErpOrderRecord[]; users: UserRecord[] }
+) {
+  if (toolName === "nari_search_products") {
+    const q = String(args.query || "").toLowerCase();
+    const items = data.inventory
+      .filter((i) => i.productName.toLowerCase().includes(q) || i.brand.toLowerCase().includes(q))
+      .slice(0, Number(args.limit) || 5);
+    return {
+      jsonrpc: "2.0",
+      result: {
+        totalMatches: items.length,
+        products: items.map((i) => ({
+          sku: i.sku,
+          name: i.productName,
+          brand: i.brand,
+          price: i.price,
+          stock: i.totalStock,
+          status: i.warehouseStatus,
+        })),
+      },
+    };
+  }
+  if (toolName === "nari_check_inventory") {
+    const sku = String(args.sku || "");
+    const item = data.inventory.find((i) => i.sku === sku) || data.inventory[0];
+    return {
+      jsonrpc: "2.0",
+      result: {
+        sku: item.sku,
+        name: item.productName,
+        totalStock: item.totalStock,
+        availableStock: item.availableStock,
+        warehouseStatus: item.warehouseStatus,
+        branchBreakdown: item.branchStock,
+      },
+    };
+  }
+  if (toolName === "nari_list_orders") {
+    const status = args.status ? String(args.status) : undefined;
+    const list = status ? data.orders.filter((o) => o.status === status) : data.orders;
+    return {
+      jsonrpc: "2.0",
+      result: {
+        totalOrders: list.length,
+        orders: list.slice(0, Number(args.limit) || 5).map((o) => ({
+          code: o.orderCode,
+          customer: o.customerName,
+          total: o.total,
+          status: o.statusLabel,
+          deliveryType: o.deliveryType,
+          branch: o.branchName,
+        })),
+      },
+    };
+  }
+  if (toolName === "nari_manage_users") {
+    return {
+      jsonrpc: "2.0",
+      result: {
+        totalUsers: data.users.length,
+        users: data.users.slice(0, 5).map((u) => ({
+          id: u.id,
+          name: u.fullName,
+          tier: u.tier,
+          points: u.loyaltyPoints,
+          totalSpent: u.totalSpent,
+        })),
+      },
+    };
+  }
+  return {
+    jsonrpc: "2.0",
+    result: {
+      tool: toolName,
+      status: "success",
+      timestamp: new Date().toISOString(),
+      message: "Thực thi thành công qua Nari Home AI Agent Protocol",
+      receivedArgs: args,
+    },
+  };
+}
+
+async function executeMcpToolCall(
+  selectedMcpTool: string,
+  mcpToolArgs: string,
+  fallbackData: { inventory: InventoryRecord[]; orders: ErpOrderRecord[]; users: UserRecord[] }
+): Promise<{ elapsed: number; responseJson: string; succeeded: boolean }> {
+  const startTime = performance.now();
+  try {
+    let parsedArgs: Record<string, unknown> = {};
+    try {
+      parsedArgs = JSON.parse(mcpToolArgs);
+    } catch {
+      throw new Error("Tham số JSON không hợp lệ. Vui lòng kiểm tra lại cú pháp.");
+    }
+
+    const payload = {
+      jsonrpc: "2.0",
+      id: Date.now(),
+      method: "tools/call",
+      params: {
+        name: selectedMcpTool,
+        arguments: parsedArgs,
+      },
+    };
+
+    const res = await fetch("/api/mcp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const elapsed = Math.round(performance.now() - startTime);
+    if (res.ok) {
+      const json = await res.json();
+      return { elapsed, responseJson: JSON.stringify(json, null, 2), succeeded: true };
+    }
+
+    const mockResult = simulateMcpToolExecution(selectedMcpTool, parsedArgs, fallbackData);
+    return { elapsed, responseJson: JSON.stringify(mockResult, null, 2), succeeded: true };
+  } catch (err) {
+    const elapsed = Math.round(performance.now() - startTime);
+    const errMsg = err instanceof Error ? err.message : String(err);
+    return {
+      elapsed,
+      succeeded: false,
+      responseJson: JSON.stringify(
+        {
+          jsonrpc: "2.0",
+          error: { code: -32603, message: errMsg },
+          id: null,
+        },
+        null,
+        2
+      ),
+    };
+  }
+}
+
 export function AdminErpView() {
   const [activeTab, setActiveTab] = useState<
     "dashboard" | "users" | "staff" | "orders" | "inventory" | "mcp_seo"
@@ -250,8 +393,42 @@ export function AdminErpView() {
   }, [authSession]);
 
   useEffect(() => {
-    refreshAllData();
-  }, [refreshAllData]);
+    let cancelled = false;
+    void (async () => {
+      await Promise.resolve();
+      if (cancelled) return;
+      if (!authSession) {
+        setIsLoading(false);
+        return;
+      }
+      try {
+        const [usersRes, staffRes, ordersRes, invRes] = await Promise.all([
+          fetch("/api/admin/users").then((r) => r.json()),
+          fetch("/api/admin/staff").then((r) => r.json()),
+          fetch("/api/admin/orders?includeKpis=true").then((r) => r.json()),
+          fetch("/api/admin/inventory?includeLogs=true").then((r) => r.json()),
+        ]);
+        if (cancelled) return;
+        if (usersRes?.success) setUsers(usersRes.users);
+        if (staffRes?.success) setStaffList(staffRes.staff);
+        if (ordersRes?.success) {
+          setOrders(ordersRes.orders);
+          if (ordersRes.kpis) setKpis(ordersRes.kpis);
+        }
+        if (invRes?.success) {
+          setInventory(invRes.inventory);
+          if (invRes.auditLogs) setAuditLogs(invRes.auditLogs);
+        }
+      } catch {
+        // In case of network error, graceful handling
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [authSession]);
 
   // Handle MCP tool switch
   const handleSelectMcpTool = (toolName: string) => {
@@ -267,152 +444,18 @@ export function AdminErpView() {
   // Execute MCP Tool
   const handleExecuteMcpTool = async () => {
     setMcpExecuting(true);
-    const startTime = performance.now();
-    try {
-      let parsedArgs: Record<string, unknown> = {};
-      try {
-        parsedArgs = JSON.parse(mcpToolArgs);
-      } catch {
-        throw new Error("Tham số JSON không hợp lệ. Vui lòng kiểm tra lại cú pháp.");
-      }
-
-      const payload = {
-        jsonrpc: "2.0",
-        id: Date.now(),
-        method: "tools/call",
-        params: {
-          name: selectedMcpTool,
-          arguments: parsedArgs,
-        },
-      };
-
-      const res = await fetch("/api/mcp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const elapsed = Math.round(performance.now() - startTime);
-      setMcpLatency(elapsed);
-
-      if (res.ok) {
-        const json = await res.json();
-        setMcpResponse(JSON.stringify(json, null, 2));
-      } else {
-        // Fallback simulation for live demonstration if endpoint is returning non-200
-        const mockResult = simulateMcpToolExecution(selectedMcpTool, parsedArgs, {
-          inventory,
-          orders,
-          users,
-        });
-        setMcpResponse(JSON.stringify(mockResult, null, 2));
-      }
+    const { elapsed, responseJson, succeeded } = await executeMcpToolCall(selectedMcpTool, mcpToolArgs, {
+      inventory,
+      orders,
+      users,
+    });
+    setMcpLatency(elapsed);
+    setMcpResponse(responseJson);
+    if (succeeded) {
       showToast(`Đã thực thi tool [${selectedMcpTool}] thành công`);
-    } catch (err) {
-      const elapsed = Math.round(performance.now() - startTime);
-      setMcpLatency(elapsed);
-      const errMsg = err instanceof Error ? err.message : String(err);
-      setMcpResponse(
-        JSON.stringify(
-          {
-            jsonrpc: "2.0",
-            error: { code: -32603, message: errMsg },
-            id: null,
-          },
-          null,
-          2
-        )
-      );
-    } finally {
-      setMcpExecuting(false);
     }
+    setMcpExecuting(false);
   };
-
-  // Helper simulation if MCP route is returning 404/500 during build
-  function simulateMcpToolExecution(
-    toolName: string,
-    args: Record<string, unknown>,
-    data: { inventory: InventoryRecord[]; orders: ErpOrderRecord[]; users: UserRecord[] }
-  ) {
-    if (toolName === "nari_search_products") {
-      const q = String(args.query || "").toLowerCase();
-      const items = data.inventory
-        .filter((i) => i.productName.toLowerCase().includes(q) || i.brand.toLowerCase().includes(q))
-        .slice(0, Number(args.limit) || 5);
-      return {
-        jsonrpc: "2.0",
-        result: {
-          totalMatches: items.length,
-          products: items.map((i) => ({
-            sku: i.sku,
-            name: i.productName,
-            brand: i.brand,
-            price: i.price,
-            stock: i.totalStock,
-            status: i.warehouseStatus,
-          })),
-        },
-      };
-    }
-    if (toolName === "nari_check_inventory") {
-      const sku = String(args.sku || "");
-      const item = data.inventory.find((i) => i.sku === sku) || data.inventory[0];
-      return {
-        jsonrpc: "2.0",
-        result: {
-          sku: item.sku,
-          name: item.productName,
-          totalStock: item.totalStock,
-          availableStock: item.availableStock,
-          warehouseStatus: item.warehouseStatus,
-          branchBreakdown: item.branchStock,
-        },
-      };
-    }
-    if (toolName === "nari_list_orders") {
-      const status = args.status ? String(args.status) : undefined;
-      const list = status ? data.orders.filter((o) => o.status === status) : data.orders;
-      return {
-        jsonrpc: "2.0",
-        result: {
-          totalOrders: list.length,
-          orders: list.slice(0, Number(args.limit) || 5).map((o) => ({
-            code: o.orderCode,
-            customer: o.customerName,
-            total: o.total,
-            status: o.statusLabel,
-            deliveryType: o.deliveryType,
-            branch: o.branchName,
-          })),
-        },
-      };
-    }
-    if (toolName === "nari_manage_users") {
-      return {
-        jsonrpc: "2.0",
-        result: {
-          totalUsers: data.users.length,
-          users: data.users.slice(0, 5).map((u) => ({
-            id: u.id,
-            name: u.fullName,
-            tier: u.tier,
-            points: u.loyaltyPoints,
-            totalSpent: u.totalSpent,
-          })),
-        },
-      };
-    }
-    return {
-      jsonrpc: "2.0",
-      result: {
-        tool: toolName,
-        status: "success",
-        timestamp: new Date().toISOString(),
-        message: "Thực thi thành công qua Nari Home AI Agent Protocol",
-        receivedArgs: args,
-      },
-    };
-  }
 
   // User Actions
   const handleUpdateUserPoints = async (userId: string, delta: number) => {
