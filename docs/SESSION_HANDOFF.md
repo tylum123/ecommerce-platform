@@ -1,5 +1,49 @@
 # Session handoff — Hasaki clone
 
+## Checkpoint 19/11/2026 (Cloudflare Workers Live) — Triển khai OpenNext Workers + Hyperdrive lên `nari-home.tylum123.workers.dev`
+
+- **Live URL:** `https://nari-home.tylum123.workers.dev`
+- **Cloudflare Workers / OpenNext (`next@16.4.6`, `eslint-config-next@16.4.6`, `@opennextjs/cloudflare@1.20.17`, `wrangler@4.164.0`, `supabase@3.2.0`):**
+  - Cấu hình `open-next.config.ts`, `wrangler.jsonc` gắn Hyperdrive binding `nari-supabase-db` (`650301fdebbf4bdfac223cb90ddaa1cd`), cập nhật `next.config.ts` (`images: { unoptimized: true }`), `eslint.config.mjs` (ignore `.open-next/**`, `.wrangler/**`, `cloudflare-env.d.ts`), và sửa 6 lỗi React Compiler ESLint trong [`src/components/sites/nari/admin-erp-view.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/nari/admin-erp-view.tsx) và [`src/components/sites/nari/admin-products-view.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/nari/admin-products-view.tsx).
+  - Build OpenNext (`npm run cf:build`, `NARI_ISOLATED_BUILD` unset): **PASS** (`exit 0`), `.open-next/worker.js` entrypoint `2,216` bytes, `.open-next/server-functions/default/handler.mjs` `6,553,506` bytes; static assets uploaded (`65` new, `3` existing).
+  - Deploy (`npx wrangler deploy`): **PASS** (`exit 0`), `Total Upload: 10200.13 KiB / gzip: 2114.25 KiB` (< 3 MiB Free limit), `Worker Startup Time: 210 ms`, Version ID: `f498b0c4-f468-4005-80b6-3d3dbad8361b`.
+  - Secrets (`npx wrangler secret bulk` & `wrangler secret list`): đã gắn `8` secrets (`NARI_POSTGRES_CA`, `NARI_POSTGRES_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `VIETQR_ACCOUNT_NAME`, `VIETQR_ACCOUNT_NO`, `VIETQR_BANK_ID`, `VIETQR_TEMPLATE`).
+- **Hyperdrive Per-Request Adapter ([`src/lib/server/postgres-database.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/server/postgres-database.ts) + [`test/postgres-foundation.test.cjs`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/test/postgres-foundation.test.cjs)):**
+  - Bổ sung `readHyperdriveConnectionString()` và `createHyperdriveDatabase()` khởi tạo `pg.Client` riêng cho từng lời gọi `query`/`transaction` (đóng qua `client.end()` trong `finally`) để tránh lỗi `workerd` cross-request I/O; fallback về singleton `Pool` ngoài Cloudflare Workers.
+  - Cập nhật [`scripts/verify-supabase-live.mjs`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/scripts/verify-supabase-live.mjs) (`runtimePostgresConfig`) stub `@opennextjs/cloudflare`.
+- **Kiểm chứng tổng thể & Live HTTPS Probes (`https://nari-home.tylum123.workers.dev`):**
+  - `node --test test/*.mjs test/*.cjs`: `77` passed, `0` failed (`10` PGlite integration tests skipped khi `NARI_TEST_PGLITE_PATH` chưa đặt, khớp `.github/workflows/ci.yml`); `test/postgres-foundation.test.cjs`: `7/7` pass.
+  - `npm run lint`: **PASS** (`0` errors, `0` warnings).
+  - `npx next typegen` & `npm run typecheck`: **PASS** (`0` errors).
+  - `npm run ops:doctor -- --live`: **PASS** (`Supabase DB: OK`, `wave3Applied: true`, `runtimePolicies: 44`, `Cloudflare Wrangler: OK` `tylum123@gmail.com`).
+  - Live HTTPS Probes sau khi nạp secrets:
+    - `GET /` → HTTP `200` (`Nari Home` rendered, `42090` bytes).
+    - `GET /api/products` (2 sequential + 2 concurrent `Promise.all`) → tất cả `4` trả HTTP `200` (không có lỗi cross-request I/O hay 500/503).
+    - `GET /api/stores` (2 sequential) → cả hai HTTP `200` (`"source":"postgres"`).
+    - `GET /api/session` (unauthenticated) → HTTP `401` (`authenticated` false / `user: null`).
+    - `GET /api/admin/products` (unauthenticated) → HTTP `401` (`AUTHENTICATION_REQUIRED`).
+    - `POST /api/orders` (no origin) → HTTP `403` (`FORBIDDEN_ORIGIN`).
+- **Bước thủ công & Lộ trình tiếp theo:**
+  - `npm run ops:supabase -- login` vẫn là bước TTY thủ công của chủ dự án (`~/.supabase/access-token` chưa tạo; `SUPABASE_ACCESS_TOKEN` trống).
+  - Lộ trình tính năng Production tiếp theo: seed danh mục Nari Home / chi nhánh / dịch vụ clinic thật vào Supabase, thay thế `erp-store.ts` in-memory trong `/api/admin/*`, nối Customer Portal (`/khach-hang/*`) & đăng ký/khôi phục mật khẩu vào Supabase Auth + `customer_profiles`, bật `/api/payments/webhook` + bộ chọn chi nhánh tại `/thanh-toan`, nối slot availability trực tiếp + `/api/warranty` + `/api/analytics` + `/api/mcp`, và chuyển `next/font/google` sang `next/font/local`.
+
+## Checkpoint 18/11/2026 (Tạm kết thúc — Chuẩn bị Cloudflare Hyperdrive & Sửa `ops-cli.mjs`)
+
+- **Đã hoàn tất & kiểm chứng trong bước này:**
+  - **Sửa [`scripts/ops-cli.mjs`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/scripts/ops-cli.mjs):** Truyền `stdio: 'inherit'` khi chạy `ops:supabase` / `ops:cf` trong terminal TTY để lệnh `npm run ops:supabase -- login` không bị nuốt prompt/đứng hình.
+  - **Hạ tầng Cloudflare đã tạo sẵn trên tài khoản `c0267fa333fa3b1a5b648ebf8a4b419e` (`tylum123.workers.dev`):**
+    - Custom CA `nari-supabase-ca` (Supabase Root 2021 CA): ID `42155ffe-bf6d-4040-afac-779588547a18`.
+    - Hyperdrive `nari-supabase-db` (`aws-1-ap-southeast-2.pooler.supabase.com:5432`, `--sslmode=verify-full`): ID `650301fdebbf4bdfac223cb90ddaa1cd`.
+  - Cập nhật [`.gitignore`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/.gitignore) bỏ qua `.open-next/`, `.wrangler/`, `cloudflare-env.d.ts`.
+  - Đã hủy clean `npm install` dở dang (`@opennextjs/cloudflare` / `next@16.4.6`) và xóa `open-next.config.ts` tạm để repo giữ trạng thái ổn định trên `next@16.3.5` (`.next` / Node.js).
+- **Việc còn lại ở phiên sau (tiếp nối ngay):**
+  1. **Bước 2 (`ops:supabase`):** Chạy `npm run ops:supabase -- login` trong PowerShell riêng để lưu `~/.supabase/access-token` (lỗi đứng màn hình trong `ops-cli.mjs` đã được sửa).
+  2. **Bước 3 (Cloudflare Workers OpenNext + Hyperdrive):**
+     - Nâng cấp `npm install next@16.4.6 eslint-config-next@16.4.6 @opennextjs/cloudflare@1.20.17` (peerDep yêu cầu `next >=16.4.5`).
+     - Tạo `open-next.config.ts` và `wrangler.jsonc` gắn binding `HYPERDRIVE` (`id: "650301fdebbf4bdfac223cb90ddaa1cd"`), `nodejs_compat`, `APP_ORIGIN: "https://nari-home.tylum123.workers.dev"`.
+     - Cập nhật [`src/lib/server/postgres-database.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/server/postgres-database.ts) dùng per-request `pg.Client` qua `HYPERDRIVE.connectionString` (`getCloudflareContext({ async: false })`) để tránh lỗi `"Cannot perform I/O on behalf of a different request"` của `workerd`.
+     - Nạp secrets bằng `wrangler secret bulk`, build bằng `@opennextjs/cloudflare build`, deploy lên `nari-home.tylum123.workers.dev` và kiểm chứng live.
+
 ## Checkpoint 18/11/2026 (Cloud Live Wave 3) — Áp dụng & Xác minh Wave 3 trên Supabase Live
 
 - **Thực thi Wave 3 SQL qua Supabase SQL Editor (Chrome):**

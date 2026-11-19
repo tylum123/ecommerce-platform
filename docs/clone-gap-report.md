@@ -1,5 +1,16 @@
 # Báo cáo kiểm tra clone Hasaki
 
+## Checkpoint 19/11/2026 (Cloudflare Workers Live) — Đóng khoảng cách Triển khai Cloudflare Workers & Hyperdrive
+
+- **Đã đóng trên Production Workers (`https://nari-home.tylum123.workers.dev`):**
+  - Đã hoàn tất triển khai OpenNext (`@opennextjs/cloudflare@1.20.17` trên `next@16.4.6`, `wrangler@4.164.0`) với Version ID `f498b0c4-f468-4005-80b6-3d3dbad8361b`, bundle `10200.13 KiB` (`gzip: 2114.25 KiB`, `Worker Startup Time: 210 ms`) và `8` Wrangler secrets.
+  - Khắc phục lỗi `workerd` cross-request I/O bằng `readHyperdriveConnectionString()` + `createHyperdriveDatabase()` (tạo `pg.Client` riêng mỗi `query`/`transaction` và đóng trong `finally`) gắn Hyperdrive `nari-supabase-db` (`650301fdebbf4bdfac223cb90ddaa1cd`); `test/postgres-foundation.test.cjs` đạt `7/7` pass.
+  - Live HTTPS probes sau khi nạp secrets đều pass đúng hợp đồng: `GET /` `200` (`42090` bytes), `GET /api/products` (2 sequential + 2 concurrent `Promise.all`) đều `200`, `GET /api/stores` (2 sequential) đều `200` (`"source":"postgres"`), `GET /api/session` (unauthenticated) `401`, `GET /api/admin/products` (unauthenticated) `401` (`AUTHENTICATION_REQUIRED`), `POST /api/orders` (no origin) `403` (`FORBIDDEN_ORIGIN`).
+  - `npm run lint` (`0` errors, `0` warnings), `npx next typegen` + `npm run typecheck` (`0` errors), `node --test test/*.mjs test/*.cjs` (`77` passed, `0` failed; `10` PGlite skipped khi `NARI_TEST_PGLITE_PATH` unset), và `npm run ops:doctor -- --live` (`Supabase DB: OK`, `wave3Applied: true`, `runtimePolicies: 44`, `Cloudflare Wrangler: OK` `tylum123@gmail.com`) đều đạt.
+- **Khoảng cách & Hạng mục còn lại:**
+  - `npm run ops:supabase -- login` vẫn là bước TTY thủ công của chủ dự án (`~/.supabase/access-token` chưa tạo; `SUPABASE_ACCESS_TOKEN` trống).
+  - Các khoảng cách tính năng ứng dụng tiếp theo: seed danh mục sản phẩm / chi nhánh / dịch vụ clinic thật của Nari Home vào Supabase, thay `erp-store.ts` in-memory trong `/api/admin/*`, nối Customer Portal (`/khach-hang/*`) & đăng ký/khôi phục mật khẩu với Supabase Auth + `customer_profiles`, bật `/api/payments/webhook` + bộ chọn chi nhánh ở `/thanh-toan`, nối live slot availability + `/api/warranty` + `/api/analytics` + `/api/mcp`, và chuyển `next/font/google` sang `next/font/local`.
+
 ## Checkpoint 18/11/2026 (Cloud Live Wave 3) — Đóng khoảng cách Schema Cloud & Xác thực Wrangler OAuth
 
 - **Đã đóng thêm trên Cloud Live:**

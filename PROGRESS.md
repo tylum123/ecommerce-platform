@@ -1,5 +1,26 @@
 # Tiến độ dự án E-Commerce Platform (Nari Home) & Quản Trị Doanh Nghiệp
 
+## Checkpoint 19/11/2026 (Cloudflare Workers Live) — Triển khai OpenNext Workers + Hyperdrive Thành Công
+
+- **Triển khai Live (`https://nari-home.tylum123.workers.dev`):**
+  - Nâng cấp `next@16.4.6`, `eslint-config-next@16.4.6`, `@opennextjs/cloudflare@1.20.17` (`wrangler@4.164.0`, `supabase@3.2.0`), thêm `open-next.config.ts`, `wrangler.jsonc` (Hyperdrive `nari-supabase-db`: `650301fdebbf4bdfac223cb90ddaa1cd`), `next.config.ts` (`images: { unoptimized: true }`), `eslint.config.mjs`, và sửa 6 lỗi React Compiler ESLint trong `admin-erp-view.tsx` & `admin-products-view.tsx`.
+  - Bổ sung `readHyperdriveConnectionString()` và `createHyperdriveDatabase()` (per-request `pg.Client` với `client.end()` trong `finally`) vào [`src/lib/server/postgres-database.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/server/postgres-database.ts) để tránh lỗi cross-request I/O trên `workerd`, cập nhật `scripts/verify-supabase-live.mjs` & `test/postgres-foundation.test.cjs` (`7/7` pass).
+  - `npm run cf:build` (`NARI_ISOLATED_BUILD` unset) **PASS** (`exit 0`, `.open-next/worker.js` `2,216` bytes, handler `6,553,506` bytes, `65` new + `3` existing static assets).
+  - `npx wrangler deploy` **PASS** (`Total Upload: 10200.13 KiB / gzip: 2114.25 KiB`, `Worker Startup Time: 210 ms`, Version ID `f498b0c4-f468-4005-80b6-3d3dbad8361b`), kèm `8` secrets qua `wrangler secret bulk` (`NARI_POSTGRES_CA`, `NARI_POSTGRES_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `VIETQR_ACCOUNT_NAME`, `VIETQR_ACCOUNT_NO`, `VIETQR_BANK_ID`, `VIETQR_TEMPLATE`).
+- **Kiểm chứng:**
+  - `node --test test/*.mjs test/*.cjs`: **`77` passed, `0` failed** (`10` PGlite integration tests skipped khi `NARI_TEST_PGLITE_PATH` unset, khớp CI).
+  - `npm run lint` (`0` errors, `0` warnings), `npx next typegen` + `npm run typecheck` (`0` errors), `npm run ops:doctor -- --live` **PASS** (`Supabase DB: OK`, `wave3Applied: true`, `runtimePolicies: 44`, `Cloudflare Wrangler: OK` `tylum123@gmail.com`).
+  - Live HTTPS Probes (`https://nari-home.tylum123.workers.dev`): `GET /` `200` (`42090` bytes), `GET /api/products` (2 sequential + 2 concurrent `Promise.all`) đều `200`, `GET /api/stores` (2 sequential) đều `200` (`"source":"postgres"`), `GET /api/session` (unauthenticated) `401`, `GET /api/admin/products` (unauthenticated) `401` (`AUTHENTICATION_REQUIRED`), `POST /api/orders` (no origin) `403` (`FORBIDDEN_ORIGIN`).
+- **Còn lại & Lộ trình tiếp theo:**
+  - `npm run ops:supabase -- login` vẫn cần chủ dự án tự chạy trong TTY (`~/.supabase/access-token` chưa có; `SUPABASE_ACCESS_TOKEN` trống).
+  - Roadmap tiếp theo: seed dữ liệu thật (catalog/branches/clinic services) vào Supabase, thay `erp-store.ts` in-memory ở `/api/admin/*`, nối Customer Portal (`/khach-hang/*`) & signup/recovery vào Supabase Auth + `customer_profiles`, bật `/api/payments/webhook` + bộ chọn chi nhánh tại `/thanh-toan`, nối live slot availability + `/api/warranty` + `/api/analytics` + `/api/mcp`, và chuyển `next/font/google` sang `next/font/local`.
+
+## Checkpoint 18/11/2026 (Tạm kết thúc) — Sửa `ops-cli.mjs` TTY & Tạo sẵn Cloudflare Hyperdrive
+
+- Đã sửa [`scripts/ops-cli.mjs`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/scripts/ops-cli.mjs) hỗ trợ `stdio: 'inherit'` cho TTY (gỡ lỗi đứng lệnh `npm run ops:supabase -- login`).
+- Đã upload Supabase Root 2021 CA (`42155ffe-bf6d-4040-afac-779588547a18`) và tạo xong **Cloudflare Hyperdrive `nari-supabase-db`** (`650301fdebbf4bdfac223cb90ddaa1cd`, `--sslmode=verify-full`), cập nhật [`.gitignore`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/.gitignore).
+- **Còn lại phiên sau:** Chạy `npm run ops:supabase -- login`, cài `next@16.4.6` + `@opennextjs/cloudflare`, viết `wrangler.jsonc` / `open-next.config.ts` / Hyperdrive per-request adapter trong `postgres-database.ts`, rồi deploy `nari-home.tylum123.workers.dev`.
+
 ## Checkpoint 18/11/2026 (Cloud Live Wave 3) — Kích hoạt thành công Supabase Wave 3 & Cloudflare Wrangler OAuth
 
 - **Supabase Cloud Live (`ywrzguhuzekkusoupehf`):**
