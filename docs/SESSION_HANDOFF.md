@@ -1,5 +1,15 @@
 # Session handoff — Hasaki clone
 
+## Checkpoint 19/11/2026 (Starter Catalog Live) — Nạp 2 Sản Phẩm Mẫu, Chi Nhánh Flagship & Dịch Vụ Clinic
+
+- **Đã nạp dữ liệu khởi tạo idempotent qua [`scripts/seed-starter-catalog.mjs`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/scripts/seed-starter-catalog.mjs):**
+  - Upload 2 ảnh sản phẩm lên Supabase Storage (`nari-catalog`): `catalog/starter-nari-serum-ha-b5.jpg`, `catalog/starter-nari-calm-cleanser.jpg` (cả hai trả HTTP `200 image/jpeg`).
+  - Seed PostgreSQL (`--apply`): `2` brands (`Nari Botanicals`, `Nari Lab`), `2` categories (`cham-soc-da-mat-c4.html`, `sua-rua-mat-c19.html`), `2` products (`NARI-SRM-001` 390.000₫, `NARI-CLN-002` 245.000₫) kèm `12` specs, `1` flagship branch (`NARI-HCM-Q1` — Quận 1), `2` `inventory_balances` (`50` sp/SKU) + `2` `inventory_movements`, `1` clinic service (`NARI-SVC-001` 590.000₫).
+  - Xác nhận `npm run lint` (`0` errors) và `npm run db:verify` PASS (`wave3Applied: true`, `products: 2`, `branches: 1`, `inventory_balances: 2`, `services: 1`).
+- **Kiểm chứng Live End-to-End (`https://nari-home.tylum123.workers.dev`):**
+  - `GET /` (`200`, hiển thị đủ 2 sản phẩm), `/api/products` (`200`, `2` sp), `/api/stores` (`200`, `total: 1`), `POST /api/cart/quote` (`200`, `subtotal: 390000` + VietQR), `/san-pham/*`, `/danh-muc/*`, `/thuong-hieu/*`, `/booking`, `/he-thong-cua-hang`, `/gio-hang`, `/thanh-toan` đều trả HTTP `200`.
+- **Tài khoản Admin đã cấp sẵn trên Supabase (`nari_identity.provisioned_identities`):** `user_id: 9f183fe9-6dda-43d0-a4b6-f2c9e7da7305`, email `tylum123@gmail.com`, role `admin`, `active: true` (đăng nhập tại `/dang-nhap`).
+
 ## Checkpoint 19/11/2026 (Cloudflare Workers Live) — Triển khai OpenNext Workers + Hyperdrive lên `nari-home.tylum123.workers.dev`
 
 - **Live URL:** `https://nari-home.tylum123.workers.dev`

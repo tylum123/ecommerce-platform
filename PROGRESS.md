@@ -1,5 +1,10 @@
 # Tiến độ dự án E-Commerce Platform (Nari Home) & Quản Trị Doanh Nghiệp
 
+## Checkpoint 19/11/2026 (Starter Catalog Live) — 2 Sản Phẩm Mẫu, Chi Nhánh Flagship & Dịch Vụ Clinic Đã Live
+
+- Đã tạo script idempotent [`scripts/seed-starter-catalog.mjs`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/scripts/seed-starter-catalog.mjs) (`--dry-run` / `--apply`), upload 2 ảnh sản phẩm lên Supabase Storage `nari-catalog` và nạp thành công: `2` brands, `2` categories, `2` products (`NARI-SRM-001`, `NARI-CLN-002`, `12` specs), `1` branch (`NARI-HCM-Q1`), `2` inventory balances (`50` sp/SKU) + `2` movements, `1` clinic service (`NARI-SVC-001`).
+- `npm run lint` (`0` errors), `npm run db:verify` PASS (`wave3Applied: true`), toàn bộ route storefront & `/api/products`, `/api/stores`, `/api/cart/quote`, `/san-pham/*`, `/danh-muc/*`, `/thuong-hieu/*`, `/booking`, `/gio-hang`, `/thanh-toan` trả HTTP `200` trên `https://nari-home.tylum123.workers.dev`.
+
 ## Checkpoint 19/11/2026 (Cloudflare Workers Live) — Triển khai OpenNext Workers + Hyperdrive Thành Công
 
 - **Triển khai Live (`https://nari-home.tylum123.workers.dev`):**
