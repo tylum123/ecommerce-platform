@@ -199,9 +199,20 @@ export async function POST(request: NextRequest) {
       };
     });
 
+    let verifiedUserId: string | null = null;
+    if (process.env.NARI_AUTH_ENABLED === "true") {
+      try {
+        const { resolveOptionalSupabaseUserId } = await import("@/lib/server/supabase-session");
+        verifiedUserId = await resolveOptionalSupabaseUserId(request);
+      } catch {
+        verifiedUserId = null;
+      }
+    }
+
     try {
       const result = await createPostgresOrder(getPostgresDatabase(), {
         idempotencyKey,
+        userId: verifiedUserId,
         branchId: typeof body.branchId === "string" ? body.branchId : undefined,
         recipientName: typeof body.recipientName === "string" ? body.recipientName : "",
         recipientPhone: typeof body.recipientPhone === "string" ? body.recipientPhone : "",

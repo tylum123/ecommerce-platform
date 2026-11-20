@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ShoppingCart, CheckCircle2, MapPin, Truck, AlertTriangle } from "lucide-react";
 import { readCart } from "@/lib/cart";
 import { money, findCatalogProduct } from "@/lib/catalog";
+import type { StoreBranchInfo } from "@/lib/backend-contracts";
 import type { LiveCatalogOverridesState } from "@/lib/live-catalog";
 import { getNewArrivals } from "@/lib/new-arrivals";
 import {
@@ -55,6 +56,8 @@ interface SubmittedOrderSummary {
   recipientName: string;
   recipientPhone: string;
   shippingAddress: string;
+  branchName: string;
+  deliveryType: string;
   note: string;
   paymentMethod: string;
   totalAmount: number;
@@ -75,7 +78,13 @@ function parseVietQr(raw: unknown): CheckoutVietQrSummary | null {
   };
 }
 
-export function CheckoutView({ liveCatalog }: { liveCatalog?: LiveCatalogOverridesState }) {
+export function CheckoutView({
+  liveCatalog,
+  branches = [],
+}: {
+  liveCatalog?: LiveCatalogOverridesState;
+  branches?: StoreBranchInfo[];
+}) {
   const cart = useSyncExternalStore(subscribe, snapshot, () => "[]");
   const items = cart === "[]" ? [] : readCart();
 
@@ -117,8 +126,12 @@ export function CheckoutView({ liveCatalog }: { liveCatalog?: LiveCatalogOverrid
     unknownSlugs.push(item.slug);
   }
 
+  const [branchId, setBranchId] = useState<string>(() => branches[0]?.id ?? "");
+  const [deliveryType, setDeliveryType] = useState<"NariNow 2H" | "Tiêu chuẩn">("NariNow 2H");
+
   const subtotal = rows.reduce((sum, row) => sum + row.product.price * row.quantity, 0);
-  const estimatedShippingFee = rows.length > 0 && subtotal < 90000 ? 25000 : 0;
+  const estimatedShippingFee =
+    rows.length > 0 ? (deliveryType === "NariNow 2H" && subtotal >= 90000 ? 0 : 25000) : 0;
   const estimatedTotal = subtotal + estimatedShippingFee;
 
   const [name, setName] = useState("");
@@ -143,7 +156,7 @@ export function CheckoutView({ liveCatalog }: { liveCatalog?: LiveCatalogOverrid
 
   useEffect(() => {
     idempotencyKeyRef.current = null;
-  }, [cart, name, phone, address, note, payment]);
+  }, [cart, name, phone, address, note, payment, branchId, deliveryType]);
 
   useEffect(() => {
     const handleLocChange = () => {
@@ -184,11 +197,12 @@ export function CheckoutView({ liveCatalog }: { liveCatalog?: LiveCatalogOverrid
           "Idempotency-Key": idempotencyKeyRef.current,
         },
         body: JSON.stringify({
+          branchId: branchId || undefined,
           recipientName: name,
           recipientPhone: phone,
           shippingAddress: address,
           note,
-          deliveryType: "NariNow 2H",
+          deliveryType,
           paymentMethod: payment,
           items: rows.map(row => ({ slug: row.slug, quantity: row.quantity })),
         }),
@@ -224,11 +238,15 @@ export function CheckoutView({ liveCatalog }: { liveCatalog?: LiveCatalogOverrid
         orderRecord && typeof orderRecord.totalAmount === "number" ? orderRecord.totalAmount : estimatedTotal;
       const vietQr = parseVietQr(obj?.vietQr);
 
+      const selectedBranch = branches.find(b => b.id === branchId);
+
       setSubmittedSummary({
         orderCode: returnedCode,
         recipientName: name,
         recipientPhone: phone,
         shippingAddress: address,
+        branchName: selectedBranch ? `${selectedBranch.name} (${selectedBranch.district}, ${selectedBranch.city})` : "",
+        deliveryType,
         note,
         paymentMethod: payment,
         totalAmount: serverTotal,
@@ -393,17 +411,55 @@ export function CheckoutView({ liveCatalog }: { liveCatalog?: LiveCatalogOverrid
                   />
                 </label>
 
+                {branches.length > 0 && (
+                  <label>
+                    Chi nhánh xử lý & giữ tồn kho{" "}
+                    <select
+                      name="branchId"
+                      value={branchId}
+                      onChange={e => setBranchId(e.target.value)}
+                    >
+                      {branches.map(branch => (
+                        <option key={branch.id} value={branch.id}>
+                          {branch.name} — {branch.district}, {branch.city}
+                          {branch.supportsNowfree2h ? " (Hỗ trợ NariNow 2H)" : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+
                 <fieldset className="checkout-options">
                   <legend>Phương thức vận chuyển</legend>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+                    <input
+                      type="radio"
+                      name="deliveryType"
+                      value="NariNow 2H"
+                      checked={deliveryType === "NariNow 2H"}
+                      onChange={() => setDeliveryType("NariNow 2H")}
+                    />
                     <Truck size={16} className="text-[#3d2e24]" />
                     <strong>Giao hàng NariNow 2H</strong>
                     <span style={{ color: "#b86b4b", marginLeft: "auto", fontWeight: 600 }}>
-                      {estimatedShippingFee === 0 ? "Miễn phí" : money(estimatedShippingFee)}
+                      {subtotal >= 90000 ? "Miễn phí" : money(25000)}
                     </span>
-                  </div>
-                  <p style={{ margin: "4px 0 0 0", fontSize: 12, color: "#6b7280" }}>
-                    Miễn phí vận chuyển cho đơn từ {money(90000)} trong khu vực hỗ trợ NariNow của Nari Home.
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, marginTop: 6 }}>
+                    <input
+                      type="radio"
+                      name="deliveryType"
+                      value="Tiêu chuẩn"
+                      checked={deliveryType === "Tiêu chuẩn"}
+                      onChange={() => setDeliveryType("Tiêu chuẩn")}
+                    />
+                    <span>Giao hàng tiêu chuẩn (2 - 4 ngày)</span>
+                    <span style={{ color: "#b86b4b", marginLeft: "auto", fontWeight: 600 }}>
+                      {money(25000)}
+                    </span>
+                  </label>
+                  <p style={{ margin: "6px 0 0 0", fontSize: 12, color: "#6b7280" }}>
+                    Miễn phí vận chuyển NariNow 2H cho đơn từ {money(90000)}.
                   </p>
                 </fieldset>
 
@@ -516,6 +572,14 @@ export function CheckoutView({ liveCatalog }: { liveCatalog?: LiveCatalogOverrid
             </p>
             <p>
               Địa chỉ nhận hàng: <strong>{submittedSummary.shippingAddress}</strong>
+            </p>
+            {submittedSummary.branchName && (
+              <p>
+                Chi nhánh xử lý: <strong>{submittedSummary.branchName}</strong>
+              </p>
+            )}
+            <p>
+              Vận chuyển: <strong>{submittedSummary.deliveryType}</strong>
             </p>
             {submittedSummary.note && <p>Ghi chú: {submittedSummary.note}</p>}
             <p>

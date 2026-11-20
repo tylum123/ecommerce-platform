@@ -138,7 +138,7 @@ export async function listPostgresBranches(
   }
 
   const result = await database.query(
-    `SELECT b.id, b.name, b.address, b.city, b.district, b.phone, b.supports_clinic
+    `SELECT b.id, b.name, b.address, b.city, b.district, b.phone, b.supports_clinic, b.supports_nowfree_2h
      FROM nari_catalog.branches b
      LEFT JOIN nari_catalog.sources s ON s.id = b.source_id
      WHERE ${conditions.join(" AND ")}
@@ -154,6 +154,7 @@ export async function listPostgresBranches(
     district: text(row.district),
     ...(typeof row.phone === "string" && row.phone.trim() ? { phone: row.phone } : {}),
     hasClinic: Boolean(row.supports_clinic),
+    supportsNowfree2h: Boolean(row.supports_nowfree_2h),
   }));
 }
 

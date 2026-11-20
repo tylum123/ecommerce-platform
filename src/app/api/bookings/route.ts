@@ -114,6 +114,16 @@ export async function POST(request: Request) {
         : Number.NaN;
   const notes = typeof body.notes === "string" ? body.notes : "";
 
+  let verifiedUserId: string | null = null;
+  if (process.env.NARI_AUTH_ENABLED === "true") {
+    try {
+      const { resolveOptionalSupabaseUserId } = await import("@/lib/server/supabase-session");
+      verifiedUserId = await resolveOptionalSupabaseUserId(request);
+    } catch {
+      verifiedUserId = null;
+    }
+  }
+
   try {
     const booking = await createPostgresBooking(getPostgresDatabase(), {
       customerName,
@@ -125,6 +135,7 @@ export async function POST(request: Request) {
       time,
       durationMinutes,
       notes,
+      userId: verifiedUserId,
     });
     return NextResponse.json(
       {

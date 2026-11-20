@@ -126,6 +126,7 @@ export interface StoreBranchInfo {
   phone?: string;
   hours?: string;
   hasClinic?: boolean;
+  supportsNowfree2h?: boolean;
   image?: string;
   mapUrl?: string;
 }

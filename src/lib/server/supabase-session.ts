@@ -58,3 +58,45 @@ export function sessionResponse(template: NextResponse, body: object, status = 2
   for (const cookie of template.cookies.getAll()) response.cookies.set(cookie);
   return response;
 }
+
+function parseCookieHeader(header: string | null): Array<{ name: string; value: string }> {
+  if (!header) return [];
+  const pairs: Array<{ name: string; value: string }> = [];
+  for (const part of header.split(";")) {
+    const idx = part.indexOf("=");
+    if (idx <= 0) continue;
+    const name = part.slice(0, idx).trim();
+    const rawValue = part.slice(idx + 1).trim();
+    if (!name) continue;
+    try {
+      pairs.push({ name, value: decodeURIComponent(rawValue) });
+    } catch {
+      pairs.push({ name, value: rawValue });
+    }
+  }
+  return pairs;
+}
+
+/** Softly resolve a verified Supabase user ID for guest-or-member endpoints without failing guests. */
+export async function resolveOptionalSupabaseUserId(request: Request): Promise<string | null> {
+  try {
+    const config = readSupabaseSessionConfig();
+    const requestCookies =
+      "cookies" in request &&
+      request.cookies &&
+      typeof (request.cookies as { getAll?: unknown }).getAll === "function"
+        ? (request.cookies as NextRequest["cookies"]).getAll()
+        : parseCookieHeader(request.headers.get("cookie"));
+    const client = createServerClient(config.url, config.key, {
+      cookieOptions: { httpOnly: true, secure: config.origin.startsWith("https:"), sameSite: "lax", path: "/" },
+      cookies: {
+        getAll: () => requestCookies,
+        setAll: () => {},
+      },
+    });
+    const { data, error } = await client.auth.getUser();
+    return !error && data.user?.id ? data.user.id : null;
+  } catch {
+    return null;
+  }
+}
