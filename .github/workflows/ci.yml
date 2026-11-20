@@ -33,7 +33,7 @@ jobs:
 
       - name: Focused authorization, catalog and route tests
         # PGlite integration explicitly skips without NARI_TEST_PGLITE_PATH; cloud acceptance is separate.
-        run: node --test test/access-policy.test.mjs test/auth-boundary.test.mjs test/order-boundary.test.mjs test/supabase-principal.test.mjs test/supabase-session.test.mjs test/postgres-foundation.test.cjs test/catalog-admin.test.cjs test/campaign-routing.test.cjs test/catalog-security.test.cjs test/staff-portal.test.cjs test/catalog-storefront.test.cjs test/catalog-api-postgres.test.cjs test/supabase-live-helper.test.mjs test/ops-cli.test.mjs test/postgres-auth-ratelimit.test.cjs test/postgres-orders.test.cjs test/postgres-clinic-booking.test.cjs test/postgres-erp-admin.test.cjs test/payment-webhook.test.cjs test/postgres-customer-portal.test.cjs
+        run: node --test test/access-policy.test.mjs test/auth-boundary.test.mjs test/order-boundary.test.mjs test/supabase-principal.test.mjs test/supabase-session.test.mjs test/postgres-foundation.test.cjs test/catalog-admin.test.cjs test/campaign-routing.test.cjs test/catalog-security.test.cjs test/staff-portal.test.cjs test/catalog-storefront.test.cjs test/catalog-api-postgres.test.cjs test/supabase-live-helper.test.mjs test/ops-cli.test.mjs test/postgres-auth-ratelimit.test.cjs test/postgres-orders.test.cjs test/postgres-clinic-booking.test.cjs test/postgres-erp-admin.test.cjs test/payment-webhook.test.cjs test/postgres-customer-portal.test.cjs test/frontend-ux.test.cjs
 
       - name: Type check
         run: npm run typecheck
