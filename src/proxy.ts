@@ -29,12 +29,17 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isStaffOrCatalogSupabaseRoute =
     pathname === "/quan-tri/san-pham" || pathname === "/nhan-vien" || pathname.startsWith("/nhan-vien/");
+  const isErpAdminSupabaseRoute =
+    (pathname === "/quan-tri" || pathname.startsWith("/quan-tri/")) &&
+    process.env.NARI_ERP_ADMIN_ENABLED === "true";
   const isCustomerRoute = pathname === "/khach-hang" || pathname.startsWith("/khach-hang/");
 
   // Pages own their authoritative auth and role gates; proxy only refreshes cookies optimistically.
   if (
     isStaffOrCatalogSupabaseRoute ||
-    (isCustomerRoute && typeof isSupabaseSessionConfigured === "function" && isSupabaseSessionConfigured())
+    ((isErpAdminSupabaseRoute || isCustomerRoute) &&
+      typeof isSupabaseSessionConfigured === "function" &&
+      isSupabaseSessionConfigured())
   ) {
     return refreshSupabaseSessionResponse(request);
   }

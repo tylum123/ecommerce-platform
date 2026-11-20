@@ -32,12 +32,18 @@ export const PRIVATE_LOGIN_PATH = "/dang-nhap?reason=unavailable";
 // Grants come from this policy, never a browser-supplied permissions array.
 const ROLE_GRANTS: Record<AuthRole, readonly string[]> = {
   admin: [], // Highest role; covers future modules without manually adding grants.
-  store_manager: ["orders:read", "orders:write", "inventory:read", "staff:read", "reports:branch"],
-  warehouse_staff: ["inventory:read", "inventory:write", "orders:pack", "shipping:dispatch"],
+  store_manager: ["orders:read", "orders:write", "inventory:read", "staff:read", "users:read", "reports:branch"],
+  warehouse_staff: ["inventory:read", "inventory:write", "orders:read", "orders:pack", "shipping:dispatch"],
   clinic_doctor: ["clinic:appointments", "clinic:treatments", "clinic:prescriptions"],
-  cs_agent: ["orders:read", "orders:support", "tickets:manage"],
+  cs_agent: ["orders:read", "orders:support", "users:read", "tickets:manage"],
   customer: ["portal:profile", "portal:orders", "portal:bookings", "portal:address"],
 };
+
+/** Return server-authoritative permission codes for a provisioned role. */
+export function getRolePermissions(role: AuthRole): string[] {
+  if (role === "admin") return ["*"];
+  return [...(ROLE_GRANTS[role] ?? [])];
+}
 
 /** Only call with a principal obtained from a verified server session. */
 export function hasPermission(user: Pick<AuthSessionUser, "role"> | null, permission: string): boolean {

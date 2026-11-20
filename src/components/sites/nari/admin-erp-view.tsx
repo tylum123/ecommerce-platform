@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
@@ -35,23 +36,15 @@ import type {
   UserTier,
   UserStatus,
   StaffRecord,
-  StaffRole,
-  StaffStatus,
   InventoryRecord,
   InventoryAuditLog,
+  ErpBranchSummary,
   ErpOrderRecord,
   ErpOrderStatus,
   ErpDashboardKpis,
-} from "@/lib/server/erp-store";
-import {
-  readAuthSession,
-  saveAuthSession,
-  clearAuthSession,
-  fetchCurrentSession,
-  DEMO_AUTH_ACCOUNTS,
-  AUTH_CHANGE_EVENT,
-  type AuthSessionUser,
-} from "@/lib/auth";
+} from "@/lib/erp-types";
+import { clearAuthSession, type AuthSessionUser } from "@/lib/auth";
+import { logoutProviderSession } from "@/lib/session-capabilities";
 
 // Helper for formatting Vietnamese currency
 const formatVND = (value: number) =>
@@ -109,7 +102,7 @@ const DEFAULT_MCP_TOOLS: McpToolDef[] = [
   {
     name: "nari_codegraph_map",
     description: "Tra cứu cấu trúc kiến trúc module CodeGraph của hệ thống Nari Home",
-    defaultArgs: { module: "erp-store" },
+    defaultArgs: { module: "postgres-erp-service" },
   },
 ];
 
@@ -274,30 +267,13 @@ async function executeMcpToolCall(
   }
 }
 
-export function AdminErpView() {
+export function AdminErpView({ initialSession = null }: { initialSession?: AuthSessionUser | null }) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<
     "dashboard" | "users" | "staff" | "orders" | "inventory" | "mcp_seo"
   >("dashboard");
 
-  // Auth Session State (Lazy Initializer)
-  const [authSession, setAuthSession] = useState<AuthSessionUser | null>(() => readAuthSession());
-
-  useEffect(() => {
-    const handleAuthChange = () => {
-      setAuthSession(readAuthSession());
-    };
-    if (!readAuthSession()) {
-      fetchCurrentSession().then((u) => {
-        if (u) setAuthSession(u);
-      });
-    }
-    window.addEventListener(AUTH_CHANGE_EVENT, handleAuthChange);
-    window.addEventListener("storage", handleAuthChange);
-    return () => {
-      window.removeEventListener(AUTH_CHANGE_EVENT, handleAuthChange);
-      window.removeEventListener("storage", handleAuthChange);
-    };
-  }, []);
+  const [authSession, setAuthSession] = useState<AuthSessionUser | null>(initialSession ?? null);
 
   // State
   const [kpis, setKpis] = useState<ErpDashboardKpis | null>(null);
@@ -305,6 +281,7 @@ export function AdminErpView() {
   const [staffList, setStaffList] = useState<StaffRecord[]>([]);
   const [orders, setOrders] = useState<ErpOrderRecord[]>([]);
   const [inventory, setInventory] = useState<InventoryRecord[]>([]);
+  const [branches, setBranches] = useState<ErpBranchSummary[]>([]);
   const [auditLogs, setAuditLogs] = useState<InventoryAuditLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -319,11 +296,10 @@ export function AdminErpView() {
 
   // Modals
   const [isNewUserModalOpen, setIsNewUserModalOpen] = useState(false);
-  const [isNewStaffModalOpen, setIsNewStaffModalOpen] = useState(false);
   const [selectedInventoryItem, setSelectedInventoryItem] = useState<InventoryRecord | null>(null);
   const [stockAdjustDelta, setStockAdjustDelta] = useState<number>(10);
   const [stockAdjustReason, setStockAdjustReason] = useState<string>("");
-  const [stockAdjustBranch, setStockAdjustBranch] = useState<string>("CN1");
+  const [stockAdjustBranch, setStockAdjustBranch] = useState<string>("");
   const [selectedOrder, setSelectedOrder] = useState<ErpOrderRecord | null>(null);
 
   // MCP Playground State
@@ -344,20 +320,16 @@ export function AdminErpView() {
     }, 4000);
   }, []);
 
-  const handleSwitchRole = (accUser: Omit<AuthSessionUser, "loggedInAt">) => {
-    const fullUser: AuthSessionUser = {
-      ...accUser,
-      loggedInAt: new Date().toISOString(),
-    };
-    saveAuthSession(fullUser);
-    setAuthSession(fullUser);
-    showToast(`Đã chuyển phiên làm việc: ${fullUser.fullName} (${fullUser.roleLabel})`);
-  };
-
-  const handleLogoutAdmin = () => {
+  const handleLogoutAdmin = async () => {
+    try {
+      await logoutProviderSession();
+    } catch {
+      // Ignore if already signed out
+    }
     clearAuthSession();
     setAuthSession(null);
-    showToast("Đã đăng xuất phiên làm việc hiện tại");
+    router.push("/dang-nhap");
+    router.refresh();
   };
 
   // Fetch all initial data
@@ -383,6 +355,12 @@ export function AdminErpView() {
       }
       if (invRes?.success) {
         setInventory(invRes.inventory);
+        if (Array.isArray(invRes.branches)) {
+          setBranches(invRes.branches);
+          if (invRes.branches.length > 0) {
+            setStockAdjustBranch((prev) => prev || invRes.branches[0].id);
+          }
+        }
         if (invRes.auditLogs) setAuditLogs(invRes.auditLogs);
       }
     } catch {
@@ -417,6 +395,12 @@ export function AdminErpView() {
         }
         if (invRes?.success) {
           setInventory(invRes.inventory);
+          if (Array.isArray(invRes.branches)) {
+            setBranches(invRes.branches);
+            if (invRes.branches.length > 0) {
+              setStockAdjustBranch((prev) => prev || invRes.branches[0].id);
+            }
+          }
           if (invRes.auditLogs) setAuditLogs(invRes.auditLogs);
         }
       } catch {
@@ -469,6 +453,8 @@ export function AdminErpView() {
       if (data.success) {
         setUsers((prev) => prev.map((u) => (u.id === userId ? data.user : u)));
         showToast(`Đã cộng +${delta} điểm cho khách hàng ${data.user.fullName}`);
+      } else {
+        showToast(data.error || "Không thể cập nhật điểm thưởng");
       }
     } catch {
       showToast("Lỗi kết nối khi cập nhật điểm");
@@ -491,6 +477,8 @@ export function AdminErpView() {
             ? `Đã khóa tài khoản khách hàng ${data.user.fullName}`
             : `Đã mở khóa tài khoản khách hàng ${data.user.fullName}`
         );
+      } else {
+        showToast(data.error || "Chức năng khóa tài khoản khách hàng chưa khả dụng.");
       }
     } catch {
       showToast("Lỗi kết nối khi thay đổi trạng thái tài khoản");
@@ -508,42 +496,29 @@ export function AdminErpView() {
       if (data.success) {
         setUsers((prev) => prev.map((u) => (u.id === userId ? data.user : u)));
         showToast(`Đã thăng hạng thẻ khách hàng sang: ${newTier}`);
+      } else {
+        showToast(data.error || "Không thể cập nhật hạng thẻ");
       }
     } catch {
       showToast("Lỗi khi cập nhật hạng thẻ");
     }
   };
 
-  // Staff Actions
-  const handleToggleStaffStatus = async (staffId: string, currentStatus: StaffStatus) => {
-    const nextStatus: StaffStatus = currentStatus === "active" ? "on_leave" : "active";
-    try {
-      const res = await fetch("/api/admin/staff", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: staffId, patch: { status: nextStatus } }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setStaffList((prev) => prev.map((s) => (s.id === staffId ? data.staff : s)));
-        showToast(`Đã chuyển trạng thái nhân sự thành: ${nextStatus === "active" ? "Đang làm việc" : "Nghỉ phép"}`);
-      }
-    } catch {
-      showToast("Lỗi khi cập nhật trạng thái nhân viên");
-    }
-  };
-
   // Order Actions
   const handleAdvanceOrderStatus = async (
     orderId: string,
-    nextStatus: ErpOrderStatus,
-    assignedStaffCode?: string
+    nextStatus: ErpOrderStatus
   ) => {
+    const currentOrder = orders.find((o) => o.id === orderId) || selectedOrder;
     try {
       const res = await fetch("/api/admin/orders", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId, status: nextStatus, assignedStaffCode }),
+        body: JSON.stringify({
+          orderId,
+          status: nextStatus,
+          expectedVersion: currentOrder?.version,
+        }),
       });
       const data = await res.json();
       if (data.success) {
@@ -557,7 +532,10 @@ export function AdminErpView() {
           .then((r) => r.json())
           .then((r) => {
             if (r.kpis) setKpis(r.kpis);
-          });
+          })
+          .catch(() => {});
+      } else {
+        showToast(data.error || "Không thể cập nhật trạng thái đơn hàng");
       }
     } catch {
       showToast("Lỗi khi cập nhật trạng thái đơn hàng");
@@ -568,6 +546,12 @@ export function AdminErpView() {
   const handleExecuteStockAdjustment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedInventoryItem) return;
+    const targetBranch =
+      stockAdjustBranch || branches[0]?.id || selectedInventoryItem.branchStock[0]?.branchId || "";
+    if (!targetBranch) {
+      showToast("Chưa có chi nhánh hoạt động để điều chỉnh tồn kho.");
+      return;
+    }
 
     try {
       const res = await fetch("/api/admin/inventory", {
@@ -577,8 +561,7 @@ export function AdminErpView() {
           sku: selectedInventoryItem.sku,
           delta: stockAdjustDelta,
           reason: stockAdjustReason || (stockAdjustDelta > 0 ? "Nhập kho bổ sung" : "Xuất kho điều chuyển"),
-          staffCode: "NV-HSK-001",
-          branchId: stockAdjustBranch,
+          branchId: targetBranch,
         }),
       });
 
@@ -802,49 +785,21 @@ export function AdminErpView() {
               </span>
             </div>
 
-            {/* Quick Role Switcher Buttons & Controls */}
+            {/* Session Controls */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] text-[#d4beaa] font-medium hidden md:inline">
-                Chuyển vai trò nhanh:
-              </span>
-              {DEMO_AUTH_ACCOUNTS.filter((acc) => acc.user.role !== "customer").map((acc) => {
-                const isSelected = authSession?.email === acc.user.email;
-                const roleBadgeText =
-                  acc.user.role === "admin"
-                    ? "Admin ERP"
-                    : acc.user.role === "warehouse_staff"
-                    ? "Quản lý Kho"
-                    : acc.user.role === "clinic_doctor"
-                    ? "Bác sĩ Clinic"
-                    : acc.badge;
-                return (
-                  <button
-                    key={acc.username}
-                    type="button"
-                    onClick={() => handleSwitchRole(acc.user)}
-                    className={`px-2.5 py-1 rounded text-[11px] font-semibold transition-all ${
-                      isSelected
-                        ? "bg-[#b86b4b] text-white shadow-sm ring-1 ring-white/50"
-                        : "bg-[#2a1f18]/80 hover:bg-[#2a1f18] text-[#f6ece3] border border-[#9e7656]/40"
-                    }`}
-                    title={`${acc.label} (${acc.user.email})`}
-                  >
-                    {roleBadgeText}
-                  </button>
-                );
-              })}
-
               <Link
                 href="/dang-nhap"
                 className="bg-[#2a1f18]/60 hover:bg-[#2a1f18] text-[#efe2d4] border border-[#9e7656]/40 px-2.5 py-1 rounded text-[11px] font-medium transition-colors"
               >
-                Cổng đăng nhập
+                Tài khoản
               </Link>
 
               {authSession && (
                 <button
                   type="button"
-                  onClick={handleLogoutAdmin}
+                  onClick={() => {
+                    void handleLogoutAdmin();
+                  }}
                   className="bg-red-950/70 hover:bg-red-900 text-red-200 border border-red-700/50 px-2.5 py-1 rounded text-[11px] font-medium transition-colors flex items-center gap-1"
                 >
                   <LogOut className="w-3 h-3" />
@@ -1182,11 +1137,11 @@ export function AdminErpView() {
                   <span>+ Khách Hàng</span>
                 </button>
                 <button
-                  onClick={() => setIsNewStaffModalOpen(true)}
+                  onClick={() => setActiveTab("staff")}
                   className="bg-[#2a1f18] hover:bg-[#3d2e24] text-white px-3.5 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 border border-[#9e7656]/40"
                 >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>+ Nhân Sự</span>
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Danh Sách Nhân Sự</span>
                 </button>
                 <button
                   onClick={() => setActiveTab("mcp_seo")}
@@ -1373,17 +1328,13 @@ export function AdminErpView() {
               <div>
                 <h2 className="text-lg font-bold text-gray-900">Quản Lý Nhân Sự & Phân Quyền (RBAC)</h2>
                 <p className="text-xs text-gray-500">
-                  Phân quyền vận hành hệ thống đa chi nhánh: Quản trị viên, Quản lý CH, Nhân viên kho, Bác sĩ Clinic, CSKH
+                  Danh sách nhân sự đồng bộ trực tiếp từ nari_identity.provisioned_identities trên PostgreSQL
                 </p>
               </div>
 
-              <button
-                onClick={() => setIsNewStaffModalOpen(true)}
-                className="bg-[#3d2e24] hover:bg-[#1e1b18] text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Thêm Nhân Viên</span>
-              </button>
+              <span className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-[11px] font-medium text-amber-900">
+                Cấp/thu hồi quyền nhân sự thực hiện qua Supabase SQL owner (bảo mật đặc quyền tối thiểu)
+              </span>
             </div>
 
             {/* Filter */}
@@ -1479,14 +1430,11 @@ export function AdminErpView() {
 
                   <div className="mt-3 pt-2 flex items-center justify-between text-xs">
                     <span className="text-gray-400 text-[11px]">
-                      Tham gia: {formatDateTime(staff.joinedAt)}
+                      Cập nhật: {formatDateTime(staff.joinedAt)}
                     </span>
-                    <button
-                      onClick={() => handleToggleStaffStatus(staff.id, staff.status)}
-                      className="text-xs text-[#3d2e24] hover:underline font-semibold"
-                    >
-                      {staff.status === "active" ? "Báo nghỉ phép" : "Kích hoạt lại"}
-                    </button>
+                    <span className="text-[11px] font-medium text-gray-500">
+                      Chỉ đọc trên runtime
+                    </span>
                   </div>
                 </div>
               ))}
@@ -1725,7 +1673,7 @@ export function AdminErpView() {
                     <th className="py-3 px-3">Thương Hiệu</th>
                     <th className="py-3 px-3 text-right">Đơn Giá</th>
                     <th className="py-3 px-3 text-center">Tổng Tồn Kho</th>
-                    <th className="py-3 px-3">Phân Bổ Chi Nhánh (CN1 / CN2 / CN15 / CN28)</th>
+                    <th className="py-3 px-3">Phân Bổ Chi Nhánh</th>
                     <th className="py-3 px-3 text-center">Tình Trạng</th>
                     <th className="py-3 px-4 text-right">Điều Chỉnh Kho</th>
                   </tr>
@@ -1761,7 +1709,7 @@ export function AdminErpView() {
                               className="text-[10px] bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded font-mono"
                               title={b.branchName}
                             >
-                              <b>{b.branchId}:</b> {b.quantity}
+                              <b>{b.branchCode || b.branchId}:</b> {b.quantity}
                             </span>
                           ))}
                         </div>
@@ -2240,135 +2188,6 @@ export function AdminErpView() {
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL: THÊM NHÂN VIÊN MỚI                                               */}
-      {/* ========================================================================= */}
-      {isNewStaffModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-              <h3 className="font-bold text-gray-900 text-base">Thêm Nhân Sự & Phân Quyền</h3>
-              <button
-                onClick={() => setIsNewStaffModalOpen(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
-                const form = e.target as HTMLFormElement;
-                const fd = new FormData(form);
-                const fullName = String(fd.get("fullName") || "");
-                const email = String(fd.get("email") || "");
-                const phone = String(fd.get("phone") || "");
-                const role = String(fd.get("role") || "store_manager") as StaffRole;
-                const branchId = String(fd.get("branchId") || "CN1");
-
-                try {
-                  const res = await fetch("/api/admin/staff", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ fullName, email, phone, role, branchId }),
-                  });
-                  const data = await res.json();
-                  if (data.success) {
-                    setStaffList((prev) => [data.staff, ...prev]);
-                    showToast(`Đã thêm nhân sự: ${data.staff.fullName} (${data.staff.employeeCode})`);
-                    setIsNewStaffModalOpen(false);
-                  } else {
-                    showToast(data.error || "Lỗi tạo nhân viên");
-                  }
-                } catch {
-                  showToast("Lỗi kết nối máy chủ");
-                }
-              }}
-              className="space-y-3 mt-4 text-xs"
-            >
-              <div>
-                <label className="block font-semibold text-gray-700 mb-1">Họ tên nhân viên *</label>
-                <input
-                  name="fullName"
-                  required
-                  placeholder="Ví dụ: Hoàng Văn Tuấn"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Email Nari Home *</label>
-                  <input
-                    name="email"
-                    type="email"
-                    required
-                    placeholder="tuan.hoang@narihome.vn"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Số điện thoại *</label>
-                  <input
-                    name="phone"
-                    required
-                    placeholder="0903119988"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Vai trò hệ thống</label>
-                  <select
-                    name="role"
-                    defaultValue="store_manager"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs bg-white"
-                  >
-                    <option value="admin">Admin HQ</option>
-                    <option value="store_manager">Quản lý Cửa hàng</option>
-                    <option value="warehouse_staff">Nhân viên Quản lý kho</option>
-                    <option value="clinic_doctor">Bác sĩ Nari Clinic & Spa</option>
-                    <option value="cs_agent">Chuyên viên CSKH</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Chi nhánh làm việc</label>
-                  <select
-                    name="branchId"
-                    defaultValue="CN1"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs bg-white"
-                  >
-                    <option value="CN1">CN1 - Hoàng Hoa Thám, Tân Bình</option>
-                    <option value="CN2">CN2 - Đường 3/2, Quận 10</option>
-                    <option value="CN15">CN15 - Cầu Giấy, Hà Nội</option>
-                    <option value="CN28">CN28 - Nguyễn Văn Linh, Đà Nẵng</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="pt-3 flex items-center justify-end gap-2 border-t border-gray-100">
-                <button
-                  type="button"
-                  onClick={() => setIsNewStaffModalOpen(false)}
-                  className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium"
-                >
-                  Hủy bỏ
-                </button>
-                <button
-                  type="submit"
-                  className="bg-[#3d2e24] hover:bg-[#1e1b18] text-white px-4 py-2 rounded-lg font-bold"
-                >
-                  Thêm Nhân Sự
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
       {/* MODAL: ĐIỀU CHỈNH TỒN KHO                                               */}
       {/* ========================================================================= */}
       {selectedInventoryItem && (
@@ -2423,14 +2242,28 @@ export function AdminErpView() {
                   Chi nhánh áp dụng *
                 </label>
                 <select
-                  value={stockAdjustBranch}
+                  value={
+                    stockAdjustBranch ||
+                    branches[0]?.id ||
+                    selectedInventoryItem.branchStock[0]?.branchId ||
+                    ""
+                  }
                   onChange={(e) => setStockAdjustBranch(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs bg-white"
                 >
-                  <option value="CN1">CN1 - 71 Hoàng Hoa Thám, Tân Bình</option>
-                  <option value="CN2">CN2 - 555 Đường 3/2, Quận 10</option>
-                  <option value="CN15">CN15 - 182 Cầu Giấy, Hà Nội</option>
-                  <option value="CN28">CN28 - Nguyễn Văn Linh, Đà Nẵng</option>
+                  {(branches.length > 0
+                    ? branches
+                    : selectedInventoryItem.branchStock.map((b) => ({
+                        id: b.branchId,
+                        code: b.branchCode || b.branchId,
+                        name: b.branchName,
+                      }))
+                  ).map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.code ? `${b.code} - ` : ""}
+                      {b.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 

@@ -1,108 +1,86 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import {
-  extractSessionTokenFromCookieHeader,
-  verifySignedSessionToken,
-  isStaffOrAdminRole,
-} from "@/lib/auth";
+import { NextResponse, type NextRequest } from "next/server";
 import { authenticationRequired } from "@/lib/server/access-policy";
-import {
-  listStaff,
-  createStaff,
-  updateStaff,
-  type StaffRole,
-  type StaffStatus,
-} from "@/lib/server/erp-store";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+const NO_STORE_HEADERS = { "Cache-Control": "private, no-store" } as const;
 
 export async function GET(request: NextRequest) {
-  const cookieHeader = request.headers.get("cookie");
-  const token = extractSessionTokenFromCookieHeader(cookieHeader);
-  const session = token ? await verifySignedSessionToken(token) : null;
-
-  if (!session || !isStaffOrAdminRole(session.role)) {
+  if (process.env.NARI_ERP_ADMIN_ENABLED !== "true") {
     return authenticationRequired();
   }
 
-  const url = new URL(request.url);
-  const search = url.searchParams.get("search") || undefined;
-  const role = (url.searchParams.get("role") as StaffRole) || undefined;
-  const status = (url.searchParams.get("status") as StaffStatus) || undefined;
-  const branchId = url.searchParams.get("branchId") || undefined;
+  const [
+    { authorizeBusinessRequest },
+    { getPostgresDatabase },
+    { sessionResponse },
+    { listPostgresAdminStaff },
+  ] = await Promise.all([
+    import("@/lib/server/business-access"),
+    import("@/lib/server/postgres-database"),
+    import("@/lib/server/supabase-session"),
+    import("@/lib/server/postgres-erp-service"),
+  ]);
 
-  const staff = listStaff({ search, role, status, branchId });
-
-  return NextResponse.json({
-    success: true,
-    staff,
-    total: staff.length,
+  const access = await authorizeBusinessRequest(request, {
+    flagEnv: "NARI_ERP_ADMIN_ENABLED",
+    permission: "staff:read",
   });
-}
-
-export async function POST(request: NextRequest) {
-  const cookieHeader = request.headers.get("cookie");
-  const token = extractSessionTokenFromCookieHeader(cookieHeader);
-  const session = token ? await verifySignedSessionToken(token) : null;
-
-  if (!session || !isStaffOrAdminRole(session.role)) {
-    return authenticationRequired();
-  }
+  if (access.response) return access.response;
 
   try {
-    const body = await request.json();
-    const newStaff = createStaff(body);
+    const url = new URL(request.url);
+    const search = url.searchParams.get("search") || undefined;
+    const role = url.searchParams.get("role") || undefined;
+    const status = url.searchParams.get("status") || undefined;
+    const branchId = url.searchParams.get("branchId") || undefined;
+    const scopedBranchId = access.user.role === "admin" ? null : access.user.branchId || "__NONE__";
 
-    return NextResponse.json({
-      success: true,
-      message: "Tạo nhân viên mới thành công",
-      staff: newStaff,
+    const staff = await listPostgresAdminStaff(getPostgresDatabase(), {
+      search,
+      role,
+      status,
+      branchId,
+      scopedBranchId,
     });
-  } catch (error) {
+
+    return sessionResponse(access.template, { ok: true, success: true, staff, total: staff.length });
+  } catch {
     return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : "Lỗi tạo nhân viên" },
-      { status: 500 }
+      { ok: false, success: false, code: "ERP_STAFF_UNAVAILABLE", error: "Không thể tải danh sách nhân sự." },
+      { status: 503, headers: NO_STORE_HEADERS },
     );
   }
 }
 
-export async function PATCH(request: NextRequest) {
-  const cookieHeader = request.headers.get("cookie");
-  const token = extractSessionTokenFromCookieHeader(cookieHeader);
-  const session = token ? await verifySignedSessionToken(token) : null;
-
-  if (!session || !isStaffOrAdminRole(session.role)) {
+async function handleStaffMutationDenied(request: NextRequest) {
+  if (process.env.NARI_ERP_ADMIN_ENABLED !== "true") {
     return authenticationRequired();
   }
 
-  try {
-    const body = await request.json();
-    const { id, ...patch } = body;
+  const [{ authorizeBusinessRequest }, { sessionResponse }] = await Promise.all([
+    import("@/lib/server/business-access"),
+    import("@/lib/server/supabase-session"),
+  ]);
 
-    if (!id) {
-      return NextResponse.json(
-        { success: false, error: "Thiếu ID nhân viên cần cập nhật" },
-        { status: 400 }
-      );
-    }
+  const access = await authorizeBusinessRequest(request, {
+    flagEnv: "NARI_ERP_ADMIN_ENABLED",
+    permission: "staff:manage",
+  });
+  if (access.response) return access.response;
 
-    const updated = updateStaff(id, patch);
-    if (!updated) {
-      return NextResponse.json(
-        { success: false, error: `Không tìm thấy nhân viên với ID: ${id}` },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: "Cập nhật thông tin nhân viên thành công",
-      staff: updated,
-    });
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : "Lỗi cập nhật nhân viên" },
-      { status: 500 }
-    );
-  }
+  return sessionResponse(
+    access.template,
+    {
+      ok: false,
+      success: false,
+      code: "STAFF_PROVISIONING_OUT_OF_BAND",
+      error: "Quyền nhân sự (nari_identity.provisioned_identities) chỉ được cấp hoặc thu hồi qua Supabase owner SQL ngoài runtime.",
+    },
+    501,
+  );
 }
+
+export const POST = handleStaffMutationDenied;
+export const PATCH = handleStaffMutationDenied;

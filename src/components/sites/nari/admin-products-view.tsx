@@ -240,7 +240,10 @@ export function AdminProductsView() {
   return (
     <main className="min-h-screen bg-[#f3f6f4] p-4 text-[#1e2922] sm:p-8">
       <div className="mx-auto max-w-6xl">
-        <Link href="/" className="text-sm underline">Trở về cửa hàng</Link>
+        <nav aria-label="Điều hướng quản trị" className="flex flex-wrap items-center gap-4 text-sm">
+          <Link href="/" className="underline">Trở về cửa hàng</Link>
+          <Link href="/quan-tri" className="font-medium text-[#3d2e24] underline">Mở cổng quản trị ERP (/quan-tri)</Link>
+        </nav>
         <h1 className="mt-5 text-2xl font-bold">Quản lý sản phẩm</h1>
         <p className="mt-2 text-sm text-gray-600">Danh mục lấy từ dịch vụ quản trị. Thay đổi chỉ được xác nhận sau phản hồi thành công từ máy chủ.</p>
         {error && <p role="alert" className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</p>}
