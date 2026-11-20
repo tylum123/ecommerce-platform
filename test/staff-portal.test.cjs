@@ -135,10 +135,27 @@ test('storefront capability navigation ignores role claims and logs out through 
     const { AccountDialog } = load('src/components/sites/nari/account-dialog.tsx',{
       'next/link':{ __esModule:true,default:({ children,...props }) => React.createElement('a',props,children) },
     });
-    const html = renderToStaticMarkup(React.createElement(AccountDialog,{ capabilities,onClose:() => {},onLoggedOut:() => {} }));
-    assert.match(html,/href="\/quan-tri\/san-pham"/);
-    assert.match(html,/href="\/nhan-vien"/);
-    assert.doesNotMatch(html,/href="\/quan-tri"|href="\/khach-hang/);
+    const adminHtml = renderToStaticMarkup(React.createElement(AccountDialog,{ capabilities,onClose:() => {},onLoggedOut:() => {} }));
+    assert.match(adminHtml,/href="\/quan-tri"/);
+    assert.match(adminHtml,/href="\/quan-tri\/san-pham"/);
+    assert.match(adminHtml,/href="\/nhan-vien"/);
+    assert.match(adminHtml,/href="\/khach-hang\/tai-khoan"/);
+    const customerHtml = renderToStaticMarkup(React.createElement(AccountDialog,{
+      capabilities:{ authenticated:true,catalogAccess:false,staffPortalAccess:false },
+      onClose:() => {},
+      onLoggedOut:() => {},
+    }));
+    assert.match(customerHtml,/href="\/khach-hang\/tai-khoan"/);
+    assert.doesNotMatch(customerHtml,/href="\/quan-tri"|href="\/quan-tri\/san-pham"|href="\/nhan-vien"/);
+    const guestHtml = renderToStaticMarkup(React.createElement(AccountDialog,{
+      capabilities:{ authenticated:false,catalogAccess:false,staffPortalAccess:false },
+      onClose:() => {},
+      onLoggedOut:() => {},
+    }));
+    assert.match(guestHtml,/href="\/dang-nhap"/);
+    assert.match(guestHtml,/href="\/dang-ky"/);
+    assert.match(guestHtml,/href="\/khoi-phuc-mat-khau"/);
+    assert.doesNotMatch(guestHtml,/href="\/quan-tri"|href="\/quan-tri\/san-pham"|href="\/nhan-vien"|href="\/khach-hang/);
     globalThis.fetch = async (url,init) => { assert.equal(url,'/api/session'); assert.equal(init.method,'POST'); assert.deepEqual(JSON.parse(init.body),{ action:'logout' }); return Response.json({ ok:true,businessAccess:false }); };
     await logoutProviderSession();
     globalThis.fetch = async () => Response.json({ ok:false },{ status:401 });

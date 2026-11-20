@@ -38,6 +38,8 @@
     "NARI_BOOKINGS_ENABLED": "true",
     "NARI_CATALOG_ADMIN_ENABLED": "true",
     "NARI_STAFF_PORTAL_ENABLED": "true",
+    "NARI_ERP_ADMIN_ENABLED": "true",
+    "NARI_PAYMENT_WEBHOOK_ENABLED": "false",
     "NEXT_PUBLIC_BRAND_SHORT": "Nari",
     "NEXT_PUBLIC_BRAND_NAME": "Nari Home",
     "NEXT_PUBLIC_BRAND_SLOGAN": "Khơi nguồn vẻ đẹp - Kiến tạo khí chất",
