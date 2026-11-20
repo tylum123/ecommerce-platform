@@ -1,5 +1,14 @@
 # Báo cáo kiểm tra clone Hasaki
 
+## Checkpoint 20/11/2026 (Frontend UX Optimization & Live E2E Demo) — Đóng Khoảng Cách Responsive Mobile, Encoding, UX Giỏ Hàng & Xác Minh End-to-End
+
+- **Các khoảng cách giao diện đã đóng trên bản Live (`https://nari-home.tylum123.workers.dev`, Version ID `7debffc8-0af4-40dc-975b-7dd9e584deb8`):**
+  - **Encoding Tiếng Việt dưới Logo:** Đã sửa `.env` UTF-8 và thêm `sanitizeBrandString()` trong [`src/lib/brand-config.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/brand-config.ts) để ngăn double-encoded Latin-1 lọt ra UI.
+  - **Bố cục Trang chủ & Mobile 390px:** Loại bỏ vùng trống bên phải Hero (`.hero-layout--single`), hiển thị sản phẩm PostgreSQL thật ngay trên đầu trang, bỏ quick-link/thương hiệu mẫu không có dữ liệu, sửa tràn ngang trên viewport 390px (`scrollWidth === 390`), và ngăn rớt ký tự `₫` trên thẻ sản phẩm ở lưới hẹp.
+  - **Đồng bộ Bảng màu & Copy Production:** Loại bỏ các nút/chip xanh lá cũ (`#226c47`, `#eaf5ed`, `#eef7f2`) và chữ `"sản phẩm mẫu"` / `"mô phỏng"` còn sót trong `catalog-view.tsx`, `product-rich-sections.tsx`, `cart-view.tsx`, thay bằng đồng nhất Luxury Silk & Espresso (`#3d2e24`, `#b86b4b`, `#faf5f0`).
+  - **UX Giỏ hàng & Chuyển đổi:** Bổ sung Toast + Mini Cart Drawer ([`storefront-cart-drawer.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/nari/storefront-cart-drawer.tsx)) kèm thanh tiến độ **Miễn phí giao nhanh NariNow 2H (90K)**, Quick-Add trên thẻ sản phẩm, **MUA NGAY** đi thẳng `/thanh-toan`, thanh CTA cố định mobile, **Sao chép mã đơn** + tự điền `?code=` ở `/tra-cuu-don-hang`, và `src/app/loading.tsx`.
+- **Kiểm chứng & Demo E2E Live:** `node --test test/*.mjs test/*.cjs` (**88 passed, 0 failed**, `13` PGlite skipped), `npm run typecheck` (`0` lỗi), `npm run lint` (`0` lỗi), `npx wrangler deploy` (`gzip: 2153.48 KiB`), Chrome CDP Demo E2E tạo & tra cứu đơn thật **`NARI-20261120-331B233E`** (`0909888777`) thành công với `0` console/page errors.
+
 ## Checkpoint 20/11/2026 (Plans 1, 2, 3 & 5 Live) — Đóng Khoảng Cách Font, Webhook Thanh Toán, Admin ERP PostgreSQL & Customer Portal
 
 - **Đã đóng trên Production Workers (`https://nari-home.tylum123.workers.dev`, Version ID `1ba6e313-29a9-4cd9-9812-685a7c3c2214`):**

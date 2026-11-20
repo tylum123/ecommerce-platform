@@ -1,5 +1,14 @@
 # Tiến độ dự án E-Commerce Platform (Nari Home) & Quản Trị Doanh Nghiệp
 
+## Checkpoint 20/11/2026 (Frontend UX Optimization & Live E2E Demo) — Hoàn Thiện UX Storefront & Demo Luồng Mua Hàng Thật
+
+- **Audit & Sửa lỗi Live Storefront:** Sửa `.env` mojibake + thêm `sanitizeBrandString` ([`brand-config.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/brand-config.ts)), bỏ khoảng trống 1/3 Hero khi thiếu side banner + thay quick-link/thương hiệu chết trên [`home-view.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/nari/home-view.tsx), sửa overflow Mobile 390px + giá rớt chữ `₫` trong [`globals.css`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/app/globals.css) & [`product-card.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/nari/product-card.tsx), đồng bộ màu Luxury Silk (xóa `#226c47` cũ & nhãn `"sản phẩm mẫu"` ở `catalog-view.tsx`, `product-rich-sections.tsx`, `cart-view.tsx`).
+- **Tính năng Frontend UX & Performance mới:** Slide-over [`StorefrontCartDrawer`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/nari/storefront-cart-drawer.tsx) + Toast + Freeship NariNow 2H (90K) bar, nút **Thêm vào giỏ** nhanh trên `ProductCard`, **MUA NGAY NARINOW 2H** đi thẳng `/thanh-toan`, `.mobile-product-bar`, nút Back-to-Top, **Sao chép mã đơn** + tự điền `?code=` ở `/tra-cuu-don-hang`, và [`src/app/loading.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/app/loading.tsx).
+- **Kiểm chứng & Production (`https://nari-home.tylum123.workers.dev`):**
+  - Thêm [`test/frontend-ux.test.cjs`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/test/frontend-ux.test.cjs) + `.github/workflows/ci.yml`: **`88` passed, `0` failed** (`13` PGlite skipped); `npm run typecheck` (`0` errors); `npm run lint` (`0` errors, `0` warnings).
+  - Build & Deploy cuối: Version ID `7debffc8-0af4-40dc-975b-7dd9e584deb8`, `Total Upload: 10403.60 KiB / gzip: 2153.48 KiB`, `Worker Startup Time: 192 ms`. Ảnh chụp kiểm chứng Desktop 1440px & Mobile 390px đạt chuẩn, `0` ảnh lỗi, `0` tràn ngang.
+  - **Demo E2E thật qua Chrome CDP:** Đã tạo thành công đơn hàng PostgreSQL thật **`NARI-20261120-331B233E`** (`NARI-CLN-002`, `245.000 ₫`, chi nhánh `branch-hcm-q1`, `NariNow 2H` miễn phí, SĐT `0909888777`) và kiểm tra hiển thị đầy đủ trên `/tra-cuu-don-hang?code=NARI-20261120-331B233E`.
+
 ## Checkpoint 20/11/2026 (Plans 1, 2, 3 & 5 Live) — Hoàn Tất Local Fonts, Webhook Thanh Toán, PostgreSQL Admin ERP & Customer Portal
 
 - **Phạm vi thực hiện theo quyết định chủ dự án:** Hoàn thành **Kế hoạch 5, 3, 1, 2** và **bỏ Kế hoạch 4** (không triển khai `/api/warranty`, `/api/analytics`, `/api/mcp` nối DB, hay clinic live slot availability).
