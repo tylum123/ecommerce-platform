@@ -1,19 +1,25 @@
 import type { Metadata } from "next";
-import { Be_Vietnam_Pro, Cormorant_Garamond } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const beVietnamPro = Be_Vietnam_Pro({
-  subsets: ["latin", "vietnamese"],
-  weight: ["400", "500", "600", "700"],
+const beVietnamPro = localFont({
+  src: [
+    { path: "./fonts/BeVietnamPro-Regular.ttf", weight: "400", style: "normal" },
+    { path: "./fonts/BeVietnamPro-Medium.ttf", weight: "500", style: "normal" },
+    { path: "./fonts/BeVietnamPro-SemiBold.ttf", weight: "600", style: "normal" },
+    { path: "./fonts/BeVietnamPro-Bold.ttf", weight: "700", style: "normal" },
+  ],
   variable: "--font-sans",
   display: "swap",
+  adjustFontFallback: "Arial",
 });
 
-const cormorantGaramond = Cormorant_Garamond({
-  subsets: ["latin", "vietnamese"],
-  weight: ["500", "600", "700"],
+const cormorantGaramond = localFont({
+  src: "./fonts/CormorantGaramond-Variable.ttf",
+  weight: "500 700",
   variable: "--font-display",
   display: "swap",
+  adjustFontFallback: "Times New Roman",
 });
 
 export const metadata: Metadata = {
