@@ -26,11 +26,26 @@ export function AccountDialog({ onClose, capabilities, onLoggedOut }: { onClose:
       <button type="button" aria-label="Đóng" onClick={() => dialog.current?.close()} className="rounded px-3 py-2">×</button>
     </div>
     <p className="my-4 text-sm text-gray-600">{capabilities.authenticated ? "Máy chủ đã xác thực tài khoản. Mở màn hình được cấp quyền bên dưới." : "Đăng nhập để xem các màn hình được cấp quyền cho tài khoản."}</p>
+    {capabilities.authenticated && (
+      <Link href="/khach-hang/tai-khoan" onClick={() => dialog.current?.close()} className="mb-3 block rounded border px-4 py-3">
+        Cổng khách hàng
+      </Link>
+    )}
+    {(capabilities.catalogAccess || capabilities.staffPortalAccess) && (
+      <Link href="/quan-tri" onClick={() => dialog.current?.close()} className="mb-3 block rounded border border-[#3d2e24]/30 bg-[#faf5f0] px-4 py-3 font-medium text-[#3d2e24]">
+        Cổng quản trị ERP (Users, Kho SKU, Đơn hàng, MCP)
+      </Link>
+    )}
     {capabilities.catalogAccess && <Link href="/quan-tri/san-pham" onClick={() => dialog.current?.close()} className="mb-3 block rounded border px-4 py-3">Quản lý sản phẩm</Link>}
     {capabilities.staffPortalAccess && <Link href="/nhan-vien" onClick={() => dialog.current?.close()} className="mb-3 block rounded border px-4 py-3">Cổng nhân viên</Link>}
-    <Link href="/dang-nhap" onClick={() => dialog.current?.close()} className="block rounded bg-[#326e51] px-4 py-3 text-center font-semibold text-white">{capabilities.authenticated ? "Trạng thái đăng nhập" : "Đăng nhập"}</Link>
+    <Link href="/dang-nhap" onClick={() => dialog.current?.close()} className="block rounded bg-[#3d2e24] px-4 py-3 text-center font-semibold text-white">{capabilities.authenticated ? "Trạng thái đăng nhập" : "Đăng nhập"}</Link>
     {capabilities.authenticated && <button type="button" disabled={busy} onClick={() => { void logout(); }} className="mt-3 underline disabled:opacity-50">{busy ? "Đang đăng xuất…" : "Đăng xuất"}</button>}
     {message && <p role="status" className="mt-3 text-sm">{message}</p>}
-    <p className="mt-4 text-sm text-gray-500">Đăng ký và khôi phục mật khẩu chưa khả dụng.</p>
+    {!capabilities.authenticated && (
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-gray-600">
+        <Link href="/dang-ky" onClick={() => dialog.current?.close()} className="underline">Đăng ký tài khoản</Link>
+        <Link href="/khoi-phuc-mat-khau" onClick={() => dialog.current?.close()} className="underline">Quên mật khẩu?</Link>
+      </div>
+    )}
   </dialog>;
 }

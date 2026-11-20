@@ -86,15 +86,23 @@ function parseRateLimitResult(row: Record<string, unknown> | undefined): {
   return { allowed: parsed.allowed, retryAfterSeconds: parsed.retryAfterSeconds };
 }
 
-/** Shared PostgreSQL rate limit for per-account and global login throttling. */
-export async function checkPostgresLoginRateLimit(
+/** Shared PostgreSQL rate limit for scoped auth endpoints (login, signup, recovery). */
+export async function checkPostgresScopedRateLimit(
   database: RateLimitDatabase,
-  email: string,
+  options: {
+    scope: string;
+    globalKey: string;
+    identifier: string;
+    maxRequests: number;
+    windowSeconds: number;
+    globalMaxRequests: number;
+    globalWindowSeconds: number;
+  },
 ): Promise<number> {
-  const accountKey = `acct:${hashLoginEmail(email)}`;
+  const accountKey = `${options.scope}:${hashLoginEmail(options.identifier)}`;
   const accountRes = await database.query(
     "SELECT nari_identity.check_rate_limit($1, $2, $3) AS result",
-    [accountKey, 5, 900],
+    [accountKey, options.maxRequests, options.windowSeconds],
   );
   const accountLimit = parseRateLimitResult(accountRes.rows[0]);
   if (!accountLimit.allowed) {
@@ -103,7 +111,7 @@ export async function checkPostgresLoginRateLimit(
 
   const globalRes = await database.query(
     "SELECT nari_identity.check_rate_limit($1, $2, $3) AS result",
-    ["global:login", 30, 60],
+    [options.globalKey, options.globalMaxRequests, options.globalWindowSeconds],
   );
   const globalLimit = parseRateLimitResult(globalRes.rows[0]);
   if (!globalLimit.allowed) {
@@ -111,4 +119,20 @@ export async function checkPostgresLoginRateLimit(
   }
 
   return 0;
+}
+
+/** Shared PostgreSQL rate limit for per-account and global login throttling. */
+export async function checkPostgresLoginRateLimit(
+  database: RateLimitDatabase,
+  email: string,
+): Promise<number> {
+  return checkPostgresScopedRateLimit(database, {
+    scope: "acct",
+    globalKey: "global:login",
+    identifier: email,
+    maxRequests: 5,
+    windowSeconds: 900,
+    globalMaxRequests: 30,
+    globalWindowSeconds: 60,
+  });
 }
