@@ -634,9 +634,9 @@ export function CategoryView({ slug, liveCatalog }: { slug: string; liveCatalog?
                       display: "inline-flex",
                       alignItems: "center",
                       gap: 4,
-                      background: "#eaf5ed",
-                      color: "#25704a",
-                      border: "1px solid #cce5d4",
+                      background: "#f6ece3",
+                      color: "#3d2e24",
+                      border: "1px solid #d4beaa",
                       borderRadius: 14,
                       padding: "2px 8px",
                       fontSize: 12,
@@ -649,7 +649,7 @@ export function CategoryView({ slug, liveCatalog }: { slug: string; liveCatalog?
                       style={{
                         border: 0,
                         background: "none",
-                        color: "#25704a",
+                        color: "#3d2e24",
                         padding: 0,
                         cursor: "pointer",
                       }}
@@ -665,9 +665,9 @@ export function CategoryView({ slug, liveCatalog }: { slug: string; liveCatalog?
                       display: "inline-flex",
                       alignItems: "center",
                       gap: 4,
-                      background: "#eaf5ed",
-                      color: "#25704a",
-                      border: "1px solid #cce5d4",
+                      background: "#f6ece3",
+                      color: "#3d2e24",
+                      border: "1px solid #d4beaa",
                       borderRadius: 14,
                       padding: "2px 8px",
                       fontSize: 12,
@@ -689,7 +689,7 @@ export function CategoryView({ slug, liveCatalog }: { slug: string; liveCatalog?
                       style={{
                         border: 0,
                         background: "none",
-                        color: "#25704a",
+                        color: "#3d2e24",
                         padding: 0,
                         cursor: "pointer",
                       }}
@@ -707,9 +707,9 @@ export function CategoryView({ slug, liveCatalog }: { slug: string; liveCatalog?
                         display: "inline-flex",
                         alignItems: "center",
                         gap: 4,
-                        background: "#eaf5ed",
-                        color: "#25704a",
-                        border: "1px solid #cce5d4",
+                        background: "#f6ece3",
+                        color: "#3d2e24",
+                        border: "1px solid #d4beaa",
                         borderRadius: 14,
                         padding: "2px 8px",
                         fontSize: 12,
@@ -722,7 +722,7 @@ export function CategoryView({ slug, liveCatalog }: { slug: string; liveCatalog?
                         style={{
                           border: 0,
                           background: "none",
-                          color: "#25704a",
+                          color: "#3d2e24",
                           padding: 0,
                           cursor: "pointer",
                         }}
@@ -740,7 +740,7 @@ export function CategoryView({ slug, liveCatalog }: { slug: string; liveCatalog?
                     marginLeft: "auto",
                     border: 0,
                     background: "none",
-                    color: "#e53e3e",
+                    color: "#b86b4b",
                     fontSize: 12,
                     fontWeight: 600,
                     cursor: "pointer",
@@ -768,7 +768,7 @@ export function CategoryView({ slug, liveCatalog }: { slug: string; liveCatalog?
                     style={{
                       background: "none",
                       border: 0,
-                      color: "#28774b",
+                      color: "#3d2e24",
                       textDecoration: "underline",
                       fontWeight: "bold",
                       cursor: "pointer",
@@ -867,11 +867,17 @@ export function ProductView({
   const computedOldPrice = p.old;
   const savingsAmount = Math.max(0, computedOldPrice - computedPrice);
 
-  const relatedProducts = getAllCatalogProducts(liveCatalog)
-    .filter((item) => item.slug !== p.slug && item.category === p.category)
-    .slice(0, 6);
+  const allCatalogProducts = getAllCatalogProducts(liveCatalog);
+  const sameCategoryRelated = allCatalogProducts.filter(
+    (item) => item.slug !== p.slug && item.category === p.category,
+  );
+  const relatedProducts = (
+    sameCategoryRelated.length > 0
+      ? sameCategoryRelated
+      : allCatalogProducts.filter((item) => item.slug !== p.slug)
+  ).slice(0, 6);
 
-  const sameBrandProducts = getAllCatalogProducts(liveCatalog)
+  const sameBrandProducts = allCatalogProducts
     .filter(
       (item) =>
         item.slug !== p.slug &&
@@ -880,7 +886,7 @@ export function ProductView({
     .slice(0, 3);
 
   const handleAddToCart = () => {
-    addToCart(p.slug, quantity);
+    addToCart(p.slug, quantity, { name: p.name });
     setAdded(true);
   };
 
@@ -955,7 +961,7 @@ export function ProductView({
                   <strong style={{ fontSize: 14, color: "#b86b4b" }}>
                     {money(computedPrice)}
                   </strong>
-                  <span style={{ fontSize: 11, color: "#226c47" }}>
+                  <span style={{ fontSize: 11, color: "#3d2e24" }}>
                     Thương hiệu: <b>{p.brand}</b>
                   </span>
                 </div>
@@ -1101,7 +1107,7 @@ export function ProductView({
               </div>
             </div>
 
-            <p>Ảnh và giá theo dữ liệu sản phẩm đã ghi nhận; chưa hỗ trợ chọn biến thể.</p>
+            <p>Hình ảnh và thông tin sản phẩm chính hãng tại Nari Home.</p>
           </div>
 
           <div className="detail-info">
@@ -1168,10 +1174,10 @@ export function ProductView({
             <div
               className="detail-price"
               style={{
-                background: "#f8faf9",
+                background: "#faf5f0",
                 padding: "12px 14px",
                 borderRadius: "0 0 6px 6px",
-                border: "1px solid #e5e7eb",
+                border: "1px solid #ebd6c4",
                 borderTop: 0,
                 marginBottom: 12,
               }}
@@ -1215,7 +1221,7 @@ export function ProductView({
               )}
             </div>
 
-            <p>Đang xem đúng sản phẩm ghi trong tên và hình ảnh. Giá, khuyến mãi và tồn kho cần được xác nhận trước khi đặt hàng.</p>
+            <p>Sản phẩm chính hãng phân phối tại Nari Home — giao nhanh NariNow 2H và đổi trả trong 30 ngày.</p>
 
             {/* Quantity + Live Multi-Branch Stock Badge */}
             <div
@@ -1249,9 +1255,9 @@ export function ProductView({
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 5,
-                  background: "#eef7f2",
-                  color: "#226c47",
-                  border: "1px solid #bce0cb",
+                  background: "#faf5f0",
+                  color: "#3d2e24",
+                  border: "1px solid #d4beaa",
                   borderRadius: 4,
                   padding: "5px 10px",
                   fontSize: 12,
@@ -1270,8 +1276,8 @@ export function ProductView({
             {showBranchModal && branchStock && (
               <div
                 style={{
-                  background: "#f8faf9",
-                  border: "1px solid #cce3d6",
+                  background: "#faf5f0",
+                  border: "1px solid #ebd6c4",
                   borderRadius: 6,
                   padding: "10px 12px",
                   marginBottom: 14,
@@ -1286,7 +1292,7 @@ export function ProductView({
                     marginBottom: 6,
                   }}
                 >
-                  <strong style={{ color: "#226c47" }}>
+                  <strong style={{ color: "#3d2e24" }}>
                     Tồn kho thực tế theo chi nhánh ERP (SKU: {branchStock.sku})
                   </strong>
                   <button
@@ -1343,7 +1349,7 @@ export function ProductView({
                 className="buy-button"
                 onClick={handleAddToCart}
                 style={{
-                  background: "#226c47",
+                  background: "#3d2e24",
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 6,
@@ -1352,7 +1358,7 @@ export function ProductView({
                 <ShoppingCart size={16} /> GIỎ HÀNG
               </button>
               <Link
-                href="/gio-hang"
+                href="/thanh-toan"
                 onClick={handleAddToCart}
                 style={{
                   display: "inline-flex",
@@ -1397,11 +1403,11 @@ export function ProductView({
           <aside className="detail-side">
             <h3
               style={{
-                color: "#226c47",
+                color: "#3d2e24",
                 textAlign: "center",
                 fontSize: 13,
                 fontWeight: 800,
-                borderBottom: "1px solid #e5e7eb",
+                borderBottom: "1px solid #ebd6c4",
                 paddingBottom: 8,
                 marginBottom: 10,
               }}
@@ -1429,7 +1435,7 @@ export function ProductView({
                 >
                   <span
                     style={{
-                      background: "#226c47",
+                      background: "#3d2e24",
                       color: "#ffffff",
                       fontWeight: 800,
                       fontSize: 10,
@@ -1455,9 +1461,9 @@ export function ProductView({
               style={{
                 marginTop: 12,
                 padding: "10px",
-                background: "#f8faf9",
+                background: "#faf5f0",
                 borderRadius: 6,
-                border: "1px solid #e5e7eb",
+                border: "1px solid #ebd6c4",
                 textAlign: "center",
               }}
             >
@@ -1465,7 +1471,7 @@ export function ProductView({
                 style={{
                   fontSize: 13,
                   fontWeight: 800,
-                  color: "#226c47",
+                  color: "#3d2e24",
                   marginBottom: 6,
                 }}
               >
@@ -1477,7 +1483,7 @@ export function ProductView({
                   .replace(/[^a-z0-9]+/g, "-")}.html`}
                 style={{
                   display: "inline-block",
-                  background: "#226c47",
+                  background: "#3d2e24",
                   color: "#fff",
                   fontSize: 11,
                   fontWeight: 700,
@@ -1702,7 +1708,7 @@ export function ProductView({
                 </div>
               ) : (
                 <p style={{ fontSize: 12, color: "#6b7280", margin: 0 }}>
-                  Chưa có sản phẩm liên quan trong dữ liệu mẫu.
+                  Chưa có sản phẩm gợi ý khác.
                 </p>
               )}
             </section>
@@ -1824,6 +1830,47 @@ export function ProductView({
           </aside>
         </div>
       </main>
+      <div className="mobile-product-bar" aria-label="Đặt mua nhanh trên di động">
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: "#b86b4b" }}>
+            {money(computedPrice)}
+          </div>
+          <div style={{ fontSize: 11, color: "#6e5a4f", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 130 }}>
+            {p.brand}
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            style={{
+              background: "#3d2e24",
+              color: "#fff",
+              border: 0,
+              borderRadius: 5,
+              padding: "9px 12px",
+              fontSize: 12,
+              fontWeight: 700,
+            }}
+          >
+            Thêm giỏ
+          </button>
+          <Link
+            href="/thanh-toan"
+            onClick={handleAddToCart}
+            style={{
+              background: "#b86b4b",
+              color: "#fff",
+              borderRadius: 5,
+              padding: "9px 14px",
+              fontSize: 12,
+              fontWeight: 700,
+            }}
+          >
+            Mua ngay
+          </Link>
+        </div>
+      </div>
       <Footer />
     </>
   );

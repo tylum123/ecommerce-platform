@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingCart, CheckCircle2, MapPin, Truck, AlertTriangle } from "lucide-react";
+import { ShoppingCart, CheckCircle2, MapPin, Truck, AlertTriangle, Copy, Check } from "lucide-react";
 import { readCart } from "@/lib/cart";
 import { money, findCatalogProduct } from "@/lib/catalog";
 import type { StoreBranchInfo } from "@/lib/backend-contracts";
@@ -152,6 +152,7 @@ export function CheckoutView({
   const [submittedSummary, setSubmittedSummary] = useState<SubmittedOrderSummary | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [copiedOrderCode, setCopiedOrderCode] = useState(false);
   const idempotencyKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -563,9 +564,38 @@ export function CheckoutView({
               <h2 style={{ margin: 0, color: "#3d2e24" }}>Đã ghi nhận đơn hàng thành công!</h2>
             </div>
             {createdOrderCode && (
-              <p className="checkout-order-code" style={{ fontSize: 15, fontWeight: "bold", color: "#1f2937", margin: "6px 0" }}>
-                Mã đơn hàng: <span style={{ color: "#b86b4b", letterSpacing: 0.5 }}>{createdOrderCode}</span>
-              </p>
+              <div className="checkout-order-code" style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 10, fontSize: 15, fontWeight: "bold", color: "#1f2937", margin: "6px 0" }}>
+                <span>
+                  Mã đơn hàng: <span style={{ color: "#b86b4b", letterSpacing: 0.5 }}>{createdOrderCode}</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (typeof navigator !== "undefined" && navigator.clipboard) {
+                      void navigator.clipboard.writeText(createdOrderCode).then(() => {
+                        setCopiedOrderCode(true);
+                        setTimeout(() => setCopiedOrderCode(false), 2000);
+                      });
+                    }
+                  }}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    padding: "4px 10px",
+                    borderRadius: 5,
+                    border: "1px solid #d4beaa",
+                    background: "#faf5f0",
+                    color: "#3d2e24",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  {copiedOrderCode ? <Check size={13} /> : <Copy size={13} />}
+                  <span>{copiedOrderCode ? "Đã sao chép" : "Sao chép mã đơn"}</span>
+                </button>
+              </div>
             )}
             <p>
               Người nhận: <strong>{submittedSummary.recipientName}</strong> · SĐT: <strong>{submittedSummary.recipientPhone}</strong>
@@ -627,7 +657,7 @@ export function CheckoutView({
 
             <div style={{ marginTop: 14, display: "flex", flexWrap: "wrap", gap: 10 }}>
               <Link
-                href="/tra-cuu-don-hang"
+                href={createdOrderCode ? `/tra-cuu-don-hang?code=${encodeURIComponent(createdOrderCode)}` : "/tra-cuu-don-hang"}
                 className="checkout-portal-link"
                 style={{
                   display: "inline-block",

@@ -25,6 +25,7 @@ import {
   Home as HomeIcon,
   ShoppingBag,
   CalendarCheck,
+  ArrowUp,
 } from "lucide-react";
 
 const quick = ["Bán Chạy", "Sản Phẩm Cao Cấp", "Phụ Kiện Điện Thoại", "Thiết Bị Âm Thanh", "Vệ Sinh Nhà Cửa", "Balo & Túi Xách", "Sản Phẩm Cho Bé", "Đặt Hẹn"];
@@ -130,19 +131,22 @@ const defaultHeroSlides = [
 ];
 
 export function HomeView({ liveCatalog }: { liveCatalog: LiveCatalogOverridesState }) {
-  const categoryRoutes: ReadonlyArray<readonly [string, string]> = liveCatalog.source === "postgres" ? (liveCatalog.references?.categories || []).map(item => [item.label, item.slug]) : snapshotCategoryRoutes;
-  const visibleBrands: ReadonlyArray<readonly [string, string]> = liveCatalog.source === "postgres" ? (liveCatalog.references?.brands || []).map(item => [item.label, item.slug]) : brandItems;
+  const isPostgres = liveCatalog.source === "postgres";
+  const categoryRoutes: ReadonlyArray<readonly [string, string]> = isPostgres ? (liveCatalog.references?.categories || []).map(item => [item.label, item.slug]) : snapshotCategoryRoutes;
+  const visibleBrands: ReadonlyArray<readonly [string, string]> = isPostgres ? (liveCatalog.references?.brands || []).map(item => [item.label, item.slug]) : brandItems;
   const productRoutes = getFeaturedProducts(liveCatalog);
   const categoryProducts = (slug: string) => snapshotCategoryProducts(slug, liveCatalog);
+  const hasSideBanners = liveCatalog.banners.sideBanners.length > 0 || !isPostgres;
   const heroSlides: typeof defaultHeroSlides = liveCatalog.banners.heroSlides.length > 0
     ? liveCatalog.banners.heroSlides.map((item) => ({ ...item, type: "image" as const }))
-    : liveCatalog.source === "postgres" ? [] : defaultHeroSlides;
+    : isPostgres ? [] : defaultHeroSlides;
   const [visibleCount, setVisibleCount] = useState(12);
   const [cart, setCart] = useState(0);
   const [panel, setPanel] = useState<"cart" | "account" | "location" | null>(null);
   const [slide, setSlide] = useState(0);
   const [tab, setTab] = useState(0);
   const [clinic, setClinic] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     const refresh = () => setCart(readCart().reduce((sum, item) => sum + item.quantity, 0));
@@ -151,16 +155,56 @@ export function HomeView({ liveCatalog }: { liveCatalog: LiveCatalogOverridesSta
     return () => window.removeEventListener("demo-cart-change", refresh);
   }, []);
 
+  useEffect(() => {
+    const onScroll = () => setShowScrollTop(window.scrollY > 360);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const activeSuggestions = isPostgres
+    ? ["Tất cả sản phẩm", ...categoryRoutes.map(([label]) => label)]
+    : suggestions;
+  const activeSuggestionCategories = isPostgres
+    ? ["", ...categoryRoutes.map(([, catSlug]) => catSlug)]
+    : suggestionCategories;
+  const safeTab = tab < activeSuggestions.length ? tab : 0;
+
   const suggestionPool: Product[] =
-    tab === 0
-      ? [
-          ...productRoutes,
-          ...categoryProducts("cham-soc-da-mat-c4.html").slice(0, 6),
-          ...categoryProducts("chong-nang-da-mat-c11.html").slice(0, 6),
-        ]
-      : categoryProducts(suggestionCategories[tab]);
+    safeTab === 0
+      ? isPostgres
+        ? [...productRoutes]
+        : [
+            ...productRoutes,
+            ...categoryProducts("cham-soc-da-mat-c4.html").slice(0, 6),
+            ...categoryProducts("chong-nang-da-mat-c11.html").slice(0, 6),
+          ]
+      : categoryProducts(activeSuggestionCategories[safeTab]);
 
   const uniqueSuggestions = Array.from(new Map(suggestionPool.map((item) => [item.slug, item])).values());
+
+  const pgQuickLinks = [
+    ...categoryRoutes.slice(0, 2).map(([label, catSlug], idx) => ({
+      label,
+      href: `/danh-muc/${catSlug}`,
+      qClass: `q${idx % 8}`,
+      icon: quickIcons[idx % 2],
+    })),
+    { label: "Thương Hiệu", href: "/thuong-hieu", qClass: "q2", icon: <Crown key="pg-brand" size={24} /> },
+    { label: "Cửa Hàng", href: "/he-thong-cua-hang", qClass: "q3", icon: <MapPin key="pg-store" size={24} /> },
+    { label: "Tra Cứu Đơn", href: "/tra-cuu-don-hang", qClass: "q4", icon: <TrendingUp key="pg-lookup" size={24} /> },
+    { label: "Giỏ Hàng", href: "/gio-hang", qClass: "q5", icon: <ShoppingCart key="pg-cart" size={24} /> },
+    { label: "Hỗ Trợ", href: "/ho-tro", qClass: "q6", icon: <Headphones key="pg-support" size={24} /> },
+    { label: "Dịch Vụ Clinic", href: "#clinic", qClass: "q7", icon: <CalendarCheck key="pg-clinic" size={24} /> },
+  ];
+
+  const visibleTopSearches: ReadonlyArray<readonly [string, string]> = isPostgres
+    ? [
+        ...categoryRoutes.slice(0, 2).map(([label, catSlug]) => [label, `/danh-muc/${catSlug}`] as const),
+        ["Thương hiệu Nari Home", "/thuong-hieu"] as const,
+        ["Tất cả sản phẩm", "/tim-kiem"] as const,
+      ]
+    : topSearches;
 
   const cards = (items: readonly Product[], compact = false) =>
     items.map((product) =>
@@ -208,13 +252,13 @@ export function HomeView({ liveCatalog }: { liveCatalog: LiveCatalogOverridesSta
     <>
       <Header />
       <main className="wrap">
-        <div className="hero-layout">
+        <div className={hasSideBanners ? "hero-layout" : "hero-layout hero-layout--single"}>
           {(() => {
             const currentSlide = heroSlides[slide % heroSlides.length];
             if (!currentSlide) return <div className="hero"><p>Chưa có banner.</p></div>;
             if (currentSlide.type === "image") {
               return (
-                <div className="hero relative overflow-hidden h-[165px] sm:h-[200px] md:h-[250px]" style={{ padding: 0 }}>
+                <div className="hero relative overflow-hidden" style={{ padding: 0 }}>
                   <Link href={currentSlide.href} className="relative block w-full h-full">
                     <Image
                       src={currentSlide.src}
@@ -223,35 +267,39 @@ export function HomeView({ liveCatalog }: { liveCatalog: LiveCatalogOverridesSta
                       priority
                       unoptimized
                       className="object-cover object-center"
-                      sizes="(max-width: 1000px) 100vw, 920px"
+                      sizes={hasSideBanners ? "(max-width: 1000px) 100vw, 920px" : "(max-width: 1000px) 100vw, 1340px"}
                     />
                   </Link>
-                  <button
-                    className="hero-prev"
-                    style={{ zIndex: 10 }}
-                    onClick={() => setSlide((slide + heroSlides.length - 1) % heroSlides.length)}
-                    aria-label="Banner trước"
-                  >
-                    <ChevronLeft />
-                  </button>
-                  <button
-                    className="hero-next"
-                    style={{ zIndex: 10 }}
-                    onClick={() => setSlide((slide + 1) % heroSlides.length)}
-                    aria-label="Banner tiếp theo"
-                  >
-                    <ChevronRight />
-                  </button>
-                  <div className="dots" style={{ zIndex: 10 }}>
-                    {heroSlides.map((_, i) => (
+                  {heroSlides.length > 1 && (
+                    <>
                       <button
-                        key={i}
-                        aria-label={`Banner ${i + 1}`}
-                        className={i === (slide % heroSlides.length) ? "active" : ""}
-                        onClick={() => setSlide(i)}
-                      />
-                    ))}
-                  </div>
+                        className="hero-prev"
+                        style={{ zIndex: 10 }}
+                        onClick={() => setSlide((slide + heroSlides.length - 1) % heroSlides.length)}
+                        aria-label="Banner trước"
+                      >
+                        <ChevronLeft />
+                      </button>
+                      <button
+                        className="hero-next"
+                        style={{ zIndex: 10 }}
+                        onClick={() => setSlide((slide + 1) % heroSlides.length)}
+                        aria-label="Banner tiếp theo"
+                      >
+                        <ChevronRight />
+                      </button>
+                      <div className="dots" style={{ zIndex: 10 }}>
+                        {heroSlides.map((_, i) => (
+                          <button
+                            key={i}
+                            aria-label={`Banner ${i + 1}`}
+                            className={i === (slide % heroSlides.length) ? "active" : ""}
+                            onClick={() => setSlide(i)}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
               );
             }
@@ -263,79 +311,104 @@ export function HomeView({ liveCatalog }: { liveCatalog: LiveCatalogOverridesSta
                   <p>{currentSlide.subtitle}</p>
                   <a href={currentSlide.href}>KHÁM PHÁ NGAY →</a>
                 </div>
-                <button
-                  className="hero-prev"
-                  style={{ zIndex: 10 }}
-                  onClick={() => setSlide((slide + heroSlides.length - 1) % heroSlides.length)}
-                  aria-label="Banner trước"
-                >
-                  <ChevronLeft />
-                </button>
-                <button
-                  className="hero-next"
-                  style={{ zIndex: 10 }}
-                  onClick={() => setSlide((slide + 1) % heroSlides.length)}
-                  aria-label="Banner tiếp theo"
-                >
-                  <ChevronRight />
-                </button>
-                <div className="dots" style={{ zIndex: 10 }}>
-                  {heroSlides.map((_, i) => (
+                {heroSlides.length > 1 && (
+                  <>
                     <button
-                      key={i}
-                      aria-label={`Banner ${i + 1}`}
-                      className={i === (slide % heroSlides.length) ? "active" : ""}
-                      onClick={() => setSlide(i)}
-                    />
-                  ))}
-                </div>
+                      className="hero-prev"
+                      style={{ zIndex: 10 }}
+                      onClick={() => setSlide((slide + heroSlides.length - 1) % heroSlides.length)}
+                      aria-label="Banner trước"
+                    >
+                      <ChevronLeft />
+                    </button>
+                    <button
+                      className="hero-next"
+                      style={{ zIndex: 10 }}
+                      onClick={() => setSlide((slide + 1) % heroSlides.length)}
+                      aria-label="Banner tiếp theo"
+                    >
+                      <ChevronRight />
+                    </button>
+                    <div className="dots" style={{ zIndex: 10 }}>
+                      {heroSlides.map((_, i) => (
+                        <button
+                          key={i}
+                          aria-label={`Banner ${i + 1}`}
+                          className={i === (slide % heroSlides.length) ? "active" : ""}
+                          onClick={() => setSlide(i)}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             );
           })()}
-          <div className="hero-side">
-            {liveCatalog.banners.sideBanners.length > 0 ? liveCatalog.banners.sideBanners.map((banner) => (
-              <Link href={banner.href} key={banner.id} style={{ padding: 0, overflow: "hidden" }}>
-                <Image src={banner.src} alt={banner.alt} width={320} height={140} unoptimized style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          {hasSideBanners && (
+            <div className="hero-side">
+              {liveCatalog.banners.sideBanners.length > 0 ? liveCatalog.banners.sideBanners.map((banner) => (
+                <Link href={banner.href} key={banner.id} style={{ padding: 0, overflow: "hidden" }}>
+                  <Image src={banner.src} alt={banner.alt} width={320} height={140} unoptimized style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                </Link>
+              )) : !isPostgres ? <>
+              <Link href="/danh-muc/nha-cua-doi-song-c2529.html">
+                <small>KHÁM PHÁ NGAY</small>
+                <b>
+                  NHÀ CỬA
+                  <br />
+                  &amp; ĐỜI SỐNG
+                </b>
               </Link>
-            )) : liveCatalog.source === "postgres" ? null : <>
-            <Link href="/danh-muc/nha-cua-doi-song-c2529.html">
-              <small>KHÁM PHÁ NGAY</small>
-              <b>
-                NHÀ CỬA
-                <br />
-                &amp; ĐỜI SỐNG
-              </b>
-            </Link>
-            <Link href="/danh-muc/dien-gia-dung-c2463.html">
-              <small>KHÁM PHÁ NGAY</small>
-              <b>
-                ĐIỆN
-                <br />
-                GIA DỤNG
-              </b>
-            </Link>
-            </>}
-          </div>
+              <Link href="/danh-muc/dien-gia-dung-c2463.html">
+                <small>KHÁM PHÁ NGAY</small>
+                <b>
+                  ĐIỆN
+                  <br />
+                  GIA DỤNG
+                </b>
+              </Link>
+              </> : null}
+            </div>
+          )}
         </div>
 
         <div className="quick-links">
-          {quick.map((q, i) => (
-            <Link href={i === 7 && liveCatalog.source === "postgres" ? "#clinic" : quickDestinations[i]} key={q}>
-              <span className={`quick-icon q${i}`}>{quickIcons[i]}</span>
-              {i === 7 && liveCatalog.source === "postgres" ? "Dịch vụ Clinic" : q}
-            </Link>
-          ))}
+          {isPostgres
+            ? pgQuickLinks.map((item) => (
+                <Link href={item.href} key={item.label}>
+                  <span className={`quick-icon ${item.qClass}`}>{item.icon}</span>
+                  {item.label}
+                </Link>
+              ))
+            : quick.map((q, i) => (
+                <Link href={quickDestinations[i]} key={q}>
+                  <span className={`quick-icon q${i}`}>{quickIcons[i]}</span>
+                  {q}
+                </Link>
+              ))}
         </div>
 
         <section className="flash section" id="flash">
           <div className="section-title">
             <div>
-              <h2>Flash deals</h2>
-              {liveCatalog.source !== "postgres" && <span className="timer">02 : 00 : 00</span>}
+              <h2>{isPostgres && productRoutes.length > 0 ? "Sản phẩm nổi bật Nari Home" : "Flash deals"}</h2>
+              {!isPostgres && <span className="timer">02 : 00 : 00</span>}
             </div>
-            <Link href="/deals-dang-dien-ra.html?product_list_order=topsale">Xem tất cả ›</Link>
+            <Link href={isPostgres && productRoutes.length > 0 ? "/tim-kiem" : "/deals-dang-dien-ra.html?product_list_order=topsale"}>
+              Xem tất cả ›
+            </Link>
           </div>
-          <div className="flash-scroll">{liveCatalog.source === "postgres" ? <p>Chưa có dữ liệu Flash deals.</p> : cards(productRoutes, true)}</div>
+          {isPostgres ? (
+            productRoutes.length > 0 ? (
+              <div className="product-grid">{cards(productRoutes)}</div>
+            ) : (
+              <div className="flash-scroll">
+                <p>Chưa có dữ liệu Flash deals.</p>
+              </div>
+            )
+          ) : (
+            <div className="flash-scroll">{cards(productRoutes, true)}</div>
+          )}
         </section>
 
         <div className="brand-banners">
@@ -393,36 +466,53 @@ export function HomeView({ liveCatalog }: { liveCatalog: LiveCatalogOverridesSta
             <h2>Thương hiệu</h2>
             <Link href="/thuong-hieu">Xem tất cả ›</Link>
           </div>
-          <div className="brand-hero">
-            {(
-              [
-                ["VICHY", "vichy.html", "#f6ece3", "#3d2e24"],
-                ["CERAVE", "cerave.html", "#faeadb", "#703c27"],
-                ["LA ROCHE-POSAY", "la-roche-posay.html", "#f5ebe3", "#3d2e24"],
-              ] as const
-            ).map(([b, slug, bg, textCol]) => (
-              <Link href={`/thuong-hieu/${slug}`} key={b} style={{ height: 115, background: bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: textCol, fontSize: 24, fontWeight: "bold", border: "1px solid #ebd6c4", borderRadius: 6 }}>
-                {b}
-                <small style={{ fontSize: 10, marginTop: 8, color: "#9e7656" }}>KHÁM PHÁ THƯƠNG HIỆU</small>
-              </Link>
-            ))}
+          <div className={isPostgres ? "brand-hero brand-hero--postgres" : "brand-hero"}>
+            {isPostgres
+              ? visibleBrands.slice(0, 3).map(([b, slug], idx) => {
+                  const palettes = [
+                    ["#f6ece3", "#3d2e24"],
+                    ["#faeadb", "#703c27"],
+                    ["#f5ebe3", "#3d2e24"],
+                  ] as const;
+                  const [bg, textCol] = palettes[idx % palettes.length];
+                  return (
+                    <Link href={`/thuong-hieu/${slug}`} key={b} style={{ height: 115, background: bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: textCol, fontSize: 22, fontWeight: "bold", border: "1px solid #ebd6c4", borderRadius: 6 }}>
+                      {b}
+                      <small style={{ fontSize: 10, marginTop: 8, color: "#9e7656" }}>KHÁM PHÁ THƯƠNG HIỆU</small>
+                    </Link>
+                  );
+                })
+              : (
+                  [
+                    ["VICHY", "vichy.html", "#f6ece3", "#3d2e24"],
+                    ["CERAVE", "cerave.html", "#faeadb", "#703c27"],
+                    ["LA ROCHE-POSAY", "la-roche-posay.html", "#f5ebe3", "#3d2e24"],
+                  ] as const
+                ).map(([b, slug, bg, textCol]) => (
+                  <Link href={`/thuong-hieu/${slug}`} key={b} style={{ height: 115, background: bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: textCol, fontSize: 24, fontWeight: "bold", border: "1px solid #ebd6c4", borderRadius: 6 }}>
+                    {b}
+                    <small style={{ fontSize: 10, marginTop: 8, color: "#9e7656" }}>KHÁM PHÁ THƯƠNG HIỆU</small>
+                  </Link>
+                ))}
           </div>
-          <div className="brand-logos">
-            {visibleBrands.map(([b, slug]) => (
-              <Link href={`/thuong-hieu/${slug}`} key={b} style={{ border: "1px solid #ebd6c4", background: "#ffffff", height: 60, display: "grid", placeItems: "center", textAlign: "center", fontSize: 10, fontWeight: "bold", color: "#3d2e24", borderRadius: 4 }}>
-                {b}
-              </Link>
-            ))}
-          </div>
+          {(!isPostgres || visibleBrands.length > 3) && (
+            <div className="brand-logos">
+              {visibleBrands.map(([b, slug]) => (
+                <Link href={`/thuong-hieu/${slug}`} key={b} style={{ border: "1px solid #ebd6c4", background: "#ffffff", height: 60, display: "grid", placeItems: "center", textAlign: "center", fontSize: 10, fontWeight: "bold", color: "#3d2e24", borderRadius: 4 }}>
+                  {b}
+                </Link>
+              ))}
+            </div>
+          )}
         </section>
 
         <section className="section" id="best">
           <div className="section-title">
-            <h2>Bán chạy</h2>
-            <Link href="/san-pham-ban-chay.html">Xem tất cả ›</Link>
+            <h2>{isPostgres ? "Danh mục nổi bật" : "Bán chạy"}</h2>
+            <Link href={isPostgres ? "/tim-kiem" : "/san-pham-ban-chay.html"}>Xem tất cả ›</Link>
           </div>
           <div className="best-grid">
-            {best.map((b, i) => {
+            {(isPostgres ? categoryRoutes.map(([label]) => label) : best).map((b, i) => {
               const slug = categoryRoutes.find((x) => x[0] === b)?.[1] ?? "cham-soc-da-mat-c4.html";
               const bestThumb = categoryProducts(slug).find((p) => p.image)?.image;
               return (
@@ -449,7 +539,7 @@ export function HomeView({ liveCatalog }: { liveCatalog: LiveCatalogOverridesSta
                       {b.slice(0, 2).toUpperCase()}
                     </span>
                   )}
-                  {liveCatalog.source !== "postgres" && <small>{(8.4 - i * 0.7).toFixed(1)}M đã bán</small>}
+                  {!isPostgres && <small>{(8.4 - i * 0.7).toFixed(1)}M đã bán</small>}
                   <b>{b}</b>
                 </Link>
               );
@@ -462,7 +552,7 @@ export function HomeView({ liveCatalog }: { liveCatalog: LiveCatalogOverridesSta
             <h2>Top tìm kiếm</h2>
           </div>
           <div className="top-search">
-            {topSearches.map(([label, href], i) => (
+            {visibleTopSearches.map(([label, href], i) => (
               <Link key={label} href={href} className={`q${i}`}>
                 <b>{label}</b>
                 <span>Khám phá sản phẩm →</span>
@@ -515,13 +605,13 @@ export function HomeView({ liveCatalog }: { liveCatalog: LiveCatalogOverridesSta
 
         <section className="section" id="suggestions">
           <div className="suggestion-tabs">
-            {suggestions.map((s, i) => (
+            {activeSuggestions.map((s, i) => (
               <button
                 onClick={() => {
                   setTab(i);
                   setVisibleCount(12);
                 }}
-                className={i === tab ? "selected" : ""}
+                className={i === safeTab ? "selected" : ""}
                 key={s}
               >
                 {s}
@@ -569,6 +659,15 @@ export function HomeView({ liveCatalog }: { liveCatalog: LiveCatalogOverridesSta
         </div>
       )}
       <div className="floating">
+        {showScrollTop && (
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            aria-label="Cuộn lên đầu trang"
+          >
+            <ArrowUp size={18} />
+          </button>
+        )}
         <button onClick={() => window.dispatchEvent(new Event("nari-open-account"))} aria-label="Tài khoản">
           <Heart size={18} />
         </button>

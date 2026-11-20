@@ -150,6 +150,7 @@ export function NariHomeLogo({
 
         {showSubtitle && !compact && (
           <span
+            className="nari-logo-subtitle"
             style={{
               color: subtitleColor,
               fontSize: "0.68rem",

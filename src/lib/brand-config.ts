@@ -42,8 +42,21 @@ export interface BrandConfig {
   heroBannerUrl: string;
 }
 
-const shortName = process.env.NEXT_PUBLIC_BRAND_SHORT?.trim() || "Nari";
-const fullName = process.env.NEXT_PUBLIC_BRAND_NAME?.trim() || `${shortName} Home`;
+const MOJIBAKE_PATTERN = /Ã[\u0080-\u00bf\u2018-\u203a\u0152\u0153\u0160\u0161\u0178\u017d\u017e\u0192\u02c6\u02dc]|Â[\u0080-\u00bf]|Æ[¡°]|Ä‘|á[º»]/;
+
+/**
+ * Sanitize environment-supplied brand copy and fall back if empty or double-encoded.
+ */
+export function sanitizeBrandString(value: string | undefined, fallback: string): string {
+  const trimmed = value?.trim();
+  if (!trimmed || MOJIBAKE_PATTERN.test(trimmed)) {
+    return fallback;
+  }
+  return trimmed;
+}
+
+const shortName = sanitizeBrandString(process.env.NEXT_PUBLIC_BRAND_SHORT, "Nari");
+const fullName = sanitizeBrandString(process.env.NEXT_PUBLIC_BRAND_NAME, `${shortName} Home`);
 const emailDomain = process.env.NEXT_PUBLIC_BRAND_EMAIL_DOMAIN?.trim() || "narihome.vn";
 
 export const BRAND_CONFIG: BrandConfig = {
@@ -51,13 +64,15 @@ export const BRAND_CONFIG: BrandConfig = {
   shortName,
   upperShortName: shortName.toUpperCase(),
   upperName: fullName.toUpperCase(),
-  slogan:
-    process.env.NEXT_PUBLIC_BRAND_SLOGAN?.trim() ||
+  slogan: sanitizeBrandString(
+    process.env.NEXT_PUBLIC_BRAND_SLOGAN,
     "Khơi nguồn vẻ đẹp - Kiến tạo khí chất",
+  ),
   domain: process.env.NEXT_PUBLIC_BRAND_DOMAIN?.trim() || emailDomain,
-  companyName:
-    process.env.NEXT_PUBLIC_BRAND_COMPANY?.trim() ||
+  companyName: sanitizeBrandString(
+    process.env.NEXT_PUBLIC_BRAND_COMPANY,
     `CÔNG TY CỔ PHẦN ${fullName.toUpperCase()} BEAUTY & CLINIC`,
+  ),
   dealsLabel:
     process.env.NEXT_PUBLIC_BRAND_DEALS?.trim() || `${shortName} Deals`,
   dealsUpper:

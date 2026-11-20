@@ -3,10 +3,10 @@
 import { useSyncExternalStore, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart, ChevronLeft, ShieldCheck, Trash2 } from "lucide-react";
+import { ShoppingCart, ChevronLeft, ShieldCheck, Trash2, Truck } from "lucide-react";
 import { money, findCatalogProduct } from "@/lib/catalog";
 import type { LiveCatalogOverridesState } from "@/lib/live-catalog";
-import { readCart, saveCart } from "@/lib/cart";
+import { FREE_SHIPPING_THRESHOLD, readCart, saveCart } from "@/lib/cart";
 import { getNewArrivals } from "@/lib/new-arrivals";
 import { Footer } from "@/components/sites/nari/footer";
 import { NariHomeLogo } from "@/components/sites/nari/nari-home-logo";
@@ -131,7 +131,7 @@ export function CartView({ checkout = false, liveCatalog }: { checkout?: boolean
           <>
             <h1>
               {checkout ? "Thông tin đặt hàng" : "Giỏ hàng của bạn"}{" "}
-              <small>({rows.length} sản phẩm mẫu)</small>
+              <small>({rows.length} sản phẩm)</small>
             </h1>
 
             {!rows.length ? (
@@ -235,20 +235,43 @@ export function CartView({ checkout = false, liveCatalog }: { checkout?: boolean
 
                 <aside className="cart-box cart-summary">
                   <h2>Thông tin đơn hàng</h2>
+                  <div style={{ display: "block", margin: "0 0 14px", padding: "10px 12px", background: "#faf5f0", border: "1px solid #ebd6c4", borderRadius: 6, fontSize: 12 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#3d2e24" }}>
+                      <Truck size={15} className="text-[#b86b4b]" />
+                      {total >= FREE_SHIPPING_THRESHOLD ? (
+                        <span>
+                          Bạn đã đạt <strong>Miễn phí giao nhanh NariNow 2H</strong>
+                        </span>
+                      ) : (
+                        <span>
+                          Mua thêm <strong style={{ color: "#b86b4b" }}>{money(FREE_SHIPPING_THRESHOLD - total)}</strong> để miễn phí giao nhanh NariNow 2H
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ marginTop: 8, height: 6, background: "#efe2d4", borderRadius: 999, overflow: "hidden" }}>
+                      <div
+                        style={{
+                          width: `${Math.min(100, Math.round((total / FREE_SHIPPING_THRESHOLD) * 100))}%`,
+                          height: "100%",
+                          background: "#b86b4b",
+                        }}
+                      />
+                    </div>
+                  </div>
                   <div>
                     <span>Tạm tính</span>
                     <b>{money(total)}</b>
                   </div>
                   <div>
                     <span>Phí vận chuyển</span>
-                    <span>Miễn phí (NariNow 2H)</span>
+                    <span>{total >= FREE_SHIPPING_THRESHOLD ? "Miễn phí (NariNow 2H)" : money(25000)}</span>
                   </div>
                   <hr />
                   <div>
                     <strong>Tổng cộng</strong>
                     <strong>{money(total)}</strong>
                   </div>
-                  <p>Giá và đơn hàng mô phỏng theo dữ liệu Nari Home.</p>
+                  <p>Giá bán và tồn kho được xác thực trực tiếp trên máy chủ tại bước thanh toán.</p>
                   {checkout ? (
                     <button type="button" onClick={() => setPlaced(true)}>
                       HOÀN TẤT ĐẶT HÀNG MẪU

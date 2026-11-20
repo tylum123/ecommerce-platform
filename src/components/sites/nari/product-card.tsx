@@ -1,6 +1,11 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Check, ShoppingCart } from "lucide-react";
 import { money, type Product } from "@/lib/catalog";
+import { addToCart } from "@/lib/cart";
 import {
   computeGiftBillPromo,
   computeProductEnglishSubtitle,
@@ -12,6 +17,22 @@ export function ProductCard({
   product: Product & { progress?: number };
   showSampleRating?: boolean;
 }) {
+  const [added, setAdded] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  const handleQuickAdd = () => {
+    addToCart(product.slug, 1, { name: product.name });
+    setAdded(true);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setAdded(false), 1500);
+  };
+
   const englishSubtitle =
     (product.catalogSource === "postgres"
       ? product.englishName
@@ -23,7 +44,8 @@ export function ProductCard({
   const hasRealSold = typeof product.sold === "number" && product.sold > 0;
 
   return (
-    <Link className="product" href={`/san-pham/${product.slug}`}>
+    <article className="product flex flex-col">
+      <Link className="block flex-1" href={`/san-pham/${product.slug}`}>
       <div className="product-picture" style={{ position: "relative" }}>
         {product.image ? (
           <Image
@@ -55,27 +77,25 @@ export function ProductCard({
             alignItems: "center",
             justifyContent: "space-between",
             gap: 4,
-            marginBottom: 4,
+            marginBottom: product.old > product.price ? 2 : 4,
           }}
         >
-          <div
+          <strong style={{ whiteSpace: "nowrap" }}>{money(product.price)}</strong>
+          {product.sale > 0 && <span style={{ whiteSpace: "nowrap" }}>-{product.sale}%</span>}
+        </div>
+        {product.old > product.price && (
+          <del
             style={{
-              display: "flex",
-              alignItems: "baseline",
-              gap: 6,
-              minWidth: 0,
-              overflow: "hidden",
+              display: "block",
+              margin: "0 0 4px",
+              fontSize: 11,
+              color: "#9ca3af",
+              whiteSpace: "nowrap",
             }}
           >
-            <strong>{money(product.price)}</strong>
-            {product.old > product.price && (
-              <del style={{ margin: 0, fontSize: 11, color: "#9ca3af" }}>
-                {money(product.old)}
-              </del>
-            )}
-          </div>
-          {product.sale > 0 && <span>-{product.sale}%</span>}
-        </div>
+            {money(product.old)}
+          </del>
+        )}
 
         <small
           style={{
@@ -174,6 +194,18 @@ export function ProductCard({
           </div>
         )}
       </div>
-    </Link>
+      </Link>
+      <div className="px-2.5 pb-2.5 pt-1">
+        <button
+          type="button"
+          onClick={handleQuickAdd}
+          className={`product-quick-add${added ? " added" : ""}`}
+          aria-label={`Thêm nhanh ${product.name} vào giỏ hàng`}
+        >
+          {added ? <Check size={14} /> : <ShoppingCart size={14} />}
+          <span>{added ? "Đã thêm" : "Thêm vào giỏ"}</span>
+        </button>
+      </div>
+    </article>
   );
 }

@@ -442,9 +442,9 @@ export function ProductRichSections({
               type="button"
               onClick={() => setIsDescExpanded(!isDescExpanded)}
               style={{
-                background: "#f0fdf4",
-                color: "#166534",
-                border: "1px solid #bbf7d0",
+                background: "#faf5f0",
+                color: "#3d2e24",
+                border: "1px solid #d4beaa",
                 padding: "8px 24px",
                 borderRadius: 20,
                 fontSize: 13,

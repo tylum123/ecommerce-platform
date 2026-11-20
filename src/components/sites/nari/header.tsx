@@ -17,10 +17,11 @@ import {
   Flame,
 } from "lucide-react";
 import { money, type Product } from "@/lib/catalog";
-import { readCart } from "@/lib/cart";
+import { NARI_CART_DRAWER_OPEN_EVENT, readCart } from "@/lib/cart";
 import { NariHomeLogo } from "@/components/sites/nari/nari-home-logo";
 import { AccountDialog } from "@/components/sites/nari/account-dialog";
 import { LocationDialog } from "@/components/sites/nari/location-dialog";
+import { StorefrontCartDrawer } from "@/components/sites/nari/storefront-cart-drawer";
 import { readLocation, formatLocationShort } from "@/lib/campaigns-location";
 import { AUTH_CHANGE_EVENT } from "@/lib/auth";
 import { CLOSED_SESSION_CAPABILITIES, fetchSessionCapabilities } from "@/lib/session-capabilities";
@@ -132,8 +133,18 @@ export function Header() {
         setIsSearchOpen(false);
       }
     };
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsSearchOpen(false);
+        setMenu(false);
+      }
+    };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
   }, []);
 
   const handleMenuMouseEnter = () => {
@@ -659,10 +670,14 @@ export function Header() {
                 <b>khách hàng</b>
               </span>
             </Link>
-            <Link href="/gio-hang" aria-label={`Giỏ hàng ${cart} sản phẩm`}>
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event(NARI_CART_DRAWER_OPEN_EVENT))}
+              aria-label={`Giỏ hàng ${cart} sản phẩm`}
+            >
               <ShoppingCart />
               <em>{cart}</em>
-            </Link>
+            </button>
           </div>
         </div>
       </header>
@@ -741,7 +756,7 @@ export function Header() {
               {/* Left Column: 16 Root Categories */}
               <div
                 style={{
-                  background: "#f8faf9",
+                  background: "#faf5f0",
                   borderRight: "1px solid #e5e7eb",
                   padding: "8px 0",
                   maxHeight: 460,
@@ -1037,6 +1052,7 @@ export function Header() {
           <LocationDialog onClose={() => setPanel(null)} />
         )
       )}
+      <StorefrontCartDrawer />
     </>
   );
 }

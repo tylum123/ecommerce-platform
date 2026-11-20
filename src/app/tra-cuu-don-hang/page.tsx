@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Header } from "@/components/sites/nari/header";
 import { Footer } from "@/components/sites/nari/footer";
@@ -54,8 +54,16 @@ function formatVnd(amount: number): string {
   return `${new Intl.NumberFormat("vi-VN").format(amount)} ₫`;
 }
 
+const subscribeNoop = () => () => {};
+const readUrlOrderCode = () =>
+  typeof window === "undefined"
+    ? ""
+    : new URLSearchParams(window.location.search).get("code")?.trim() || "";
+
 export default function OrderLookupPage() {
-  const [orderCode, setOrderCode] = useState("");
+  const urlOrderCode = useSyncExternalStore(subscribeNoop, readUrlOrderCode, () => "");
+  const [editedOrderCode, setEditedOrderCode] = useState<string | null>(null);
+  const orderCode = editedOrderCode ?? urlOrderCode;
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -152,7 +160,7 @@ export default function OrderLookupPage() {
                 placeholder="Ví dụ: NARI-20261118-001"
                 value={orderCode}
                 onChange={e => {
-                  setOrderCode(e.target.value);
+                  setEditedOrderCode(e.target.value);
                   setErrorMessage("");
                 }}
                 style={{
