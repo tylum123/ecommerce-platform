@@ -1,5 +1,18 @@
 # Báo cáo kiểm tra clone Hasaki
 
+## Checkpoint 20/11/2026 (Plans 1, 2, 3 & 5 Live) — Đóng Khoảng Cách Font, Webhook Thanh Toán, Admin ERP PostgreSQL & Customer Portal
+
+- **Đã đóng trên Production Workers (`https://nari-home.tylum123.workers.dev`, Version ID `1ba6e313-29a9-4cd9-9812-685a7c3c2214`):**
+  - **Local Fonts (Plan 5):** Loại bỏ hoàn toàn phụ thuộc mạng Google Fonts lúc build (`next/font/google` = `0` kết quả trong `src/`), sử dụng 5 file `.ttf` local OFL đầy đủ dấu Tiếng Việt tại `src/app/fonts/`.
+  - **Checkout & Payment Webhook (Plan 3):** Trang `/thanh-toan` tải danh sách chi nhánh thật từ PostgreSQL (`branch-hcm-q1` xác nhận trong SSR HTML) kèm lựa chọn `NariNow 2H` / `Tiêu chuẩn`; `/api/payments/webhook` xác thực HMAC-SHA256 + chống replay + idempotency + transaction ACID (fail-closed `503` khi chưa bật secret); `/api/orders` & `/api/bookings` tự động gắn `userId` từ phiên Supabase hợp lệ.
+  - **Admin ERP PostgreSQL & Supabase RBAC (Plan 1):** Xóa hoàn toàn `src/lib/server/erp-store.ts`; các route `/api/admin/{users,staff,orders,inventory}` và trang `/quan-tri` chuyển sang [`postgres-erp-service.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/server/postgres-erp-service.ts) + `authorizeBusinessRequest` sau cổng `NARI_ERP_ADMIN_ENABLED="true"`; gỡ bỏ demo role switcher và bổ sung lối vào `/quan-tri` trong [`account-dialog.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/nari/account-dialog.tsx), [`supabase-login-form.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/nari/supabase-login-form.tsx) & [`admin-products-view.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/nari/admin-products-view.tsx).
+  - **Customer Auth & Customer Portal (Plan 2):** Hoàn thiện đăng ký (`/dang-ky`, `/api/auth/register`), khôi phục mật khẩu (`/khoi-phuc-mat-khau`, `/api/auth/recovery`), `/auth/callback` PKCE, và cổng khách hàng `/khach-hang/*` + `/api/customer/portal` đồng bộ `nari_identity.customer_profiles`, đơn hàng và lịch hẹn clinic.
+  - **Bằng chứng kiểm chứng:** `node --test test/*.mjs test/*.cjs` (`84` passed, `0` failed; `13` PGlite skipped khi `NARI_TEST_PGLITE_PATH` unset), `npm run typecheck` (`0` errors), `npm run lint` (`0` errors, `0` warnings), `npm run cf:build` (`exit 0`), `npx wrangler deploy` (`Total Upload: 10359.29 KiB / gzip: 2144.22 KiB`, `Worker Startup Time: 287 ms`), `npm run db:verify` (`ok: true`, `wave3Applied: true`, `runtimePolicies: 44`, `deniedWrites: true`), và live HTTPS probes đều đúng hợp đồng (`200` storefront/auth pages, `307` private pages, `401` admin/customer APIs, `503` webhook).
+- **Khoảng cách được chủ dự án chủ động giữ nguyên (ngoài phạm vi — bỏ Kế hoạch 4):**
+  - `/api/warranty`, `/api/analytics`, `/api/mcp` nối DB và Clinic live slot availability không triển khai theo yêu cầu bỏ Kế hoạch 4.
+  - Quản lý nhân sự qua web (`POST`/`PATCH /api/admin/staff`) giữ trạng thái chỉ đọc (`501 STAFF_PROVISIONING_OUT_OF_BAND`) nhằm giữ nguyên bất biến bảo mật `nari_catalog_app` chỉ có quyền `SELECT` trên `nari_identity.provisioned_identities`.
+  - Cấu hình vận hành sau này nếu cần: nạp `NARI_PAYMENT_WEBHOOK_SECRET` qua `wrangler secret put` trước khi bật `NARI_PAYMENT_WEBHOOK_ENABLED="true"`, và khai báo Redirect URLs `/auth/callback`, `/khoi-phuc-mat-khau` trong Supabase Auth Dashboard.
+
 ## Checkpoint 19/11/2026 (Cloudflare Workers Live) — Đóng khoảng cách Triển khai Cloudflare Workers & Hyperdrive
 
 - **Đã đóng trên Production Workers (`https://nari-home.tylum123.workers.dev`):**
