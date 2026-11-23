@@ -91,7 +91,8 @@ test("private page entry points redirect unauthenticated visitors to login", asy
   const quanTriPage = loadModule("src/app/quan-tri/page.tsx", {
     "next/headers": { cookies: async () => ({ get: () => undefined }) },
     "next/navigation": { redirect: mockRedirect },
-    "@/components/sites/nari/admin-erp-view": { AdminErpView: () => null },
+    "@/components/sites/nari/admin-access-denied": { AdminAccessDenied: () => null },
+    "@/components/sites/nari/admin-erp-loader": { AdminErpLoader: () => null },
     "@/lib/auth": {
       AUTH_COOKIE_NAME: "nari_session",
       verifySignedSessionToken: async () => null,

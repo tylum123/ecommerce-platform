@@ -20,7 +20,12 @@ function load(file, stubs = {}) {
   const requireModule = (id) => {
     if (id === "server-only") return {};
     if (Object.hasOwn(stubs, id)) return stubs[id];
-    if (id.startsWith("@/")) return load(`src/${id.slice(2)}.ts`, stubs);
+    if (id.startsWith("@/")) {
+      const base = path.resolve(__dirname, "..", "src", id.slice(2));
+      const tsPath = `${base}.ts`;
+      const tsxPath = `${base}.tsx`;
+      return load(fs.existsSync(tsPath) ? tsPath : tsxPath, stubs);
+    }
     return localRequire(id);
   };
   new Function("module", "exports", "require", output)(mod, mod.exports, requireModule);
@@ -136,4 +141,160 @@ test("CartView omits sample wording and renders NariNow 2H freeship threshold", 
   );
   assert.doesNotMatch(html, /sản phẩm mẫu|mô phỏng/);
   assert.match(html, /Giỏ hàng của bạn đang trống/);
+});
+
+test("ui-skeletons renders Luxury Silk shimmer, aria-busy, and ModalLoadingOverlay", () => {
+  const React = require("react");
+  const { renderToStaticMarkup } = require("react-dom/server");
+  const skeletons = load("src/components/sites/nari/ui-skeletons.tsx");
+
+  const skeletonComponents = [
+    ["ProductDetailSkeleton", skeletons.ProductDetailSkeleton],
+    ["CatalogPageSkeleton", skeletons.CatalogPageSkeleton],
+    ["CheckoutPageSkeleton", skeletons.CheckoutPageSkeleton],
+    ["BookingPageSkeleton", skeletons.BookingPageSkeleton],
+    ["OrderResultSkeleton", skeletons.OrderResultSkeleton],
+    ["CustomerPortalSkeleton", skeletons.CustomerPortalSkeleton],
+    ["AdminErpSkeleton", skeletons.AdminErpSkeleton],
+    ["AdminTableSkeleton", skeletons.AdminTableSkeleton],
+    ["CartDrawerItemsSkeleton", skeletons.CartDrawerItemsSkeleton],
+  ];
+
+  for (const [name, Component] of skeletonComponents) {
+    assert.equal(typeof Component, "function", `${name} should be exported`);
+    const html = renderToStaticMarkup(React.createElement(Component));
+    assert.match(html, /nari-shimmer/, `${name} should render nari-shimmer class`);
+    assert.match(html, /aria-busy="true"/, `${name} should render aria-busy="true"`);
+  }
+
+  const modalHtml = renderToStaticMarkup(
+    React.createElement(skeletons.ModalLoadingOverlay, { label: "Đang mở tài khoản..." }),
+  );
+  assert.match(modalHtml, /animate-spin/);
+  assert.match(modalHtml, /Đang mở tài khoản\.\.\./);
+  assert.match(modalHtml, /aria-busy="true"/);
+});
+
+test("all 8 route loading.tsx files exist and render Luxury Silk skeleton markup", () => {
+  const React = require("react");
+  const { renderToStaticMarkup } = require("react-dom/server");
+
+  const loadingRoutes = [
+    "src/app/loading.tsx",
+    "src/app/san-pham/[slug]/loading.tsx",
+    "src/app/danh-muc/[slug]/loading.tsx",
+    "src/app/thanh-toan/loading.tsx",
+    "src/app/booking/loading.tsx",
+    "src/app/tra-cuu-don-hang/loading.tsx",
+    "src/app/khach-hang/[section]/loading.tsx",
+    "src/app/quan-tri/loading.tsx",
+  ];
+
+  for (const routeFile of loadingRoutes) {
+    const absPath = path.resolve(__dirname, "..", routeFile);
+    assert.equal(fs.existsSync(absPath), true, `${routeFile} should exist on disk`);
+    const mod = load(routeFile);
+    assert.equal(typeof mod.default, "function", `${routeFile} should default-export Loading`);
+    const html = renderToStaticMarkup(React.createElement(mod.default));
+    assert.match(html, /nari-shimmer/, `${routeFile} should render nari-shimmer`);
+    assert.match(html, /aria-busy="true"/, `${routeFile} should render aria-busy="true"`);
+  }
+});
+
+test("smooth-image helpers update img dataset and [data-img-frame] only when loaded or errored", () => {
+  const {
+    markImageContainerLoaded,
+    syncCachedImageRef,
+    handleSmoothImageLoad,
+    handleSmoothImageError,
+  } = load("src/lib/smooth-image.ts");
+
+  function createMockImage({ complete = false, withFrame = true } = {}) {
+    const frameAttrs = new Map();
+    const frame = {
+      setAttribute(name, value) {
+        frameAttrs.set(name, value);
+      },
+      getAttribute(name) {
+        return frameAttrs.get(name) ?? null;
+      },
+    };
+    const img = {
+      complete,
+      dataset: {},
+      closest(selector) {
+        return withFrame && selector === "[data-img-frame]" ? frame : null;
+      },
+    };
+    return { img, frame };
+  }
+
+  // markImageContainerLoaded marks both img.dataset.loaded and parent [data-img-frame]
+  const direct = createMockImage();
+  markImageContainerLoaded(direct.img);
+  assert.equal(direct.img.dataset.loaded, "true");
+  assert.equal(direct.frame.getAttribute("data-img-loaded"), "true");
+
+  // Handles null and missing frame safely
+  assert.doesNotThrow(() => markImageContainerLoaded(null));
+  const frameless = createMockImage({ withFrame: false });
+  markImageContainerLoaded(frameless.img);
+  assert.equal(frameless.img.dataset.loaded, "true");
+
+  // handleSmoothImageLoad marks img and frame
+  const onLoadCase = createMockImage();
+  handleSmoothImageLoad({ currentTarget: onLoadCase.img });
+  assert.equal(onLoadCase.img.dataset.loaded, "true");
+  assert.equal(onLoadCase.frame.getAttribute("data-img-loaded"), "true");
+
+  // handleSmoothImageError marks img and frame so shimmer stops cleanly
+  const onErrorCase = createMockImage();
+  handleSmoothImageError({ currentTarget: onErrorCase.img });
+  assert.equal(onErrorCase.img.dataset.loaded, "true");
+  assert.equal(onErrorCase.frame.getAttribute("data-img-loaded"), "true");
+
+  // syncCachedImageRef marks when complete === true
+  const cachedReady = createMockImage({ complete: true });
+  syncCachedImageRef(cachedReady.img);
+  assert.equal(cachedReady.img.dataset.loaded, "true");
+  assert.equal(cachedReady.frame.getAttribute("data-img-loaded"), "true");
+
+  // syncCachedImageRef does NOT mark when complete === false or null
+  const pending = createMockImage({ complete: false });
+  syncCachedImageRef(pending.img);
+  assert.equal(pending.img.dataset.loaded, undefined);
+  assert.equal(pending.frame.getAttribute("data-img-loaded"), null);
+  assert.doesNotThrow(() => syncCachedImageRef(null));
+});
+
+test("code-splitting boundaries use next/dynamic (ssr: false) and layout mounts RouteProgressBar inside Suspense", () => {
+  const readProjectFile = (relPath) =>
+    fs.readFileSync(path.resolve(__dirname, "..", relPath), "utf8");
+
+  const headerSrc = readProjectFile("src/components/sites/nari/header.tsx");
+  assert.match(headerSrc, /import\s+dynamic\s+from\s+["']next\/dynamic["']/);
+  for (const modName of ["account-dialog", "location-dialog", "storefront-cart-drawer"]) {
+    const pattern = new RegExp(
+      `dynamic\\(\\s*\\(\\)\\s*=>[\\s\\S]*?${modName}[\\s\\S]*?\\{\\s*(?:[^}]*?\\n)*?[^}]*?ssr:\\s*false`,
+    );
+    assert.match(headerSrc, pattern, `header.tsx should dynamically import ${modName} with ssr: false`);
+  }
+
+  const catalogViewSrc = readProjectFile("src/components/sites/nari/catalog-view.tsx");
+  assert.match(catalogViewSrc, /import\s+dynamic\s+from\s+["']next\/dynamic["']/);
+  assert.match(
+    catalogViewSrc,
+    /dynamic\([\s\S]*?product-rich-sections[\s\S]*?ssr:\s*false[\s\S]*?loading:\s*\(\)\s*=>[\s\S]*?nari-shimmer[\s\S]*?\)/,
+  );
+
+  const adminLoaderSrc = readProjectFile("src/components/sites/nari/admin-erp-loader.tsx");
+  assert.match(adminLoaderSrc, /import\s+dynamic\s+from\s+["']next\/dynamic["']/);
+  assert.match(
+    adminLoaderSrc,
+    /dynamic\([\s\S]*?admin-erp-view[\s\S]*?ssr:\s*false[\s\S]*?AdminErpSkeleton[\s\S]*?\)/,
+  );
+
+  const layoutSrc = readProjectFile("src/app/layout.tsx");
+  assert.match(layoutSrc, /import\s*\{[^}]*\bSuspense\b[^}]*\}\s*from\s+["']react["']/);
+  assert.match(layoutSrc, /<Suspense\b[\s\S]*?>[\s\S]*?<RouteProgressBar\s*\/>[\s\S]*?<\/Suspense>/);
 });
