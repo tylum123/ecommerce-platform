@@ -10,6 +10,11 @@ import { categories as snapshotCategoryRoutes, getFeaturedProducts, categoryProd
 import { readCart } from "@/lib/cart";
 import type { LiveCatalogOverridesState } from "@/lib/live-catalog";
 import {
+  handleSmoothImageError,
+  handleSmoothImageLoad,
+  syncCachedImageRef,
+} from "@/lib/smooth-image";
+import {
   ShoppingCart,
   UserRound,
   MapPin,
@@ -211,14 +216,22 @@ export function HomeView({ liveCatalog }: { liveCatalog: LiveCatalogOverridesSta
       compact ? (
         <article className="product" key={product.slug}>
           <Link href={`/san-pham/${product.slug}`}>
-            <div className="product-picture">
+            <div
+              className={product.image ? "product-picture nari-img-frame" : "product-picture"}
+              data-img-frame={product.image ? "true" : undefined}
+            >
               {product.image ? (
                 <Image
                   src={product.image}
                   alt={product.name}
                   width={180}
                   height={180}
+                  loading="lazy"
                   unoptimized
+                  className="nari-smooth-img"
+                  ref={syncCachedImageRef}
+                  onLoad={handleSmoothImageLoad}
+                  onError={handleSmoothImageError}
                   style={{ width: "100%", height: "100%", objectFit: "contain", background: "#fff", padding: 6 }}
                 />
               ) : (
@@ -348,7 +361,19 @@ export function HomeView({ liveCatalog }: { liveCatalog: LiveCatalogOverridesSta
             <div className="hero-side">
               {liveCatalog.banners.sideBanners.length > 0 ? liveCatalog.banners.sideBanners.map((banner) => (
                 <Link href={banner.href} key={banner.id} style={{ padding: 0, overflow: "hidden" }}>
-                  <Image src={banner.src} alt={banner.alt} width={320} height={140} unoptimized style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <Image
+                    src={banner.src}
+                    alt={banner.alt}
+                    width={320}
+                    height={140}
+                    loading="lazy"
+                    unoptimized
+                    className="nari-smooth-img"
+                    ref={syncCachedImageRef}
+                    onLoad={handleSmoothImageLoad}
+                    onError={handleSmoothImageError}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
                 </Link>
               )) : !isPostgres ? <>
               <Link href="/danh-muc/nha-cua-doi-song-c2529.html">
@@ -438,7 +463,12 @@ export function HomeView({ liveCatalog }: { liveCatalog: LiveCatalogOverridesSta
                       alt={c}
                       width={72}
                       height={72}
+                      loading="lazy"
                       unoptimized
+                      className="nari-smooth-img"
+                      ref={syncCachedImageRef}
+                      onLoad={handleSmoothImageLoad}
+                      onError={handleSmoothImageError}
                       style={{
                         width: 72,
                         height: 72,
@@ -523,7 +553,12 @@ export function HomeView({ liveCatalog }: { liveCatalog: LiveCatalogOverridesSta
                       alt={b}
                       width={70}
                       height={70}
+                      loading="lazy"
                       unoptimized
+                      className="nari-smooth-img"
+                      ref={syncCachedImageRef}
+                      onLoad={handleSmoothImageLoad}
+                      onError={handleSmoothImageError}
                       style={{
                         width: 70,
                         height: 70,
@@ -590,8 +625,20 @@ export function HomeView({ liveCatalog }: { liveCatalog: LiveCatalogOverridesSta
               {clinicHighlights.map((item, i) => (
                 <article key={item.slug}>
                   <Link href={`/dich-vu/${item.slug}`}>
-                    <div className={`clinic-image q${i}`} style={{ position: "relative", overflow: "hidden" }}>
-                      <Image src={item.image} alt={item.name} width={300} height={150} unoptimized style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <div className={`clinic-image nari-img-frame q${i}`} data-img-frame="true" style={{ position: "relative", overflow: "hidden" }}>
+                      <Image
+                        src={item.image}
+                        alt={item.name}
+                        width={300}
+                        height={150}
+                        loading="lazy"
+                        unoptimized
+                        className="nari-smooth-img"
+                        ref={syncCachedImageRef}
+                        onLoad={handleSmoothImageLoad}
+                        onError={handleSmoothImageError}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
                     </div>
                     <b>{money(item.price)}</b>
                     <p>{item.name}</p>

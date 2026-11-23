@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -15,17 +16,40 @@ import {
   ShieldCheck,
   Sparkles,
   Flame,
+  Loader2,
 } from "lucide-react";
 import { money, type Product } from "@/lib/catalog";
 import { NARI_CART_DRAWER_OPEN_EVENT, readCart } from "@/lib/cart";
 import { NariHomeLogo } from "@/components/sites/nari/nari-home-logo";
-import { AccountDialog } from "@/components/sites/nari/account-dialog";
-import { LocationDialog } from "@/components/sites/nari/location-dialog";
-import { StorefrontCartDrawer } from "@/components/sites/nari/storefront-cart-drawer";
+import { ModalLoadingOverlay } from "@/components/sites/nari/ui-skeletons";
 import { readLocation, formatLocationShort } from "@/lib/campaigns-location";
 import { AUTH_CHANGE_EVENT } from "@/lib/auth";
 import { CLOSED_SESSION_CAPABILITIES, fetchSessionCapabilities } from "@/lib/session-capabilities";
 import { getInteractiveUiData } from "@/lib/interactive-ui";
+
+const AccountDialog = dynamic(
+  () => import("@/components/sites/nari/account-dialog").then((m) => m.AccountDialog),
+  {
+    ssr: false,
+    loading: () => <ModalLoadingOverlay label="Đang mở tài khoản..." />,
+  },
+);
+
+const LocationDialog = dynamic(
+  () => import("@/components/sites/nari/location-dialog").then((m) => m.LocationDialog),
+  {
+    ssr: false,
+    loading: () => <ModalLoadingOverlay label="Đang tải khu vực giao hàng..." />,
+  },
+);
+
+const StorefrontCartDrawer = dynamic(
+  () =>
+    import("@/components/sites/nari/storefront-cart-drawer").then(
+      (m) => m.StorefrontCartDrawer,
+    ),
+  { ssr: false },
+);
 
 export function Header() {
   const uiData = useMemo(() => getInteractiveUiData(), []);
@@ -51,6 +75,7 @@ export function Header() {
   }>({ query: "", products: [], matchedBrands: [] });
   const liveSearchResults = remoteSearch.query === searchQuery
     ? remoteSearch : { products: [], matchedBrands: [] };
+  const isSearchLoading = searchQuery.trim().length > 0 && remoteSearch.query !== searchQuery;
 
   useEffect(() => {
     if (!searchQuery.trim()) return;
@@ -223,6 +248,13 @@ export function Header() {
                 aria-label="Tìm sản phẩm"
                 placeholder="Tìm sản phẩm, thương hiệu bạn mong muốn tại Nari Home..."
               />
+              {isSearchLoading && (
+                <Loader2
+                  size={15}
+                  className="mr-2 shrink-0 self-center animate-spin text-[#b86b4b]"
+                  aria-hidden="true"
+                />
+              )}
               <button aria-label="Tìm kiếm" type="submit">
                 <Search size={22} />
               </button>
@@ -506,7 +538,27 @@ export function Header() {
                       </div>
                     )}
 
-                    {liveSearchResults.products.length > 0 ? (
+                    {isSearchLoading ? (
+                      <div className="space-y-2 py-1" aria-busy="true" aria-label="Đang tìm kiếm gợi ý">
+                        <div className="flex items-center gap-2 px-1 text-xs text-[#6e5a4f]">
+                          <Loader2 size={15} className="animate-spin text-[#b86b4b]" aria-hidden="true" />
+                          <span>Đang tìm gợi ý...</span>
+                        </div>
+                        {[0, 1, 2].map((idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-2.5 rounded-md bg-[#faf5f0]/70 px-2 py-1.5"
+                          >
+                            <div className="nari-shimmer h-[46px] w-[46px] shrink-0 rounded" />
+                            <div className="min-w-0 flex-1 space-y-1.5">
+                              <div className="nari-shimmer h-3 w-20 rounded" />
+                              <div className="nari-shimmer h-3.5 w-3/4 rounded" />
+                              <div className="nari-shimmer h-3.5 w-24 rounded" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : liveSearchResults.products.length > 0 ? (
                       <div
                         style={{
                           display: "flex",

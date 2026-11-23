@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingCart, CheckCircle2, MapPin, Truck, AlertTriangle, Copy, Check } from "lucide-react";
+import { ShoppingCart, CheckCircle2, MapPin, Truck, AlertTriangle, Copy, Check, Loader2 } from "lucide-react";
 import { readCart } from "@/lib/cart";
 import { money, findCatalogProduct } from "@/lib/catalog";
 import type { StoreBranchInfo } from "@/lib/backend-contracts";
@@ -550,8 +550,26 @@ export function CheckoutView({
               </div>
               <p>Giá đã bao gồm thuế VAT và dịch vụ NariNow 2H.</p>
               {submitError && <p role="alert" style={{ color: "#b91c1c", fontSize: 13 }}>{submitError}</p>}
-              <button type="submit" form="checkout-form" disabled={submitting || review} style={{ background: "#3d2e24", color: "#fff", fontWeight: "bold" }}>
-                {submitting ? "ĐANG GỬI..." : "ĐẶT HÀNG NGAY"}
+              <button
+                type="submit"
+                form="checkout-form"
+                disabled={submitting || review}
+                style={{
+                  background: "#3d2e24",
+                  color: "#fff",
+                  fontWeight: "bold",
+                  cursor: submitting ? "wait" : "pointer",
+                  opacity: submitting ? 0.8 : 1,
+                }}
+              >
+                {submitting ? (
+                  <span className="inline-flex items-center justify-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                    ĐANG XỬ LÝ ĐƠN HÀNG...
+                  </span>
+                ) : (
+                  "ĐẶT HÀNG NGAY"
+                )}
               </button>
             </aside>
           </div>

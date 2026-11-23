@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { RouteProgressBar } from "@/components/sites/nari/route-progress-bar";
 import "./globals.css";
 
 const beVietnamPro = localFont({
@@ -34,7 +36,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" className={`${beVietnamPro.variable} ${cormorantGaramond.variable}`}>
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        <Suspense fallback={null}>
+          <RouteProgressBar />
+        </Suspense>
+        {children}
+      </body>
     </html>
   );
 }

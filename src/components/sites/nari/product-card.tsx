@@ -10,6 +10,11 @@ import {
   computeGiftBillPromo,
   computeProductEnglishSubtitle,
 } from "@/lib/interactive-ui";
+import {
+  handleSmoothImageError,
+  handleSmoothImageLoad,
+  syncCachedImageRef,
+} from "@/lib/smooth-image";
 
 export function ProductCard({
   product,
@@ -46,14 +51,23 @@ export function ProductCard({
   return (
     <article className="product flex flex-col">
       <Link className="block flex-1" href={`/san-pham/${product.slug}`}>
-      <div className="product-picture" style={{ position: "relative" }}>
+      <div
+        className={product.image ? "product-picture nari-img-frame" : "product-picture"}
+        data-img-frame={product.image ? "true" : undefined}
+        style={{ position: "relative" }}
+      >
         {product.image ? (
           <Image
             src={product.image}
             alt={product.name}
             width={220}
             height={220}
+            loading="lazy"
             unoptimized
+            className="nari-smooth-img"
+            ref={syncCachedImageRef}
+            onLoad={handleSmoothImageLoad}
+            onError={handleSmoothImageError}
             style={{
               width: "100%",
               height: "100%",

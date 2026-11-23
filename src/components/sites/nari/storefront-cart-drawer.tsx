@@ -5,6 +5,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { CheckCircle2, ShoppingBag, ShoppingCart, Trash2, Truck, X } from "lucide-react";
 import { money } from "@/lib/catalog";
+import { CartDrawerItemsSkeleton } from "@/components/sites/nari/ui-skeletons";
+import {
+  handleSmoothImageError,
+  handleSmoothImageLoad,
+  syncCachedImageRef,
+} from "@/lib/smooth-image";
 import {
   FREE_SHIPPING_THRESHOLD,
   NARI_CART_DRAWER_OPEN_EVENT,
@@ -279,7 +285,9 @@ export function StorefrontCartDrawer() {
 
             <div className="flex-1 overflow-y-auto px-5 py-4">
               {loadingCatalog && resolvedRows.length > 0 && (
-                <p className="mb-3 text-xs text-[#6e5a4f]">Đang đồng bộ giá và hình ảnh sản phẩm…</p>
+                <div className="mb-3">
+                  <CartDrawerItemsSkeleton count={Math.min(3, resolvedRows.length)} />
+                </div>
               )}
 
               {resolvedRows.length === 0 ? (
@@ -306,7 +314,8 @@ export function StorefrontCartDrawer() {
                       <Link
                         href={`/san-pham/${slug}`}
                         onClick={() => setOpen(false)}
-                        className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded border border-[#f0e4d7] bg-white p-1"
+                        data-img-frame={product.image ? "true" : undefined}
+                        className={`flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded border border-[#f0e4d7] bg-white p-1${product.image ? " nari-img-frame" : ""}`}
                       >
                         {product.image ? (
                           <Image
@@ -314,8 +323,12 @@ export function StorefrontCartDrawer() {
                             alt={product.name}
                             width={60}
                             height={60}
+                            loading="lazy"
                             unoptimized
-                            className="h-full w-full object-contain"
+                            ref={syncCachedImageRef}
+                            onLoad={handleSmoothImageLoad}
+                            onError={handleSmoothImageError}
+                            className="nari-smooth-img h-full w-full object-contain"
                           />
                         ) : (
                           <span className="text-[10px] font-bold text-[#9e8c80]">NARI</span>

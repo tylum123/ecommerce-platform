@@ -1,7 +1,8 @@
 import { cookies, headers } from "next/headers";
 import { NextRequest } from "next/server";
 import { redirect } from "next/navigation";
-import { AdminErpView, AdminAccessDenied } from "@/components/sites/nari/admin-erp-view";
+import { AdminAccessDenied } from "@/components/sites/nari/admin-access-denied";
+import { AdminErpLoader } from "@/components/sites/nari/admin-erp-loader";
 import {
   AUTH_COOKIE_NAME,
   verifySignedSessionToken,
@@ -48,7 +49,7 @@ export default async function QuanTriPage() {
       return <AdminAccessDenied user={user} />;
     }
 
-    return <AdminErpView initialSession={user} />;
+    return <AdminErpLoader initialSession={user} />;
   }
 
   const cookieStore = await cookies();
@@ -75,5 +76,5 @@ export default async function QuanTriPage() {
     return <AdminAccessDenied user={user} />;
   }
 
-  return <AdminErpView />;
+  return <AdminErpLoader />;
 }

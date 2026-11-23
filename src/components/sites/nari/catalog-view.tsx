@@ -26,10 +26,33 @@ import {
   getAllCatalogProducts,
   findCatalogProduct,
 } from "@/lib/catalog";
+import dynamic from "next/dynamic";
 import { ProductCard } from "@/components/sites/nari/product-card";
 import type { LiveCatalogOverridesState } from "@/lib/live-catalog";
-import { ProductRichSections } from "@/components/sites/nari/product-rich-sections";
 import { getRichProductDetail } from "@/lib/product-details";
+
+const ProductRichSections = dynamic(
+  () =>
+    import("@/components/sites/nari/product-rich-sections").then(
+      (mod) => mod.ProductRichSections,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="section mt-4 space-y-3" aria-busy="true" aria-label="Đang tải chi tiết sản phẩm">
+        <div className="flex gap-4 border-b border-[#ebd6c4] pb-3">
+          <div className="nari-shimmer h-5 w-24 rounded" />
+          <div className="nari-shimmer h-5 w-24 rounded" />
+          <div className="nari-shimmer h-5 w-28 rounded" />
+        </div>
+        <div className="nari-shimmer h-4 w-3/4 rounded" />
+        <div className="nari-shimmer h-4 w-full rounded" />
+        <div className="nari-shimmer h-4 w-5/6 rounded" />
+        <div className="nari-shimmer h-32 w-full rounded" />
+      </div>
+    ),
+  },
+);
 import {
   getCategoryFacets,
   matchesDynamicFacet,

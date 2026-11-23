@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
+import { Loader2 } from "lucide-react";
 import type { LiveProductOverride, LiveCatalogOverridesState, ManagedCatalogProduct } from "@/lib/live-catalog";
 import { AdminBannerEditor } from "@/components/sites/nari/admin-banner-editor";
+import { AdminTableSkeleton } from "@/components/sites/nari/ui-skeletons";
 
 type ManagedProduct = ManagedCatalogProduct;
 interface CategoryOption { id: string; label: string; slug: string }
@@ -258,7 +260,10 @@ export function AdminProductsView() {
               <label className="text-sm">Tên hiển thị<input required maxLength={200} value={referenceForm.label} onChange={e => setReferenceForm({ ...referenceForm, label: e.target.value })} className={inputClass} /></label>
               <label className="text-sm">Đường dẫn<input required maxLength={125} pattern="[a-z0-9]([a-z0-9]|-){0,119}([.]html)?" value={referenceForm.slug} onChange={e => setReferenceForm({ ...referenceForm, slug: e.target.value })} className={inputClass} /></label>
               {referenceForm.kind === "category" && <label className="text-sm">Danh mục cha (không bắt buộc)<select value={referenceForm.parentId} onChange={e => setReferenceForm({ ...referenceForm, parentId: e.target.value })} className={inputClass}><option value="">Danh mục gốc</option>{categories.map(category => <option key={category.id} value={category.id}>{category.label}</option>)}</select></label>}
-              <button disabled={busy} className="rounded-lg bg-[#173a2b] px-5 py-2 text-sm text-white disabled:opacity-50">Tạo {referenceForm.kind === "brand" ? "thương hiệu" : "danh mục"}</button>
+              <button disabled={busy} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#173a2b] px-5 py-2 text-sm text-white disabled:opacity-50">
+                {saving && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+                <span>Tạo {referenceForm.kind === "brand" ? "thương hiệu" : "danh mục"}</span>
+              </button>
             </fieldset>
           </form>
         </section>
@@ -285,7 +290,10 @@ export function AdminProductsView() {
               <label className="text-sm sm:col-span-2">Thông số (mỗi dòng: tên|giá trị)<textarea rows={3} value={form.specsText} onChange={(e) => setForm({ ...form, specsText: e.target.value })} className={inputClass} /></label>
             </fieldset>
             <div className="mt-4 flex flex-wrap gap-3">
-              <button disabled={busy || categories.length === 0 || brands.length === 0} className="rounded-lg bg-[#173a2b] px-5 py-2 text-sm text-white disabled:opacity-50">{saving ? "Đang lưu…" : uploading ? "Đang tải ảnh…" : "Lưu sản phẩm"}</button>
+              <button disabled={busy || categories.length === 0 || brands.length === 0} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#173a2b] px-5 py-2 text-sm text-white disabled:opacity-50">
+                {(saving || uploading) && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+                <span>{saving ? "Đang lưu…" : uploading ? "Đang tải ảnh…" : "Lưu sản phẩm"}</span>
+              </button>
               <button type="button" disabled={busy} onClick={() => { setForm(emptyProduct); setEditing(false); setNotice(""); }} className="rounded-lg border px-5 py-2 text-sm disabled:opacity-50">Tạo mới</button>
             </div>
           </form>
@@ -294,12 +302,15 @@ export function AdminProductsView() {
         <section aria-labelledby="list-title" aria-busy={loading} className="mt-6 rounded-xl border border-gray-200 bg-white p-5">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <h2 id="list-title" className="text-lg font-semibold">Danh sách sản phẩm</h2>
-            <button type="button" disabled={busy} onClick={() => { void loadProducts(); }} className="rounded-lg border px-4 py-2 text-sm disabled:opacity-50">{loading ? "Đang tải…" : "Tải lại"}</button>
+            <button type="button" disabled={busy} onClick={() => { void loadProducts(); }} className="inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm disabled:opacity-50">
+              {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+              <span>{loading ? "Đang tải…" : "Tải lại"}</span>
+            </button>
           </div>
           <label className="mt-4 block text-sm">Tìm tên hoặc SKU<input type="search" value={query} onChange={(e) => setQuery(e.target.value)} className={inputClass} /></label>
           <label className="mt-4 block text-sm">Hiển thị<select value={visibility} onChange={(e) => setVisibility(e.target.value)} className={inputClass}><option value="visible">Đang hiển thị</option><option value="hidden">Đã ẩn</option><option value="all">Tất cả</option></select></label>
           {saving && <p role="status" className="mt-3 text-sm">Đang gửi thay đổi tới máy chủ…</p>}
-          {loading ? <p role="status" className="py-6 text-sm">Đang tải danh mục…</p> : filtered.length === 0 ? <p className="py-6 text-sm text-gray-600">{error ? "Chưa có danh mục được tải thành công." : "Không có sản phẩm phù hợp."}</p> : (
+          {loading ? <AdminTableSkeleton rows={5} /> : filtered.length === 0 ? <p className="py-6 text-sm text-gray-600">{error ? "Chưa có danh mục được tải thành công." : "Không có sản phẩm phù hợp."}</p> : (
             <div className="mt-4 max-h-[600px] overflow-auto">
               <table className="w-full text-left text-sm"><thead><tr className="border-b"><th className="p-3">Sản phẩm / SKU</th><th className="p-3">Giá bán</th><th className="p-3">Thao tác</th></tr></thead>
                 <tbody>{filtered.map((product) => <tr key={product.slug} className="border-b"><td className="p-3"><span className="font-medium">{product.name}</span><br /><span className="text-xs text-gray-500">{product.sku} · {product.isDeleted ? "Đã ẩn" : "Đang hiển thị"}</span></td><td className="whitespace-nowrap p-3">{product.price.toLocaleString("vi-VN")} ₫</td><td className="p-3"><div className="flex flex-wrap gap-2"><button disabled={busy || product.isDeleted} onClick={() => editProduct(product)} aria-label={`Sửa ${product.name}`} className="rounded border px-3 py-2 disabled:opacity-50">Sửa</button><button disabled={busy} onClick={() => { void setProductHidden(product); }} aria-label={`${product.isDeleted ? "Khôi phục" : "Ẩn"} ${product.name}`} className="rounded border px-3 py-2 disabled:opacity-50">{product.isDeleted ? "Khôi phục" : "Ẩn"}</button></div></td></tr>)}</tbody>

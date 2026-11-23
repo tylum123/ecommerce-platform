@@ -4,7 +4,8 @@ import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Header } from "@/components/sites/nari/header";
 import { Footer } from "@/components/sites/nari/footer";
-import { Search, PackageCheck, PhoneCall, AlertCircle } from "lucide-react";
+import { Search, PackageCheck, PhoneCall, AlertCircle, Loader2 } from "lucide-react";
+import { OrderResultSkeleton } from "@/components/sites/nari/ui-skeletons";
 
 interface LookupOrderItem {
   id: string;
@@ -222,10 +223,12 @@ export default function OrderLookupPage() {
                 opacity: loading ? 0.75 : 1,
               }}
             >
-              <Search size={16} />
+              {loading ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <Search size={16} />}
               {loading ? "ĐANG TRA CỨU..." : "TRA CỨU ĐƠN HÀNG"}
             </button>
           </form>
+
+          {loading && <OrderResultSkeleton />}
 
           {errorMessage && (
             <div

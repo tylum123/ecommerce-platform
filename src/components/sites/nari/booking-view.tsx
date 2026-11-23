@@ -3,6 +3,7 @@
 import { useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Loader2 } from "lucide-react";
 import { Header } from "@/components/sites/nari/header";
 import { Footer } from "@/components/sites/nari/footer";
 export interface BookingBranchOption {
@@ -251,31 +252,39 @@ export function BookingView({ initialService = "", branches = [] }: { initialSer
               >
                 ‹
               </button>
-              {dates.slice(week * 7, week * 7 + 7).map(value => {
-                const day = new Date(`${value}T12:00:00`);
-                return (
-                  <button
-                    type="button"
-                    key={value}
-                    className={selectedDate === value ? "selected" : ""}
-                    aria-pressed={selectedDate === value}
-                    onClick={() => {
-                      setDate(value);
-                      setTime("");
-                      setPreview(false);
-                    }}
-                  >
-                    {new Intl.DateTimeFormat("vi-VN", { weekday: "short" }).format(day)}
-                    <br />
-                    <b>
-                      {new Intl.DateTimeFormat("vi-VN", {
-                        day: "2-digit",
-                        month: "2-digit",
-                      }).format(day)}
-                    </b>
-                  </button>
-                );
-              })}
+              {dates.length === 0
+                ? Array.from({ length: 7 }).map((_, index) => (
+                    <div
+                      key={index}
+                      aria-hidden="true"
+                      className="nari-shimmer h-[58px] flex-[1_0_100px] border border-[#ebd6c4]"
+                    />
+                  ))
+                : dates.slice(week * 7, week * 7 + 7).map(value => {
+                    const day = new Date(`${value}T12:00:00`);
+                    return (
+                      <button
+                        type="button"
+                        key={value}
+                        className={selectedDate === value ? "selected" : ""}
+                        aria-pressed={selectedDate === value}
+                        onClick={() => {
+                          setDate(value);
+                          setTime("");
+                          setPreview(false);
+                        }}
+                      >
+                        {new Intl.DateTimeFormat("vi-VN", { weekday: "short" }).format(day)}
+                        <br />
+                        <b>
+                          {new Intl.DateTimeFormat("vi-VN", {
+                            day: "2-digit",
+                            month: "2-digit",
+                          }).format(day)}
+                        </b>
+                      </button>
+                    );
+                  })}
               <button
                 type="button"
                 aria-label="Tuần tiếp theo"
@@ -315,7 +324,16 @@ export function BookingView({ initialService = "", branches = [] }: { initialSer
 
           <div className="booking-actions">
             <Link href="/">Quay lại</Link>
-            <button type="submit" disabled={submitting || preview}>{submitting ? "Đang gửi..." : "Đặt hẹn"}</button>
+            <button type="submit" disabled={submitting || preview}>
+              {submitting ? (
+                <span className="inline-flex items-center justify-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  Đang gửi...
+                </span>
+              ) : (
+                "Đặt hẹn"
+              )}
+            </button>
           </div>
         </form>
 
