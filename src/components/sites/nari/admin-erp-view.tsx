@@ -4,11 +4,8 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  LayoutDashboard,
   Users,
   ShieldCheck,
-  ShoppingBag,
-  Warehouse,
   Bot,
   Search,
   Plus,
@@ -16,7 +13,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   Package,
-  ArrowUpRight,
   Building2,
   DollarSign,
   ChevronRight,
@@ -29,6 +25,8 @@ import {
   Phone,
   Mail,
   LogOut,
+  ShoppingBag,
+  Warehouse,
 } from "lucide-react";
 import type {
   UserRecord,
@@ -43,12 +41,45 @@ import type {
 } from "@/lib/erp-types";
 import { clearAuthSession, type AuthSessionUser } from "@/lib/auth";
 import { logoutProviderSession } from "@/lib/session-capabilities";
+import {
+  BackofficeShell,
+  type BackofficeNavGroup,
+} from "@/components/sites/nari/portal/backoffice-shell";
+import {
+  EmptyStateCard,
+  KpiStatCard,
+  PortalPageHeader,
+  SectionCard,
+  StatusBadge,
+  type StatusTone,
+} from "@/components/sites/nari/portal/portal-ui";
+import { cn } from "@/lib/utils";
 
-// Helper for formatting Vietnamese currency
+type ErpTab = "dashboard" | "users" | "staff" | "orders" | "inventory" | "mcp_seo";
+
+function parseInitialTab(): ErpTab {
+  if (typeof window === "undefined") return "dashboard";
+  const param = new URLSearchParams(window.location.search).get("tab");
+  switch (param) {
+    case "orders":
+      return "orders";
+    case "inventory":
+      return "inventory";
+    case "users":
+      return "users";
+    case "staff":
+      return "staff";
+    case "mcp":
+    case "mcp_seo":
+      return "mcp_seo";
+    default:
+      return "dashboard";
+  }
+}
+
 const formatVND = (value: number) =>
   new Intl.NumberFormat("vi-VN").format(value) + " ₫";
 
-// Helper for formatting date-time
 const formatDateTime = (isoString?: string) => {
   if (!isoString) return "-";
   try {
@@ -64,6 +95,42 @@ const formatDateTime = (isoString?: string) => {
     return isoString;
   }
 };
+
+function getOrderStatusTone(status: ErpOrderStatus): StatusTone {
+  switch (status) {
+    case "delivered":
+      return "success";
+    case "shipping":
+      return "info";
+    case "packing":
+    case "pending":
+      return "warning";
+    case "confirmed":
+      return "accent";
+    case "cancelled":
+      return "neutral";
+    case "returned":
+      return "danger";
+    default:
+      return "neutral";
+  }
+}
+
+function getTierTone(tier: UserTier): StatusTone {
+  switch (tier) {
+    case "Diamond":
+      return "accent";
+    case "Gold":
+      return "warning";
+    case "Silver":
+      return "info";
+    default:
+      return "neutral";
+  }
+}
+
+const modalInputClass =
+  "w-full rounded-xl border border-[#e6d5c5] bg-[#faf5f0]/50 px-3.5 py-2 text-xs text-[#1e1b18] placeholder:text-[#9c877a] transition focus:border-[#b86b4b] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#b86b4b]/15";
 
 interface McpToolDef {
   name: string;
@@ -123,7 +190,7 @@ const DEFAULT_SEO_ROUTES: SeoRouteAudit[] = [
 
 async function executeMcpToolCall(
   selectedMcpTool: string,
-  mcpToolArgs: string
+  mcpToolArgs: string,
 ): Promise<{ elapsed: number; responseJson: string; succeeded: boolean; statusCode: number | null }> {
   const startTime = performance.now();
   try {
@@ -166,7 +233,7 @@ async function executeMcpToolCall(
           id: payload.id,
         },
         null,
-        2
+        2,
       );
     }
 
@@ -190,7 +257,7 @@ async function executeMcpToolCall(
           id: null,
         },
         null,
-        2
+        2,
       ),
     };
   }
@@ -198,9 +265,7 @@ async function executeMcpToolCall(
 
 export function AdminErpView({ initialSession = null }: { initialSession?: AuthSessionUser | null }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<
-    "dashboard" | "users" | "staff" | "orders" | "inventory" | "mcp_seo"
-  >("dashboard");
+  const [activeTab, setActiveTab] = useState<ErpTab>(parseInitialTab);
 
   const [authSession, setAuthSession] = useState<AuthSessionUser | null>(initialSession ?? null);
 
@@ -235,14 +300,24 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
   const [mcpTools] = useState<McpToolDef[]>(DEFAULT_MCP_TOOLS);
   const [selectedMcpTool, setSelectedMcpTool] = useState<string>(DEFAULT_MCP_TOOLS[0].name);
   const [mcpToolArgs, setMcpToolArgs] = useState<string>(
-    JSON.stringify(DEFAULT_MCP_TOOLS[0].defaultArgs, null, 2)
+    JSON.stringify(DEFAULT_MCP_TOOLS[0].defaultArgs, null, 2),
   );
   const [mcpExecuting, setMcpExecuting] = useState(false);
   const [mcpResponse, setMcpResponse] = useState<string | null>(null);
   const [mcpLatency, setMcpLatency] = useState<number | null>(null);
   const [mcpStatus, setMcpStatus] = useState<{ succeeded: boolean; statusCode: number | null } | null>(null);
 
-  // Show Toast
+  const selectTab = useCallback((nextTab: ErpTab) => {
+    setActiveTab(nextTab);
+    if (typeof window !== "undefined") {
+      const nextUrl =
+        nextTab === "dashboard"
+          ? "/quan-tri"
+          : `/quan-tri?tab=${nextTab === "mcp_seo" ? "mcp" : nextTab}`;
+      window.history.replaceState(null, "", nextUrl);
+    }
+  }, []);
+
   const showToast = useCallback((msg: string) => {
     setToastMessage(msg);
     setTimeout(() => {
@@ -262,7 +337,6 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
     router.refresh();
   };
 
-  // Fetch all initial data
   const refreshAllData = useCallback(async () => {
     if (!authSession) {
       setIsLoading(false);
@@ -294,7 +368,7 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
         if (invRes.auditLogs) setAuditLogs(invRes.auditLogs);
       }
     } catch {
-      // In case of network error, graceful handling
+      // Graceful handling on network error
     } finally {
       setIsLoading(false);
     }
@@ -334,7 +408,7 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
           if (invRes.auditLogs) setAuditLogs(invRes.auditLogs);
         }
       } catch {
-        // In case of network error, graceful handling
+        // Graceful handling on network error
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -344,7 +418,7 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
     };
   }, [authSession]);
 
-  // Handle MCP tool switch
+  // MCP tool handlers
   const handleSelectMcpTool = (toolName: string) => {
     setSelectedMcpTool(toolName);
     const tool = mcpTools.find((t) => t.name === toolName);
@@ -356,12 +430,11 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
     setMcpStatus(null);
   };
 
-  // Execute MCP Tool
   const handleExecuteMcpTool = async () => {
     setMcpExecuting(true);
     const { elapsed, responseJson, succeeded, statusCode } = await executeMcpToolCall(
       selectedMcpTool,
-      mcpToolArgs
+      mcpToolArgs,
     );
     setMcpLatency(elapsed);
     setMcpResponse(responseJson);
@@ -372,7 +445,7 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
       showToast(
         statusCode
           ? `Lỗi thực thi [${selectedMcpTool}] (HTTP ${statusCode})`
-          : `Không thể thực thi [${selectedMcpTool}]`
+          : `Không thể thực thi [${selectedMcpTool}]`,
       );
     }
     setMcpExecuting(false);
@@ -418,17 +491,22 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
   };
 
   // Order Actions
-  const handleAdvanceOrderStatus = async (
-    orderId: string,
-    nextStatus: ErpOrderStatus
-  ) => {
+  const handleAdvanceOrderStatus = async (orderId: string, nextStatus: ErpOrderStatus) => {
     const currentOrder = orders.find((o) => o.id === orderId) || selectedOrder;
     if (nextStatus === "cancelled") {
-      if (!window.confirm(`Xác nhận hủy đơn hàng ${currentOrder?.orderCode || orderId} và hoàn lại tồn kho?`)) {
+      if (
+        !window.confirm(
+          `Xác nhận hủy đơn hàng ${currentOrder?.orderCode || orderId} và hoàn lại tồn kho?`,
+        )
+      ) {
         return;
       }
     } else if (nextStatus === "returned") {
-      if (!window.confirm(`Xác nhận chuyển đơn hàng ${currentOrder?.orderCode || orderId} sang trạng thái Hoàn đơn?`)) {
+      if (
+        !window.confirm(
+          `Xác nhận chuyển đơn hàng ${currentOrder?.orderCode || orderId} sang trạng thái Hoàn đơn?`,
+        )
+      ) {
         return;
       }
     }
@@ -449,7 +527,6 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
           setSelectedOrder(data.order);
         }
         showToast(`Đơn hàng ${data.order.orderCode} đã cập nhật: ${data.order.statusLabel}`);
-        // Refresh KPIs in background
         fetch("/api/admin/orders?includeKpis=true")
           .then((r) => r.json())
           .then((r) => {
@@ -482,7 +559,9 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
         body: JSON.stringify({
           sku: selectedInventoryItem.sku,
           delta: stockAdjustDelta,
-          reason: stockAdjustReason || (stockAdjustDelta > 0 ? "Nhập kho bổ sung" : "Xuất kho điều chuyển"),
+          reason:
+            stockAdjustReason ||
+            (stockAdjustDelta > 0 ? "Nhập kho bổ sung" : "Xuất kho điều chuyển"),
           branchId: targetBranch,
         }),
       });
@@ -490,11 +569,11 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
       const data = await res.json();
       if (data.success) {
         setInventory((prev) =>
-          prev.map((item) => (item.sku === selectedInventoryItem.sku ? data.updatedItem : item))
+          prev.map((item) => (item.sku === selectedInventoryItem.sku ? data.updatedItem : item)),
         );
         setAuditLogs((prev) => [data.auditLog, ...prev]);
         showToast(
-          `Đã ${stockAdjustDelta > 0 ? "nhập" : "xuất"} ${Math.abs(stockAdjustDelta)} sản phẩm cho SKU ${selectedInventoryItem.sku}`
+          `Đã ${stockAdjustDelta > 0 ? "nhập" : "xuất"} ${Math.abs(stockAdjustDelta)} sản phẩm cho SKU ${selectedInventoryItem.sku}`,
         );
         setSelectedInventoryItem(null);
         setStockAdjustReason("");
@@ -516,7 +595,7 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
         (u) =>
           u.fullName.toLowerCase().includes(q) ||
           u.phone.includes(q) ||
-          u.email.toLowerCase().includes(q)
+          u.email.toLowerCase().includes(q),
       );
     }
     if (userTierFilter !== "all") {
@@ -549,7 +628,7 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
         (i) =>
           i.sku.toLowerCase().includes(q) ||
           i.productName.toLowerCase().includes(q) ||
-          i.brand.toLowerCase().includes(q)
+          i.brand.toLowerCase().includes(q),
       );
     }
     if (inventoryStatusFilter !== "all") {
@@ -558,27 +637,117 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
     return list;
   }, [inventory, inventorySearch, inventoryStatusFilter]);
 
+  const pendingOrdersCount = useMemo(
+    () => orders.filter((o) => o.status === "pending").length,
+    [orders],
+  );
+  const lowStockCount = useMemo(
+    () => inventory.filter((i) => i.warehouseStatus === "low_stock").length,
+    [inventory],
+  );
+
+  const navGroups: BackofficeNavGroup[] = useMemo(
+    () => [
+      {
+        title: "Vận hành",
+        items: [
+          {
+            id: "dashboard",
+            label: "Tổng quan ERP",
+            icon: "dashboard",
+            active: activeTab === "dashboard",
+            onSelect: () => selectTab("dashboard"),
+          },
+          {
+            id: "orders",
+            label: "Đơn hàng Fulfillment",
+            icon: "orders",
+            active: activeTab === "orders",
+            badge: pendingOrdersCount > 0 ? pendingOrdersCount : undefined,
+            onSelect: () => selectTab("orders"),
+          },
+          {
+            id: "inventory",
+            label: "Tồn kho chi nhánh",
+            icon: "inventory",
+            active: activeTab === "inventory",
+            badge: lowStockCount > 0 ? lowStockCount : undefined,
+            onSelect: () => selectTab("inventory"),
+          },
+          {
+            id: "products",
+            label: "Quản lý sản phẩm & Banner",
+            icon: "products",
+            href: "/quan-tri/san-pham",
+          },
+        ],
+      },
+      {
+        title: "Khách hàng & Tổ chức",
+        items: [
+          {
+            id: "users",
+            label: "Khách hàng CRM",
+            icon: "users",
+            active: activeTab === "users",
+            badge: users.length > 0 ? users.length : undefined,
+            onSelect: () => selectTab("users"),
+          },
+          {
+            id: "staff",
+            label: "Nhân sự & Chi nhánh",
+            icon: "staff",
+            active: activeTab === "staff",
+            badge: staffList.length > 0 ? staffList.length : undefined,
+            onSelect: () => selectTab("staff"),
+          },
+        ],
+      },
+      {
+        title: "Hệ thống",
+        items: [
+          {
+            id: "mcp",
+            label: "SEO & MCP",
+            icon: "mcp",
+            active: activeTab === "mcp_seo",
+            onSelect: () => selectTab("mcp_seo"),
+          },
+          {
+            id: "staff-portal",
+            label: "Cổng nhân viên",
+            icon: "store",
+            href: "/nhan-vien",
+          },
+        ],
+      },
+    ],
+    [activeTab, lowStockCount, pendingOrdersCount, selectTab, staffList.length, users.length],
+  );
+
   if (!authSession) {
     return (
-      <div className="min-h-screen bg-[#f3f6f4] text-[#1e2922] py-16 px-4">
-        <div className="wrap max-w-lg mx-auto bg-white rounded-xl border border-gray-200 p-8 text-center shadow-sm">
-          <Lock className="w-10 h-10 text-[#3d2e24] mx-auto mb-3" />
-          <h1 className="text-lg font-bold text-gray-900 mb-2">
-            Khu vực Quản trị Nội bộ (Yêu cầu xác thực)
+      <div className="flex min-h-screen items-center justify-center bg-[#faf5f0] px-4 py-16 text-[#1e1b18]">
+        <div className="w-full max-w-lg rounded-2xl border border-[#e6d5c5] bg-white p-8 text-center shadow-[0_4px_24px_rgba(61,46,36,0.06)]">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f6ece3] text-[#3d2e24]">
+            <Lock className="h-6 w-6" />
+          </div>
+          <h1 className="font-display text-xl font-semibold text-[#3d2e24]">
+            Khu vực Quản trị Nội bộ
           </h1>
-          <p className="text-sm text-gray-600 mb-6">
+          <p className="mt-2 text-sm text-[#6e5a4f]">
             Cổng Quản trị ERP chỉ dành cho nhân sự được cấp quyền. Vui lòng đăng nhập tài khoản quản trị để tiếp tục.
           </p>
-          <div className="flex justify-center gap-3">
+          <div className="mt-6 flex justify-center gap-3">
             <Link
               href="/dang-nhap"
-              className="bg-[#3d2e24] text-white px-5 py-2.5 rounded-md text-sm font-semibold"
+              className="rounded-xl bg-[#3d2e24] px-5 py-2.5 text-sm font-semibold text-[#faf5f0] transition hover:bg-[#2a1f18]"
             >
               Đến trang đăng nhập
             </Link>
             <Link
               href="/"
-              className="border border-gray-300 text-gray-700 px-5 py-2.5 rounded-md text-sm font-semibold"
+              className="rounded-xl border border-[#e6d5c5] bg-white px-5 py-2.5 text-sm font-semibold text-[#5c493e] transition hover:bg-[#faf5f0]"
             >
               Về trang chủ
             </Link>
@@ -588,534 +757,315 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
     );
   }
 
+  const roleDisplay =
+    authSession.role === "admin"
+      ? "Admin ERP"
+      : authSession.role === "warehouse_staff"
+        ? "Quản lý Kho"
+        : authSession.role === "customer"
+          ? "Khách hàng"
+          : authSession.roleLabel;
+
   return (
-    <div className="min-h-screen bg-[#f3f6f4] text-[#1e2922] pb-16">
+    <BackofficeShell
+      sectionLabel="Quản trị ERP"
+      userLabel={authSession.fullName}
+      roleLabel={roleDisplay}
+      branchLabel={authSession.branchName || "Toàn hệ thống Nari Home"}
+      navGroups={navGroups}
+      topbarActions={
+        <>
+          <StatusBadge tone="success" className="hidden sm:inline-flex">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+            <span>Hệ thống ổn định</span>
+          </StatusBadge>
+          <button
+            type="button"
+            onClick={refreshAllData}
+            disabled={isLoading}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[#e6d5c5] bg-white px-3 py-1.5 text-xs font-semibold text-[#3d2e24] transition hover:bg-[#faf5f0] disabled:opacity-50"
+          >
+            <RefreshCw className={cn("h-3.5 w-3.5", isLoading && "animate-spin")} />
+            <span>Đồng bộ</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              void handleLogoutAdmin();
+            }}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50/70 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Đăng xuất</span>
+          </button>
+        </>
+      }
+    >
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#173a2b] text-white px-5 py-3 rounded-lg shadow-xl flex items-center gap-3 border border-[#9e7656]/30 animate-in fade-in slide-in-from-bottom-3 duration-200">
-          <CheckCircle2 className="w-5 h-5 text-[#c8a98e] shrink-0" />
-          <span className="text-sm font-medium">{toastMessage}</span>
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl border border-[#d8b89c]/40 bg-[#3d2e24] px-5 py-3 text-[#faf5f0] shadow-xl">
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-[#d8b89c]" />
+          <span className="text-xs font-medium">{toastMessage}</span>
           <button
+            type="button"
             onClick={() => setToastMessage(null)}
-            className="text-[#d4beaa] hover:text-white ml-2 text-xs"
+            aria-label="Đóng thông báo"
+            className="ml-1 rounded-lg p-0.5 text-[#d8b89c] hover:text-white"
           >
-            ✕
+            <X className="h-3.5 w-3.5" />
           </button>
         </div>
       )}
 
-      {/* Top Banner / Breadcrumb Bar */}
-      <div className="bg-[#3d2e24] text-white border-b border-[#2a1f18]/30">
-        <div className="wrap py-4 px-4 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#2a1f18] flex items-center justify-center border border-[#9e7656]/50 shadow-inner">
-              <Building2 className="w-5 h-5 text-[#efe2d4]" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold tracking-tight">NARI HOME ENTERPRISE ERP</h1>
-                <span className="bg-[#b86b4b] text-white text-[11px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                  Admin Portal v2.6
-                </span>
-              </div>
-              <p className="text-xs text-[#f6ece3]/80">
-                Trung tâm Quản trị Vận hành Bán lẻ, Kho Đa Chi nhánh, Khách hàng & AI MCP Protocols
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 text-xs">
-            <Link href="/quan-tri/san-pham" className="rounded-md border border-[#6e5a4f] px-3 py-2 hover:bg-white/10">
-              Quản lý sản phẩm
-            </Link>
-            <Link href="/nhan-vien" className="rounded-md border border-[#6e5a4f] px-3 py-2 hover:bg-white/10">
-              Màn hình nhân viên
-            </Link>
-            <div className="flex items-center gap-2 bg-[#2a1f18]/40 px-3 py-1.5 rounded-md border border-[#6e5a4f]/40">
-              <span className="w-2 h-2 rounded-full bg-[#d4af37] animate-pulse" />
-              <span>Hệ thống: 100% Hoạt động</span>
-            </div>
-            <div className="flex items-center gap-2 bg-[#2a1f18]/40 px-3 py-1.5 rounded-md border border-[#6e5a4f]/40">
-              <ShieldCheck className="w-4 h-4 text-[#d4beaa]" />
-              <span>
-                {authSession
-                  ? `${authSession.fullName} (${
-                      authSession.role === "admin"
-                        ? "Admin ERP"
-                        : authSession.role === "warehouse_staff"
-                        ? "Quản lý Kho"
-                        : authSession.role === "customer"
-                        ? "Khách hàng"
-                        : authSession.roleLabel
-                    })`
-                  : "Chưa đăng nhập"}
-              </span>
-            </div>
-            <button
-              onClick={refreshAllData}
-              disabled={isLoading}
-              className="flex items-center gap-1.5 bg-white text-[#3d2e24] font-medium px-3 py-1.5 rounded-md hover:bg-[#faf5f0] transition-colors shadow-sm disabled:opacity-50"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
-              <span>Đồng bộ</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Active Admin Session & Role Switcher Bar */}
-        <div className="bg-[#2a1f18] border-t border-[#6e5a4f]/50 px-4 py-2.5">
-          <div className="wrap flex flex-wrap items-center justify-between gap-3 text-xs">
-            {/* Current Session Info */}
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-[#2a1f18] border border-[#9e7656]/50 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
-                  {authSession ? authSession.fullName.charAt(0) : "A"}
-                </div>
-                <div>
-                  <span className="font-bold text-white">
-                    {authSession ? authSession.fullName : "Chưa đăng nhập (Khách vãng lai)"}
-                  </span>
-                  {authSession?.email && (
-                    <span className="text-[#d4beaa]/80 text-[11px] ml-1.5">
-                      ({authSession.email})
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Role Badge */}
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#2a1f18] text-[#efe2d4] border border-[#9e7656]/60 shadow-sm">
-                <ShieldCheck className="w-3 h-3 text-[#c8a98e]" />
-                <span>
-                  {authSession?.role === "admin"
-                    ? "Admin ERP"
-                    : authSession?.role === "warehouse_staff"
-                    ? "Quản lý Kho"
-                    : authSession?.role === "customer"
-                    ? "Khách hàng"
-                    : authSession?.roleLabel || "Khách"}
-                </span>
-              </span>
-
-              {/* Branch */}
-              <span className="text-[#efe2d4]/90 text-[11px] bg-[#2a1f18]/40 px-2 py-0.5 rounded border border-[#6e5a4f]/40 truncate max-w-[280px]">
-                Chi nhánh: <b>{authSession?.branchName || "Toàn hệ thống Nari Home"}</b>
-              </span>
-            </div>
-
-            {/* Session Controls */}
-            <div className="flex flex-wrap items-center gap-2">
-              <Link
-                href="/dang-nhap"
-                className="bg-[#2a1f18]/60 hover:bg-[#2a1f18] text-[#efe2d4] border border-[#9e7656]/40 px-2.5 py-1 rounded text-[11px] font-medium transition-colors"
+      {/* =================================================================== */}
+      {/* TAB 1: TỔNG QUAN ERP (DASHBOARD KPIS)                               */}
+      {/* =================================================================== */}
+      {activeTab === "dashboard" && (
+        <div className="space-y-6">
+          <PortalPageHeader
+            title="Tổng quan vận hành ERP"
+            badge={<StatusBadge tone="accent">Admin Portal</StatusBadge>}
+            actions={
+              <button
+                type="button"
+                onClick={() => setIsNewUserModalOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#3d2e24] px-4 py-2 text-xs font-semibold text-[#faf5f0] shadow-sm transition hover:bg-[#2a1f18]"
               >
-                Tài khoản
-              </Link>
+                <Plus className="h-3.5 w-3.5" />
+                <span>Thêm khách hàng</span>
+              </button>
+            }
+          />
 
-              {authSession && (
+          {/* KPI Cards Grid */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <KpiStatCard
+              label="Tổng doanh thu"
+              value={formatVND(kpis?.totalRevenue || 0)}
+              hint={`Hôm nay: ${formatVND(kpis?.todayRevenue || 0)}`}
+              icon={<DollarSign className="h-4 w-4" />}
+              tone="accent"
+            />
+            <KpiStatCard
+              label="Đơn hàng vận hành"
+              value={kpis?.totalOrders || 0}
+              hint={`${kpis?.pendingOrdersCount || 0} chờ xử lý · ${kpis?.packingShippingCount || 0} đang giao`}
+              icon={<Package className="h-4 w-4" />}
+            />
+            <KpiStatCard
+              label="Khách hàng hội viên"
+              value={kpis?.totalCustomers || 0}
+              hint={`${kpis?.activeCustomers || 0} tài khoản đang hoạt động`}
+              icon={<Users className="h-4 w-4" />}
+            />
+            <KpiStatCard
+              label="Cảnh báo tồn kho"
+              value={`${kpis?.lowStockCount || 0} SKU`}
+              hint="Dưới định mức tái đặt hàng (< 20 sp)"
+              icon={<AlertTriangle className="h-4 w-4" />}
+              tone={(kpis?.lowStockCount || 0) > 0 ? "warning" : "default"}
+            />
+          </div>
+
+          {/* Two Column Layout: Low Stock Warning + Recent Audit Logs */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <SectionCard
+              title="Sản phẩm cần nhập kho gấp"
+              description="Các SKU có số lượng dưới ngưỡng an toàn trên toàn hệ thống."
+              actions={
                 <button
                   type="button"
                   onClick={() => {
-                    void handleLogoutAdmin();
+                    setInventoryStatusFilter("low_stock");
+                    selectTab("inventory");
                   }}
-                  className="bg-red-950/70 hover:bg-red-900 text-red-200 border border-red-700/50 px-2.5 py-1 rounded text-[11px] font-medium transition-colors flex items-center gap-1"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-[#b86b4b] hover:underline"
                 >
-                  <LogOut className="w-3 h-3" />
-                  <span>Đăng xuất</span>
+                  <span>Xem tất cả</span>
+                  <ChevronRight className="h-3.5 w-3.5" />
                 </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation Tab Bar */}
-      <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30">
-        <div className="wrap px-4 flex items-center overflow-x-auto no-scrollbar">
-          <button
-            onClick={() => setActiveTab("dashboard")}
-            className={`flex items-center gap-2 py-3 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
-              activeTab === "dashboard"
-                ? "border-[#3d2e24] text-[#3d2e24] bg-[#faf5f0]/80"
-                : "border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-            }`}
-          >
-            <LayoutDashboard className="w-4 h-4" />
-            <span>Tổng quan ERP</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("users")}
-            className={`flex items-center gap-2 py-3 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
-              activeTab === "users"
-                ? "border-[#3d2e24] text-[#3d2e24] bg-[#faf5f0]/80"
-                : "border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            <span>Khách hàng & Hội viên</span>
-            <span className="bg-gray-100 text-gray-600 text-[11px] px-2 py-0.5 rounded-full font-bold">
-              {users.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("staff")}
-            className={`flex items-center gap-2 py-3 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
-              activeTab === "staff"
-                ? "border-[#3d2e24] text-[#3d2e24] bg-[#faf5f0]/80"
-                : "border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-            }`}
-          >
-            <ShieldCheck className="w-4 h-4" />
-            <span>Nhân sự & RBAC</span>
-            <span className="bg-gray-100 text-gray-600 text-[11px] px-2 py-0.5 rounded-full font-bold">
-              {staffList.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("orders")}
-            className={`flex items-center gap-2 py-3 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
-              activeTab === "orders"
-                ? "border-[#3d2e24] text-[#3d2e24] bg-[#faf5f0]/80"
-                : "border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-            }`}
-          >
-            <ShoppingBag className="w-4 h-4" />
-            <span>Đơn hàng & Điều phối</span>
-            {orders.some((o) => o.status === "pending") && (
-              <span className="bg-red-500 text-white text-[11px] px-1.5 py-0.2 rounded-full font-bold">
-                {orders.filter((o) => o.status === "pending").length}
-              </span>
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveTab("inventory")}
-            className={`flex items-center gap-2 py-3 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
-              activeTab === "inventory"
-                ? "border-[#3d2e24] text-[#3d2e24] bg-[#faf5f0]/80"
-                : "border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-            }`}
-          >
-            <Warehouse className="w-4 h-4" />
-            <span>Kho hàng & Đa chi nhánh</span>
-            {inventory.some((i) => i.warehouseStatus === "low_stock") && (
-              <span className="bg-[#b86b4b] text-white text-[11px] px-1.5 py-0.2 rounded-full font-bold">
-                {inventory.filter((i) => i.warehouseStatus === "low_stock").length} cảnh báo
-              </span>
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveTab("mcp_seo")}
-            className={`flex items-center gap-2 py-3 px-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
-              activeTab === "mcp_seo"
-                ? "border-[#3d2e24] text-[#3d2e24] bg-[#faf5f0]/80"
-                : "border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-            }`}
-          >
-            <Bot className="w-4 h-4 text-[#3d2e24]" />
-            <span>AI MCP & SEO Hub</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Main Content Area */}
-      <div className="wrap px-4 mt-6">
-        {/* ========================================================================= */}
-        {/* TAB 1: TỔNG QUAN ERP (DASHBOARD KPIS)                                    */}
-        {/* ========================================================================= */}
-        {activeTab === "dashboard" && (
-          <div className="space-y-6">
-            {/* KPI Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Tổng Doanh Thu
-                    </p>
-                    <p className="text-2xl font-black text-gray-900 mt-1">
-                      {formatVND(kpis?.totalRevenue || 0)}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 rounded-lg bg-[#faf5f0] text-[#3d2e24] flex items-center justify-center">
-                    <DollarSign className="w-6 h-6" />
-                  </div>
-                </div>
-                <div className="mt-3 flex items-center gap-1.5 text-xs text-[#3d2e24] font-medium">
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                  <span>Hôm nay: {formatVND(kpis?.todayRevenue || 0)}</span>
-                </div>
-              </div>
-
-              <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Đơn Hàng Vận Hành
-                    </p>
-                    <p className="text-2xl font-black text-gray-900 mt-1">
-                      {kpis?.totalOrders || 0}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 rounded-lg bg-orange-50 text-[#b86b4b] flex items-center justify-center">
-                    <Package className="w-6 h-6" />
-                  </div>
-                </div>
-                <div className="mt-3 flex items-center gap-3 text-xs text-gray-600 font-medium">
-                  <span className="text-amber-600 font-bold">
-                    {kpis?.pendingOrdersCount || 0} chờ xử lý
-                  </span>
-                  <span>•</span>
-                  <span className="text-blue-600 font-bold">
-                    {kpis?.packingShippingCount || 0} đang giao
-                  </span>
-                </div>
-              </div>
-
-              <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Khách Hàng Hội Viên
-                    </p>
-                    <p className="text-2xl font-black text-gray-900 mt-1">
-                      {kpis?.totalCustomers || 0}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                    <Users className="w-6 h-6" />
-                  </div>
-                </div>
-                <div className="mt-3 flex items-center gap-1.5 text-xs text-gray-600 font-medium">
-                  <span className="text-[#3d2e24] font-bold">
-                    {kpis?.activeCustomers || 0} tài khoản đang hoạt động
-                  </span>
-                </div>
-              </div>
-
-              <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Cảnh Báo Kho Hàng
-                    </p>
-                    <p className="text-2xl font-black text-red-600 mt-1">
-                      {kpis?.lowStockCount || 0} SKU
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
-                    <AlertTriangle className="w-6 h-6" />
-                  </div>
-                </div>
-                <div className="mt-3 flex items-center gap-1.5 text-xs text-red-600 font-medium">
-                  <span>Dưới định mức tái đặt hàng (Reorder Point &lt; 20)</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Two Column Layout: Low Stock Warning + Recent Audit Logs */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Low Stock Alerts */}
-              <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-                  <div className="flex items-center gap-2">
-                    <AlertTriangle className="w-5 h-5 text-[#b86b4b]" />
-                    <h2 className="font-bold text-gray-900">Sản Phẩm Cần Nhập Kho Gấp</h2>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setInventoryStatusFilter("low_stock");
-                      setActiveTab("inventory");
-                    }}
-                    className="text-xs font-semibold text-[#3d2e24] hover:underline flex items-center gap-1"
-                  >
-                    <span>Xem tất cả</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                <div className="divide-y divide-gray-100 mt-2">
-                  {kpis?.lowStockItems && kpis.lowStockItems.length > 0 ? (
-                    kpis.lowStockItems.map((item) => (
-                      <div
-                        key={item.sku}
-                        className="py-3 flex items-center justify-between gap-4 hover:bg-gray-50/80 px-2 rounded-lg transition-colors"
-                      >
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-mono bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
-                              {item.sku}
-                            </span>
-                            <span className="text-xs font-bold text-gray-800 truncate">
-                              {item.productName}
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-500 mt-0.5">
-                            Thương hiệu: <span className="font-medium text-gray-700">{item.brand}</span> • Giá:{" "}
-                            {formatVND(item.price)}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center gap-3 shrink-0">
-                          <div className="text-right">
-                            <span className="inline-block text-xs font-bold px-2 py-0.5 bg-red-100 text-red-700 rounded-full">
-                              Còn {item.totalStock} sp
-                            </span>
-                          </div>
-                          <button
-                            onClick={() => {
-                              setSelectedInventoryItem(item);
-                              setStockAdjustDelta(20);
-                              setStockAdjustReason("Nhập hàng khẩn cấp do tồn kho dưới mức an toàn");
-                              setActiveTab("inventory");
-                            }}
-                            className="bg-[#faf5f0] text-[#3d2e24] hover:bg-[#3d2e24] hover:text-white px-2.5 py-1 text-xs font-semibold rounded transition-colors"
-                          >
-                            + Nhập
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-xs text-gray-500 py-6 text-center">
-                      Không có sản phẩm nào chạm ngưỡng cảnh báo.
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Recent Audit Logs */}
-              <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-                  <div className="flex items-center gap-2">
-                    <History className="w-5 h-5 text-gray-600" />
-                    <h2 className="font-bold text-gray-900">Nhật Ký Biến Động Kho Vận</h2>
-                  </div>
-                  <button
-                    onClick={() => setActiveTab("inventory")}
-                    className="text-xs font-semibold text-[#3d2e24] hover:underline flex items-center gap-1"
-                  >
-                    <span>Lịch sử chi tiết</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                <div className="divide-y divide-gray-100 mt-2">
-                  {auditLogs.slice(0, 5).map((log) => (
-                    <div key={log.id} className="py-2.5 text-xs hover:bg-gray-50/80 px-2 rounded-lg">
-                      <div className="flex items-center justify-between gap-2">
+              }
+            >
+              {kpis?.lowStockItems && kpis.lowStockItems.length > 0 ? (
+                <div className="divide-y divide-[#efe2d4]">
+                  {kpis.lowStockItems.map((item) => (
+                    <div
+                      key={item.sku}
+                      className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0"
+                    >
+                      <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <span
-                            className={`font-bold px-1.5 py-0.5 rounded text-[10px] ${
-                              log.delta > 0
-                                ? "bg-[#f6ece3] text-[#2a1f18]"
-                                : "bg-orange-100 text-orange-800"
-                            }`}
-                          >
-                            {log.delta > 0 ? `+${log.delta}` : log.delta}
+                          <span className="rounded-md bg-[#faf5f0] px-1.5 py-0.5 font-mono text-[10px] font-semibold text-[#6e5a4f]">
+                            {item.sku}
                           </span>
-                          <span className="font-medium text-gray-800 line-clamp-1">
+                          <span className="truncate text-xs font-semibold text-[#1e1b18]">
+                            {item.productName}
+                          </span>
+                        </div>
+                        <p className="mt-0.5 text-[11px] text-[#7c685c]">
+                          {item.brand} · {formatVND(item.price)}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2.5">
+                        <StatusBadge tone="danger">Còn {item.totalStock} sp</StatusBadge>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedInventoryItem(item);
+                            setStockAdjustDelta(20);
+                            setStockAdjustReason("Nhập hàng khẩn cấp do tồn kho dưới mức an toàn");
+                            selectTab("inventory");
+                          }}
+                          className="rounded-lg border border-[#e6d5c5] bg-[#faf5f0] px-2.5 py-1 text-xs font-semibold text-[#3d2e24] transition hover:bg-[#3d2e24] hover:text-[#faf5f0]"
+                        >
+                          + Nhập
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <EmptyStateCard
+                  icon={<Warehouse className="h-5 w-5" />}
+                  title="Tồn kho đang ở mức an toàn"
+                  description="Không có sản phẩm nào chạm ngưỡng cảnh báo tái đặt hàng."
+                  className="py-8"
+                />
+              )}
+            </SectionCard>
+
+            <SectionCard
+              title="Nhật ký biến động kho vận"
+              description="5 giao dịch nhập xuất kho gần nhất được ghi nhận vào Audit Trail."
+              actions={
+                <button
+                  type="button"
+                  onClick={() => selectTab("inventory")}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-[#b86b4b] hover:underline"
+                >
+                  <span>Lịch sử chi tiết</span>
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </button>
+              }
+            >
+              {auditLogs.length === 0 ? (
+                <EmptyStateCard
+                  icon={<History className="h-5 w-5" />}
+                  title="Chưa có biến động kho gần đây"
+                  className="py-8"
+                />
+              ) : (
+                <div className="divide-y divide-[#efe2d4]">
+                  {auditLogs.slice(0, 5).map((log) => (
+                    <div key={log.id} className="py-2.5 text-xs first:pt-0 last:pb-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex min-w-0 items-center gap-2">
+                          <StatusBadge tone={log.delta > 0 ? "success" : "warning"}>
+                            {log.delta > 0 ? `+${log.delta}` : log.delta}
+                          </StatusBadge>
+                          <span className="truncate font-semibold text-[#1e1b18]">
                             {log.productName}
                           </span>
                         </div>
-                        <span className="text-[11px] text-gray-400 shrink-0">
+                        <span className="shrink-0 text-[11px] text-[#8c7568]">
                           {formatDateTime(log.timestamp)}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between text-gray-500 mt-1">
+                      <div className="mt-1 flex items-center justify-between gap-2 text-[#6e5a4f]">
                         <span className="truncate">{log.reason}</span>
-                        <span className="font-mono text-[10px] bg-gray-100 px-1 rounded shrink-0">
+                        <span className="shrink-0 rounded bg-[#faf5f0] px-1.5 py-0.5 font-mono text-[10px] text-[#5c493e]">
                           {log.staffCode}
                         </span>
                       </div>
                     </div>
                   ))}
                 </div>
-              </div>
-            </div>
+              )}
+            </SectionCard>
+          </div>
 
-            {/* Quick Actions Panel */}
-            <div className="bg-gradient-to-r from-[#173a2b] to-[#3d2e24] text-white p-6 rounded-xl shadow-md flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <h3 className="text-lg font-bold">Lối Tắt Điều Hành Doanh Nghiệp</h3>
-                <p className="text-xs text-[#f6ece3] mt-1 max-w-xl">
-                  Khởi tạo nhanh hồ sơ khách hàng mới, phê duyệt phân quyền nhân sự, xử lý đơn NariNow 2H hoặc kiểm tra các MCP protocol dành cho trợ lý AI.
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2.5">
-                <button
-                  onClick={() => setIsNewUserModalOpen(true)}
-                  className="bg-white text-[#3d2e24] hover:bg-[#faf5f0] px-3.5 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 shadow"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>+ Khách Hàng</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab("staff")}
-                  className="bg-[#2a1f18] hover:bg-[#3d2e24] text-white px-3.5 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 border border-[#9e7656]/40"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Danh Sách Nhân Sự</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab("mcp_seo")}
-                  className="bg-[#b86b4b] hover:bg-[#e85b0d] text-white px-3.5 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 shadow"
-                >
-                  <Bot className="w-3.5 h-3.5" />
-                  <span>Mở AI MCP Playground</span>
-                </button>
-              </div>
+          {/* Quick Actions Panel */}
+          <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#3d2e24]/15 bg-gradient-to-r from-[#3d2e24] via-[#2f231b] to-[#1e1b18] p-6 text-[#faf5f0] shadow-sm">
+            <div>
+              <h2 className="font-display text-lg font-semibold text-[#faf5f0]">
+                Lối tắt điều hành doanh nghiệp
+              </h2>
+              <p className="mt-1 max-w-xl text-xs text-[#e6d5c5]/85">
+                Khởi tạo hồ sơ khách hàng mới, kiểm tra phân quyền nhân sự, xử lý đơn NariNow 2H hoặc kiểm thử các công cụ MCP dành cho trợ lý AI.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => setIsNewUserModalOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#faf5f0] px-3.5 py-2 text-xs font-semibold text-[#3d2e24] transition hover:bg-white"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>Khách hàng mới</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => selectTab("staff")}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-semibold text-[#faf5f0] transition hover:bg-white/15"
+              >
+                <ShieldCheck className="h-3.5 w-3.5" />
+                <span>Nhân sự & RBAC</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => selectTab("mcp_seo")}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#b86b4b] px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-[#9f593c]"
+              >
+                <Bot className="h-3.5 w-3.5" />
+                <span>AI MCP Playground</span>
+              </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* ========================================================================= */}
-        {/* TAB 2: QUẢN LÝ KHÁCH HÀNG (USERS)                                       */}
-        {/* ========================================================================= */}
-        {activeTab === "users" && (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-5">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">Quản Lý Khách Hàng & Hội Viên</h2>
-                <p className="text-xs text-gray-500">
-                  Hệ thống quản lý khách hàng Nari Home, phân loại hạng thẻ và tích lũy điểm thưởng
-                </p>
-              </div>
+      {/* =================================================================== */}
+      {/* TAB 2: QUẢN LÝ KHÁCH HÀNG (USERS)                                   */}
+      {/* =================================================================== */}
+      {activeTab === "users" && (
+        <div className="space-y-6">
+          <PortalPageHeader
+            title="Khách hàng & Hội viên CRM"
+            badge={<StatusBadge tone="accent">{users.length} khách hàng</StatusBadge>}
+            actions={
+              <button
+                type="button"
+                onClick={() => setIsNewUserModalOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#3d2e24] px-4 py-2 text-xs font-semibold text-[#faf5f0] shadow-sm transition hover:bg-[#2a1f18]"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>Thêm khách hàng</span>
+              </button>
+            }
+          />
 
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  onClick={() => setIsNewUserModalOpen(true)}
-                  className="bg-[#3d2e24] hover:bg-[#1e1b18] text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Thêm Khách Hàng</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Filter Bar */}
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              <div className="relative flex-1 min-w-[240px]">
-                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <SectionCard
+            title="Danh sách hội viên"
+            description="Quản lý hạng thẻ thành viên, cộng điểm thưởng và theo dõi tổng chi tiêu."
+          >
+            <div className="mb-4 flex flex-wrap items-center gap-3">
+              <div className="relative min-w-[240px] flex-1">
+                <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9e7656]" />
                 <input
                   type="text"
                   placeholder="Tìm theo tên, số điện thoại, email..."
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-[#3d2e24]"
+                  className="w-full rounded-xl border border-[#e6d5c5] bg-[#faf5f0]/50 py-2 pl-10 pr-3.5 text-xs text-[#1e1b18] placeholder:text-[#9c877a] focus:border-[#b86b4b] focus:bg-white focus:outline-none"
                 />
               </div>
 
               <div className="flex items-center gap-2 text-xs">
-                <span className="text-gray-500">Hạng thẻ:</span>
+                <span className="font-medium text-[#6e5a4f]">Hạng thẻ:</span>
                 <select
                   value={userTierFilter}
                   onChange={(e) => setUserTierFilter(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-2.5 py-1.5 bg-white text-xs"
+                  className="rounded-xl border border-[#e6d5c5] bg-white px-3 py-2 text-xs font-medium text-[#3d2e24] focus:border-[#b86b4b] focus:outline-none"
                 >
                   <option value="all">Tất cả hạng</option>
                   <option value="Member">Member</option>
@@ -1126,454 +1076,427 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
               </div>
             </div>
 
-            {/* Customers Table */}
-            <div className="overflow-x-auto border border-gray-200 rounded-lg">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-gray-50 text-gray-600 font-semibold border-b border-gray-200">
-                  <tr>
-                    <th className="py-3 px-4">Mã KH / Họ Tên</th>
-                    <th className="py-3 px-3">Liên Hệ</th>
-                    <th className="py-3 px-3">Hạng Thẻ</th>
-                    <th className="py-3 px-3 text-right">Điểm Tích Lũy</th>
-                    <th className="py-3 px-3 text-right">Tổng Chi Tiêu</th>
-                    <th className="py-3 px-3 text-center">Trạng Thái</th>
-                    <th className="py-3 px-4 text-right">Thao Tác</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {filteredUsers.map((u) => (
-                    <tr key={u.id} className="hover:bg-gray-50/80 transition-colors">
-                      <td className="py-3 px-4">
-                        <div className="font-bold text-gray-900">{u.fullName}</div>
-                        <span className="text-[10px] font-mono text-gray-400">{u.id}</span>
-                      </td>
-                      <td className="py-3 px-3">
-                        <div className="text-gray-800">{u.phone}</div>
-                        <div className="text-gray-400 text-[11px] truncate max-w-[180px]">
-                          {u.email}
-                        </div>
-                      </td>
-                      <td className="py-3 px-3">
-                        <span
-                          className={`inline-block px-2 py-0.5 rounded-full font-bold text-[10px] ${
-                            u.tier === "Diamond"
-                              ? "bg-purple-100 text-purple-700 border border-purple-200"
-                              : u.tier === "Gold"
-                              ? "bg-amber-100 text-amber-700 border border-amber-200"
-                              : u.tier === "Silver"
-                              ? "bg-slate-100 text-slate-700 border border-slate-200"
-                              : "bg-gray-100 text-gray-600"
-                          }`}
-                        >
-                          {u.tier}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 text-right font-bold text-[#3d2e24]">
-                        {u.loyaltyPoints} pts
-                      </td>
-                      <td className="py-3 px-3 text-right font-semibold text-gray-800">
-                        {formatVND(u.totalSpent)}
-                        <span className="block text-[10px] text-gray-400 font-normal">
-                          {u.ordersCount} đơn
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 text-center">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                            u.status === "active"
-                              ? "bg-[#faf5f0] text-[#3d2e24]"
-                              : "bg-red-50 text-red-600"
-                          }`}
-                        >
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              u.status === "active" ? "bg-[#9e7656]" : "bg-red-500"
-                            }`}
-                          />
-                          {u.status === "active" ? "Hoạt động" : "Bị khóa"}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            onClick={() => handleUpdateUserPoints(u.id, 100)}
-                            title="Tặng 100 điểm thưởng"
-                            className="bg-[#faf5f0] hover:bg-[#f6ece3] text-[#3d2e24] px-2 py-1 rounded text-[11px] font-semibold transition-colors"
-                          >
-                            +100 pts
-                          </button>
-                          <select
-                            value={u.tier}
-                            onChange={(e) => handleChangeUserTier(u.id, e.target.value as UserTier)}
-                            className="text-[10px] border border-gray-300 rounded px-1.5 py-1 bg-white"
-                          >
-                            <option value="Member">Member</option>
-                            <option value="Silver">Silver</option>
-                            <option value="Gold">Gold</option>
-                            <option value="Diamond">Diamond</option>
-                          </select>
-                        </div>
-                      </td>
+            {filteredUsers.length === 0 ? (
+              <EmptyStateCard
+                icon={<Users className="h-6 w-6" />}
+                title="Không có khách hàng phù hợp"
+                description="Thử điều chỉnh từ khóa tìm kiếm hoặc bộ lọc hạng thẻ."
+              />
+            ) : (
+              <div className="overflow-x-auto rounded-xl border border-[#efe2d4]">
+                <table className="w-full text-left text-xs">
+                  <thead className="border-b border-[#efe2d4] bg-[#faf5f0] text-[11px] font-semibold uppercase tracking-wider text-[#6e5a4f]">
+                    <tr>
+                      <th className="px-4 py-3">Mã KH / Họ tên</th>
+                      <th className="px-3 py-3">Liên hệ</th>
+                      <th className="px-3 py-3">Hạng thẻ</th>
+                      <th className="px-3 py-3 text-right">Điểm tích lũy</th>
+                      <th className="px-3 py-3 text-right">Tổng chi tiêu</th>
+                      <th className="px-3 py-3 text-center">Trạng thái</th>
+                      <th className="px-4 py-3 text-right">Thao tác</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* TAB 3: QUẢN LÝ NHÂN VIÊN (STAFF & RBAC)                                  */}
-        {/* ========================================================================= */}
-        {activeTab === "staff" && (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-5">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">Quản Lý Nhân Sự & Phân Quyền (RBAC)</h2>
-                <p className="text-xs text-gray-500">
-                  Danh sách nhân sự đồng bộ trực tiếp từ nari_identity.provisioned_identities trên PostgreSQL
-                </p>
+                  </thead>
+                  <tbody className="divide-y divide-[#efe2d4]/70 bg-white">
+                    {filteredUsers.map((u) => (
+                      <tr key={u.id} className="transition-colors hover:bg-[#faf5f0]/60">
+                        <td className="px-4 py-3">
+                          <div className="font-semibold text-[#1e1b18]">{u.fullName}</div>
+                          <span className="font-mono text-[10px] text-[#8c7568]">{u.id}</span>
+                        </td>
+                        <td className="px-3 py-3">
+                          <div className="text-[#3d2e24]">{u.phone}</div>
+                          <div className="max-w-[180px] truncate text-[11px] text-[#8c7568]">
+                            {u.email}
+                          </div>
+                        </td>
+                        <td className="px-3 py-3">
+                          <StatusBadge tone={getTierTone(u.tier)}>{u.tier}</StatusBadge>
+                        </td>
+                        <td className="px-3 py-3 text-right font-bold text-[#3d2e24]">
+                          {u.loyaltyPoints} pts
+                        </td>
+                        <td className="px-3 py-3 text-right font-semibold text-[#1e1b18]">
+                          {formatVND(u.totalSpent)}
+                          <span className="block text-[10px] font-normal text-[#8c7568]">
+                            {u.ordersCount} đơn
+                          </span>
+                        </td>
+                        <td className="px-3 py-3 text-center">
+                          <StatusBadge tone={u.status === "active" ? "success" : "danger"}>
+                            {u.status === "active" ? "Hoạt động" : "Bị khóa"}
+                          </StatusBadge>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateUserPoints(u.id, 100)}
+                              title="Tặng 100 điểm thưởng"
+                              className="rounded-lg border border-[#e6d5c5] bg-[#faf5f0] px-2.5 py-1 text-[11px] font-semibold text-[#3d2e24] transition hover:bg-[#f6ece3]"
+                            >
+                              +100 pts
+                            </button>
+                            <select
+                              value={u.tier}
+                              aria-label={`Đổi hạng thẻ cho ${u.fullName}`}
+                              onChange={(e) => handleChangeUserTier(u.id, e.target.value as UserTier)}
+                              className="rounded-lg border border-[#e6d5c5] bg-white px-2 py-1 text-[11px] font-medium text-[#3d2e24]"
+                            >
+                              <option value="Member">Member</option>
+                              <option value="Silver">Silver</option>
+                              <option value="Gold">Gold</option>
+                              <option value="Diamond">Diamond</option>
+                            </select>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
+            )}
+          </SectionCard>
+        </div>
+      )}
 
-              <span className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-[11px] font-medium text-amber-900">
-                Cấp/thu hồi quyền nhân sự thực hiện qua Supabase SQL owner (bảo mật đặc quyền tối thiểu)
-              </span>
-            </div>
+      {/* =================================================================== */}
+      {/* TAB 3: QUẢN LÝ NHÂN VIÊN (STAFF & RBAC)                             */}
+      {/* =================================================================== */}
+      {activeTab === "staff" && (
+        <div className="space-y-6">
+          <PortalPageHeader
+            title="Nhân sự & Chi nhánh (RBAC)"
+            badge={<StatusBadge tone="accent">{staffList.length} nhân sự</StatusBadge>}
+          />
 
-            {/* Filter */}
-            <div className="flex items-center gap-3 text-xs">
-              <span className="text-gray-500 font-medium">Lọc theo vai trò:</span>
-              <div className="flex flex-wrap items-center gap-1.5">
-                {[
-                  { key: "all", label: "Tất cả vai trò" },
-                  { key: "admin", label: "Admin HQ" },
-                  { key: "store_manager", label: "Quản lý CH" },
-                  { key: "warehouse_staff", label: "Nhân viên kho" },
-                  { key: "cs_agent", label: "CSKH" },
-                ].map((item) => (
-                  <button
-                    key={item.key}
-                    onClick={() => setStaffRoleFilter(item.key)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                      staffRoleFilter === item.key
-                        ? "bg-[#3d2e24] text-white"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Staff Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredStaff.map((staff) => (
-                <div
-                  key={staff.id}
-                  className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow relative"
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <span className="text-[10px] font-mono bg-[#faf5f0] text-[#3d2e24] font-bold px-1.5 py-0.5 rounded">
-                        {staff.employeeCode}
-                      </span>
-                      <h3 className="font-bold text-gray-900 mt-1">{staff.fullName}</h3>
-                      <p className="text-xs text-[#3d2e24] font-medium">{staff.roleLabel}</p>
-                    </div>
-
-                    <span
-                      className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                        staff.status === "active"
-                          ? "bg-[#faf5f0] text-[#3d2e24]"
-                          : "bg-amber-50 text-amber-700"
-                      }`}
-                    >
-                      {staff.status === "active" ? "Đang làm việc" : "Nghỉ phép"}
-                    </span>
-                  </div>
-
-                  <div className="mt-3 space-y-1 text-xs text-gray-500">
-                    <p className="flex items-center gap-1.5 truncate">
-                      <Building2 className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                      <span>{staff.branchName}</span>
-                    </p>
-                    <p className="flex items-center gap-1.5 truncate">
-                      <Mail className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                      <span>{staff.email}</span>
-                    </p>
-                    <p className="flex items-center gap-1.5">
-                      <Phone className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                      <span>{staff.phone}</span>
-                    </p>
-                  </div>
-
-                  {/* RBAC Permissions Badges */}
-                  <div className="mt-3 pt-3 border-t border-gray-100">
-                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
-                      Quyền truy cập:
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {staff.permissions.slice(0, 4).map((perm) => (
-                        <span
-                          key={perm}
-                          className="text-[10px] font-mono bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded"
-                        >
-                          {perm}
-                        </span>
-                      ))}
-                      {staff.permissions.length > 4 && (
-                        <span className="text-[10px] font-mono bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">
-                          +{staff.permissions.length - 4}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="mt-3 pt-2 flex items-center justify-between text-xs">
-                    <span className="text-gray-400 text-[11px]">
-                      Cập nhật: {formatDateTime(staff.joinedAt)}
-                    </span>
-                    <span className="text-[11px] font-medium text-gray-500">
-                      Chỉ đọc trên runtime
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* TAB 4: QUẢN LÝ ĐƠN HÀNG (ORDERS)                                         */}
-        {/* ========================================================================= */}
-        {activeTab === "orders" && (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-5">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">Quản Lý Đơn Hàng & Điều Phối NariNow 2H</h2>
-                <p className="text-xs text-gray-500">
-                  Quy trình xử lý đơn hàng từ Tiếp nhận → Đóng gói → Giao hàng 2H → Hoàn tất
-                </p>
-              </div>
-
-              <div className="text-xs text-gray-500 flex items-center gap-2">
-                <span>Tổng số đơn: <b>{orders.length}</b></span>
-              </div>
-            </div>
-
-            {/* Filter */}
-            <div className="flex flex-wrap items-center gap-2 text-xs">
+          <SectionCard
+            title="Danh bạ nhân sự nội bộ"
+            description="Đồng bộ trực tiếp từ nari_identity.provisioned_identities trên PostgreSQL."
+            actions={
+              <StatusBadge tone="warning">
+                Cấp/thu hồi quyền thực hiện qua Supabase SQL owner
+              </StatusBadge>
+            }
+          >
+            <div className="mb-5 flex flex-wrap items-center gap-2 text-xs">
+              <span className="font-medium text-[#6e5a4f]">Lọc vai trò:</span>
               {[
-                { key: "all", label: "Tất cả đơn" },
-                { key: "pending", label: "Chờ xác nhận" },
-                { key: "confirmed", label: "Đã xác nhận" },
-                { key: "packing", label: "Đang đóng gói" },
-                { key: "shipping", label: "Đang giao NariNow 2H" },
-                { key: "delivered", label: "Đã giao thành công" },
-                { key: "cancelled", label: "Đã hủy" },
-                { key: "returned", label: "Hoàn trả" },
+                { key: "all", label: "Tất cả vai trò" },
+                { key: "admin", label: "Admin HQ" },
+                { key: "store_manager", label: "Quản lý CH" },
+                { key: "warehouse_staff", label: "Nhân viên kho" },
+                { key: "cs_agent", label: "CSKH" },
               ].map((item) => (
                 <button
                   key={item.key}
-                  onClick={() => setOrderStatusFilter(item.key)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    orderStatusFilter === item.key
-                      ? "bg-[#3d2e24] text-white shadow-sm"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
+                  type="button"
+                  onClick={() => setStaffRoleFilter(item.key)}
+                  className={cn(
+                    "rounded-full px-3 py-1.5 text-xs font-semibold transition",
+                    staffRoleFilter === item.key
+                      ? "bg-[#3d2e24] text-[#faf5f0]"
+                      : "border border-[#e6d5c5] bg-[#faf5f0] text-[#5c493e] hover:bg-[#f6ece3]",
+                  )}
                 >
                   {item.label}
                 </button>
               ))}
             </div>
 
-            {/* Orders Table */}
-            <div className="overflow-x-auto border border-gray-200 rounded-lg">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-gray-50 text-gray-600 font-semibold border-b border-gray-200">
-                  <tr>
-                    <th className="py-3 px-4">Mã Đơn / Thời Gian</th>
-                    <th className="py-3 px-3">Khách Hàng</th>
-                    <th className="py-3 px-3">Sản Phẩm</th>
-                    <th className="py-3 px-3 text-right">Tổng Tiền</th>
-                    <th className="py-3 px-3">Phương Thức</th>
-                    <th className="py-3 px-3 text-center">Trạng Thái</th>
-                    <th className="py-3 px-4 text-right">Điều Phối / Thao Tác</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {filteredOrders.map((o) => (
-                    <tr key={o.id} className="hover:bg-gray-50/80 transition-colors">
-                      <td className="py-3 px-4">
-                        <span className="font-mono font-bold text-[#2a1f18]">{o.orderCode}</span>
-                        <div className="text-[11px] text-gray-400 mt-0.5">
-                          {formatDateTime(o.createdAt)}
-                        </div>
-                        <span className="inline-block text-[10px] font-semibold bg-[#faf5f0] text-[#3d2e24] px-1.5 py-0.2 rounded mt-1">
-                          {o.deliveryType}
+            {filteredStaff.length === 0 ? (
+              <EmptyStateCard
+                icon={<ShieldCheck className="h-6 w-6" />}
+                title="Không có nhân sự phù hợp bộ lọc"
+              />
+            ) : (
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {filteredStaff.map((staff) => (
+                  <div
+                    key={staff.id}
+                    className="rounded-2xl border border-[#e6d5c5] bg-[#faf5f0]/35 p-4 transition hover:border-[#d8b89c] hover:bg-white"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <span className="rounded-md bg-[#f6ece3] px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#3d2e24]">
+                          {staff.employeeCode}
                         </span>
-                      </td>
-                      <td className="py-3 px-3">
-                        <div className="font-semibold text-gray-900">{o.customerName}</div>
-                        <div className="text-gray-500 text-[11px]">{o.customerPhone}</div>
-                        <div className="text-[10px] text-gray-400 truncate max-w-[180px]">
-                          {o.shippingAddress}
-                        </div>
-                      </td>
-                      <td className="py-3 px-3">
-                        <div className="space-y-0.5 max-w-[200px]">
-                          {o.items.map((item, idx) => (
-                            <div key={idx} className="truncate text-gray-700">
-                              <span className="font-bold text-[#3d2e24]">{item.quantity}x</span>{" "}
-                              {item.name}
-                            </div>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="py-3 px-3 text-right">
-                        <div className="font-bold text-gray-900">{formatVND(o.total)}</div>
-                        <span
-                          className={`text-[10px] font-semibold ${
-                            o.paymentStatus === "paid" ? "text-[#3d2e24]" : "text-amber-600"
-                          }`}
-                        >
-                          {o.paymentStatus === "paid" ? "Đã thanh toán" : "Chưa thanh toán"}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3">
-                        <div className="text-gray-700 truncate max-w-[140px]" title={o.paymentMethod}>
-                          {o.paymentMethod}
-                        </div>
-                        <div className="text-[10px] text-gray-400 truncate">{o.branchName}</div>
-                      </td>
-                      <td className="py-3 px-3 text-center">
-                        <span
-                          className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                            o.status === "delivered"
-                              ? "bg-[#f6ece3] text-[#2a1f18]"
-                              : o.status === "shipping"
-                              ? "bg-blue-100 text-blue-800"
-                              : o.status === "packing"
-                              ? "bg-amber-100 text-amber-800"
-                              : o.status === "confirmed"
-                              ? "bg-indigo-100 text-indigo-800"
-                              : o.status === "cancelled"
-                              ? "bg-gray-100 text-gray-600"
-                              : "bg-orange-100 text-orange-800"
-                          }`}
-                        >
-                          {o.statusLabel}
-                        </span>
-                        <div className="text-[10px] text-gray-400 mt-1">
-                          NV: {o.assignedStaffName || "Chưa gán"}
-                        </div>
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5 flex-wrap">
-                          {o.status === "pending" && (
-                            <button
-                              onClick={() => handleAdvanceOrderStatus(o.id, "confirmed")}
-                              className="bg-[#3d2e24] hover:bg-[#1e1b18] text-white px-2.5 py-1 rounded text-[11px] font-semibold transition-colors"
-                            >
-                              Xác nhận đơn
-                            </button>
-                          )}
-                          {o.status === "confirmed" && (
-                            <button
-                              onClick={() => handleAdvanceOrderStatus(o.id, "packing")}
-                              className="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 rounded text-[11px] font-semibold transition-colors"
-                            >
-                              Đóng gói
-                            </button>
-                          )}
-                          {o.status === "packing" && (
-                            <button
-                              onClick={() => handleAdvanceOrderStatus(o.id, "shipping")}
-                              className="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-[11px] font-semibold transition-colors"
-                            >
-                              Giao NariNow 2H
-                            </button>
-                          )}
-                          {o.status === "shipping" && (
-                            <button
-                              onClick={() => handleAdvanceOrderStatus(o.id, "delivered")}
-                              className="bg-[#3d2e24] hover:bg-[#1e1b18] text-white px-2.5 py-1 rounded text-[11px] font-semibold transition-colors"
-                            >
-                              Hoàn tất
-                            </button>
-                          )}
-                          {(o.status === "pending" || o.status === "confirmed") && (
-                            <button
-                              onClick={() => handleAdvanceOrderStatus(o.id, "cancelled")}
-                              className="border border-red-200 bg-white hover:bg-red-50 text-red-700 px-2.5 py-1 rounded text-[11px] font-semibold transition-colors"
-                            >
-                              Hủy đơn
-                            </button>
-                          )}
-                          {(o.status === "shipping" || o.status === "delivered") && (
-                            <button
-                              onClick={() => handleAdvanceOrderStatus(o.id, "returned")}
-                              className="border border-amber-300 bg-white hover:bg-amber-50 text-amber-800 px-2.5 py-1 rounded text-[11px] font-semibold transition-colors"
-                            >
-                              Hoàn đơn
-                            </button>
-                          )}
-                          <button
-                            onClick={() => setSelectedOrder(o)}
-                            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded text-[11px] font-medium"
+                        <h3 className="mt-1.5 text-sm font-bold text-[#1e1b18]">{staff.fullName}</h3>
+                        <p className="text-xs font-medium text-[#b86b4b]">{staff.roleLabel}</p>
+                      </div>
+                      <StatusBadge tone={staff.status === "active" ? "success" : "warning"}>
+                        {staff.status === "active" ? "Đang làm việc" : "Nghỉ phép"}
+                      </StatusBadge>
+                    </div>
+
+                    <div className="mt-3 space-y-1.5 text-xs text-[#6e5a4f]">
+                      <p className="flex items-center gap-2 truncate">
+                        <Building2 className="h-3.5 w-3.5 shrink-0 text-[#9e7656]" />
+                        <span className="truncate">{staff.branchName}</span>
+                      </p>
+                      <p className="flex items-center gap-2 truncate">
+                        <Mail className="h-3.5 w-3.5 shrink-0 text-[#9e7656]" />
+                        <span className="truncate">{staff.email}</span>
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <Phone className="h-3.5 w-3.5 shrink-0 text-[#9e7656]" />
+                        <span>{staff.phone}</span>
+                      </p>
+                    </div>
+
+                    <div className="mt-3 border-t border-[#efe2d4] pt-3">
+                      <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#8c7568]">
+                        Quyền truy cập
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {staff.permissions.slice(0, 4).map((perm) => (
+                          <span
+                            key={perm}
+                            className="rounded-md border border-[#efe2d4] bg-white px-1.5 py-0.5 font-mono text-[10px] text-[#5c493e]"
                           >
-                            Chi tiết
-                          </button>
-                        </div>
-                      </td>
+                            {perm}
+                          </span>
+                        ))}
+                        {staff.permissions.length > 4 && (
+                          <span className="rounded-md bg-[#f6ece3] px-1.5 py-0.5 font-mono text-[10px] font-semibold text-[#5c493e]">
+                            +{staff.permissions.length - 4}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-between pt-1 text-[11px] text-[#8c7568]">
+                      <span>Cập nhật: {formatDateTime(staff.joinedAt)}</span>
+                      <span className="font-medium text-[#6e5a4f]">Chỉ đọc</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </SectionCard>
+        </div>
+      )}
+
+      {/* =================================================================== */}
+      {/* TAB 4: QUẢN LÝ ĐƠN HÀNG (ORDERS)                                    */}
+      {/* =================================================================== */}
+      {activeTab === "orders" && (
+        <div className="space-y-6">
+          <PortalPageHeader
+            title="Đơn hàng & Điều phối NariNow 2H"
+            badge={<StatusBadge tone="accent">{orders.length} đơn hàng</StatusBadge>}
+          />
+
+          <SectionCard
+            title="Bảng điều phối đơn hàng"
+            description="Quy trình xử lý từ Tiếp nhận → Xác nhận → Đóng gói → Giao hàng 2H → Hoàn tất."
+          >
+            <div className="mb-4 flex flex-wrap items-center gap-1.5">
+              {[
+                { key: "all", label: "Tất cả đơn" },
+                { key: "pending", label: "Chờ xác nhận" },
+                { key: "confirmed", label: "Đã xác nhận" },
+                { key: "packing", label: "Đang đóng gói" },
+                { key: "shipping", label: "Đang giao 2H" },
+                { key: "delivered", label: "Đã giao" },
+                { key: "cancelled", label: "Đã hủy" },
+                { key: "returned", label: "Hoàn trả" },
+              ].map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => setOrderStatusFilter(item.key)}
+                  className={cn(
+                    "rounded-xl px-3 py-1.5 text-xs font-semibold transition",
+                    orderStatusFilter === item.key
+                      ? "bg-[#3d2e24] text-[#faf5f0] shadow-sm"
+                      : "border border-[#e6d5c5] bg-[#faf5f0] text-[#5c493e] hover:bg-[#f6ece3]",
+                  )}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            {filteredOrders.length === 0 ? (
+              <EmptyStateCard
+                icon={<ShoppingBag className="h-6 w-6" />}
+                title="Không có đơn hàng trong trạng thái này"
+              />
+            ) : (
+              <div className="overflow-x-auto rounded-xl border border-[#efe2d4]">
+                <table className="w-full text-left text-xs">
+                  <thead className="border-b border-[#efe2d4] bg-[#faf5f0] text-[11px] font-semibold uppercase tracking-wider text-[#6e5a4f]">
+                    <tr>
+                      <th className="px-4 py-3">Mã đơn / Thời gian</th>
+                      <th className="px-3 py-3">Khách hàng</th>
+                      <th className="px-3 py-3">Sản phẩm</th>
+                      <th className="px-3 py-3 text-right">Tổng tiền</th>
+                      <th className="px-3 py-3">Phương thức</th>
+                      <th className="px-3 py-3 text-center">Trạng thái</th>
+                      <th className="px-4 py-3 text-right">Điều phối / Thao tác</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* TAB 5: QUẢN LÝ KHO HÀNG (WAREHOUSE & INVENTORY)                           */}
-        {/* ========================================================================= */}
-        {activeTab === "inventory" && (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-5">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">Quản Lý Tồn Kho Đa Chi Nhánh</h2>
-                <p className="text-xs text-gray-500">
-                  Phân bổ tồn kho thực tế giữa 4 chi nhánh trọng điểm (CN Hoàng Hoa Thám, CN 3/2, CN Cầu Giấy, CN Đà Nẵng)
-                </p>
+                  </thead>
+                  <tbody className="divide-y divide-[#efe2d4]/70 bg-white">
+                    {filteredOrders.map((o) => (
+                      <tr key={o.id} className="transition-colors hover:bg-[#faf5f0]/60">
+                        <td className="px-4 py-3">
+                          <span className="font-mono font-bold text-[#3d2e24]">{o.orderCode}</span>
+                          <div className="mt-0.5 text-[11px] text-[#8c7568]">
+                            {formatDateTime(o.createdAt)}
+                          </div>
+                          <span className="mt-1 inline-block rounded bg-[#f6ece3] px-1.5 py-0.5 text-[10px] font-semibold text-[#5c493e]">
+                            {o.deliveryType}
+                          </span>
+                        </td>
+                        <td className="px-3 py-3">
+                          <div className="font-semibold text-[#1e1b18]">{o.customerName}</div>
+                          <div className="text-[11px] text-[#6e5a4f]">{o.customerPhone}</div>
+                          <div className="max-w-[180px] truncate text-[10px] text-[#8c7568]">
+                            {o.shippingAddress}
+                          </div>
+                        </td>
+                        <td className="px-3 py-3">
+                          <div className="max-w-[200px] space-y-0.5">
+                            {o.items.map((item, idx) => (
+                              <div key={idx} className="truncate text-[#5c493e]">
+                                <span className="font-bold text-[#3d2e24]">{item.quantity}x</span>{" "}
+                                {item.name}
+                              </div>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-3 text-right">
+                          <div className="font-bold text-[#1e1b18]">{formatVND(o.total)}</div>
+                          <span
+                            className={cn(
+                              "text-[10px] font-semibold",
+                              o.paymentStatus === "paid" ? "text-emerald-700" : "text-amber-700",
+                            )}
+                          >
+                            {o.paymentStatus === "paid" ? "Đã thanh toán" : "Chưa thanh toán"}
+                          </span>
+                        </td>
+                        <td className="px-3 py-3">
+                          <div className="max-w-[140px] truncate text-[#5c493e]" title={o.paymentMethod}>
+                            {o.paymentMethod}
+                          </div>
+                          <div className="truncate text-[10px] text-[#8c7568]">{o.branchName}</div>
+                        </td>
+                        <td className="px-3 py-3 text-center">
+                          <StatusBadge tone={getOrderStatusTone(o.status)}>
+                            {o.statusLabel}
+                          </StatusBadge>
+                          <div className="mt-1 text-[10px] text-[#8c7568]">
+                            NV: {o.assignedStaffName || "Chưa gán"}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <div className="flex flex-wrap items-center justify-end gap-1.5">
+                            {o.status === "pending" && (
+                              <button
+                                type="button"
+                                onClick={() => handleAdvanceOrderStatus(o.id, "confirmed")}
+                                className="rounded-lg bg-[#3d2e24] px-2.5 py-1 text-[11px] font-semibold text-[#faf5f0] transition hover:bg-[#2a1f18]"
+                              >
+                                Xác nhận đơn
+                              </button>
+                            )}
+                            {o.status === "confirmed" && (
+                              <button
+                                type="button"
+                                onClick={() => handleAdvanceOrderStatus(o.id, "packing")}
+                                className="rounded-lg bg-amber-700 px-2.5 py-1 text-[11px] font-semibold text-white transition hover:bg-amber-800"
+                              >
+                                Đóng gói
+                              </button>
+                            )}
+                            {o.status === "packing" && (
+                              <button
+                                type="button"
+                                onClick={() => handleAdvanceOrderStatus(o.id, "shipping")}
+                                className="rounded-lg bg-[#b86b4b] px-2.5 py-1 text-[11px] font-semibold text-white transition hover:bg-[#9f593c]"
+                              >
+                                Giao NariNow 2H
+                              </button>
+                            )}
+                            {o.status === "shipping" && (
+                              <button
+                                type="button"
+                                onClick={() => handleAdvanceOrderStatus(o.id, "delivered")}
+                                className="rounded-lg bg-[#3d2e24] px-2.5 py-1 text-[11px] font-semibold text-[#faf5f0] transition hover:bg-[#2a1f18]"
+                              >
+                                Hoàn tất
+                              </button>
+                            )}
+                            {(o.status === "pending" || o.status === "confirmed") && (
+                              <button
+                                type="button"
+                                onClick={() => handleAdvanceOrderStatus(o.id, "cancelled")}
+                                className="rounded-lg border border-red-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-red-700 transition hover:bg-red-50"
+                              >
+                                Hủy đơn
+                              </button>
+                            )}
+                            {(o.status === "shipping" || o.status === "delivered") && (
+                              <button
+                                type="button"
+                                onClick={() => handleAdvanceOrderStatus(o.id, "returned")}
+                                className="rounded-lg border border-amber-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-amber-800 transition hover:bg-amber-50"
+                              >
+                                Hoàn đơn
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setSelectedOrder(o)}
+                              className="rounded-lg border border-[#e6d5c5] bg-[#faf5f0] px-2.5 py-1 text-[11px] font-semibold text-[#3d2e24] transition hover:bg-[#f6ece3]"
+                            >
+                              Chi tiết
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
+            )}
+          </SectionCard>
+        </div>
+      )}
 
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">
-                  Tổng SKU: <b>{inventory.length}</b>
-                </span>
-              </div>
-            </div>
+      {/* =================================================================== */}
+      {/* TAB 5: QUẢN LÝ KHO HÀNG (WAREHOUSE & INVENTORY)                     */}
+      {/* =================================================================== */}
+      {activeTab === "inventory" && (
+        <div className="space-y-6">
+          <PortalPageHeader
+            title="Tồn kho đa chi nhánh"
+            badge={<StatusBadge tone="accent">{inventory.length} SKU</StatusBadge>}
+          />
 
-            {/* Filter Bar */}
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              <div className="relative flex-1 min-w-[240px]">
-                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <SectionCard
+            title="Phân bổ tồn kho thực tế"
+            description="Theo dõi số lượng khả dụng và thực hiện nhập xuất điều chỉnh tại các chi nhánh trọng điểm."
+          >
+            <div className="mb-4 flex flex-wrap items-center gap-3">
+              <div className="relative min-w-[240px] flex-1">
+                <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9e7656]" />
                 <input
                   type="text"
                   placeholder="Tìm theo SKU, tên sản phẩm, thương hiệu..."
                   value={inventorySearch}
                   onChange={(e) => setInventorySearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-[#3d2e24]"
+                  className="w-full rounded-xl border border-[#e6d5c5] bg-[#faf5f0]/50 py-2 pl-10 pr-3.5 text-xs text-[#1e1b18] placeholder:text-[#9c877a] focus:border-[#b86b4b] focus:bg-white focus:outline-none"
                 />
               </div>
 
               <div className="flex items-center gap-2 text-xs">
-                <span className="text-gray-500">Trạng thái:</span>
+                <span className="font-medium text-[#6e5a4f]">Trạng thái:</span>
                 <select
                   value={inventoryStatusFilter}
                   onChange={(e) => setInventoryStatusFilter(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-2.5 py-1.5 bg-white text-xs"
+                  className="rounded-xl border border-[#e6d5c5] bg-white px-3 py-2 text-xs font-medium text-[#3d2e24] focus:border-[#b86b4b] focus:outline-none"
                 >
                   <option value="all">Tất cả tình trạng</option>
                   <option value="in_stock">Còn hàng an toàn</option>
@@ -1583,153 +1506,160 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
               </div>
             </div>
 
-            {/* Inventory Table */}
-            <div className="overflow-x-auto border border-gray-200 rounded-lg">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-gray-50 text-gray-600 font-semibold border-b border-gray-200">
-                  <tr>
-                    <th className="py-3 px-4">SKU / Sản Phẩm</th>
-                    <th className="py-3 px-3">Thương Hiệu</th>
-                    <th className="py-3 px-3 text-right">Đơn Giá</th>
-                    <th className="py-3 px-3 text-center">Tổng Tồn Kho</th>
-                    <th className="py-3 px-3">Phân Bổ Chi Nhánh</th>
-                    <th className="py-3 px-3 text-center">Tình Trạng</th>
-                    <th className="py-3 px-4 text-right">Điều Chỉnh Kho</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {filteredInventory.map((item) => (
-                    <tr key={item.sku} className="hover:bg-gray-50/80 transition-colors">
-                      <td className="py-3 px-4">
-                        <div className="font-bold text-gray-900 line-clamp-1 max-w-[280px]" title={item.productName}>
-                          {item.productName}
-                        </div>
-                        <span className="font-mono text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.2 rounded mt-0.5 inline-block">
-                          SKU: {item.sku}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3">
-                        <span className="font-semibold text-gray-700">{item.brand}</span>
-                      </td>
-                      <td className="py-3 px-3 text-right font-medium text-gray-800">
-                        {formatVND(item.price)}
-                      </td>
-                      <td className="py-3 px-3 text-center">
-                        <span className="font-bold text-gray-900 text-sm">{item.totalStock}</span>
-                        <div className="text-[10px] text-gray-400">
-                          Khả dụng: {item.availableStock}
-                        </div>
-                      </td>
-                      <td className="py-3 px-3">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          {item.branchStock.map((b) => (
-                            <span
-                              key={b.branchId}
-                              className="text-[10px] bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded font-mono"
-                              title={b.branchName}
-                            >
-                              <b>{b.branchCode || b.branchId}:</b> {b.quantity}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="py-3 px-3 text-center">
-                        <span
-                          className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            item.warehouseStatus === "in_stock"
-                              ? "bg-[#f6ece3] text-[#2a1f18]"
-                              : item.warehouseStatus === "low_stock"
-                              ? "bg-red-100 text-red-800 animate-pulse"
-                              : "bg-gray-200 text-gray-700"
-                          }`}
-                        >
-                          {item.warehouseStatus === "in_stock"
-                            ? "Còn hàng"
-                            : item.warehouseStatus === "low_stock"
-                            ? "Sắp hết hàng"
-                            : "Hết hàng"}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            onClick={() => {
-                              setSelectedInventoryItem(item);
-                              setStockAdjustDelta(20);
-                              setStockAdjustReason("Nhập hàng bổ sung từ Nhà phân phối");
-                            }}
-                            className="bg-[#faf5f0] hover:bg-[#3d2e24] hover:text-white text-[#3d2e24] px-2.5 py-1 rounded text-[11px] font-semibold transition-colors"
-                          >
-                            + Nhập kho
-                          </button>
-                          <button
-                            onClick={() => {
-                              setSelectedInventoryItem(item);
-                              setStockAdjustDelta(-5);
-                              setStockAdjustReason("Xuất kho điều chuyển hoặc bán lẻ");
-                            }}
-                            className="bg-gray-100 hover:bg-red-600 hover:text-white text-gray-700 px-2 py-1 rounded text-[11px] font-semibold transition-colors"
-                          >
-                            - Xuất
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Audit Logs History Section */}
-            <div className="pt-4 border-t border-gray-200">
-              <h3 className="font-bold text-sm text-gray-900 mb-3 flex items-center gap-2">
-                <History className="w-4 h-4 text-gray-500" />
-                <span>Nhật Ký Kiểm Định & Điều Chỉnh Kho Gần Nhất (Audit Trail)</span>
-              </h3>
-              <div className="overflow-x-auto border border-gray-200 rounded-lg">
+            {filteredInventory.length === 0 ? (
+              <EmptyStateCard
+                icon={<Warehouse className="h-6 w-6" />}
+                title="Không có SKU phù hợp"
+              />
+            ) : (
+              <div className="overflow-x-auto rounded-xl border border-[#efe2d4]">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-gray-50 text-gray-600 font-semibold border-b border-gray-200">
+                  <thead className="border-b border-[#efe2d4] bg-[#faf5f0] text-[11px] font-semibold uppercase tracking-wider text-[#6e5a4f]">
                     <tr>
-                      <th className="py-2.5 px-3">Thời Gian</th>
-                      <th className="py-2.5 px-3">SKU / Tên Hàng</th>
-                      <th className="py-2.5 px-2 text-center">Biến Động</th>
-                      <th className="py-2.5 px-2 text-center">Trước → Sau</th>
-                      <th className="py-2.5 px-3">Lý Do Điều Chỉnh</th>
-                      <th className="py-2.5 px-3">Chi Nhánh</th>
-                      <th className="py-2.5 px-3 font-mono">NV Thực Hiện</th>
+                      <th className="px-4 py-3">SKU / Sản phẩm</th>
+                      <th className="px-3 py-3">Thương hiệu</th>
+                      <th className="px-3 py-3 text-right">Giá bán</th>
+                      <th className="px-3 py-3 text-center">Tổng tồn</th>
+                      <th className="px-3 py-3">Phân bổ chi nhánh</th>
+                      <th className="px-3 py-3 text-center">Trạng thái</th>
+                      <th className="px-4 py-3 text-right">Điều chỉnh</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-[#efe2d4]/70 bg-white">
+                    {filteredInventory.map((item) => (
+                      <tr key={item.sku} className="transition-colors hover:bg-[#faf5f0]/60">
+                        <td className="px-4 py-3">
+                          <div className="max-w-[280px] truncate font-semibold text-[#1e1b18]" title={item.productName}>
+                            {item.productName}
+                          </div>
+                          <span className="mt-0.5 inline-block rounded bg-[#faf5f0] px-1.5 py-0.5 font-mono text-[10px] text-[#6e5a4f]">
+                            SKU: {item.sku}
+                          </span>
+                        </td>
+                        <td className="px-3 py-3 font-semibold text-[#3d2e24]">{item.brand}</td>
+                        <td className="whitespace-nowrap px-3 py-3 text-right font-medium text-[#1e1b18]">
+                          {formatVND(item.price)}
+                        </td>
+                        <td className="px-3 py-3 text-center">
+                          <span className="text-sm font-bold text-[#1e1b18]">{item.totalStock}</span>
+                          <div className="text-[10px] text-[#8c7568]">
+                            Khả dụng: {item.availableStock}
+                          </div>
+                        </td>
+                        <td className="px-3 py-3">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            {item.branchStock.map((b) => (
+                              <span
+                                key={b.branchId}
+                                className="rounded-md border border-[#efe2d4] bg-[#faf5f0] px-1.5 py-0.5 font-mono text-[10px] text-[#5c493e]"
+                                title={b.branchName}
+                              >
+                                <b>{b.branchCode || b.branchId}:</b> {b.quantity}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="px-3 py-3 text-center">
+                          <StatusBadge
+                            tone={
+                              item.warehouseStatus === "in_stock"
+                                ? "success"
+                                : item.warehouseStatus === "low_stock"
+                                  ? "danger"
+                                  : "neutral"
+                            }
+                          >
+                            {item.warehouseStatus === "in_stock"
+                              ? "Còn hàng"
+                              : item.warehouseStatus === "low_stock"
+                                ? "Sắp hết hàng"
+                                : "Hết hàng"}
+                          </StatusBadge>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedInventoryItem(item);
+                                setStockAdjustDelta(20);
+                                setStockAdjustReason("Nhập hàng bổ sung từ Nhà phân phối");
+                              }}
+                              className="rounded-lg border border-[#e6d5c5] bg-[#faf5f0] px-2.5 py-1 text-[11px] font-semibold text-[#3d2e24] transition hover:bg-[#3d2e24] hover:text-[#faf5f0]"
+                            >
+                              + Nhập kho
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedInventoryItem(item);
+                                setStockAdjustDelta(-5);
+                                setStockAdjustReason("Xuất kho điều chuyển hoặc bán lẻ");
+                              }}
+                              className="rounded-lg border border-[#e6d5c5] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#6e5a4f] transition hover:border-red-200 hover:bg-red-50 hover:text-red-700"
+                            >
+                              - Xuất
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </SectionCard>
+
+          {/* Audit Trail */}
+          <SectionCard
+            title="Nhật ký kiểm định & điều chỉnh kho (Audit Trail)"
+            description="Lịch sử đầy đủ mọi biến động số lượng tồn kho kèm mã nhân sự thực hiện."
+          >
+            {auditLogs.length === 0 ? (
+              <EmptyStateCard
+                icon={<History className="h-5 w-5" />}
+                title="Chưa có bản ghi kiểm định kho"
+                className="py-8"
+              />
+            ) : (
+              <div className="overflow-x-auto rounded-xl border border-[#efe2d4]">
+                <table className="w-full text-left text-xs">
+                  <thead className="border-b border-[#efe2d4] bg-[#faf5f0] text-[11px] font-semibold uppercase tracking-wider text-[#6e5a4f]">
+                    <tr>
+                      <th className="px-3 py-2.5">Thời gian</th>
+                      <th className="px-3 py-2.5">SKU / Tên hàng</th>
+                      <th className="px-2 py-2.5 text-center">Biến động</th>
+                      <th className="px-2 py-2.5 text-center">Trước → Sau</th>
+                      <th className="px-3 py-2.5">Lý do điều chỉnh</th>
+                      <th className="px-3 py-2.5">Chi nhánh</th>
+                      <th className="px-3 py-2.5">NV thực hiện</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#efe2d4]/70 bg-white">
                     {auditLogs.map((log) => (
-                      <tr key={log.id} className="hover:bg-gray-50/50">
-                        <td className="py-2 px-3 text-gray-400 text-[11px]">
+                      <tr key={log.id} className="hover:bg-[#faf5f0]/50">
+                        <td className="whitespace-nowrap px-3 py-2.5 text-[11px] text-[#8c7568]">
                           {formatDateTime(log.timestamp)}
                         </td>
-                        <td className="py-2 px-3">
-                          <span className="font-semibold text-gray-800">{log.productName}</span>
-                          <span className="block text-[10px] font-mono text-gray-400">
+                        <td className="px-3 py-2.5">
+                          <span className="font-semibold text-[#1e1b18]">{log.productName}</span>
+                          <span className="block font-mono text-[10px] text-[#8c7568]">
                             {log.sku}
                           </span>
                         </td>
-                        <td className="py-2 px-2 text-center font-bold">
-                          <span
-                            className={`px-1.5 py-0.5 rounded text-[11px] ${
-                              log.delta > 0
-                                ? "bg-[#f6ece3] text-[#2a1f18]"
-                                : "bg-red-100 text-red-800"
-                            }`}
-                          >
+                        <td className="px-2 py-2.5 text-center">
+                          <StatusBadge tone={log.delta > 0 ? "success" : "danger"}>
                             {log.delta > 0 ? `+${log.delta}` : log.delta}
-                          </span>
+                          </StatusBadge>
                         </td>
-                        <td className="py-2 px-2 text-center text-gray-500 text-[11px]">
-                          {log.previousStock} → <b className="text-gray-900">{log.newStock}</b>
+                        <td className="whitespace-nowrap px-2 py-2.5 text-center text-[11px] text-[#6e5a4f]">
+                          {log.previousStock} → <b className="text-[#1e1b18]">{log.newStock}</b>
                         </td>
-                        <td className="py-2 px-3 text-gray-700">{log.reason}</td>
-                        <td className="py-2 px-3 text-gray-500 truncate max-w-[150px]">
+                        <td className="px-3 py-2.5 text-[#5c493e]">{log.reason}</td>
+                        <td className="max-w-[150px] truncate px-3 py-2.5 text-[#6e5a4f]">
                           {log.branchName}
                         </td>
-                        <td className="py-2 px-3 font-mono text-gray-600 text-[11px]">
+                        <td className="px-3 py-2.5 font-mono text-[11px] text-[#5c493e]">
                           {log.staffCode}
                         </td>
                       </tr>
@@ -1737,65 +1667,54 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
                   </tbody>
                 </table>
               </div>
-            </div>
-          </div>
-        )}
+            )}
+          </SectionCard>
+        </div>
+      )}
 
-        {/* ========================================================================= */}
-        {/* TAB 6: SEO & CHUẨN HÓA AI MCP CONSOLE                                   */}
-        {/* ========================================================================= */}
-        {activeTab === "mcp_seo" && (
-          <div className="space-y-6">
-            {/* Header intro */}
-            <div className="bg-gradient-to-r from-[#173a2b] via-[#3d2e24] to-[#25523d] text-white p-6 rounded-xl shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-[#2a1f18] flex items-center justify-center border border-[#9e7656]/40">
-                  <Bot className="w-6 h-6 text-[#d4beaa]" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold tracking-tight">
-                    Nari Home AI MCP Protocol & SEO Optimization Hub
-                  </h2>
-                  <p className="text-xs text-[#f6ece3]/90 mt-0.5">
-                    Giao diện thử nghiệm Model Context Protocol (JSON-RPC 2.0) cho Autonomous AI Agents & Bảng kiểm thử SEO / Structured Data
-                  </p>
-                </div>
-              </div>
-            </div>
+      {/* =================================================================== */}
+      {/* TAB 6: SEO & CHUẨN HÓA AI MCP CONSOLE                               */}
+      {/* =================================================================== */}
+      {activeTab === "mcp_seo" && (
+        <div className="space-y-6">
+          <PortalPageHeader
+            title="AI MCP Protocol & SEO Hub"
+            badge={<StatusBadge tone="accent">JSON-RPC 2.0</StatusBadge>}
+          />
 
-            {/* AI MCP Tool Playground */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-                <div className="flex items-center gap-2">
-                  <Code className="w-5 h-5 text-[#3d2e24]" />
-                  <h3 className="font-bold text-gray-900">AI MCP Tool Playground (JSON-RPC 2.0)</h3>
-                </div>
-                <div className="text-xs text-gray-500 flex items-center gap-2">
-                  <span>Endpoint:</span>
-                  <code className="bg-gray-100 text-[#3d2e24] font-mono px-2 py-0.5 rounded font-bold">
-                    POST /api/mcp
-                  </code>
-                </div>
-              </div>
-
-              {/* Tool Selection Buttons */}
+          {/* AI MCP Tool Playground */}
+          <SectionCard
+            title="AI MCP Tool Playground"
+            description="Gửi yêu cầu JSON-RPC 2.0 trực tiếp tới endpoint nội bộ /api/mcp để kiểm thử các công cụ của AI Agent."
+            actions={
+              <code className="rounded-lg border border-[#e6d5c5] bg-[#faf5f0] px-2.5 py-1 font-mono text-xs font-bold text-[#3d2e24]">
+                POST /api/mcp
+              </code>
+            }
+          >
+            <div className="space-y-4">
               <div>
-                <p className="text-xs font-semibold text-gray-600 mb-2">
-                  Chọn công cụ AI Agent có sẵn trong MCP Server:
+                <p className="mb-2 text-xs font-semibold text-[#5c493e]">
+                  Chọn công cụ MCP Server:
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
                   {mcpTools.map((tool) => (
                     <button
                       key={tool.name}
+                      type="button"
                       onClick={() => handleSelectMcpTool(tool.name)}
-                      className={`text-left p-3 rounded-lg border text-xs transition-all ${
+                      className={cn(
+                        "rounded-xl border p-3 text-left text-xs transition",
                         selectedMcpTool === tool.name
-                          ? "border-[#3d2e24] bg-[#faf5f0]/60 ring-1 ring-[#3d2e24]"
-                          : "border-gray-200 hover:border-gray-300 bg-gray-50/50"
-                      }`}
+                          ? "border-[#b86b4b] bg-[#faf5f0] ring-1 ring-[#b86b4b]/40"
+                          : "border-[#e6d5c5] bg-white hover:border-[#d8b89c] hover:bg-[#faf5f0]/50",
+                      )}
                     >
-                      <div className="font-mono font-bold text-[#3d2e24]">{tool.name}</div>
-                      <p className="text-[11px] text-gray-500 mt-1 line-clamp-2">
+                      <div className="flex items-center gap-1.5 font-mono font-bold text-[#3d2e24]">
+                        <Code className="h-3.5 w-3.5 text-[#b86b4b]" />
+                        <span>{tool.name}</span>
+                      </div>
+                      <p className="mt-1 line-clamp-2 text-[11px] text-[#6e5a4f]">
                         {tool.description}
                       </p>
                     </button>
@@ -1803,58 +1722,60 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
                 </div>
               </div>
 
-              {/* Input Args & Execution Output Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-2">
-                {/* Arguments Editor */}
+              <div className="grid grid-cols-1 gap-4 pt-2 lg:grid-cols-2">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-gray-700">
-                      Tham số đầu vào (JSON arguments):
+                    <label className="text-xs font-semibold text-[#5c493e]">
+                      Tham số đầu vào (JSON arguments)
                     </label>
-                    <span className="text-[11px] text-gray-400 font-mono">tools/call</span>
+                    <span className="font-mono text-[11px] text-[#8c7568]">tools/call</span>
                   </div>
                   <textarea
                     rows={8}
                     value={mcpToolArgs}
                     onChange={(e) => setMcpToolArgs(e.target.value)}
-                    className="w-full font-mono text-xs bg-slate-900 text-[#c8a98e] p-3 rounded-lg border border-slate-700 focus:outline-none focus:ring-1 focus:ring-[#9e7656]"
+                    className="w-full rounded-xl border border-[#3d2e24]/30 bg-[#1e1b18] p-3.5 font-mono text-xs text-[#f6ece3] focus:border-[#b86b4b] focus:outline-none"
                   />
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <button
+                      type="button"
                       onClick={handleExecuteMcpTool}
                       disabled={mcpExecuting}
-                      className="bg-[#b86b4b] hover:bg-[#e65c0d] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm disabled:opacity-50 transition-all"
+                      className="inline-flex items-center gap-2 rounded-xl bg-[#b86b4b] px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-[#9f593c] disabled:opacity-50"
                     >
                       {mcpExecuting ? (
                         <>
-                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                          <RefreshCw className="h-3.5 w-3.5 animate-spin" />
                           <span>Đang thực thi JSON-RPC...</span>
                         </>
                       ) : (
                         <>
-                          <Bot className="w-3.5 h-3.5" />
+                          <Bot className="h-3.5 w-3.5" />
                           <span>Thực thi Tool (JSON-RPC 2.0)</span>
                         </>
                       )}
                     </button>
                     {mcpLatency !== null && (
-                      <span className="text-xs font-mono text-gray-500">
-                        Độ trễ phản hồi: <b className="text-[#3d2e24]">{mcpLatency}ms</b>
+                      <span className="font-mono text-xs text-[#6e5a4f]">
+                        Độ trễ: <b className="text-[#3d2e24]">{mcpLatency}ms</b>
                       </span>
                     )}
                   </div>
                 </div>
 
-                {/* Output Console */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-gray-700">
-                      Kết quả phản hồi JSON-RPC 2.0:
-                    </label>
-                    <span
-                      className={`text-[11px] font-mono font-bold ${
-                        mcpStatus && !mcpStatus.succeeded ? "text-red-600" : "text-[#3d2e24]"
-                      }`}
+                    <span className="text-xs font-semibold text-[#5c493e]">
+                      Kết quả phản hồi JSON-RPC 2.0
+                    </span>
+                    <StatusBadge
+                      tone={
+                        mcpStatus
+                          ? mcpStatus.succeeded
+                            ? "success"
+                            : "danger"
+                          : "neutral"
+                      }
                     >
                       {mcpStatus
                         ? mcpStatus.succeeded
@@ -1862,148 +1783,126 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
                           : mcpStatus.statusCode
                             ? `Status ${mcpStatus.statusCode} Error`
                             : "Request Failed"
-                        : "Waiting for execute"}
-                    </span>
+                        : "Chờ thực thi"}
+                    </StatusBadge>
                   </div>
-                  <pre className="h-[210px] overflow-auto font-mono text-xs bg-slate-950 text-[#d4beaa] p-3 rounded-lg border border-slate-800 no-scrollbar">
+                  <pre className="h-[210px] overflow-auto rounded-xl border border-[#3d2e24]/30 bg-[#1e1b18] p-3.5 font-mono text-xs text-[#e6d5c5]">
                     {mcpResponse ||
                       "// Nhấn 'Thực thi Tool' để gửi yêu cầu JSON-RPC đến /api/mcp và xem dữ liệu thời gian thực..."}
                   </pre>
                 </div>
               </div>
             </div>
+          </SectionCard>
 
-            {/* SEO & Meta Viewer */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-                <div className="flex items-center gap-2">
-                  <Globe className="w-5 h-5 text-[#3d2e24]" />
-                  <h3 className="font-bold text-gray-900">SEO & Structured Data (JSON-LD) Audit</h3>
-                </div>
-                <div className="flex items-center gap-3 text-xs">
-                  <Link
-                    href="/sitemap.xml"
-                    target="_blank"
-                    className="text-[#3d2e24] hover:underline flex items-center gap-1 font-semibold"
-                  >
-                    <span>/sitemap.xml</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </Link>
-                  <Link
-                    href="/robots.txt"
-                    target="_blank"
-                    className="text-[#3d2e24] hover:underline flex items-center gap-1 font-semibold"
-                  >
-                    <span>/robots.txt</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </Link>
-                </div>
+          {/* SEO & Meta Viewer */}
+          <SectionCard
+            title="SEO & Structured Data (JSON-LD) Audit"
+            description="Kiểm tra nhanh trạng thái sitemap, robots và cấu trúc dữ liệu có cấu trúc trên các tuyến chính."
+            actions={
+              <div className="flex items-center gap-3 text-xs">
+                <Link
+                  href="/sitemap.xml"
+                  target="_blank"
+                  className="inline-flex items-center gap-1 font-semibold text-[#3d2e24] hover:text-[#b86b4b]"
+                >
+                  <span>/sitemap.xml</span>
+                  <ExternalLink className="h-3 w-3" />
+                </Link>
+                <Link
+                  href="/robots.txt"
+                  target="_blank"
+                  className="inline-flex items-center gap-1 font-semibold text-[#3d2e24] hover:text-[#b86b4b]"
+                >
+                  <span>/robots.txt</span>
+                  <ExternalLink className="h-3 w-3" />
+                </Link>
               </div>
-
-              {/* SEO Score Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-[#faf5f0]/60 p-4 rounded-xl border border-[#e6d5c5]/60">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-[#2a1f18]">Lighthouse SEO</span>
-                    <span className="text-xl font-black text-[#3d2e24]">100 / 100</span>
-                  </div>
-                  <p className="text-[11px] text-[#3d2e24] mt-1">
-                    Chuẩn hóa hoàn chỉnh thẻ Title, Meta Description, H1/H2 và canonical URL.
-                  </p>
-                </div>
-
-                <div className="bg-blue-50/60 p-4 rounded-xl border border-blue-200/60">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-blue-800">JSON-LD Schemas</span>
-                    <span className="text-xl font-black text-blue-700">8 Thực thể</span>
-                  </div>
-                  <p className="text-[11px] text-blue-600 mt-1">
-                    Organization, Product, AggregateRating, BreadcrumbList.
-                  </p>
-                </div>
-
-                <div className="bg-amber-50/60 p-4 rounded-xl border border-amber-200/60">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-amber-800">OpenGraph & Twitter</span>
-                    <span className="text-xl font-black text-amber-700">Đầy đủ</span>
-                  </div>
-                  <p className="text-[11px] text-amber-600 mt-1">
-                    Tối ưu xem trước mạng xã hội với og:image và dynamic preview cards.
-                  </p>
-                </div>
-              </div>
-
-              {/* Routes Audit Table */}
-              <div className="overflow-x-auto border border-gray-200 rounded-lg">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-gray-50 text-gray-600 font-semibold border-b border-gray-200">
-                    <tr>
-                      <th className="py-2.5 px-4">Route Path</th>
-                      <th className="py-2.5 px-3">Tên Trang</th>
-                      <th className="py-2.5 px-3 text-center">Điểm SEO</th>
-                      <th className="py-2.5 px-3">JSON-LD Schemas</th>
-                      <th className="py-2.5 px-3 text-center">OpenGraph Card</th>
-                      <th className="py-2.5 px-4 text-right">Trạng Thái</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {DEFAULT_SEO_ROUTES.map((item) => (
-                      <tr key={item.route} className="hover:bg-gray-50/80">
-                        <td className="py-2.5 px-4 font-mono font-medium text-[#2a1f18]">
-                          {item.route}
-                        </td>
-                        <td className="py-2.5 px-3 font-semibold text-gray-800">{item.name}</td>
-                        <td className="py-2.5 px-3 text-center">
-                          <span className="font-bold text-[#3d2e24]">{item.score}%</span>
-                        </td>
-                        <td className="py-2.5 px-3 text-gray-600 font-mono text-[11px]">
-                          {item.schemaType}
-                        </td>
-                        <td className="py-2.5 px-3 text-center">
-                          <span
-                            className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                              item.ogImage
-                                ? "bg-[#f6ece3] text-[#3d2e24]"
-                                : "bg-gray-100 text-gray-500"
-                            }`}
-                          >
-                            {item.ogImage ? "Có og:image" : "Chưa có"}
-                          </span>
-                        </td>
-                        <td className="py-2.5 px-4 text-right">
-                          <span
-                            className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
-                              item.status === "Pass"
-                                ? "bg-[#f6ece3] text-[#2a1f18]"
-                                : "bg-amber-100 text-amber-800"
-                            }`}
-                          >
-                            {item.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            }
+          >
+            <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <KpiStatCard
+                label="Lighthouse SEO"
+                value="100 / 100"
+                hint="Chuẩn hóa Title, Meta Description, H1/H2 và canonical URL"
+                icon={<Globe className="h-4 w-4" />}
+                tone="accent"
+              />
+              <KpiStatCard
+                label="JSON-LD Schemas"
+                value="8 Thực thể"
+                hint="Organization, Product, AggregateRating, BreadcrumbList"
+                icon={<Code className="h-4 w-4" />}
+              />
+              <KpiStatCard
+                label="OpenGraph & Social"
+                value="Đầy đủ"
+                hint="Tối ưu xem trước mạng xã hội với og:image"
+                icon={<CheckCircle2 className="h-4 w-4" />}
+              />
             </div>
-          </div>
-        )}
-      </div>
 
-      {/* ========================================================================= */}
-      {/* MODAL: THÊM KHÁCH HÀNG MỚI                                               */}
-      {/* ========================================================================= */}
+            <div className="overflow-x-auto rounded-xl border border-[#efe2d4]">
+              <table className="w-full text-left text-xs">
+                <thead className="border-b border-[#efe2d4] bg-[#faf5f0] text-[11px] font-semibold uppercase tracking-wider text-[#6e5a4f]">
+                  <tr>
+                    <th className="px-4 py-2.5">Route Path</th>
+                    <th className="px-3 py-2.5">Tên trang</th>
+                    <th className="px-3 py-2.5 text-center">Điểm SEO</th>
+                    <th className="px-3 py-2.5">JSON-LD Schemas</th>
+                    <th className="px-3 py-2.5 text-center">OpenGraph Card</th>
+                    <th className="px-4 py-2.5 text-right">Trạng thái</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#efe2d4]/70 bg-white">
+                  {DEFAULT_SEO_ROUTES.map((item) => (
+                    <tr key={item.route} className="hover:bg-[#faf5f0]/60">
+                      <td className="px-4 py-2.5 font-mono font-medium text-[#3d2e24]">
+                        {item.route}
+                      </td>
+                      <td className="px-3 py-2.5 font-semibold text-[#1e1b18]">{item.name}</td>
+                      <td className="px-3 py-2.5 text-center font-bold text-[#3d2e24]">
+                        {item.score}%
+                      </td>
+                      <td className="px-3 py-2.5 font-mono text-[11px] text-[#6e5a4f]">
+                        {item.schemaType}
+                      </td>
+                      <td className="px-3 py-2.5 text-center">
+                        <StatusBadge tone={item.ogImage ? "accent" : "neutral"}>
+                          {item.ogImage ? "Có og:image" : "Chưa có"}
+                        </StatusBadge>
+                      </td>
+                      <td className="px-4 py-2.5 text-right">
+                        <StatusBadge tone={item.status === "Pass" ? "success" : "warning"}>
+                          {item.status}
+                        </StatusBadge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </SectionCard>
+        </div>
+      )}
+
+      {/* =================================================================== */}
+      {/* MODAL: THÊM KHÁCH HÀNG MỚI                                          */}
+      {/* =================================================================== */}
       {isNewUserModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-              <h3 className="font-bold text-gray-900 text-base">Tạo Hồ Sơ Khách Hàng Mới</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1e1b18]/55 p-4 backdrop-blur-[2px]">
+          <div className="w-full max-w-md rounded-2xl border border-[#e6d5c5] bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#efe2d4] pb-3">
+              <h3 className="font-display text-base font-semibold text-[#3d2e24]">
+                Tạo hồ sơ khách hàng mới
+              </h3>
               <button
+                type="button"
                 onClick={() => setIsNewUserModalOpen(false)}
-                className="text-gray-400 hover:text-gray-600"
+                aria-label="Đóng hộp thoại"
+                className="rounded-lg p-1 text-[#7c685c] hover:bg-[#faf5f0]"
               >
-                <X className="w-5 h-5" />
+                <X className="h-4 w-4" />
               </button>
             </div>
 
@@ -2036,37 +1935,33 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
                   showToast("Lỗi kết nối máy chủ");
                 }
               }}
-              className="space-y-3 mt-4 text-xs"
+              className="mt-4 space-y-3.5 text-xs"
             >
               <div>
-                <label className="block font-semibold text-gray-700 mb-1">
+                <label className="mb-1 block font-semibold text-[#5c493e]">
                   Họ và tên khách hàng *
                 </label>
                 <input
                   name="fullName"
                   required
                   placeholder="Ví dụ: Lê Thị Thanh Thảo"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
+                  className={modalInputClass}
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Số điện thoại *</label>
+                  <label className="mb-1 block font-semibold text-[#5c493e]">Số điện thoại *</label>
                   <input
                     name="phone"
                     required
                     placeholder="0909123456"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
+                    className={modalInputClass}
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Hạng thẻ ban đầu</label>
-                  <select
-                    name="tier"
-                    defaultValue="Member"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs bg-white"
-                  >
+                  <label className="mb-1 block font-semibold text-[#5c493e]">Hạng thẻ ban đầu</label>
+                  <select name="tier" defaultValue="Member" className={modalInputClass}>
                     <option value="Member">Member</option>
                     <option value="Silver">Silver</option>
                     <option value="Gold">Gold</option>
@@ -2076,39 +1971,39 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
               </div>
 
               <div>
-                <label className="block font-semibold text-gray-700 mb-1">Email liên hệ *</label>
+                <label className="mb-1 block font-semibold text-[#5c493e]">Email liên hệ *</label>
                 <input
                   name="email"
                   type="email"
                   required
                   placeholder="thao.le@gmail.com"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
+                  className={modalInputClass}
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-gray-700 mb-1">Địa chỉ giao hàng</label>
+                <label className="mb-1 block font-semibold text-[#5c493e]">Địa chỉ giao hàng</label>
                 <textarea
                   name="address"
                   rows={2}
                   placeholder="Số nhà, đường, phường/xã, quận/huyện..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
+                  className={modalInputClass}
                 />
               </div>
 
-              <div className="pt-3 flex items-center justify-end gap-2 border-t border-gray-100">
+              <div className="flex items-center justify-end gap-2 border-t border-[#efe2d4] pt-3">
                 <button
                   type="button"
                   onClick={() => setIsNewUserModalOpen(false)}
-                  className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium"
+                  className="rounded-xl px-3.5 py-2 font-medium text-[#6e5a4f] hover:bg-[#faf5f0]"
                 >
                   Hủy bỏ
                 </button>
                 <button
                   type="submit"
-                  className="bg-[#3d2e24] hover:bg-[#1e1b18] text-white px-4 py-2 rounded-lg font-bold"
+                  className="rounded-xl bg-[#3d2e24] px-4 py-2 font-semibold text-[#faf5f0] hover:bg-[#2a1f18]"
                 >
-                  Tạo Khách Hàng
+                  Tạo khách hàng
                 </button>
               </div>
             </form>
@@ -2116,45 +2011,49 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* MODAL: ĐIỀU CHỈNH TỒN KHO                                               */}
-      {/* ========================================================================= */}
+      {/* =================================================================== */}
+      {/* MODAL: ĐIỀU CHỈNH TỒN KHO                                           */}
+      {/* =================================================================== */}
       {selectedInventoryItem && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1e1b18]/55 p-4 backdrop-blur-[2px]">
+          <div className="w-full max-w-md rounded-2xl border border-[#e6d5c5] bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#efe2d4] pb-3">
               <div>
-                <h3 className="font-bold text-gray-900 text-base">Điều Chỉnh Tồn Kho</h3>
-                <p className="text-xs text-gray-500 font-mono mt-0.5">
+                <h3 className="font-display text-base font-semibold text-[#3d2e24]">
+                  Điều chỉnh tồn kho
+                </h3>
+                <p className="mt-0.5 font-mono text-xs text-[#7c685c]">
                   SKU: {selectedInventoryItem.sku}
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => setSelectedInventoryItem(null)}
-                className="text-gray-400 hover:text-gray-600"
+                aria-label="Đóng hộp thoại"
+                className="rounded-lg p-1 text-[#7c685c] hover:bg-[#faf5f0]"
               >
-                <X className="w-5 h-5" />
+                <X className="h-4 w-4" />
               </button>
             </div>
 
-            <form onSubmit={handleExecuteStockAdjustment} className="space-y-3 mt-4 text-xs">
-              <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                <p className="font-bold text-gray-800">{selectedInventoryItem.productName}</p>
-                <div className="flex items-center justify-between mt-2 text-gray-600">
+            <form onSubmit={handleExecuteStockAdjustment} className="mt-4 space-y-3.5 text-xs">
+              <div className="rounded-xl border border-[#efe2d4] bg-[#faf5f0] p-3">
+                <p className="font-semibold text-[#1e1b18]">{selectedInventoryItem.productName}</p>
+                <div className="mt-2 flex items-center justify-between text-[#6e5a4f]">
                   <span>
-                    Hiện có: <b>{selectedInventoryItem.totalStock} sp</b>
+                    Hiện có: <b className="text-[#3d2e24]">{selectedInventoryItem.totalStock} sp</b>
                   </span>
                   <span>
-                    Khả dụng: <b>{selectedInventoryItem.availableStock} sp</b>
+                    Khả dụng: <b className="text-[#3d2e24]">{selectedInventoryItem.availableStock} sp</b>
                   </span>
                   <span>
-                    Ngưỡng báo: <b>{selectedInventoryItem.reorderPoint} sp</b>
+                    Ngưỡng báo: <b className="text-[#3d2e24]">{selectedInventoryItem.reorderPoint} sp</b>
                   </span>
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-gray-700 mb-1">
+                <label className="mb-1 block font-semibold text-[#5c493e]">
                   Số lượng thay đổi (dương là Nhập, âm là Xuất) *
                 </label>
                 <input
@@ -2162,12 +2061,12 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
                   required
                   value={stockAdjustDelta}
                   onChange={(e) => setStockAdjustDelta(parseInt(e.target.value) || 0)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs font-bold"
+                  className={cn(modalInputClass, "font-bold")}
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-gray-700 mb-1">
+                <label className="mb-1 block font-semibold text-[#5c493e]">
                   Chi nhánh áp dụng *
                 </label>
                 <select
@@ -2178,7 +2077,7 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
                     ""
                   }
                   onChange={(e) => setStockAdjustBranch(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs bg-white"
+                  className={modalInputClass}
                 >
                   {(branches.length > 0
                     ? branches
@@ -2197,7 +2096,7 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
               </div>
 
               <div>
-                <label className="block font-semibold text-gray-700 mb-1">
+                <label className="mb-1 block font-semibold text-[#5c493e]">
                   Lý do điều chỉnh (lưu vào Audit Trail) *
                 </label>
                 <textarea
@@ -2206,23 +2105,23 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
                   value={stockAdjustReason}
                   onChange={(e) => setStockAdjustReason(e.target.value)}
                   placeholder="Ghi rõ số hóa đơn nhập khẩu hoặc lý do xuất kho..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
+                  className={modalInputClass}
                 />
               </div>
 
-              <div className="pt-3 flex items-center justify-end gap-2 border-t border-gray-100">
+              <div className="flex items-center justify-end gap-2 border-t border-[#efe2d4] pt-3">
                 <button
                   type="button"
                   onClick={() => setSelectedInventoryItem(null)}
-                  className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium"
+                  className="rounded-xl px-3.5 py-2 font-medium text-[#6e5a4f] hover:bg-[#faf5f0]"
                 >
                   Hủy bỏ
                 </button>
                 <button
                   type="submit"
-                  className="bg-[#3d2e24] hover:bg-[#1e1b18] text-white px-4 py-2 rounded-lg font-bold"
+                  className="rounded-xl bg-[#3d2e24] px-4 py-2 font-semibold text-[#faf5f0] hover:bg-[#2a1f18]"
                 >
-                  Xác Nhận Điều Chỉnh
+                  Xác nhận điều chỉnh
                 </button>
               </div>
             </form>
@@ -2230,66 +2129,68 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* MODAL: CHI TIẾT ĐƠN HÀNG                                                */}
-      {/* ========================================================================= */}
+      {/* =================================================================== */}
+      {/* MODAL: CHI TIẾT ĐƠN HÀNG                                            */}
+      {/* =================================================================== */}
       {selectedOrder && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1e1b18]/55 p-4 backdrop-blur-[2px]">
+          <div className="w-full max-w-lg rounded-2xl border border-[#e6d5c5] bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#efe2d4] pb-3">
               <div>
-                <h3 className="font-bold text-gray-900 text-base">
-                  Chi Tiết Đơn Hàng {selectedOrder.orderCode}
+                <h3 className="font-display text-base font-semibold text-[#3d2e24]">
+                  Chi tiết đơn hàng {selectedOrder.orderCode}
                 </h3>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-[#7c685c]">
                   Đặt lúc: {formatDateTime(selectedOrder.createdAt)}
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => setSelectedOrder(null)}
-                className="text-gray-400 hover:text-gray-600"
+                aria-label="Đóng chi tiết đơn hàng"
+                className="rounded-lg p-1 text-[#7c685c] hover:bg-[#faf5f0]"
               >
-                <X className="w-5 h-5" />
+                <X className="h-4 w-4" />
               </button>
             </div>
 
-            <div className="space-y-4 mt-4 text-xs">
-              <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-semibold text-gray-500">Khách nhận:</span>
-                  <span className="font-bold text-gray-900">{selectedOrder.customerName}</span>
+            <div className="mt-4 space-y-4 text-xs">
+              <div className="space-y-1.5 rounded-xl border border-[#efe2d4] bg-[#faf5f0] p-3.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-[#6e5a4f]">Khách nhận:</span>
+                  <span className="font-bold text-[#1e1b18]">{selectedOrder.customerName}</span>
                 </div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-semibold text-gray-500">Điện thoại:</span>
-                  <span className="text-gray-800">{selectedOrder.customerPhone}</span>
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-[#6e5a4f]">Điện thoại:</span>
+                  <span className="text-[#3d2e24]">{selectedOrder.customerPhone}</span>
                 </div>
                 <div className="flex items-start justify-between gap-4">
-                  <span className="font-semibold text-gray-500 shrink-0">Địa chỉ giao:</span>
-                  <span className="text-gray-800 text-right">{selectedOrder.shippingAddress}</span>
+                  <span className="shrink-0 font-medium text-[#6e5a4f]">Địa chỉ giao:</span>
+                  <span className="text-right text-[#3d2e24]">{selectedOrder.shippingAddress}</span>
                 </div>
                 {selectedOrder.notes && (
-                  <div className="mt-2 pt-2 border-t border-gray-200 text-amber-700">
+                  <div className="mt-2 border-t border-[#e6d5c5] pt-2 text-amber-800">
                     <b>Ghi chú:</b> {selectedOrder.notes}
                   </div>
                 )}
               </div>
 
               <div>
-                <p className="font-semibold text-gray-700 mb-2">Danh sách sản phẩm trong đơn:</p>
-                <div className="divide-y divide-gray-100 border border-gray-200 rounded-lg overflow-hidden">
+                <p className="mb-2 font-semibold text-[#5c493e]">Danh sách sản phẩm trong đơn:</p>
+                <div className="divide-y divide-[#efe2d4] overflow-hidden rounded-xl border border-[#efe2d4]">
                   {selectedOrder.items.map((item, idx) => (
-                    <div key={idx} className="p-2.5 flex items-center justify-between bg-white">
+                    <div key={idx} className="flex items-center justify-between bg-white p-3">
                       <div>
-                        <p className="font-bold text-gray-800">{item.name}</p>
-                        <p className="text-[11px] text-gray-400 font-mono">
-                          SKU: {item.sku} • {item.brand}
+                        <p className="font-semibold text-[#1e1b18]">{item.name}</p>
+                        <p className="font-mono text-[11px] text-[#8c7568]">
+                          SKU: {item.sku} · {item.brand}
                         </p>
                       </div>
                       <div className="text-right">
-                        <span className="font-semibold text-gray-900">
+                        <span className="font-semibold text-[#3d2e24]">
                           {formatVND(item.price * item.quantity)}
                         </span>
-                        <div className="text-[11px] text-gray-500">
+                        <div className="text-[11px] text-[#7c685c]">
                           {item.quantity} x {formatVND(item.price)}
                         </div>
                       </div>
@@ -2298,22 +2199,22 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
                 </div>
               </div>
 
-              <div className="bg-gray-50 p-3 rounded-lg flex items-center justify-between text-xs">
+              <div className="flex items-center justify-between rounded-xl border border-[#efe2d4] bg-[#faf5f0] p-3.5 text-xs">
                 <div>
-                  <p className="text-gray-500">Phương thức thanh toán:</p>
-                  <p className="font-semibold text-gray-800">{selectedOrder.paymentMethod}</p>
+                  <p className="text-[#6e5a4f]">Phương thức thanh toán:</p>
+                  <p className="font-semibold text-[#3d2e24]">{selectedOrder.paymentMethod}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-gray-500">Tổng thanh toán:</p>
-                  <p className="text-base font-black text-[#b86b4b]">
+                  <p className="text-[#6e5a4f]">Tổng thanh toán:</p>
+                  <p className="text-base font-bold text-[#b86b4b]">
                     {formatVND(selectedOrder.total)}
                   </p>
                 </div>
               </div>
 
-              <div className="pt-2 flex items-center justify-between border-t border-gray-100">
+              <div className="flex items-center justify-between border-t border-[#efe2d4] pt-3">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-gray-500">Nhân sự phụ trách:</span>
+                  <span className="text-[#6e5a4f]">Nhân sự phụ trách:</span>
                   <span className="font-bold text-[#3d2e24]">
                     {selectedOrder.assignedStaffName || "Chưa gán"}
                   </span>
@@ -2321,7 +2222,7 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
                 <button
                   type="button"
                   onClick={() => setSelectedOrder(null)}
-                  className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg font-bold"
+                  className="rounded-xl bg-[#3d2e24] px-4 py-2 font-semibold text-[#faf5f0] hover:bg-[#2a1f18]"
                 >
                   Đóng
                 </button>
@@ -2330,9 +2231,8 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
           </div>
         </div>
       )}
-    </div>
+    </BackofficeShell>
   );
 }
 
 export { AdminAccessDenied } from "./admin-access-denied";
-

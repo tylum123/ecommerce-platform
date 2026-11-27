@@ -14,7 +14,11 @@ function load(file, stubs = {}) {
   new Function('module','exports','require',code)(mod,mod.exports,id => {
     if (id === 'server-only') return {};
     if (Object.hasOwn(stubs,id)) return stubs[id];
-    if (id.startsWith('@/')) return load(`src/${id.slice(2)}.ts`,stubs);
+    if (id.startsWith('@/')) {
+      const base = `src/${id.slice(2)}`;
+      const resolved = fs.existsSync(path.resolve(__dirname, '..', `${base}.ts`)) ? `${base}.ts` : `${base}.tsx`;
+      return load(resolved, stubs);
+    }
     return localRequire(id);
   });
   return mod.exports;

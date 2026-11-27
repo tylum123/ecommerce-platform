@@ -16,15 +16,30 @@ import {
   Heart,
   HelpCircle,
   RefreshCw,
+  ChevronRight,
+  ChevronDown,
+  Crown,
+  Sparkles,
+  ExternalLink,
+  Phone,
+  Mail,
 } from "lucide-react";
 import { Header } from "@/components/sites/nari/header";
 import { Footer } from "@/components/sites/nari/footer";
 import { LocationDialog } from "@/components/sites/nari/location-dialog";
+import {
+  EmptyStateCard,
+  KpiStatCard,
+  SectionCard,
+  StatusBadge,
+  type StatusTone,
+} from "@/components/sites/nari/portal/portal-ui";
 import type {
   CustomerLoyaltySummary,
   CustomerPortalOrder,
   CustomerProfileRecord,
 } from "@/lib/customer-types";
+import type { ErpOrderStatus, PaymentStatus, UserTier } from "@/lib/erp-types";
 import {
   getCustomerMenuLinks,
   readLocation,
@@ -42,6 +57,47 @@ interface CustomerPortalViewProps {
   section?: string;
 }
 
+interface TierMilestone {
+  tier: UserTier;
+  rangeLabel: string;
+  minPoints: number;
+  benefit: string;
+}
+
+const TIER_MILESTONES: readonly TierMilestone[] = [
+  {
+    tier: "Member",
+    rangeLabel: "0 – 499 điểm",
+    minPoints: 0,
+    benefit: "Tích điểm tự động trên mỗi đơn hàng chính hãng tại Nari Home.",
+  },
+  {
+    tier: "Silver",
+    rangeLabel: "500 – 1.499 điểm",
+    minPoints: 500,
+    benefit: "Ưu tiên xử lý đơn hàng và nhận thông báo sớm các đợt Nari Deals.",
+  },
+  {
+    tier: "Gold",
+    rangeLabel: "1.500 – 2.999 điểm",
+    minPoints: 1500,
+    benefit: "Đặc quyền quà tặng định kỳ và hỗ trợ ưu tiên giao nhanh NariNow 2H.",
+  },
+  {
+    tier: "Diamond",
+    rangeLabel: "Từ 3.000 điểm",
+    minPoints: 3000,
+    benefit: "Hạng thành viên cao nhất với đặc quyền chăm sóc khách hàng VIP.",
+  },
+];
+
+const TIER_BADGE_STYLES: Record<UserTier, string> = {
+  Member: "border-[#d8b89c]/40 bg-white/10 text-[#f6ece3]",
+  Silver: "border-slate-200/40 bg-slate-100/15 text-slate-100",
+  Gold: "border-amber-300/50 bg-amber-300/20 text-amber-200",
+  Diamond: "border-[#e6d5c5]/60 bg-[#9e7656]/35 text-[#fff7ed]",
+};
+
 function formatDateTime(iso: string): string {
   if (!iso) return "-";
   const d = new Date(iso);
@@ -54,6 +110,79 @@ function formatDateTime(iso: string): string {
     month: "2-digit",
     year: "numeric",
   });
+}
+
+function getOrderStatusTone(status: ErpOrderStatus): StatusTone {
+  switch (status) {
+    case "delivered":
+      return "success";
+    case "cancelled":
+    case "returned":
+      return "danger";
+    case "pending":
+      return "warning";
+    case "confirmed":
+    case "packing":
+    case "shipping":
+      return "info";
+    default:
+      return "neutral";
+  }
+}
+
+function getPaymentStatusMeta(paymentStatus: PaymentStatus): { label: string; tone: StatusTone } {
+  if (paymentStatus === "paid") {
+    return { label: "Đã thanh toán", tone: "success" };
+  }
+  if (paymentStatus === "refunded") {
+    return { label: "Đã hoàn tiền", tone: "warning" };
+  }
+  return { label: "Chưa thanh toán", tone: "neutral" };
+}
+
+function getTierProgress(loyalty: CustomerLoyaltySummary): {
+  percent: number;
+  targetPoints: number | null;
+} {
+  if (!loyalty.nextTier) {
+    return { percent: 100, targetPoints: null };
+  }
+  const targetPoints =
+    loyalty.tier === "Member"
+      ? 500
+      : loyalty.tier === "Silver"
+        ? 1500
+        : loyalty.tier === "Gold"
+          ? 3000
+          : null;
+  if (!targetPoints) {
+    return { percent: 100, targetPoints: null };
+  }
+  const startPoints =
+    loyalty.tier === "Member" ? 0 : loyalty.tier === "Silver" ? 500 : 1500;
+  const span = Math.max(1, targetPoints - startPoints);
+  const ratio = (loyalty.points - startPoints) / span;
+  const percent = Math.max(0, Math.min(100, Math.round(ratio * 100)));
+  return { percent, targetPoints };
+}
+
+function getMenuIcon(key: string) {
+  switch (key) {
+    case "tai-khoan":
+      return User;
+    case "don-hang":
+      return ShoppingBag;
+    case "so-dia-chi":
+      return MapPin;
+    case "uu-dai":
+      return Tag;
+    case "yeu-thich":
+      return Heart;
+    case "hoi-dap":
+      return HelpCircle;
+    default:
+      return Award;
+  }
 }
 
 export function CustomerPortalView({ initialSection = "tai-khoan", section }: CustomerPortalViewProps) {
@@ -117,6 +246,7 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
   );
 
   const menuLinks = useMemo(() => getCustomerMenuLinks(), []);
+  const tierProgress = useMemo(() => getTierProgress(loyalty), [loyalty]);
 
   useEffect(() => {
     let cancelled = false;
@@ -274,136 +404,234 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
     }
   }
 
+  function handleSelectSection(key: string) {
+    setActiveSection(key);
+    setSaveSuccessMsg("");
+    setSaveErrorMsg("");
+  }
+
+  const activeSectionLabel =
+    menuLinks.find((m) => m.key === activeSection)?.label || "Tài khoản";
+
   return (
     <>
       <Header />
 
-      <main className="min-h-screen bg-[#f5f5f5] pb-16">
-        <div className="bg-white border-b border-gray-200">
-          <div className="wrap py-2.5">
-            <nav className="breadcrumbs p-0" aria-label="Breadcrumb">
-              <Link href="/">Trang chủ</Link>
-              <span className="mx-2 text-gray-400">›</span>
-              <span className="text-gray-500">Khách hàng</span>
-              <span className="mx-2 text-gray-400">›</span>
-              <span className="font-semibold text-[#3d2e24]">
-                {menuLinks.find((m) => m.key === activeSection)?.label || "Tài khoản"}
-              </span>
+      <main className="min-h-screen bg-[#faf5f0] pb-16 overflow-x-clip">
+        {/* Breadcrumb */}
+        <div className="border-b border-[#e6d5c5] bg-white/80 backdrop-blur-sm">
+          <div className="max-w-6xl mx-auto px-4 py-3">
+            <nav
+              className="flex items-center gap-1.5 text-xs text-[#7c685c] overflow-x-auto whitespace-nowrap"
+              aria-label="Breadcrumb"
+            >
+              <Link href="/" className="transition hover:text-[#3d2e24]">
+                Trang chủ
+              </Link>
+              <ChevronRight className="w-3.5 h-3.5 shrink-0 text-[#b8a394]" />
+              <span>Khách hàng</span>
+              <ChevronRight className="w-3.5 h-3.5 shrink-0 text-[#b8a394]" />
+              <span className="font-semibold text-[#3d2e24]">{activeSectionLabel}</span>
             </nav>
           </div>
         </div>
 
-        <div className="wrap mt-4">
-          {profile && (
-            <div className="rounded-lg border border-[#bbf7d0] bg-[#f0fdf4] p-4 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-[#3d2e24] text-white grid place-items-center font-bold text-sm shrink-0">
-                  {(profile.fullName || profile.email || "K").charAt(0).toUpperCase()}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <strong className="text-sm text-[#14532d]">
-                      Xin chào, {profile.fullName || profile.email}!
-                    </strong>
-                    <span className="text-[11px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
-                      Hạng {loyalty.tier} • {loyalty.points} điểm
-                    </span>
-                  </div>
-                  <p className="text-xs text-[#166534] mt-0.5">
-                    {profile.email} {profile.phone ? `• ${profile.phone}` : ""}
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => void handleLogout()}
-                className="inline-flex items-center gap-1.5 rounded-md border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>Đăng xuất</span>
-              </button>
-            </div>
-          )}
-
+        <div className="max-w-6xl mx-auto px-4 py-6 sm:py-8">
           {loading && (
-            <div className="mt-4 rounded-lg border border-gray-200 bg-white p-8 text-center text-sm text-gray-600 flex items-center justify-center gap-2">
-              <RefreshCw className="w-4 h-4 animate-spin text-[#3d2e24]" />
+            <div className="rounded-2xl border border-[#e6d5c5] bg-white p-10 text-center text-sm text-[#6e5a4f] shadow-[0_2px_14px_rgba(61,46,36,0.04)] flex items-center justify-center gap-2.5">
+              <RefreshCw className="w-4 h-4 animate-spin text-[#9e7656]" />
               <span>Đang tải dữ liệu tài khoản từ máy chủ...</span>
             </div>
           )}
 
           {loadError && (
-            <div role="alert" className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 flex items-center gap-2">
+            <div
+              role="alert"
+              className="rounded-2xl border border-red-200 bg-red-50/90 p-4 text-sm text-red-700 flex items-center gap-2.5"
+            >
               <AlertCircle className="w-5 h-5 shrink-0" />
               <span>{loadError}</span>
             </div>
           )}
 
           {!loading && !loadError && profile && (
-            <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-12">
-              {/* Sidebar */}
-              <aside className="lg:col-span-3 space-y-3">
-                <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
-                  <div className="border-b border-gray-100 bg-[#faf5f0] px-4 py-3">
-                    <div className="font-bold text-sm text-[#3d2e24]">
-                      {profile.fullName || "Thành viên Nari Home"}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 items-start">
+              {/* Sidebar & Mobile Top Member Card + Pill Tabs */}
+              <aside className="lg:col-span-4 xl:col-span-3 space-y-4 min-w-0">
+                {/* Nari Rewards Membership Card */}
+                <div className="relative overflow-hidden rounded-2xl border border-[#9e7656]/35 bg-gradient-to-br from-[#3d2e24] via-[#2f231b] to-[#1e1b18] p-5 text-[#faf5f0] shadow-[0_10px_28px_rgba(30,27,24,0.18)]">
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[#9e7656]/20 blur-2xl"
+                  />
+                  <div className="relative space-y-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#d8b89c]/40 bg-[#9e7656]/25 text-sm font-bold text-[#faf5f0]">
+                          {(profile.fullName || profile.email || "K").charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="truncate text-sm font-semibold text-white">
+                            {profile.fullName || "Thành viên Nari Home"}
+                          </div>
+                          <div className="truncate text-[11px] text-[#d9c5b2]">
+                            {profile.email}
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => void handleLogout()}
+                        aria-label="Đăng xuất"
+                        className="lg:hidden inline-flex items-center gap-1 rounded-lg border border-white/15 bg-white/10 px-2.5 py-1.5 text-[11px] font-medium text-[#f6ece3] transition hover:bg-white/20 shrink-0"
+                      >
+                        <LogOut className="w-3.5 h-3.5" />
+                        <span>Thoát</span>
+                      </button>
                     </div>
-                    <div className="text-xs text-gray-500 truncate">{profile.email}</div>
+
+                    <div className="flex items-center justify-between gap-2 pt-1">
+                      <span
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold tracking-wide ${TIER_BADGE_STYLES[loyalty.tier]}`}
+                      >
+                        <Crown className="w-3.5 h-3.5" />
+                        <span>Nari {loyalty.tier}</span>
+                      </span>
+                      <div className="text-right">
+                        <span className="text-lg font-bold tracking-tight text-white">
+                          {loyalty.points.toLocaleString("vi-VN")}
+                        </span>
+                        <span className="ml-1 text-[11px] text-[#d9c5b2]">điểm</span>
+                      </div>
+                    </div>
+
+                    {/* Tier Upgrade Progress */}
+                    <div className="space-y-1.5">
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/15">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-[#d8b89c] to-[#b86b4b] transition-all duration-500"
+                          style={{ width: `${tierProgress.percent}%` }}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between gap-2 text-[11px] text-[#d9c5b2]">
+                        {loyalty.nextTier ? (
+                          <>
+                            <span>
+                              Cần thêm{" "}
+                              <strong className="text-white">
+                                {loyalty.pointsToNextTier.toLocaleString("vi-VN")}
+                              </strong>{" "}
+                              điểm
+                            </span>
+                            <span className="font-medium text-[#f6ece3]">
+                              Hạng {loyalty.nextTier}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[#f6ece3]">
+                            <Sparkles className="w-3 h-3" />
+                            Bạn đang ở hạng thành viên cao nhất
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <nav className="divide-y divide-gray-100">
+                </div>
+
+                {/* Mobile Horizontal Pill Navigation */}
+                <nav
+                  aria-label="Điều hướng cổng khách hàng"
+                  className="lg:hidden -mx-4 px-4 overflow-x-auto pb-1"
+                >
+                  <div className="flex items-center gap-2 w-max">
                     {menuLinks.map((item) => {
                       const isActive = activeSection === item.key;
-                      const Icon =
-                        item.key === "tai-khoan"
-                          ? User
-                          : item.key === "don-hang"
-                            ? ShoppingBag
-                            : item.key === "so-dia-chi"
-                              ? MapPin
-                              : item.key === "uu-dai"
-                                ? Tag
-                                : item.key === "yeu-thich"
-                                  ? Heart
-                                  : item.key === "hoi-dap"
-                                    ? HelpCircle
-                                    : Award;
+                      const Icon = getMenuIcon(item.key);
                       return (
                         <button
                           key={item.key}
                           type="button"
-                          onClick={() => {
-                            setActiveSection(item.key);
-                            setSaveSuccessMsg("");
-                            setSaveErrorMsg("");
-                          }}
-                          className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-left text-xs font-medium transition ${
+                          onClick={() => handleSelectSection(item.key)}
+                          className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-medium whitespace-nowrap transition ${
                             isActive
-                              ? "bg-[#f6ece3] text-[#3d2e24] font-bold border-l-4 border-[#3d2e24]"
-                              : "text-gray-700 hover:bg-gray-50"
+                              ? "border-[#3d2e24] bg-[#3d2e24] text-white shadow-sm"
+                              : "border-[#e6d5c5] bg-white text-[#5c493e] hover:border-[#d8b89c] hover:bg-[#f6ece3]/60"
                           }`}
                         >
-                          <Icon className="w-4 h-4 shrink-0" />
+                          <Icon className="w-3.5 h-3.5 shrink-0" />
                           <span>{item.label}</span>
                         </button>
                       );
                     })}
+                  </div>
+                </nav>
+
+                {/* Desktop Sidebar Navigation */}
+                <div className="hidden lg:block overflow-hidden rounded-2xl border border-[#e6d5c5] bg-white shadow-[0_2px_14px_rgba(61,46,36,0.04)]">
+                  <nav aria-label="Menu tài khoản" className="divide-y divide-[#f3e8dd]">
+                    {menuLinks.map((item) => {
+                      const isActive = activeSection === item.key;
+                      const Icon = getMenuIcon(item.key);
+                      return (
+                        <button
+                          key={item.key}
+                          type="button"
+                          onClick={() => handleSelectSection(item.key)}
+                          className={`w-full flex items-center justify-between gap-2.5 px-4 py-3 text-left text-xs transition ${
+                            isActive
+                              ? "bg-[#f6ece3] text-[#3d2e24] font-semibold border-l-[3px] border-[#b86b4b]"
+                              : "text-[#5c493e] font-medium hover:bg-[#faf5f0]"
+                          }`}
+                        >
+                          <span className="flex items-center gap-2.5 min-w-0">
+                            <Icon
+                              className={`w-4 h-4 shrink-0 ${
+                                isActive ? "text-[#b86b4b]" : "text-[#8f7a6c]"
+                              }`}
+                            />
+                            <span className="truncate">{item.label}</span>
+                          </span>
+                          {item.key === "don-hang" && orders.length > 0 && (
+                            <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-[#5c493e] border border-[#e6d5c5]">
+                              {orders.length}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </nav>
+
+                  <div className="border-t border-[#efe2d4] bg-[#faf5f0]/60 p-3">
+                    <button
+                      type="button"
+                      onClick={() => void handleLogout()}
+                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#e6d5c5] bg-white px-3 py-2 text-xs font-semibold text-[#7c3a2d] transition hover:border-red-200 hover:bg-red-50 hover:text-red-700"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Đăng xuất</span>
+                    </button>
+                  </div>
                 </div>
 
-                <div className="rounded-lg border border-gray-200 bg-white p-4 text-xs space-y-2">
-                  <div className="flex items-center justify-between text-gray-600">
-                    <span>Giỏ hàng hiện tại:</span>
-                    <Link href="/gio-hang" className="font-bold text-[#b86b4b] underline">
+                {/* Quick Utility Summary (Desktop) */}
+                <div className="hidden lg:block rounded-2xl border border-[#e6d5c5] bg-white p-4 text-xs space-y-3 shadow-[0_2px_14px_rgba(61,46,36,0.04)]">
+                  <div className="flex items-center justify-between gap-2 text-[#6e5a4f]">
+                    <span>Giỏ hàng hiện tại</span>
+                    <Link
+                      href="/gio-hang"
+                      className="font-semibold text-[#b86b4b] hover:underline"
+                    >
                       {cartCount} sản phẩm
                     </Link>
                   </div>
-                  <div className="flex items-center justify-between text-gray-600">
-                    <span>Khu vực giao hàng:</span>
+                  <div className="h-px bg-[#f3e8dd]" />
+                  <div className="flex items-center justify-between gap-2 text-[#6e5a4f]">
+                    <span className="shrink-0">Khu vực giao hàng</span>
                     <button
                       type="button"
                       onClick={() => setShowLocationModal(true)}
-                      className="font-semibold text-[#3d2e24] underline truncate max-w-[140px]"
+                      className="font-semibold text-[#3d2e24] hover:text-[#b86b4b] underline truncate max-w-[140px]"
                     >
                       {userLocationShort}
                     </button>
@@ -412,50 +640,76 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
               </aside>
 
               {/* Main Content */}
-              <div className="lg:col-span-9 rounded-lg border border-gray-200 bg-white p-6">
+              <div className="lg:col-span-8 xl:col-span-9 space-y-5 min-w-0">
                 {saveSuccessMsg && (
-                  <div role="status" className="mb-4 flex items-center gap-2 rounded-lg bg-green-50 p-3 text-xs text-green-800 border border-green-200">
-                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <div
+                    role="status"
+                    className="flex items-center gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50/90 px-4 py-3 text-xs font-medium text-emerald-800"
+                  >
+                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
                     <span>{saveSuccessMsg}</span>
                   </div>
                 )}
                 {saveErrorMsg && (
-                  <div role="alert" className="mb-4 flex items-center gap-2 rounded-lg bg-red-50 p-3 text-xs text-red-700 border border-red-200">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
+                  <div
+                    role="alert"
+                    className="flex items-center gap-2.5 rounded-2xl border border-red-200 bg-red-50/90 px-4 py-3 text-xs font-medium text-red-700"
+                  >
+                    <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
                     <span>{saveErrorMsg}</span>
                   </div>
                 )}
 
                 {activeSection === "tai-khoan" && (
-                  <div>
-                    <h1 className="text-lg font-bold text-[#3d2e24] mb-1">Thông tin tài khoản</h1>
-                    <p className="text-xs text-gray-500 mb-5">
-                      Thông tin hồ sơ được lưu trực tiếp trong cơ sở dữ liệu Nari Home.
-                    </p>
+                  <SectionCard
+                    title="Thông tin tài khoản"
+                    description="Thông tin hồ sơ được lưu trực tiếp trong cơ sở dữ liệu Nari Home."
+                  >
                     <form onSubmit={handleSaveProfile} className="space-y-4 max-w-xl">
                       <div>
-                        <label className="block text-xs font-semibold text-gray-700 mb-1">Email đăng nhập</label>
+                        <label
+                          htmlFor="portal-email"
+                          className="block text-xs font-semibold text-[#5c493e] mb-1.5"
+                        >
+                          Email đăng nhập
+                        </label>
                         <input
+                          id="portal-email"
                           type="email"
                           value={profile.email}
                           disabled
-                          className="w-full rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-gray-500"
+                          className="w-full rounded-xl border border-[#e6d5c5] bg-[#faf5f0] px-3.5 py-2.5 text-sm text-[#7c685c] cursor-not-allowed"
                         />
                       </div>
+
                       <div>
-                        <label className="block text-xs font-semibold text-gray-700 mb-1">Họ và tên *</label>
+                        <label
+                          htmlFor="portal-fullname"
+                          className="block text-xs font-semibold text-[#5c493e] mb-1.5"
+                        >
+                          Họ và tên *
+                        </label>
                         <input
+                          id="portal-fullname"
                           type="text"
                           required
                           maxLength={160}
                           value={fullNameInput}
                           onChange={(e) => setFullNameInput(e.target.value)}
-                          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                          placeholder="Nhập họ và tên của bạn"
+                          className="w-full rounded-xl border border-[#d9c5b2] bg-white px-3.5 py-2.5 text-sm text-[#1e1b18] placeholder:text-[#9c887b] transition focus:border-[#9e7656] focus:outline-none focus:ring-2 focus:ring-[#9e7656]/25"
                         />
                       </div>
+
                       <div>
-                        <label className="block text-xs font-semibold text-gray-700 mb-1">Số điện thoại</label>
+                        <label
+                          htmlFor="portal-phone"
+                          className="block text-xs font-semibold text-[#5c493e] mb-1.5"
+                        >
+                          Số điện thoại
+                        </label>
                         <input
+                          id="portal-phone"
                           type="tel"
                           inputMode="numeric"
                           pattern="(0[0-9]{9})?"
@@ -463,149 +717,201 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                           value={phoneInput}
                           onChange={(e) => setPhoneInput(e.target.value)}
                           placeholder="0901234567"
-                          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                          className="w-full rounded-xl border border-[#d9c5b2] bg-white px-3.5 py-2.5 text-sm text-[#1e1b18] placeholder:text-[#9c887b] transition focus:border-[#9e7656] focus:outline-none focus:ring-2 focus:ring-[#9e7656]/25"
                         />
                       </div>
+
                       <div>
-                        <label className="block text-xs font-semibold text-gray-700 mb-1">Địa chỉ mặc định</label>
+                        <label
+                          htmlFor="portal-address"
+                          className="block text-xs font-semibold text-[#5c493e] mb-1.5"
+                        >
+                          Địa chỉ mặc định
+                        </label>
                         <textarea
-                          rows={2}
+                          id="portal-address"
+                          rows={3}
                           maxLength={500}
                           value={addressInput}
                           onChange={(e) => setAddressInput(e.target.value)}
                           placeholder="Số nhà, tên đường, phường/xã, quận/huyện..."
-                          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                          className="w-full rounded-xl border border-[#d9c5b2] bg-white px-3.5 py-2.5 text-sm text-[#1e1b18] placeholder:text-[#9c887b] transition focus:border-[#9e7656] focus:outline-none focus:ring-2 focus:ring-[#9e7656]/25"
                         />
                       </div>
-                      <button
-                        type="submit"
-                        disabled={saving}
-                        className="rounded-lg bg-[#3d2e24] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#1e1b18] disabled:opacity-50"
-                      >
-                        {saving ? "Đang lưu..." : "Lưu thay đổi"}
-                      </button>
+
+                      <div className="pt-1">
+                        <button
+                          type="submit"
+                          disabled={saving}
+                          className="inline-flex items-center justify-center rounded-xl bg-[#3d2e24] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1e1b18] disabled:opacity-50"
+                        >
+                          {saving ? "Đang lưu..." : "Lưu thay đổi"}
+                        </button>
+                      </div>
                     </form>
-                  </div>
+                  </SectionCard>
                 )}
 
                 {activeSection === "don-hang" && (
-                  <div>
-                    <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                      <div>
-                        <h1 className="text-lg font-bold text-[#3d2e24]">Đơn hàng của tôi</h1>
-                        <p className="text-xs text-gray-500">
-                          Hiển thị các đơn hàng được đặt khi đã đăng nhập tài khoản này ({orders.length} đơn).
-                        </p>
-                      </div>
-                      <Link href="/tra-cuu-don-hang" className="text-xs font-semibold text-[#b86b4b] underline">
-                        Tra cứu đơn theo mã & SĐT →
+                  <SectionCard
+                    title="Đơn hàng của tôi"
+                    description={`Hiển thị các đơn hàng được đặt khi đã đăng nhập tài khoản này (${orders.length} đơn).`}
+                    actions={
+                      <Link
+                        href="/tra-cuu-don-hang"
+                        className="inline-flex items-center gap-1 rounded-xl border border-[#e6d5c5] bg-white px-3 py-1.5 text-xs font-semibold text-[#b86b4b] transition hover:border-[#d8b89c] hover:bg-[#faf5f0]"
+                      >
+                        <span>Tra cứu đơn theo mã & SĐT</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
                       </Link>
-                    </div>
-
+                    }
+                  >
                     {orders.length === 0 ? (
-                      <div className="rounded-lg border border-dashed border-gray-300 p-8 text-center text-sm text-gray-500 space-y-3">
-                        <ShoppingBag className="w-8 h-8 mx-auto text-gray-400" />
-                        <p>Bạn chưa có đơn hàng nào gắn với tài khoản này.</p>
-                        <Link
-                          href="/"
-                          className="inline-block rounded-lg bg-[#3d2e24] px-4 py-2 text-xs font-semibold text-white"
-                        >
-                          Khám phá sản phẩm
-                        </Link>
-                      </div>
+                      <EmptyStateCard
+                        icon={<ShoppingBag className="w-6 h-6" />}
+                        title="Chưa có đơn hàng nào"
+                        description="Bạn chưa có đơn hàng nào gắn với tài khoản này. Khám phá các sản phẩm mỹ phẩm chính hãng tại Nari Home."
+                        action={
+                          <Link
+                            href="/"
+                            className="inline-flex items-center justify-center rounded-xl bg-[#3d2e24] px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-[#1e1b18]"
+                          >
+                            Khám phá sản phẩm
+                          </Link>
+                        }
+                      />
                     ) : (
                       <div className="space-y-4">
-                        {orders.map((order) => (
-                          <div key={order.id} className="rounded-lg border border-gray-200 p-4 text-xs space-y-2">
-                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-2">
-                              <div>
-                                <span className="font-mono font-bold text-sm text-[#3d2e24]">{order.orderCode}</span>
-                                <span className="ml-2 text-gray-400">{formatDateTime(order.createdAt)}</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="rounded-full bg-[#f6ece3] px-2.5 py-0.5 font-semibold text-[#3d2e24]">
-                                  {order.statusLabel}
-                                </span>
-                                <span className="rounded-full bg-gray-100 px-2.5 py-0.5 font-medium text-gray-700">
-                                  {order.paymentStatus === "paid"
-                                    ? "Đã thanh toán"
-                                    : order.paymentStatus === "refunded"
-                                      ? "Đã hoàn tiền"
-                                      : "Chưa thanh toán"}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="space-y-1">
-                              {order.items.map((item, idx) => (
-                                <div key={`${item.sku}-${idx}`} className="flex items-center justify-between text-gray-700">
-                                  <span>
-                                    <b>{item.quantity}×</b> {item.name}
+                        {orders.map((order) => {
+                          const paymentMeta = getPaymentStatusMeta(order.paymentStatus);
+                          return (
+                            <article
+                              key={order.id}
+                              className="rounded-2xl border border-[#e6d5c5] bg-white p-4 sm:p-5 space-y-3.5 transition hover:border-[#d8b89c]"
+                            >
+                              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#f3e8dd] pb-3">
+                                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                                  <span className="font-mono text-sm font-bold text-[#3d2e24]">
+                                    {order.orderCode}
                                   </span>
-                                  <span className="font-medium">{money(item.price * item.quantity)}</span>
+                                  <span className="text-xs text-[#7c685c]">
+                                    {formatDateTime(order.createdAt)}
+                                  </span>
                                 </div>
-                              ))}
-                            </div>
-                            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 pt-2 text-gray-600">
-                              <span>
-                                Giao đến: <b>{order.shippingAddress}</b> ({order.branchName})
-                              </span>
-                              <div className="flex items-center gap-3">
-                                {order.status === "pending" && (
-                                  <button
-                                    type="button"
-                                    disabled={cancellingOrderCode === order.orderCode}
-                                    onClick={() => void handleCancelOrder(order)}
-                                    className="rounded border border-red-200 bg-white px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50"
-                                  >
-                                    {cancellingOrderCode === order.orderCode ? "Đang hủy..." : "Hủy đơn"}
-                                  </button>
-                                )}
-                                <span className="text-sm font-bold text-[#b86b4b]">
-                                  Tổng: {money(order.totalAmount)}
-                                </span>
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <StatusBadge tone={getOrderStatusTone(order.status)}>
+                                    {order.statusLabel}
+                                  </StatusBadge>
+                                  <StatusBadge tone={paymentMeta.tone}>
+                                    {paymentMeta.label}
+                                  </StatusBadge>
+                                </div>
                               </div>
-                            </div>
-                          </div>
-                        ))}
+
+                              <div className="rounded-xl bg-[#faf5f0]/70 px-3.5 py-2.5 divide-y divide-[#efe2d4]">
+                                {order.items.map((item, idx) => (
+                                  <div
+                                    key={`${item.sku}-${idx}`}
+                                    className="flex items-start justify-between gap-3 py-1.5 text-xs text-[#3d2e24]"
+                                  >
+                                    <span className="min-w-0 leading-relaxed">
+                                      <strong className="font-semibold text-[#b86b4b]">
+                                        {item.quantity}×
+                                      </strong>{" "}
+                                      {item.name}
+                                    </span>
+                                    <span className="shrink-0 font-semibold text-[#3d2e24]">
+                                      {money(item.price * item.quantity)}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+
+                              <div className="flex flex-wrap items-center justify-between gap-3 pt-1 text-xs">
+                                <div className="flex items-start gap-1.5 text-[#6e5a4f] min-w-0">
+                                  <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#9e7656]" />
+                                  <span className="leading-relaxed">
+                                    Giao đến:{" "}
+                                    <strong className="font-semibold text-[#3d2e24]">
+                                      {order.shippingAddress}
+                                    </strong>{" "}
+                                    ({order.branchName})
+                                  </span>
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-2.5 ml-auto">
+                                  <Link
+                                    href="/tra-cuu-don-hang"
+                                    className="inline-flex items-center gap-1 rounded-xl border border-[#d9c5b2] bg-white px-3 py-1.5 text-xs font-semibold text-[#5c493e] transition hover:border-[#9e7656] hover:bg-[#faf5f0]"
+                                  >
+                                    <span>Tra cứu chi tiết</span>
+                                  </Link>
+
+                                  {order.status === "pending" && (
+                                    <button
+                                      type="button"
+                                      disabled={cancellingOrderCode === order.orderCode}
+                                      onClick={() => void handleCancelOrder(order)}
+                                      className="rounded-xl border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-50"
+                                    >
+                                      {cancellingOrderCode === order.orderCode
+                                        ? "Đang hủy..."
+                                        : "Hủy đơn"}
+                                    </button>
+                                  )}
+
+                                  <span className="text-sm font-bold text-[#b86b4b] pl-1">
+                                    {money(order.totalAmount)}
+                                  </span>
+                                </div>
+                              </div>
+                            </article>
+                          );
+                        })}
                       </div>
                     )}
-                  </div>
+                  </SectionCard>
                 )}
 
                 {activeSection === "so-dia-chi" && (
-                  <div>
-                    <h1 className="text-lg font-bold text-[#3d2e24] mb-1">Địa chỉ nhận hàng mặc định</h1>
-                    <p className="text-xs text-gray-500 mb-4">
-                      Lưu địa chỉ nhận hàng mặc định vào hồ sơ của bạn trên PostgreSQL.
-                    </p>
+                  <SectionCard
+                    title="Địa chỉ nhận hàng mặc định"
+                    description="Lưu địa chỉ nhận hàng mặc định vào hồ sơ của bạn trên PostgreSQL."
+                  >
                     <form onSubmit={handleSaveAddress} className="space-y-4 max-w-xl">
                       <div>
-                        <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        <label
+                          htmlFor="portal-default-address"
+                          className="block text-xs font-semibold text-[#5c493e] mb-1.5"
+                        >
                           Địa chỉ giao hàng mặc định
                         </label>
                         <textarea
+                          id="portal-default-address"
                           rows={3}
                           maxLength={500}
                           value={addressInput}
                           onChange={(e) => setAddressInput(e.target.value)}
                           placeholder="Ví dụ: 71 Hoàng Hoa Thám, Phường 13, Quận Tân Bình, TP.HCM"
-                          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                          className="w-full rounded-xl border border-[#d9c5b2] bg-white px-3.5 py-2.5 text-sm text-[#1e1b18] placeholder:text-[#9c887b] transition focus:border-[#9e7656] focus:outline-none focus:ring-2 focus:ring-[#9e7656]/25"
                         />
                       </div>
-                      <div className="flex flex-wrap items-center gap-3">
+
+                      <div className="flex flex-wrap items-center gap-2.5 pt-1">
                         <button
                           type="submit"
                           disabled={saving}
-                          className="rounded-lg bg-[#3d2e24] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1e1b18] disabled:opacity-50"
+                          className="rounded-xl bg-[#3d2e24] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1e1b18] disabled:opacity-50"
                         >
                           {saving ? "Đang lưu..." : "Lưu địa chỉ mặc định"}
                         </button>
                         <button
                           type="button"
                           onClick={() => setShowLocationModal(true)}
-                          className="rounded-lg border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-[#d9c5b2] bg-[#faf5f0] px-4 py-2.5 text-xs font-semibold text-[#3d2e24] transition hover:border-[#9e7656] hover:bg-[#f6ece3]"
                         >
-                          Chọn khu vực giao hàng ({userLocationShort})
+                          <MapPin className="w-3.5 h-3.5 text-[#b86b4b]" />
+                          <span>Khu vực: {userLocationShort}</span>
                         </button>
                         <button
                           type="button"
@@ -613,118 +919,215 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                             clearLocation();
                             setUserLocationShort("Chọn khu vực của bạn");
                           }}
-                          className="text-xs text-gray-500 underline"
+                          className="px-2 py-1 text-xs font-medium text-[#7c685c] underline transition hover:text-[#3d2e24]"
                         >
                           Xóa khu vực đã lưu
                         </button>
                       </div>
                     </form>
-                  </div>
+                  </SectionCard>
                 )}
 
                 {activeSection === "diem-thuong" && (
-                  <div className="space-y-4">
-                    <h1 className="text-lg font-bold text-[#3d2e24]">Hạng thẻ & Điểm thưởng Nari Rewards</h1>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className="rounded-lg border border-amber-200 bg-[#faf5f0] p-4">
-                        <div className="text-xs text-gray-500">Hạng thành viên hiện tại</div>
-                        <div className="mt-1 text-2xl font-bold text-[#3d2e24]">{loyalty.tier}</div>
-                        <div className="mt-1 text-xs text-gray-600">
-                          {loyalty.nextTier
-                            ? `Cần thêm ${loyalty.pointsToNextTier} điểm để lên hạng ${loyalty.nextTier}`
-                            : "Bạn đang ở hạng thành viên cao nhất"}
-                        </div>
-                      </div>
-                      <div className="rounded-lg border border-gray-200 bg-white p-4">
-                        <div className="text-xs text-gray-500">Điểm thưởng khả dụng</div>
-                        <div className="mt-1 text-2xl font-bold text-[#b86b4b]">{loyalty.points} điểm</div>
-                      </div>
-                      <div className="rounded-lg border border-gray-200 bg-white p-4">
-                        <div className="text-xs text-gray-500">Tổng chi tiêu ({loyalty.ordersCount} đơn)</div>
-                        <div className="mt-1 text-2xl font-bold text-gray-900">{money(loyalty.totalSpent)}</div>
-                      </div>
+                  <div className="space-y-5">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                      <KpiStatCard
+                        label="Điểm hiện có"
+                        value={`${loyalty.points.toLocaleString("vi-VN")} điểm`}
+                        hint={
+                          loyalty.nextTier
+                            ? `Cần thêm ${loyalty.pointsToNextTier.toLocaleString("vi-VN")} điểm lên hạng ${loyalty.nextTier}`
+                            : "Bạn đang ở hạng cao nhất"
+                        }
+                        icon={<Award className="w-4 h-4" />}
+                        tone="accent"
+                      />
+                      <KpiStatCard
+                        label="Tổng chi tiêu"
+                        value={money(loyalty.totalSpent)}
+                        hint="Tính trên các đơn hàng hợp lệ"
+                        icon={<ShoppingBag className="w-4 h-4" />}
+                      />
+                      <KpiStatCard
+                        label="Số đơn hợp lệ"
+                        value={`${loyalty.ordersCount} đơn`}
+                        hint="Không bao gồm đơn hủy hoặc hoàn trả"
+                        icon={<CheckCircle2 className="w-4 h-4" />}
+                      />
                     </div>
+
+                    <SectionCard
+                      title="Bảng mốc hạng thẻ Nari Rewards"
+                      description="Điểm tích lũy và hạng thành viên được đồng bộ trực tiếp từ hệ thống Nari Home."
+                    >
+                      <div className="divide-y divide-[#efe2d4] rounded-xl border border-[#e6d5c5] overflow-hidden">
+                        {TIER_MILESTONES.map((milestone) => {
+                          const isCurrent = loyalty.tier === milestone.tier;
+                          return (
+                            <div
+                              key={milestone.tier}
+                              className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 px-4 py-3.5 ${
+                                isCurrent ? "bg-[#f6ece3]/70" : "bg-white"
+                              }`}
+                            >
+                              <div className="space-y-0.5 min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span className="text-sm font-bold text-[#3d2e24]">
+                                    {milestone.tier}
+                                  </span>
+                                  <span className="text-xs font-medium text-[#9e7656]">
+                                    {milestone.rangeLabel}
+                                  </span>
+                                  {isCurrent && (
+                                    <StatusBadge tone="accent">Hạng hiện tại</StatusBadge>
+                                  )}
+                                </div>
+                                <p className="text-xs text-[#6e5a4f] leading-relaxed">
+                                  {milestone.benefit}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </SectionCard>
                   </div>
                 )}
 
                 {activeSection === "uu-dai" && (
-                  <div className="space-y-3">
-                    <h1 className="text-lg font-bold text-[#3d2e24]">Mã giảm giá & Khuyến mãi</h1>
-                    <div className="rounded-lg border border-dashed border-gray-300 bg-[#faf5f0] p-6 text-sm text-gray-700 space-y-2">
-                      <p>
-                        Ví mã giảm giá cá nhân hóa đang chờ kích hoạt đồng bộ máy chủ. Bạn có thể xem các chương trình ưu đãi đang mở trên trang Nari Deals.
-                      </p>
-                      <Link
-                        href="/deals-dang-dien-ra.html"
-                        className="inline-block rounded-lg bg-[#3d2e24] px-4 py-2 text-xs font-semibold text-white"
-                      >
-                        Xem Nari Deals đang diễn ra →
-                      </Link>
-                    </div>
-                  </div>
+                  <SectionCard
+                    title="Mã giảm giá & Khuyến mãi"
+                    description="Tổng hợp chương trình ưu đãi chính hãng dành cho thành viên Nari Home."
+                  >
+                    <EmptyStateCard
+                      icon={<Tag className="w-6 h-6" />}
+                      title="Ví mã giảm giá cá nhân hóa đang chờ đồng bộ"
+                      description="Ví mã giảm giá cá nhân hóa đang chờ kích hoạt đồng bộ máy chủ. Bạn có thể xem các chương trình ưu đãi đang mở trên trang Nari Deals."
+                      action={
+                        <Link
+                          href="/deals-dang-dien-ra.html"
+                          className="inline-flex items-center justify-center rounded-xl bg-[#3d2e24] px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-[#1e1b18]"
+                        >
+                          Xem Nari Deals đang diễn ra →
+                        </Link>
+                      }
+                    />
+                  </SectionCard>
                 )}
 
                 {activeSection === "yeu-thich" && (
-                  <div className="space-y-3">
-                    <h1 className="text-lg font-bold text-[#3d2e24]">Sản phẩm yêu thích</h1>
-                    <div className="rounded-lg border border-dashed border-gray-300 bg-[#faf5f0] p-6 text-sm text-gray-700 space-y-2">
-                      <p>
-                        Danh sách yêu thích lưu trên máy chủ đang được hoàn thiện. Bạn có thể kiểm tra giỏ hàng hoặc tiếp tục xem sản phẩm chính hãng.
-                      </p>
-                      <div className="flex flex-wrap gap-3">
-                        <Link
-                          href="/gio-hang"
-                          className="inline-block rounded-lg bg-[#3d2e24] px-4 py-2 text-xs font-semibold text-white"
-                        >
-                          Xem giỏ hàng ({cartCount})
-                        </Link>
-                        <Link
-                          href="/"
-                          className="inline-block rounded-lg border border-gray-300 bg-white px-4 py-2 text-xs font-semibold text-gray-700"
-                        >
-                          Khám phá sản phẩm
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
+                  <SectionCard
+                    title="Sản phẩm yêu thích"
+                    description="Lưu giữ các sản phẩm mỹ phẩm bạn quan tâm để mua sắm nhanh hơn."
+                  >
+                    <EmptyStateCard
+                      icon={<Heart className="w-6 h-6" />}
+                      title="Danh sách yêu thích đang được hoàn thiện"
+                      description="Danh sách yêu thích lưu trên máy chủ đang được hoàn thiện. Bạn có thể kiểm tra giỏ hàng hoặc tiếp tục xem sản phẩm chính hãng."
+                      action={
+                        <div className="flex flex-wrap items-center justify-center gap-2.5">
+                          <Link
+                            href="/gio-hang"
+                            className="inline-flex items-center justify-center rounded-xl bg-[#3d2e24] px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-[#1e1b18]"
+                          >
+                            Xem giỏ hàng ({cartCount})
+                          </Link>
+                          <Link
+                            href="/"
+                            className="inline-flex items-center justify-center rounded-xl border border-[#d9c5b2] bg-white px-5 py-2.5 text-xs font-semibold text-[#3d2e24] transition hover:border-[#9e7656] hover:bg-[#faf5f0]"
+                          >
+                            Khám phá sản phẩm
+                          </Link>
+                        </div>
+                      }
+                    />
+                  </SectionCard>
                 )}
 
                 {activeSection === "hoi-dap" && (
-                  <div className="space-y-5">
-                    <div>
-                      <h1 className="text-lg font-bold text-[#3d2e24]">Hỏi đáp & Hỗ trợ khách hàng</h1>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Tổng đài CSKH miễn phí: <b>1800 6324</b> · Email: <b>cskh@narihome.io.vn</b>
-                      </p>
-                    </div>
-
-                    <div className="divide-y divide-gray-200 rounded-lg border border-gray-200">
-                      {faqs.map((item, idx) => (
-                        <div key={item.q} className="p-4">
-                          <button
-                            type="button"
-                            onClick={() => setFaqOpen(faqOpen === idx ? null : idx)}
-                            className="w-full text-left text-xs font-bold text-[#3d2e24] flex items-center justify-between gap-2"
-                          >
-                            <span>{item.q}</span>
-                            <span>{faqOpen === idx ? "−" : "+"}</span>
-                          </button>
-                          {faqOpen === idx && <p className="mt-2 text-xs text-gray-600 leading-relaxed">{item.a}</p>}
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="rounded-lg bg-[#faf5f0] border border-[#e6d5c5] p-4 flex flex-wrap items-center justify-between gap-3 text-xs">
-                      <div className="flex items-center gap-2 text-[#3d2e24]">
-                        <ShieldCheck className="w-4 h-4 shrink-0" />
-                        <span>Cần hỗ trợ thêm về đơn hàng hoặc bảo hành? Xem trang Trung tâm Hỗ trợ Nari Home.</span>
+                  <SectionCard
+                    title="Hỏi đáp & Hỗ trợ khách hàng"
+                    description="Giải đáp nhanh các thắc mắc về giao hàng NariNow 2H, đơn hàng và Nari Rewards."
+                  >
+                    <div className="space-y-5">
+                      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[#e6d5c5] bg-[#faf5f0]/70 px-4 py-3 text-xs text-[#5c493e]">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Phone className="w-3.5 h-3.5 text-[#b86b4b]" />
+                          Tổng đài CSKH miễn phí: <strong className="text-[#3d2e24]">1800 6324</strong>
+                        </span>
+                        <span className="hidden sm:inline text-[#d8b89c]">•</span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <Mail className="w-3.5 h-3.5 text-[#b86b4b]" />
+                          Email: <strong className="text-[#3d2e24]">cskh@narihome.io.vn</strong>
+                        </span>
                       </div>
-                      <Link href="/ho-tro" className="font-semibold text-[#b86b4b] underline">
-                        Mở Trung tâm Hỗ trợ →
-                      </Link>
+
+                      <div className="divide-y divide-[#efe2d4] rounded-2xl border border-[#e6d5c5] overflow-hidden">
+                        {faqs.map((item, idx) => {
+                          const isOpen = faqOpen === idx;
+                          return (
+                            <div key={item.q} className="bg-white">
+                              <button
+                                type="button"
+                                onClick={() => setFaqOpen(isOpen ? null : idx)}
+                                aria-expanded={isOpen}
+                                className="w-full px-4 py-3.5 text-left text-xs font-semibold text-[#3d2e24] flex items-center justify-between gap-3 transition hover:bg-[#faf5f0]/60"
+                              >
+                                <span>{item.q}</span>
+                                <ChevronDown
+                                  className={`w-4 h-4 shrink-0 text-[#9e7656] transition-transform duration-200 ${
+                                    isOpen ? "rotate-180" : ""
+                                  }`}
+                                />
+                              </button>
+                              {isOpen && (
+                                <p className="px-4 pb-4 text-xs text-[#6e5a4f] leading-relaxed">
+                                  {item.a}
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="rounded-2xl border border-[#e6d5c5] bg-[#faf5f0] p-4 flex flex-wrap items-center justify-between gap-3 text-xs">
+                        <div className="flex items-center gap-2.5 text-[#3d2e24]">
+                          <ShieldCheck className="w-4 h-4 shrink-0 text-[#b86b4b]" />
+                          <span>
+                            Cần hỗ trợ thêm về đơn hàng hoặc đổi trả? Xem trang Trung tâm Hỗ trợ Nari Home.
+                          </span>
+                        </div>
+                        <Link
+                          href="/ho-tro"
+                          className="font-semibold text-[#b86b4b] hover:underline whitespace-nowrap"
+                        >
+                          Mở Trung tâm Hỗ trợ →
+                        </Link>
+                      </div>
                     </div>
-                  </div>
+                  </SectionCard>
                 )}
+
+                {/* Compact Mobile Quick Summary */}
+                <div className="lg:hidden rounded-2xl border border-[#e6d5c5] bg-white p-4 text-xs space-y-2.5 shadow-[0_2px_14px_rgba(61,46,36,0.04)]">
+                  <div className="flex items-center justify-between gap-2 text-[#6e5a4f]">
+                    <span>Giỏ hàng hiện tại</span>
+                    <Link href="/gio-hang" className="font-semibold text-[#b86b4b] hover:underline">
+                      {cartCount} sản phẩm
+                    </Link>
+                  </div>
+                  <div className="h-px bg-[#f3e8dd]" />
+                  <div className="flex items-center justify-between gap-2 text-[#6e5a4f]">
+                    <span className="shrink-0">Khu vực giao hàng</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowLocationModal(true)}
+                      className="font-semibold text-[#3d2e24] underline truncate max-w-[180px]"
+                    >
+                      {userLocationShort}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}
