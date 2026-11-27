@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
+import { BRAND_CONFIG } from "@/lib/brand-config";
 
 export default function robots(): MetadataRoute.Robots {
+  const siteUrl = `https://${BRAND_CONFIG.domain}`;
   return {
     rules: [
       {
@@ -19,7 +21,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/", "/quan-tri", "/quan-tri/"],
       },
     ],
-    sitemap: "https://Nari Home/sitemap.xml",
-    host: "https://Nari Home",
+    sitemap: `${siteUrl}/sitemap.xml`,
+    host: siteUrl,
   };
 }

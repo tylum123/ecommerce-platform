@@ -57,7 +57,7 @@ export function sanitizeBrandString(value: string | undefined, fallback: string)
 
 const shortName = sanitizeBrandString(process.env.NEXT_PUBLIC_BRAND_SHORT, "Nari");
 const fullName = sanitizeBrandString(process.env.NEXT_PUBLIC_BRAND_NAME, `${shortName} Home`);
-const emailDomain = process.env.NEXT_PUBLIC_BRAND_EMAIL_DOMAIN?.trim() || "narihome.vn";
+const emailDomain = process.env.NEXT_PUBLIC_BRAND_EMAIL_DOMAIN?.trim() || "narihome.io.vn";
 
 export const BRAND_CONFIG: BrandConfig = {
   name: fullName,

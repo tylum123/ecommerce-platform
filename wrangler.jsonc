@@ -23,8 +23,18 @@
       "id": "650301fdebbf4bdfac223cb90ddaa1cd"
     }
   ],
+  "routes": [
+    {
+      "pattern": "narihome.io.vn",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.narihome.io.vn",
+      "custom_domain": true
+    }
+  ],
   "vars": {
-    "APP_ORIGIN": "https://nari-home.tylum123.workers.dev",
+    "APP_ORIGIN": "https://narihome.io.vn",
     "NEXT_PUBLIC_SUPABASE_URL": "https://ywrzguhuzekkusoupehf.supabase.co",
     "SUPABASE_URL": "https://ywrzguhuzekkusoupehf.supabase.co",
     "NARI_STORAGE_BUCKET": "nari-catalog",
@@ -43,7 +53,7 @@
     "NEXT_PUBLIC_BRAND_SHORT": "Nari",
     "NEXT_PUBLIC_BRAND_NAME": "Nari Home",
     "NEXT_PUBLIC_BRAND_SLOGAN": "Khơi nguồn vẻ đẹp - Kiến tạo khí chất",
-    "NEXT_PUBLIC_BRAND_DOMAIN": "narihome.vn",
+    "NEXT_PUBLIC_BRAND_DOMAIN": "narihome.io.vn",
     "NEXT_PUBLIC_BRAND_COMPANY": "CÔNG TY CỔ PHẦN NARI HOME BEAUTY & CLINIC",
     "NEXT_PUBLIC_BRAND_DEALS": "Nari Deals",
     "NEXT_PUBLIC_BRAND_DEALS_UPPER": "NARI DEALS",
@@ -51,8 +61,8 @@
     "NEXT_PUBLIC_BRAND_DELIVERY": "NariNow 2H",
     "NEXT_PUBLIC_BRAND_LOYALTY": "Nari Rewards",
     "NEXT_PUBLIC_BRAND_HOTLINE": "1800 6324",
-    "NEXT_PUBLIC_BRAND_EMAIL": "cskh@narihome.vn",
-    "NEXT_PUBLIC_BRAND_EMAIL_DOMAIN": "narihome.vn",
+    "NEXT_PUBLIC_BRAND_EMAIL": "cskh@narihome.io.vn",
+    "NEXT_PUBLIC_BRAND_EMAIL_DOMAIN": "narihome.io.vn",
     "NEXT_PUBLIC_BRAND_ORDER_PREFIX": "NARI",
     "NEXT_PUBLIC_BRAND_BANNER": "/nari-home-banner.jpg"
   }

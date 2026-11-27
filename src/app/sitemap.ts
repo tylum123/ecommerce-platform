@@ -3,10 +3,11 @@ import { categories, getAllCatalogProducts } from "@/lib/catalog";
 import { clinicServices } from "@/lib/clinic-services";
 import { getSupportTopics } from "@/lib/support-stores";
 import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";
+import { BRAND_CONFIG } from "@/lib/brand-config";
 
 export const dynamic = "force-dynamic";
 
-const BASE_URL = "https://Nari Home";
+const BASE_URL = `https://${BRAND_CONFIG.domain}`;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const liveCatalog = await readStorefrontCatalog();

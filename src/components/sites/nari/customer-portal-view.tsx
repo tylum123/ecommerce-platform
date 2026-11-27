@@ -704,7 +704,7 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                     <div>
                       <h1 className="text-lg font-bold text-[#3d2e24]">Hỏi đáp & Hỗ trợ khách hàng</h1>
                       <p className="text-xs text-gray-500 mt-1">
-                        Tổng đài CSKH miễn phí: <b>1800 6324</b> · Email: <b>cskh@narihome.vn</b>
+                        Tổng đài CSKH miễn phí: <b>1800 6324</b> · Email: <b>cskh@narihome.io.vn</b>
                       </p>
                     </div>
 

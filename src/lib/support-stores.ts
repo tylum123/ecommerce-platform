@@ -149,7 +149,7 @@ const supportTopics: SupportTopic[] = [
     category: "Mua hàng & Giao nhanh 2H",
     summary:
       "Quy trình tìm kiếm sản phẩm, thêm vào giỏ hàng, kiểm tra ưu đãi và hoàn tất thông tin nhận hàng tại Nari Home.",
-    sourceUrl: "https://narihome.vn/ho-tro/huong-dan-dat-hang",
+    sourceUrl: "https://narihome.io.vn/ho-tro/huong-dan-dat-hang",
     sections: [
       {
         heading: "Bước 1: Tìm kiếm và chọn sản phẩm",
@@ -173,7 +173,7 @@ const supportTopics: SupportTopic[] = [
     category: "Mua hàng & Giao nhanh 2H",
     summary:
       "Dịch vụ giao hàng nhanh trong 2 giờ áp dụng cho đơn từ 90.000đ tại các khu vực có hệ thống cửa hàng Nari Home.",
-    sourceUrl: "https://narihome.vn/ho-tro/giao-nhanh-2h",
+    sourceUrl: "https://narihome.io.vn/ho-tro/giao-nhanh-2h",
     sections: [
       {
         heading: "Điều kiện áp dụng NariNow 2H",
@@ -196,7 +196,7 @@ const supportTopics: SupportTopic[] = [
     category: "Thanh toán & Đổi trả",
     summary:
       "Nari Home hỗ trợ đa dạng hình thức thanh toán an toàn: COD tiền mặt, chuyển khoản VietQR, VNPAY, MoMo và thẻ ngân hàng.",
-    sourceUrl: "https://narihome.vn/ho-tro/phuong-thuc-thanh-toan",
+    sourceUrl: "https://narihome.io.vn/ho-tro/phuong-thuc-thanh-toan",
     sections: [
       {
         heading: "Thanh toán khi nhận hàng (COD)",
@@ -218,7 +218,7 @@ const supportTopics: SupportTopic[] = [
     category: "Thanh toán & Đổi trả",
     summary:
       "Cam kết hỗ trợ đổi trả miễn phí trong vòng 30 ngày đối với sản phẩm lỗi từ nhà sản xuất hoặc giao nhầm.",
-    sourceUrl: "https://narihome.vn/ho-tro/chinh-sach-doi-tra",
+    sourceUrl: "https://narihome.io.vn/ho-tro/chinh-sach-doi-tra",
     sections: [
       {
         heading: "Điều kiện đổi trả",
@@ -240,7 +240,7 @@ const supportTopics: SupportTopic[] = [
     category: "Tài khoản & OTP",
     summary:
       "Đăng ký thành viên Nari Home để tích điểm Nari Rewards, theo dõi đơn hàng và quản lý lịch hẹn Clinic.",
-    sourceUrl: "https://narihome.vn/ho-tro/tai-khoan",
+    sourceUrl: "https://narihome.io.vn/ho-tro/tai-khoan",
     sections: [
       {
         heading: "Quyền lợi thành viên Nari Rewards",
@@ -257,7 +257,7 @@ const supportTopics: SupportTopic[] = [
     category: "Tài khoản & OTP",
     summary:
       "Giải đáp các tình huống khi nhận mã xác thực OTP qua SMS hoặc email khi đăng nhập và đặt hàng.",
-    sourceUrl: "https://narihome.vn/ho-tro/ma-xac-thuc-otp",
+    sourceUrl: "https://narihome.io.vn/ho-tro/ma-xac-thuc-otp",
     sections: [
       {
         heading: "Không nhận được mã OTP",
@@ -274,7 +274,7 @@ const supportTopics: SupportTopic[] = [
     category: "Giới thiệu & Liên hệ",
     summary:
       "Nari Home Beauty & Clinic phân phối mỹ phẩm chính hãng 100% cùng hệ thống phòng khám da liễu chuẩn y khoa.",
-    sourceUrl: "https://narihome.vn/ho-tro/gioi-thieu",
+    sourceUrl: "https://narihome.io.vn/ho-tro/gioi-thieu",
     sections: [
       {
         heading: "Sứ mệnh & Cam kết chính hãng",
@@ -291,7 +291,7 @@ const supportTopics: SupportTopic[] = [
     category: "Chính sách & Bảo mật",
     summary:
       "Quy định về thu thập, lưu trữ, mã hóa và bảo vệ dữ liệu cá nhân của khách hàng tại Nari Home.",
-    sourceUrl: "https://narihome.vn/ho-tro/chinh-sach-bao-mat",
+    sourceUrl: "https://narihome.io.vn/ho-tro/chinh-sach-bao-mat",
     sections: [
       {
         heading: "Phạm vi bảo vệ dữ liệu",
@@ -307,7 +307,7 @@ const supportTopics: SupportTopic[] = [
     category: "Chính sách & Bảo mật",
     summary:
       "Các điều khoản chung áp dụng khi mua sắm sản phẩm và đặt lịch dịch vụ trên hệ thống Nari Home.",
-    sourceUrl: "https://narihome.vn/ho-tro/dieu-khoan-su-dung",
+    sourceUrl: "https://narihome.io.vn/ho-tro/dieu-khoan-su-dung",
     sections: [
       {
         heading: "Quy định giao dịch",
@@ -324,14 +324,14 @@ const supportTopics: SupportTopic[] = [
     category: "Giới thiệu & Liên hệ",
     summary:
       "Kênh liên hệ trực tiếp với bộ phận Chăm sóc khách hàng và Nari Clinic & Spa hoạt động từ 08:00 - 22:00 mỗi ngày.",
-    sourceUrl: "https://narihome.vn/ho-tro/lien-he",
+    sourceUrl: "https://narihome.io.vn/ho-tro/lien-he",
     sections: [
       {
         heading: "Tổng đài miễn cước",
         body: [
           "Tư vấn mua hàng & khiếu nại: 1800 6324 (Phím 1).",
           "Tư vấn & đặt hẹn Nari Clinic & Spa: 1800 6324 (Phím 2).",
-          "Email hỗ trợ: hotro@narihome.vn.",
+          "Email hỗ trợ: hotro@narihome.io.vn.",
         ],
       },
     ],
@@ -465,7 +465,7 @@ export function getFooterData(): FooterData {
       shopping: "1800 6324 (Phím 1)",
       clinic: "1800 6324 (Phím 2)",
       hours: "08:00 - 22:00 mỗi ngày",
-      email: "hotro@narihome.vn",
+      email: "hotro@narihome.io.vn",
     },
     benefits: [
       {

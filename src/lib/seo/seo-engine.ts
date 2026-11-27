@@ -78,8 +78,8 @@ export interface FaqItemInput {
   answer: string;
 }
 
-const SITE_ORIGIN = "https://narihome.vn";
-const DEFAULT_BRAND_IMAGE = "https://narihome.vn/nari-home-banner.jpg";
+const SITE_ORIGIN = "https://narihome.io.vn";
+const DEFAULT_BRAND_IMAGE = "https://narihome.io.vn/nari-home-banner.jpg";
 
 // ----------------------------------------------------------------------
 // Schema.org Generators
@@ -100,7 +100,7 @@ export function generateOrganizationJsonLd(): Record<string, unknown> {
     description:
       "Nari Home - Hệ thống phân phối mỹ phẩm chính hãng 100% và chuỗi phòng khám da liễu Nari Clinic & Spa hàng đầu Việt Nam. Cam kết đền bù 200% nếu phát hiện hàng giả.",
     telephone: "1800 6324",
-    email: "hotro@narihome.vn",
+    email: "hotro@narihome.io.vn",
     address: {
       "@type": "PostalAddress",
       streetAddress: "71 Hoàng Hoa Thám, Phường 13",

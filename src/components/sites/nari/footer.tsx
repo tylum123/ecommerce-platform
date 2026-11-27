@@ -88,18 +88,16 @@ export function Footer() {
         <div>
           <b>CẬP NHẬT &amp; KẾT NỐI</b>
           <p className="text-xs text-muted-foreground mb-3">Tải ứng dụng Nari Home để nhận voucher ưu đãi đặc quyền cho đơn hàng đầu tiên.</p>
-          <a 
-            href="https://hotro.Nari Home/app" 
-            target="_blank" 
-            rel="noopener noreferrer" 
+          <Link
+            href="/ho-tro"
             className="app-label inline-flex items-center gap-2 hover:bg-[#1e1b18] transition-colors"
           >
             <Smartphone className="w-4 h-4" /> TẢI ỨNG DỤNG NARI HOME
-          </a>
+          </Link>
           <div className="mt-4 text-xs text-muted-foreground space-y-1">
             <p className="flex items-center gap-1"><Clock className="w-3 h-3" /> Mua sắm: 08:00 - 22:00</p>
             <p className="flex items-center gap-1"><Clock className="w-3 h-3" /> Clinic &amp; Spa: 09:00 - 20:00</p>
-            <p className="flex items-center gap-1"><Mail className="w-3 h-3" /> Email: hotro@narihome.vn</p>
+            <p className="flex items-center gap-1"><Mail className="w-3 h-3" /> Email: hotro@narihome.io.vn</p>
           </div>
         </div>
       </div>
