@@ -1,6 +1,6 @@
 import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";
 import { getPostgresDatabase } from "@/lib/server/postgres-database";
-import { readPostgresBranchesSafely } from "@/lib/server/postgres-clinic-service";
+import { readPostgresBranchesSafely } from "@/lib/server/postgres-branch-service";
 import { CheckoutView } from "@/components/sites/nari/checkout-view";
 
 export const dynamic = "force-dynamic";

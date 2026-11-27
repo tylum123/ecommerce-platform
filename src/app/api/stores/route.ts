@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getPostgresDatabase } from "@/lib/server/postgres-database";
-import { listPostgresBranches } from "@/lib/server/postgres-clinic-service";
+import { listPostgresBranches } from "@/lib/server/postgres-branch-service";
 import { getStoreCities, getStoreDistricts } from "@/lib/support-stores";
 
 export const dynamic = "force-dynamic";
@@ -12,10 +12,7 @@ export async function GET(request: Request) {
 
     const city = searchParams.get("city") || undefined;
     const district = searchParams.get("district") || undefined;
-    const hasClinicParam = searchParams.get("hasClinic");
     const query = searchParams.get("q") || searchParams.get("query") || undefined;
-
-    const hasClinic = hasClinicParam === "true" || hasClinicParam === "1" ? true : undefined;
 
     if (!process.env.NARI_POSTGRES_URL?.trim()) {
       return NextResponse.json({
@@ -31,7 +28,6 @@ export async function GET(request: Request) {
     const data = await listPostgresBranches(getPostgresDatabase(), {
       city,
       district,
-      hasClinic,
       query,
     });
 

@@ -16,7 +16,7 @@ const categoryLinks = [
   ["Nhà Cửa & Đời Sống", "gia-dung-doi-song-c2440.html", true], ["Điện Lạnh & Điện Máy", "dien-lanh-dien-may-c2981.html", false],
   ["Điện Gia Dụng", "dien-gia-dung-c2761.html", false], ["Điện Thoại & Máy Tính Bảng", "dien-thoai-may-tinh-bang-c2926.html", false],
   ["Thiết Bị Điện Tử", "dien-tu-phu-kien-c2673.html", false], ["Sản Phẩm Cho Bé", "san-pham-cho-be-c2497.html", true],
-  ["Nari Clinic & Spa", "nari-clinic-spa.html", false], ["DermaHair", "dermahair-c2298.html", false],
+  ["DermaHair", "dermahair-c2298.html", false],
 ] as const;
 
 export function NewArrivals({ initialSort, liveCatalog }: { initialSort: string; liveCatalog?: LiveCatalogOverridesState }) {

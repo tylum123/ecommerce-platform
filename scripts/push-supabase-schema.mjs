@@ -31,6 +31,7 @@ const WAVE3_BACKEND_MIGRATIONS = [
   'db/migrations/202611180001_auth_ratelimit_customers.sql',
   'db/migrations/202611180002_orders_fulfillment.sql',
   'db/migrations/202611180003_clinic_bookings.sql',
+  'db/migrations/202611270001_drop_clinic_schema.sql',
 ];
 
 const PLACEHOLDER_PATTERNS = [

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getAllCatalogProducts } from "@/lib/catalog";
 import { catalogBackend, readStorefrontCatalog } from "@/lib/server/live-catalog-store";
+import { getPostgresDatabase } from "@/lib/server/postgres-database";
+import { readPostgresBranchesSafely } from "@/lib/server/postgres-branch-service";
 import { generateVietQrPaymentDetails } from "@/lib/db/repository";
 
 export const dynamic = "force-dynamic";
@@ -85,10 +87,12 @@ export async function POST(request: NextRequest) {
     const shippingFee = deliveryType === "NariNow 2H" && subtotal >= 90000 ? 0 : 25000;
     const total = subtotal + shippingFee;
 
-    // Stage 3 will wire PostgreSQL branches.
-    const branches: Array<{ supportsNowFree2H: boolean; supportsClinic: boolean }> = [];
-    const NariNowBranches = branches.filter((b) => b.supportsNowFree2H);
-    const clinicBranches = branches.filter((b) => b.supportsClinic);
+    const branches = await readPostgresBranchesSafely(
+      getPostgresDatabase,
+      province || district ? { city: province || undefined, district: district || undefined } : undefined,
+    );
+    const NariNowBranches = branches.filter((b) => Boolean(b.supportsNowfree2h));
+    const clinicBranches = branches.filter((b) => Boolean(b.hasClinic));
     const isNariNowAvailable = NariNowBranches.length > 0;
 
     // Provisional VietQR preview

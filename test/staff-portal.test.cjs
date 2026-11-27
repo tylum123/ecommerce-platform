@@ -24,7 +24,7 @@ test('verified admin reaches all workspaces; each provisioned staff role reaches
   const { resolveStaffPortalAccess } = load('src/lib/server/staff-portal-access.ts');
   const { STAFF_WORKSPACES, canViewStaffWorkspace } = load('src/lib/staff-workspaces.ts');
   const auth = { getUser:async () => ({ data:{ user:{ id:'verified', user_metadata:{ role:'admin' } } }, error:null }) };
-  for (const role of ['admin','store_manager','warehouse_staff','clinic_doctor','cs_agent','customer']) {
+  for (const role of ['admin','store_manager','warehouse_staff','cs_agent','customer']) {
     const access = await resolveStaffPortalAccess(auth,{ findActiveIdentity:async () => ({ userId:'verified', role, active:true, fullName:'Provisioned', branchId:role === 'admin' ? null : 'branch' }) });
     assert.equal(access.status,role === 'customer' ? 403 : 200);
     if (access.status === 200) for (const workspace of STAFF_WORKSPACES) assert.equal(canViewStaffWorkspace(access.user.role,workspace), role === 'admin' || role === workspace.role);
@@ -58,11 +58,12 @@ test('server workspace pages reject unknown/cross-role/customer/guest and render
   };
   const page = load('src/app/nhan-vien/[workspace]/page.tsx',stubs).default;
   await assert.rejects(() => page({ params:Promise.resolve({ workspace:'unknown' }) }),/404/);
+  await assert.rejects(() => page({ params:Promise.resolve({ workspace:'clinic' }) }),/404/);
   assert.equal(calls,0);
-  for (const workspace of ['cua-hang','kho','clinic','cskh']) assert.equal((await page({ params:Promise.resolve({ workspace }) })).props.session.id,'admin');
+  for (const workspace of ['cua-hang','kho','cskh']) assert.equal((await page({ params:Promise.resolve({ workspace }) })).props.session.id,'admin');
   access = { status:200,user:{ role:'warehouse_staff',branchId:'branch' } };
   assert.equal((await page({ params:Promise.resolve({ workspace:'kho' }) })).props.session.role,'warehouse_staff');
-  await assert.rejects(() => page({ params:Promise.resolve({ workspace:'clinic' }) }),/404/);
+  await assert.rejects(() => page({ params:Promise.resolve({ workspace:'cua-hang' }) }),/404/);
   access = { status:403,user:null };
   await assert.rejects(() => load('src/app/nhan-vien/page.tsx',stubs).default(),/404/);
   access = { status:401,user:null };

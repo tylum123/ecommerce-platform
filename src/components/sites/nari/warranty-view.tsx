@@ -92,7 +92,7 @@ export function WarrantyView() {
               <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> Hotline: 1800 6324 (Miễn phí)</span>
               <span>·</span>
               <a 
-                href="https://baohanh.Nari Home/" 
+                href="https://narihome.io.vn/bao-hanh" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="hover:underline flex items-center gap-1 text-[#f6ece3]"

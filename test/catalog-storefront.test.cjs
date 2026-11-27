@@ -56,7 +56,11 @@ test('new and empty merchant brand/category routes render; unknown static/guesse
   }
   for (const slug of ['unknown','bioderma.html']) await assert.rejects(() => BrandPage({ params:Promise.resolve({ slug }),searchParams:Promise.resolve({}) }),/404/);
   const ProductPage = load('src/app/san-pham/[slug]/page.tsx',stubs).default;
-  assert.equal((await ProductPage({ params:Promise.resolve({ slug:product.slug }) })).props.brandHref,'/thuong-hieu/merchant-brand');
+  const productResult = await ProductPage({ params:Promise.resolve({ slug:product.slug }) });
+  const productViewEl = productResult?.props?.brandHref
+    ? productResult
+    : (Array.isArray(productResult?.props?.children) ? productResult.props.children.find(c => c && c.props && c.props.brandHref) : null);
+  assert.equal(productViewEl?.props?.brandHref,'/thuong-hieu/merchant-brand');
   const BrandsPage = load('src/app/thuong-hieu/page.tsx',stubs).default;
   const html = renderToStaticMarkup(await BrandsPage());
   assert.match(html,/href="\/thuong-hieu\/merchant-brand"/);
@@ -78,6 +82,6 @@ test('merchant brand card and product detail render managed English without synt
   assert.match(detail,/Actual English/);
   assert.match(detail,/REAL_SKU/);
   assert.match(detail,/Chưa có đánh giá/);
-  assert.match(detail,/Chưa có dữ liệu tồn kho/);
+  assert.match(detail,/Chưa có dữ liệu tồn kho|Đang cập nhật tồn kho chi nhánh/);
   assert.doesNotMatch(detail,/228 đánh giá|100220035|186 CH|4[.]9 \(/);
 });

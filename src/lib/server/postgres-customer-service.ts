@@ -1,7 +1,6 @@
 import "server-only";
 import type {
   CustomerLoyaltySummary,
-  CustomerPortalBooking,
   CustomerPortalOrder,
   CustomerPortalPayload,
   CustomerProfileRecord,
@@ -17,7 +16,6 @@ import type { CatalogSqlDatabase } from "@/lib/server/postgres-catalog-repositor
 
 export type {
   CustomerLoyaltySummary,
-  CustomerPortalBooking,
   CustomerPortalOrder,
   CustomerPortalPayload,
   CustomerProfileRecord,
@@ -109,45 +107,6 @@ function computeLoyaltySummary(
     pointsToNextTier,
     totalSpent,
     ordersCount: nonCancelled.length,
-  };
-}
-
-function formatVnDateAndRange(startRaw: unknown, endRaw: unknown): {
-  date: string;
-  timeRange: string;
-  startAt: string;
-  endAt: string;
-} {
-  const startIso = asTimestamp(startRaw);
-  const endIso = asTimestamp(endRaw);
-  const startDate = startRaw instanceof Date ? startRaw : new Date(startIso);
-  const endDate = endRaw instanceof Date ? endRaw : new Date(endIso);
-  if (!Number.isFinite(startDate.valueOf())) {
-    return { date: "", timeRange: "", startAt: startIso, endAt: endIso };
-  }
-
-  const dateFmt = new Intl.DateTimeFormat("vi-VN", {
-    timeZone: "Asia/Ho_Chi_Minh",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-  const timeFmt = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Asia/Ho_Chi_Minh",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-
-  const date = dateFmt.format(startDate);
-  const startHm = timeFmt.format(startDate);
-  const endHm = Number.isFinite(endDate.valueOf()) ? timeFmt.format(endDate) : "";
-
-  return {
-    date,
-    timeRange: endHm ? `${startHm} - ${endHm}` : startHm,
-    startAt: startDate.toISOString(),
-    endAt: Number.isFinite(endDate.valueOf()) ? endDate.toISOString() : endIso,
   };
 }
 
@@ -271,7 +230,7 @@ export async function updateCustomerProfile(
   return mapProfileRow(updated.rows[0]);
 }
 
-/** Fetch customer profile, own orders, own clinic bookings, and loyalty summary from PostgreSQL. */
+/** Fetch customer profile, own orders, and loyalty summary from PostgreSQL. */
 export async function getCustomerPortalData(
   database: CatalogSqlDatabase,
   user: { id: string; email: string; fullName?: string; phone?: string },
@@ -283,34 +242,18 @@ export async function getCustomerPortalData(
     phone: user.phone,
   });
 
-  const [ordersRes, bookingsRes] = await Promise.all([
-    database.query(
-      `SELECT o.id, o.order_code, o.branch_id, o.recipient_name, o.recipient_phone,
-              o.shipping_address, o.delivery_type, o.payment_method, o.payment_status,
-              o.status, o.subtotal, o.shipping_fee, o.total_amount, o.created_at,
-              b.name AS branch_name
-       FROM nari_orders.orders o
-       LEFT JOIN nari_catalog.branches b ON b.id = o.branch_id
-       WHERE o.user_id = $1::uuid
-       ORDER BY o.created_at DESC
-       LIMIT 50`,
-      [profile.userId],
-    ),
-    database.query(
-      `SELECT a.id, a.booking_code, a.branch_id, a.service_id, a.service_name,
-              a.customer_name, a.customer_phone,
-              lower(a.during) AS start_at,
-              upper(a.during) AS end_at,
-              a.status, a.notes, a.created_at,
-              b.name AS branch_name, b.address AS branch_address
-       FROM nari_clinic.appointments a
-       JOIN nari_catalog.branches b ON b.id = a.branch_id
-       WHERE a.user_id = $1::uuid
-       ORDER BY a.created_at DESC
-       LIMIT 50`,
-      [profile.userId],
-    ),
-  ]);
+  const ordersRes = await database.query(
+    `SELECT o.id, o.order_code, o.branch_id, o.recipient_name, o.recipient_phone,
+            o.shipping_address, o.delivery_type, o.payment_method, o.payment_status,
+            o.status, o.subtotal, o.shipping_fee, o.total_amount, o.created_at,
+            b.name AS branch_name
+     FROM nari_orders.orders o
+     LEFT JOIN nari_catalog.branches b ON b.id = o.branch_id
+     WHERE o.user_id = $1::uuid
+     ORDER BY o.created_at DESC
+     LIMIT 50`,
+    [profile.userId],
+  );
 
   const orderIds = ordersRes.rows.map((r) => String(r.id ?? "")).filter(Boolean);
   const itemsByOrder = new Map<string, ErpOrderItem[]>();
@@ -373,32 +316,9 @@ export async function getCustomerPortalData(
     };
   });
 
-  const bookings: CustomerPortalBooking[] = bookingsRes.rows.map((row) => {
-    const formatted = formatVnDateAndRange(row.start_at, row.end_at);
-    return {
-      id: String(row.id ?? ""),
-      bookingCode: String(row.booking_code ?? ""),
-      branchId: String(row.branch_id ?? ""),
-      branchName: String(row.branch_name ?? ""),
-      branchAddress: String(row.branch_address ?? ""),
-      serviceId: typeof row.service_id === "string" && row.service_id ? row.service_id : null,
-      serviceName: String(row.service_name ?? ""),
-      customerName: String(row.customer_name ?? ""),
-      customerPhone: String(row.customer_phone ?? ""),
-      date: formatted.date,
-      timeRange: formatted.timeRange,
-      startAt: formatted.startAt,
-      endAt: formatted.endAt,
-      status: String(row.status ?? "booked"),
-      notes: typeof row.notes === "string" ? row.notes : "",
-      createdAt: asTimestamp(row.created_at),
-    };
-  });
-
   return {
     profile,
     orders,
-    bookings,
     loyalty: computeLoyaltySummary(profile.tier, profile.loyaltyPoints, orders),
   };
 }

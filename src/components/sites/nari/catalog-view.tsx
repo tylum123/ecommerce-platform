@@ -399,7 +399,7 @@ export function CategoryView({ slug, liveCatalog }: { slug: string; liveCatalog?
                 </label>
               ))
             ) : (
-              <small>Chưa có dữ liệu mẫu</small>
+              <small>Chưa có thương hiệu</small>
             )}
             {brand && (
               <button type="button" onClick={() => setBrand("")}>
@@ -1189,7 +1189,7 @@ export function ProductView({
             <p className="detail-rating">
               {liveCatalog?.source !== "postgres" && <>★★★★★{" "}</>}
               <span>
-                {liveCatalog?.source === "postgres" ? <>{typeof p.rating === "number" ? `★ ${p.rating}` : "Chưa có đánh giá"}{typeof p.reviewCount === "number" ? ` (${p.reviewCount} đánh giá)` : ""}　 |　 Mã SP: <b>{p.sku}</b></> : <>{p.rating ?? 4.9} ({p.reviewCount ?? 228} đánh giá)　 |　 Mã SP: <b>{branchStock?.sku || "100220035"}</b></>}
+                {liveCatalog?.source === "postgres" ? <>{typeof p.rating === "number" ? `★ ${p.rating}` : "Chưa có đánh giá"}{typeof p.reviewCount === "number" ? ` (${p.reviewCount} đánh giá)` : ""}　 |　 Mã SP: <b>{p.sku}</b></> : <>{p.rating ?? 4.9} ({p.reviewCount ?? 228} đánh giá)　 |　 Mã SP: <b>{branchStock?.sku || p.sku || "—"}</b></>}
               </span>
             </p>
 
@@ -1290,12 +1290,14 @@ export function ProductView({
               >
                 <MapPin size={14} />
                 {branchStock
-                  ? `Còn ${branchStock.branchesWithStockCount}/${branchStock.branches.length} CH có hàng (${branchStock.availableStock} SP tại kho)`
-                  : liveCatalog?.source === "postgres" ? "Chưa có dữ liệu tồn kho" : "Còn 186 CH có hàng"}
+                  ? branchStock.branchesWithStockCount > 0
+                    ? `Còn ${branchStock.branchesWithStockCount}/${branchStock.branches.length} chi nhánh có hàng (${branchStock.availableStock} SP)`
+                    : "Tạm hết hàng tại các chi nhánh"
+                  : "Đang cập nhật tồn kho chi nhánh"}
               </button>
             </div>
 
-            {/* Interactive Multi-Branch ERP Stock Drawer */}
+            {/* Interactive Multi-Branch Stock Drawer */}
             {showBranchModal && branchStock && (
               <div
                 style={{
@@ -1316,7 +1318,7 @@ export function ProductView({
                   }}
                 >
                   <strong style={{ color: "#3d2e24" }}>
-                    Tồn kho thực tế theo chi nhánh ERP (SKU: {branchStock.sku})
+                    Tồn kho thực tế theo chi nhánh (SKU: {branchStock.sku})
                   </strong>
                   <button
                     type="button"

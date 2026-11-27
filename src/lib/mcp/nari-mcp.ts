@@ -2,9 +2,8 @@
  * Nari Home Model Context Protocol (MCP) Server Engine
  * Standardized JSON-RPC 2.0 & REST-ready MCP server implementation.
  *
- * Exposes 12 domain tools, 4 resources, and 3 prompts connecting:
+ * Exposes 11 domain tools, 4 resources, and 3 prompts connecting:
  * - Product catalog, rich details, deals & bestsellers
- * - Clinic services, price tables & booking engine
  * - Multi-branch inventory, ERP order processing & staff operations
  * - Store locator, warranty lookup, and technical SEO engine
  */
@@ -21,7 +20,6 @@ import {
   matchesCategory,
 } from "@/lib/deals-bestsellers";
 import { getRichProductDetail } from "@/lib/product-details";
-import { clinicServices } from "@/lib/clinic-services";
 import {
   filterStoreBranches,
   lookupWarrantyDraft,
@@ -161,23 +159,11 @@ export interface ErpStaff {
   id: string;
   code: string;
   fullName: string;
-  role: "manager" | "warehouse" | "clinic_doctor" | "sales_advisor" | "cs_agent";
+  role: "manager" | "warehouse" | "sales_advisor" | "cs_agent";
   branch: string;
   phone: string;
   shift: "morning" | "afternoon" | "full_day";
   isActive: boolean;
-}
-
-export interface ClinicBookingRecord {
-  bookingId: string;
-  customerName: string;
-  phone: string;
-  serviceName: string;
-  branchName: string;
-  date: string;
-  time: string;
-  status: "confirmed" | "completed" | "cancelled";
-  createdAt: string;
 }
 
 const initialInventory: InventoryItem[] = [];
@@ -192,16 +178,6 @@ const initialStaff: ErpStaff[] = [
     branch: "Kho Tổng Bình Chánh",
     phone: "0934112233",
     shift: "morning",
-    isActive: true,
-  },
-  {
-    id: "STF-02",
-    code: "BS-CLINIC-01",
-    fullName: "BS. CKI Trần Thị Kim Oanh",
-    role: "clinic_doctor",
-    branch: "71 Hoàng Hoa Thám, Tân Bình",
-    phone: "0934223344",
-    shift: "full_day",
     isActive: true,
   },
   {
@@ -225,18 +201,16 @@ const initialStaff: ErpStaff[] = [
     isActive: true,
   },
 ];
-const initialBookings: ClinicBookingRecord[] = [];
 
 const erpStore = {
   inventory: [...initialInventory],
   orders: [...initialOrders],
   users: [...initialUsers],
   staff: [...initialStaff],
-  bookings: [...initialBookings],
 };
 
 // ----------------------------------------------------------------------
-// 12 Standardized MCP Tools Definitions
+// 11 Standardized MCP Tools Definitions
 // ----------------------------------------------------------------------
 
 export const MCP_TOOLS: McpToolItem[] = [
@@ -381,41 +355,17 @@ export const MCP_TOOLS: McpToolItem[] = [
   {
     name: "nari_manage_staff",
     description:
-      "Tra cứu thông tin đội ngũ nhân sự Nari Home (Bác sĩ da liễu Clinic, quản lý chi nhánh, nhân viên kho vận, CSKH tổng đài).",
+      "Tra cứu thông tin đội ngũ nhân sự Nari Home (quản lý chi nhánh, nhân viên kho vận, tư vấn bán hàng, CSKH tổng đài).",
     inputSchema: {
       type: "object",
       properties: {
         role: {
           type: "string",
           description: "Vai trò nhân viên",
-          enum: ["all", "manager", "warehouse", "clinic_doctor", "sales_advisor", "cs_agent"],
+          enum: ["all", "manager", "warehouse", "sales_advisor", "cs_agent"],
         },
         branch: { type: "string", description: "Lọc theo chi nhánh cụ thể" },
       },
-    },
-  },
-  {
-    name: "nari_clinic_services_and_booking",
-    description:
-      "Tra cứu bảng giá dịch vụ Nari Clinic & Spa (trị mụn, laser, triệt lông) và tạo đặt hẹn khám da với bác sĩ da liễu.",
-    inputSchema: {
-      type: "object",
-      properties: {
-        action: {
-          type: "string",
-          description: "Hành động thực hiện",
-          enum: ["search", "price_table", "book"],
-          default: "search",
-        },
-        query: { type: "string", description: "Từ khóa dịch vụ (ví dụ: 'Aqua Mesoderm', 'Triệt lông nách')" },
-        customerName: { type: "string", description: "Họ tên khách hàng (nếu book)" },
-        phone: { type: "string", description: "Số điện thoại liên hệ (nếu book)" },
-        serviceName: { type: "string", description: "Tên dịch vụ muốn đặt hẹn" },
-        branchName: { type: "string", description: "Chi nhánh Clinic mong muốn" },
-        date: { type: "string", description: "Ngày hẹn (YYYY-MM-DD)" },
-        time: { type: "string", description: "Khung giờ hẹn (ví dụ: '14:30')" },
-      },
-      required: ["action"],
     },
   },
   {
@@ -427,7 +377,6 @@ export const MCP_TOOLS: McpToolItem[] = [
       properties: {
         city: { type: "string", description: "Tỉnh/Thành phố (ví dụ: 'Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng')" },
         district: { type: "string", description: "Quận/Huyện" },
-        hasClinic: { type: "boolean", description: "Chỉ tìm chi nhánh có dịch vụ Clinic & Spa" },
         warrantyQuery: { type: "string", description: "Số điện thoại mua hàng hoặc số serial máy cần tra cứu bảo hành" },
       },
     },
@@ -995,140 +944,6 @@ export async function executeMcpTool(
         };
       }
 
-      case "nari_clinic_services_and_booking": {
-        const action = typeof args.action === "string" ? args.action : "search";
-        const query = typeof args.query === "string" ? args.query.toLowerCase().trim() : "";
-
-        if (action === "search") {
-          let list = clinicServices;
-          if (query) {
-            list = list.filter(
-              (s) =>
-                s.name.toLowerCase().includes(query) ||
-                (s.description && s.description.toLowerCase().includes(query))
-            );
-          }
-          const formatted = list.map((s) => ({
-            name: s.name,
-            slug: s.slug,
-            price: s.price,
-            duration: s.duration,
-            bookingUrl: `https://narihome.vn${s.booking}`,
-            detailUrl: `https://narihome.vn/dich-vu/${s.slug}`,
-            description: s.description,
-          }));
-
-          return {
-            content: [
-              {
-                type: "text",
-                text: JSON.stringify(
-                  {
-                    totalServices: list.length,
-                    services: formatted,
-                  },
-                  null,
-                  2
-                ),
-              },
-            ],
-          };
-        }
-
-        if (action === "price_table") {
-          const categorized: Record<
-            string,
-            Array<{ name: string; price: string | number; duration?: string }>
-          > = {
-            "Triệt Lông Diode Laser": [],
-            "Điều Trị Mụn & Chăm Sóc Da": [],
-            "Trẻ Hóa & Thẩm Mỹ Công Nghệ Cao": [],
-            "Dịch Vụ Khác": [],
-          };
-
-          for (const s of clinicServices) {
-            const entry = { name: s.name, price: s.price || "Liên hệ tư vấn", duration: s.duration };
-            if (s.name.toLowerCase().includes("triệt lông")) {
-              categorized["Triệt Lông Diode Laser"].push(entry);
-            } else if (s.name.toLowerCase().includes("mụn") || s.name.toLowerCase().includes("meso")) {
-              categorized["Điều Trị Mụn & Chăm Sóc Da"].push(entry);
-            } else if (
-              s.name.toLowerCase().includes("hifu") ||
-              s.name.toLowerCase().includes("laser") ||
-              s.name.toLowerCase().includes("trẻ hóa")
-            ) {
-              categorized["Trẻ Hóa & Thẩm Mỹ Công Nghệ Cao"].push(entry);
-            } else {
-              categorized["Dịch Vụ Khác"].push(entry);
-            }
-          }
-
-          return {
-            content: [{ type: "text", text: JSON.stringify(categorized, null, 2) }],
-          };
-        }
-
-        if (action === "book") {
-          const customerName =
-            typeof args.customerName === "string" ? args.customerName.trim() : "Khách hàng Nari Home";
-          const phone = typeof args.phone === "string" ? args.phone.trim() : "";
-          const serviceName =
-            typeof args.serviceName === "string" ? args.serviceName.trim() : "Khám & Tư Vấn Da Liễu";
-          const branchName =
-            typeof args.branchName === "string"
-              ? args.branchName.trim()
-              : "71 Hoàng Hoa Thám, P.Tân Bình, TP.HCM";
-          const date = typeof args.date === "string" ? args.date.trim() : "2026-11-15";
-          const time = typeof args.time === "string" ? args.time.trim() : "10:00";
-
-          if (!phone) {
-            return {
-              content: [{ type: "text", text: "Error: Missing required phone number for clinic booking" }],
-              isError: true,
-            };
-          }
-
-          const bookingId = `NARI-CLN-${Date.now().toString().slice(-6)}`;
-          const newBooking: ClinicBookingRecord = {
-            bookingId,
-            customerName,
-            phone,
-            serviceName,
-            branchName,
-            date,
-            time,
-            status: "confirmed",
-            createdAt: new Date().toISOString(),
-          };
-
-          erpStore.bookings.push(newBooking);
-
-          return {
-            content: [
-              {
-                type: "text",
-                text: JSON.stringify(
-                  {
-                    message: "Đặt lịch hẹn Nari Clinic & Spa thành công!",
-                    bookingDetails: newBooking,
-                    instructions:
-                      "Quý khách vui lòng đến trước 10 phút. Bác sĩ chuyên khoa da liễu sẽ trực tiếp thăm khám và soi da miễn phí.",
-                    hotline: "1800 6324 (Phím 2)",
-                  },
-                  null,
-                  2
-                ),
-              },
-            ],
-          };
-        }
-
-        return {
-          content: [{ type: "text", text: "Unknown action for nari_clinic_services_and_booking" }],
-          isError: true,
-        };
-      }
-
       case "nari_find_stores_and_warranty": {
         const warrantyQuery =
           typeof args.warrantyQuery === "string" ? args.warrantyQuery.trim() : "";
@@ -1141,9 +956,8 @@ export async function executeMcpTool(
 
         const city = typeof args.city === "string" ? args.city : undefined;
         const district = typeof args.district === "string" ? args.district : undefined;
-        const hasClinic = typeof args.hasClinic === "boolean" ? args.hasClinic : undefined;
 
-        const branches = filterStoreBranches({ city, district, hasClinic });
+        const branches = filterStoreBranches({ city, district });
         const formatted = branches.map((b) => ({
           id: b.id,
           name: b.name,
@@ -1152,7 +966,6 @@ export async function executeMcpTool(
           district: b.district,
           phone: b.phone || "1800 6324",
           hours: b.hours,
-          hasClinic: b.hasClinic,
           googleMapsUrl: b.mapUrl,
         }));
 
@@ -1208,10 +1021,9 @@ export async function executeMcpTool(
               catalogService: "src/lib/catalog.ts (36 categories, live catalog products)",
               dealsAndBestsellers: "src/lib/deals-bestsellers.ts (Live deals & bestsellers engine)",
               productDetails: "src/lib/product-details.ts (Rich attributes, reviews, comments)",
-              clinicServices: "src/lib/clinic-services.ts (Clinic procedures & booking contracts)",
               supportAndStores: "src/lib/support-stores.ts (Stores, warranty lookup, FAQ)",
               technicalSeo: "src/lib/seo/seo-engine.ts (Schema.org JSON-LD, automated audits)",
-              mcpServer: "src/lib/mcp/nari-mcp.ts & src/app/api/mcp/route.ts (12 tools, 4 resources, 3 prompts)",
+              mcpServer: "src/lib/mcp/nari-mcp.ts & src/app/api/mcp/route.ts (11 tools, 4 resources, 3 prompts)",
             },
             verifiedEndpoints: [
               "/api/mcp (JSON-RPC 2.0 & REST MCP Server)",
@@ -1311,12 +1123,11 @@ export function readMcpResource(
         "- `src/lib/catalog.ts`: Core catalog & category tree rollup",
         "- `src/lib/deals-bestsellers.ts`: Flash deals & bestsellers engine",
         "- `src/lib/product-details.ts`: Rich specs, attributes & rating breakdowns",
-        "- `src/lib/clinic-services.ts`: Clinical procedures & booking contracts",
         "- `src/lib/support-stores.ts`: Stores, warranty claims & customer support",
         "",
         "## SEO & MCP Servers",
         "- `src/lib/seo/seo-engine.ts`: Automated route audit & Schema.org JSON-LD generator",
-        "- `src/lib/mcp/nari-mcp.ts`: Complete MCP specification (12 tools, 4 resources, 3 prompts)",
+        "- `src/lib/mcp/nari-mcp.ts`: Complete MCP specification (11 tools, 4 resources, 3 prompts)",
         "- `src/app/api/mcp/route.ts`: JSON-RPC 2.0 endpoint for AI agents",
       ].join("\n");
 
@@ -1352,7 +1163,7 @@ export function getMcpPrompt(
             role: "system",
             content: {
               type: "text",
-              text: "Bạn là Dược sĩ & Chuyên gia tư vấn làm đẹp cao cấp tại Nari Home Beauty & Clinic. Hãy phân tích khoa học tình trạng da của khách hàng, giải thích hoạt chất phù hợp (BHA, Niacinamide, Hyaluronic Acid, Centella...) và xây dựng chu trình Skincare sáng/tối với các sản phẩm chính hãng có sẵn tại Nari Home.",
+              text: "Bạn là Dược sĩ & Chuyên gia tư vấn làm đẹp cao cấp tại Nari Home. Hãy phân tích khoa học tình trạng da của khách hàng, giải thích hoạt chất phù hợp (BHA, Niacinamide, Hyaluronic Acid, Centella...) và xây dựng chu trình Skincare sáng/tối với các sản phẩm chính hãng có sẵn tại Nari Home.",
             },
           },
           {
@@ -1403,7 +1214,7 @@ export function getMcpPrompt(
             role: "system",
             content: {
               type: "text",
-              text: "Bạn là Chuyên gia Kỹ thuật SEO hàng đầu cho sàn thương mại điện tử Nari Home. Bạn phân tích thẻ Meta, Schema.org JSON-LD (Product, Organization, MedicalBusiness), tốc độ Core Web Vitals và cấu trúc liên kết nội bộ theo tiêu chuẩn Google Search Central.",
+              text: "Bạn là Chuyên gia Kỹ thuật SEO hàng đầu cho sàn thương mại điện tử Nari Home. Bạn phân tích thẻ Meta, Schema.org JSON-LD (Product, Organization, Store), tốc độ Core Web Vitals và cấu trúc liên kết nội bộ theo tiêu chuẩn Google Search Central.",
             },
           },
           {

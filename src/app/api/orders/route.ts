@@ -37,6 +37,14 @@ function mapOrderErrorMessage(code: string): string {
       return "Vui lòng nhập mã đơn hàng.";
     case "ORDER_VERSION_CONFLICT":
       return "Trạng thái đơn hàng vừa được cập nhật, vui lòng tải lại.";
+    case "ORDER_CANCEL_IDENTITY_REQUIRED":
+      return "Vui lòng đăng nhập hoặc nhập số điện thoại đặt hàng để hủy đơn.";
+    case "ORDER_NOT_FOUND":
+      return "Không tìm thấy đơn hàng khớp với thông tin đã cung cấp.";
+    case "ORDER_NOT_CANCELLABLE":
+      return "Chỉ có thể hủy đơn hàng đang ở trạng thái chờ xác nhận.";
+    case "ORDER_ACTION_INVALID":
+      return "Hành động đơn hàng không hợp lệ.";
     default:
       return "Yêu cầu đơn hàng không hợp lệ.";
   }
@@ -265,6 +273,120 @@ export async function POST(request: NextRequest) {
         ok: false,
         code: "ORDER_SERVICE_UNAVAILABLE",
         error: "Chưa thể tạo đơn hàng. Dịch vụ đặt hàng tạm thời không khả dụng.",
+      },
+      { status: 503 },
+    );
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  if (process.env.NARI_ORDERS_ENABLED !== "true") {
+    return serviceUnavailable();
+  }
+
+  try {
+    const [
+      { hasTrustedMutationOrigin },
+      { readBoundedRequestBody, RequestBodyLimitError },
+      { getPostgresDatabase },
+      { cancelPostgresOrder, OrderInputError },
+    ] = await Promise.all([
+      import("@/lib/server/supabase-principal"),
+      import("@/lib/server/bounded-request-body"),
+      import("@/lib/server/postgres-database"),
+      import("@/lib/server/postgres-order-service"),
+    ]);
+
+    const appOrigin = process.env.APP_ORIGIN?.trim() || "";
+    if (!appOrigin || !hasTrustedMutationOrigin(request, appOrigin)) {
+      return NextResponse.json(
+        { ok: false, code: "FORBIDDEN_ORIGIN", error: "Yêu cầu không hợp lệ (Origin không được phép)." },
+        { status: 403 },
+      );
+    }
+
+    let rawBytes: Uint8Array<ArrayBuffer>;
+    try {
+      rawBytes = await readBoundedRequestBody(request, MAX_ORDER_BODY_BYTES);
+    } catch (error) {
+      if (error instanceof RequestBodyLimitError) {
+        return NextResponse.json(
+          { ok: false, code: "REQUEST_BODY_TOO_LARGE", error: "Dữ liệu yêu cầu vượt quá kích thước cho phép." },
+          { status: 413 },
+        );
+      }
+      throw error;
+    }
+
+    let parsedBody: unknown;
+    try {
+      parsedBody = JSON.parse(new TextDecoder().decode(rawBytes));
+    } catch {
+      return NextResponse.json(
+        { ok: false, code: "INVALID_JSON", error: "Dữ liệu yêu cầu không đúng định dạng JSON." },
+        { status: 400 },
+      );
+    }
+
+    if (!parsedBody || typeof parsedBody !== "object" || Array.isArray(parsedBody)) {
+      return NextResponse.json(
+        { ok: false, code: "INVALID_JSON", error: "Dữ liệu yêu cầu phải là một đối tượng JSON." },
+        { status: 400 },
+      );
+    }
+
+    const body = parsedBody as Record<string, unknown>;
+    if (body.action !== "cancel") {
+      return NextResponse.json(
+        { ok: false, code: "ORDER_ACTION_INVALID", error: mapOrderErrorMessage("ORDER_ACTION_INVALID") },
+        { status: 400 },
+      );
+    }
+
+    const orderCode = typeof body.orderCode === "string" ? body.orderCode.trim() : "";
+    const phone = typeof body.phone === "string" ? body.phone.trim() : "";
+    const reason = typeof body.reason === "string" ? body.reason.trim() : undefined;
+
+    let verifiedUserId: string | null = null;
+    if (process.env.NARI_AUTH_ENABLED === "true") {
+      try {
+        const { resolveOptionalSupabaseUserId } = await import("@/lib/server/supabase-session");
+        verifiedUserId = await resolveOptionalSupabaseUserId(request);
+      } catch {
+        verifiedUserId = null;
+      }
+    }
+
+    try {
+      const order = await cancelPostgresOrder(getPostgresDatabase(), {
+        orderCode,
+        userId: verifiedUserId,
+        phone: phone || null,
+        reason,
+      });
+      return NextResponse.json({ ok: true, success: true, order }, { status: 200 });
+    } catch (error) {
+      if (error instanceof OrderInputError) {
+        return NextResponse.json(
+          { ok: false, code: error.code, error: mapOrderErrorMessage(error.code) },
+          { status: error.status },
+        );
+      }
+      return NextResponse.json(
+        {
+          ok: false,
+          code: "ORDER_SERVICE_UNAVAILABLE",
+          error: "Chưa thể hủy đơn hàng. Dịch vụ tạm thời không khả dụng.",
+        },
+        { status: 503 },
+      );
+    }
+  } catch {
+    return NextResponse.json(
+      {
+        ok: false,
+        code: "ORDER_SERVICE_UNAVAILABLE",
+        error: "Chưa thể hủy đơn hàng. Dịch vụ tạm thời không khả dụng.",
       },
       { status: 503 },
     );

@@ -11,8 +11,7 @@ import {
   MapPin, 
   Phone, 
   Mail, 
-  Clock,
-  Sparkles
+  Clock
 } from "lucide-react";
 import { NariHomeLogo } from "@/components/sites/nari/nari-home-logo";
 import { getFooterData } from "@/lib/support-stores";
@@ -74,14 +73,13 @@ export function Footer() {
           <p><Link href="/ho-tro/tai-khoan" className="hover:text-[#b86b4b]">Tài khoản thành viên</Link></p>
         </div>
 
-        {/* Column 3: Services & Booking */}
+        {/* Column 3: Services & Utilities */}
         <div>
-          <b>HỢP TÁC &amp; DỊCH VỤ</b>
-          <p><Link href="/clinic" className="hover:text-[#b86b4b] flex items-center gap-1"><Sparkles className="w-3.5 h-3.5 text-[#b86b4b]" /> Nari Clinic &amp; Spa</Link></p>
-          <p><Link href="/booking" className="hover:text-[#b86b4b] font-medium text-[#b86b4b]">Đặt hẹn Clinic &amp; Spa</Link></p>
+          <b>HỢP TÁC &amp; TIỆN ÍCH</b>
           <p><Link href="/danh-muc/dermahair-c2298.html" className="hover:text-[#b86b4b]">Dermahair chuyên sâu</Link></p>
-          <p><Link href="/he-thong-cua-hang" className="hover:text-[#b86b4b]">Chi nhánh có Nari Clinic</Link></p>
+          <p><Link href="/he-thong-cua-hang" className="hover:text-[#b86b4b]">Hệ thống chi nhánh toàn quốc</Link></p>
           <p><Link href="/bao-hanh" className="hover:text-[#b86b4b]">Tra cứu bảo hành thiết bị</Link></p>
+          <p><Link href="/tra-cuu-don-hang" className="hover:text-[#b86b4b]">Tra cứu đơn hàng</Link></p>
         </div>
 
         {/* Column 4: App & Connect */}
@@ -96,7 +94,6 @@ export function Footer() {
           </Link>
           <div className="mt-4 text-xs text-muted-foreground space-y-1">
             <p className="flex items-center gap-1"><Clock className="w-3 h-3" /> Mua sắm: 08:00 - 22:00</p>
-            <p className="flex items-center gap-1"><Clock className="w-3 h-3" /> Clinic &amp; Spa: 09:00 - 20:00</p>
             <p className="flex items-center gap-1"><Mail className="w-3 h-3" /> Email: hotro@narihome.io.vn</p>
           </div>
         </div>
@@ -122,14 +119,14 @@ export function Footer() {
         </div>
         <b>NARI HOME — KHƠI NGUỒN VẺ ĐẸP · KIẾN TẠO KHÍ CHẤT</b>
         <p className="company-meta text-xs text-muted-foreground mt-1">
-          Hệ thống mỹ phẩm chính hãng và chuỗi phòng khám da liễu thẩm mỹ cao cấp Nari Home Beauty &amp; Clinic.
+          Hệ thống phân phối mỹ phẩm chính hãng toàn quốc Nari Home.
           <br />
           {footerData.companyInfo.license}
           <br />
           {footerData.companyInfo.address}
         </p>
         <p className="mt-2 text-xs text-muted-foreground">
-          Bản quyền © 2026 Nari Home Beauty &amp; Clinic. Khơi nguồn vẻ đẹp - Kiến tạo khí chất.
+          Bản quyền © 2026 Nari Home. Khơi nguồn vẻ đẹp - Kiến tạo khí chất.
         </p>
       </div>
     </footer>

@@ -12,8 +12,6 @@ import {
   Clock, 
   Search, 
   ExternalLink, 
-  Calendar, 
-  Sparkles,
   ChevronRight
 } from "lucide-react";
 import { 
@@ -28,7 +26,6 @@ export function StoreLocatorView({ branches = [] }: { branches?: StoreBranchInfo
   const [query, setQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState("Tất cả Tỉnh/Thành");
   const [selectedDistrict, setSelectedDistrict] = useState("Tất cả Quận/Huyện");
-  const [hasClinicOnly, setHasClinicOnly] = useState(false);
 
   const cities = useMemo(() => getStoreCities(branches), [branches]);
   const districts = useMemo(() => getStoreDistricts(selectedCity, branches), [selectedCity, branches]);
@@ -43,14 +40,12 @@ export function StoreLocatorView({ branches = [] }: { branches?: StoreBranchInfo
     return filterStoreBranches({
       city: selectedCity,
       district: selectedDistrict,
-      hasClinic: hasClinicOnly,
       query: query
     }, branches);
-  }, [selectedCity, selectedDistrict, hasClinicOnly, query, branches]);
+  }, [selectedCity, selectedDistrict, query, branches]);
 
   const allBranches = useMemo(() => getStoreBranches(branches), [branches]);
   const totalAll = allBranches.length;
-  const clinicTotal = allBranches.filter(b => b.hasClinic).length;
 
   return (
     <div className="store-locator-page min-h-screen flex flex-col bg-slate-50">
@@ -74,10 +69,10 @@ export function StoreLocatorView({ branches = [] }: { branches?: StoreBranchInfo
               <span>HỆ THỐNG PHỦ SÓNG TOÀN QUỐC</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold mb-2">
-              Tìm Cửa Hàng &amp; Phòng Khám Nari Home Gần Bạn
+              Tìm Cửa Hàng Nari Home Gần Bạn
             </h1>
             <p className="text-[#f6ece3] text-sm sm:text-base leading-relaxed">
-              Mạng lưới hơn 350 cửa hàng mỹ phẩm chính hãng và hệ thống phòng khám da liễu Nari Clinic & Spa &amp; Spa. Mở cửa từ 08:00 - 22:00 tất cả các ngày trong tuần (kể cả Thứ 7, Chủ Nhật).
+              Mạng lưới cửa hàng mỹ phẩm chính hãng Nari Home trên toàn quốc. Mở cửa từ 08:00 - 22:00 tất cả các ngày trong tuần (kể cả Thứ 7, Chủ Nhật).
             </p>
           </div>
         </section>
@@ -139,32 +134,10 @@ export function StoreLocatorView({ branches = [] }: { branches?: StoreBranchInfo
             </div>
           </div>
 
-          {/* Toggle pill buttons */}
+          {/* Summary bar */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-100">
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setHasClinicOnly(false)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  !hasClinicOnly 
-                    ? "bg-[#3d2e24] text-white" 
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                Tất cả cửa hàng ({totalAll})
-              </button>
-              <button
-                type="button"
-                onClick={() => setHasClinicOnly(true)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 transition-colors ${
-                  hasClinicOnly 
-                    ? "bg-[#3d2e24] text-white" 
-                    : "bg-[#faf5f0] text-[#2a1f18] border border-[#e6d5c5] hover:bg-[#f6ece3]"
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                Có Nari Clinic & Spa &amp; Spa ({clinicTotal})
-              </button>
+            <div className="text-xs font-medium text-gray-700">
+              Tổng số cửa hàng: <b className="text-[#3d2e24] font-bold">{totalAll}</b>
             </div>
 
             <div className="text-xs text-gray-500 font-medium">
@@ -196,12 +169,6 @@ export function StoreLocatorView({ branches = [] }: { branches?: StoreBranchInfo
                     <div className="w-full h-full bg-gradient-to-br from-[#f6ece3] to-[#e6d5c5] flex items-center justify-center p-4 text-center">
                       <span className="text-sm font-semibold text-[#3d2e24] line-clamp-2">{branch.name}</span>
                     </div>
-                  )}
-                  {branch.hasClinic && (
-                    <span className="absolute top-2.5 right-2.5 bg-[#3d2e24] text-white text-[11px] font-semibold px-2.5 py-1 rounded-md shadow-sm flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" />
-                      Nari Clinic & Spa &amp; Spa
-                    </span>
                   )}
                 </div>
 
@@ -239,16 +206,6 @@ export function StoreLocatorView({ branches = [] }: { branches?: StoreBranchInfo
                       <ExternalLink className="w-3.5 h-3.5" />
                       Xem bản đồ
                     </a>
-
-                    {branch.hasClinic && (
-                      <Link
-                        href="/booking"
-                        className="flex-1 text-center py-2 px-3 bg-[#3d2e24] hover:bg-[#2a1f18] text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
-                      >
-                        <Calendar className="w-3.5 h-3.5" />
-                        Đặt hẹn Clinic
-                      </Link>
-                    )}
                   </div>
                 </div>
               </article>
@@ -268,7 +225,6 @@ export function StoreLocatorView({ branches = [] }: { branches?: StoreBranchInfo
                 setQuery("");
                 setSelectedCity("Tất cả Tỉnh/Thành");
                 setSelectedDistrict("Tất cả Quận/Huyện");
-                setHasClinicOnly(false);
               }}
               className="px-4 py-2 bg-[#3d2e24] text-white text-xs font-semibold rounded-lg hover:bg-[#2a1f18] transition-colors"
             >

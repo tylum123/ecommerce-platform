@@ -1,0 +1,13 @@
+name: Supabase DB Keep-Alive
+
+on:
+  schedule:
+    - cron: "0 2 */3 * *"
+  workflow_dispatch:
+
+jobs:
+  ping-health:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Nari Home DB Health Endpoint
+        run: curl -fsS https://narihome.io.vn/api/health

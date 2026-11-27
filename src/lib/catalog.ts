@@ -138,7 +138,6 @@ const CATEGORY_FALLBACK_MAP: Record<string, string> = {
   "kem-duong-am-cho-be": "san-pham-cho-be-c2497.html",
   "ao-nu": "balo-tui-xach-c2749.html",
   "vo": "balo-tui-xach-c2749.html",
-  "nari-clinic-spa": "nari-clinic-spa.html",
   "my-pham": "cham-soc-da-mat-c4.html",
 };
 
@@ -154,8 +153,6 @@ const uiCategoryParentMap = new Map<string, string>();
   uiCategoryTitleMap.set("dien-gia-dung-c2463.html", "Điện Gia Dụng");
   uiCategoryTitleMap.set("loa-bluetooth-c2800.html", "Loa Bluetooth");
   uiCategoryTitleMap.set("my-pham-c3.html", "Mỹ Phẩm");
-  uiCategoryTitleMap.set("nari-clinic-spa.html", "Nari Clinic & Spa");
-  uiCategoryTitleMap.set("nari-clinic-spa", "Nari Clinic & Spa");
   uiCategoryTitleMap.set("camera-giam-sat-c2934.html", "Camera Giám Sát");
   uiCategoryTitleMap.set("dung-cu-so-che-thuc-pham-c2809.html", "Dụng Cụ Sơ Chế Thực Phẩm");
   uiCategoryTitleMap.set("kem-duong-am-cho-be-c2505.html", "Kem Dưỡng Ẩm Cho Bé");
@@ -189,11 +186,11 @@ export function getCategoryTitle(slug: string): string {
 }
 
 export function resolveCategorySlug(inputSlug: string): string {
-  if (categories.some(([, s]) => s === inputSlug) || inputSlug === "nari-clinic-spa.html") {
+  if (categories.some(([, s]) => s === inputSlug)) {
     return inputSlug;
   }
   const withHtml = inputSlug.endsWith(".html") ? inputSlug : `${inputSlug}.html`;
-  if (categories.some(([, s]) => s === withHtml) || withHtml === "nari-clinic-spa.html") {
+  if (categories.some(([, s]) => s === withHtml)) {
     return withHtml;
   }
   const base = inputSlug.replace(/-c\d+(?:\.html)?$/i, "").replace(/\.html$/i, "");

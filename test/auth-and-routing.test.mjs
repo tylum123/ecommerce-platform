@@ -36,9 +36,8 @@ test("DEMO_AUTH_ACCOUNTS provides valid roles for Admin, Staff, and Customer", (
   assert.ok(warehouse);
   assert.equal(isStaffOrAdminRole(warehouse.user.role), true);
 
-  const doctor = DEMO_AUTH_ACCOUNTS.find((a) => a.user.role === "clinic_doctor");
-  assert.ok(doctor);
-  assert.equal(isStaffOrAdminRole(doctor.user.role), true);
+  const doctor = DEMO_AUTH_ACCOUNTS.find((a) => a.username === "bacsi@narihome.vn");
+  assert.equal(doctor, undefined, "Clinic doctor demo account must be removed");
 });
 
 test("legacy signed tokens are rejected until a maintained provider is configured", async () => {

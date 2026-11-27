@@ -35,7 +35,7 @@ let inflightCatalogFetch: Promise<Record<string, DrawerProductSummary>> | null =
 async function loadProductsBySlug(): Promise<Record<string, DrawerProductSummary>> {
   if (cachedProductsBySlug) return cachedProductsBySlug;
   if (inflightCatalogFetch) return inflightCatalogFetch;
-  inflightCatalogFetch = fetch("/api/products", { cache: "no-store" })
+  inflightCatalogFetch = fetch("/api/products?limit=200", { cache: "no-store" })
     .then(async (response) => {
       if (!response.ok) return {};
       const payload: unknown = await response.json().catch(() => null);

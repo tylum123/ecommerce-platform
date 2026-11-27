@@ -5,21 +5,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/sites/nari/header";
 import { Footer } from "@/components/sites/nari/footer";
+import { AuthShell } from "@/components/sites/nari/auth-shell";
 import { AUTH_CHANGE_EVENT } from "@/lib/auth";
 import {
-  ShieldCheck,
-  UserRound,
-  Phone,
-  Mail,
-  Lock,
+  AlertCircle,
+  CheckCircle2,
   Eye,
   EyeOff,
-  CheckCircle2,
-  AlertCircle,
-  Sparkles,
-  Award,
-  ShoppingBag,
-  Calendar,
+  Loader2,
+  Lock,
+  Mail,
+  Phone,
+  UserRound,
 } from "lucide-react";
 
 function RegisterForm() {
@@ -34,7 +31,10 @@ function RegisterForm() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [requiresConfirmation, setRequiresConfirmation] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  const busy = isSubmitting || isPending;
 
   const handleRegister = async () => {
     setErrorMessage("");
@@ -61,6 +61,7 @@ function RegisterForm() {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
@@ -99,234 +100,208 @@ function RegisterForm() {
       });
     } catch {
       setErrorMessage("Lỗi kết nối máy chủ, vui lòng thử lại sau.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="mx-auto max-w-5xl py-8 px-4">
-      <nav className="mb-6 text-sm text-gray-500">
-        <Link href="/" className="hover:text-[#b86b4b]">
-          Trang chủ
-        </Link>
-        <span className="mx-2">›</span>
-        <span className="text-gray-800 font-medium">Đăng ký tài khoản</span>
-      </nav>
+    <>
+      {errorMessage && (
+        <div
+          role="alert"
+          className="mb-5 flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50/90 p-3.5 text-sm text-red-700"
+        >
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
 
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
-        <div className="md:col-span-7 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="mb-6 border-b border-gray-100 pb-4">
-            <h1 className="text-xl font-bold text-[#3d2e24]">ĐĂNG KÝ TÀI KHOẢN NARI HOME</h1>
-            <p className="mt-1 text-xs text-gray-500">
-              Tạo tài khoản khách hàng để theo dõi đơn hàng, lịch hẹn Nari Clinic & Spa và tích điểm Nari Rewards
-            </p>
+      {successMessage && (
+        <div
+          role="status"
+          className="mb-5 rounded-xl border border-emerald-200 bg-emerald-50/80 p-3.5 text-sm text-emerald-900"
+        >
+          <div className="flex items-start gap-2.5 font-medium">
+            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" aria-hidden="true" />
+            <span>{successMessage}</span>
+          </div>
+          {requiresConfirmation && (
+            <div className="mt-2.5 pl-6">
+              <Link
+                href="/dang-nhap"
+                className="font-semibold text-[#3d2e24] underline transition-colors hover:text-[#b86b4b]"
+              >
+                Đi đến trang đăng nhập →
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void handleRegister();
+        }}
+        className="space-y-4"
+      >
+        <div>
+          <label htmlFor="register-fullname" className="mb-1.5 block text-sm font-medium text-[#3d2e24]">
+            Họ và tên <span className="text-[#b86b4b]">*</span>
+          </label>
+          <div className="relative">
+            <UserRound
+              className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9e7656]"
+              aria-hidden="true"
+            />
+            <input
+              id="register-fullname"
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Ví dụ: Nguyễn Văn An"
+              maxLength={160}
+              disabled={busy}
+              className="w-full rounded-xl border border-[#e6d5c5] bg-white py-2.5 pl-10 pr-3.5 text-sm text-[#1e1b18] placeholder:text-[#9e8c80] transition-all focus:border-[#9e7656] focus:outline-none focus:ring-2 focus:ring-[#9e7656]/25 disabled:bg-[#faf5f0] disabled:opacity-70"
+              required
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="register-email" className="mb-1.5 block text-sm font-medium text-[#3d2e24]">
+              Email <span className="text-[#b86b4b]">*</span>
+            </label>
+            <div className="relative">
+              <Mail
+                className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9e7656]"
+                aria-hidden="true"
+              />
+              <input
+                id="register-email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="an.nguyen@gmail.com"
+                maxLength={254}
+                disabled={busy}
+                className="w-full rounded-xl border border-[#e6d5c5] bg-white py-2.5 pl-10 pr-3.5 text-sm text-[#1e1b18] placeholder:text-[#9e8c80] transition-all focus:border-[#9e7656] focus:outline-none focus:ring-2 focus:ring-[#9e7656]/25 disabled:bg-[#faf5f0] disabled:opacity-70"
+                required
+              />
+            </div>
           </div>
 
-          {errorMessage && (
-            <div role="alert" className="mb-4 flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-700">
-              <AlertCircle className="h-5 w-5 shrink-0" />
-              <span>{errorMessage}</span>
+          <div>
+            <label htmlFor="register-phone" className="mb-1.5 block text-sm font-medium text-[#3d2e24]">
+              Số điện thoại <span className="text-xs font-normal text-[#6e5a4f]">(tùy chọn)</span>
+            </label>
+            <div className="relative">
+              <Phone
+                className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9e7656]"
+                aria-hidden="true"
+              />
+              <input
+                id="register-phone"
+                type="tel"
+                inputMode="numeric"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="0901234567"
+                pattern="(0[0-9]{9})?"
+                title="Nhập 10 chữ số bắt đầu bằng 0"
+                disabled={busy}
+                className="w-full rounded-xl border border-[#e6d5c5] bg-white py-2.5 pl-10 pr-3.5 text-sm text-[#1e1b18] placeholder:text-[#9e8c80] transition-all focus:border-[#9e7656] focus:outline-none focus:ring-2 focus:ring-[#9e7656]/25 disabled:bg-[#faf5f0] disabled:opacity-70"
+              />
             </div>
-          )}
+          </div>
+        </div>
 
-          {successMessage && (
-            <div role="status" className="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-800">
-              <div className="flex items-center gap-2 font-medium">
-                <CheckCircle2 className="h-5 w-5 shrink-0" />
-                <span>{successMessage}</span>
-              </div>
-              {requiresConfirmation && (
-                <div className="mt-2 pl-7">
-                  <Link href="/dang-nhap" className="font-semibold text-[#3d2e24] underline">
-                    Đi đến trang đăng nhập →
-                  </Link>
-                </div>
-              )}
-            </div>
-          )}
-
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              void handleRegister();
-            }}
-            className="space-y-4"
-          >
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Họ và tên <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Ví dụ: Nguyễn Văn An"
-                  maxLength={160}
-                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm focus:border-[#3d2e24] focus:outline-none focus:ring-1 focus:ring-[#3d2e24]"
-                  required
-                />
-                <UserRound className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Email <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="email"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Ví dụ: an.nguyen@gmail.com"
-                  maxLength={254}
-                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm focus:border-[#3d2e24] focus:outline-none focus:ring-1 focus:ring-[#3d2e24]"
-                  required
-                />
-                <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Số điện thoại (tùy chọn)
-              </label>
-              <div className="relative">
-                <input
-                  type="tel"
-                  inputMode="numeric"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Ví dụ: 0901234567"
-                  pattern="(0[0-9]{9})?"
-                  title="Nhập 10 chữ số bắt đầu bằng 0"
-                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm focus:border-[#3d2e24] focus:outline-none focus:ring-1 focus:ring-[#3d2e24]"
-                />
-                <Phone className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Mật khẩu <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="new-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Nhập mật khẩu (tối thiểu 8 ký tự)..."
-                  minLength={8}
-                  maxLength={128}
-                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-10 text-sm focus:border-[#3d2e24] focus:outline-none focus:ring-1 focus:ring-[#3d2e24]"
-                  required
-                />
-                <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                  className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
-                >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Xác nhận mật khẩu <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="new-password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Nhập lại mật khẩu..."
-                  minLength={8}
-                  maxLength={128}
-                  className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm focus:border-[#3d2e24] focus:outline-none focus:ring-1 focus:ring-[#3d2e24]"
-                  required
-                />
-                <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-              </div>
-            </div>
-
+        <div>
+          <label htmlFor="register-password" className="mb-1.5 block text-sm font-medium text-[#3d2e24]">
+            Mật khẩu <span className="text-[#b86b4b]">*</span>
+          </label>
+          <div className="relative">
+            <Lock
+              className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9e7656]"
+              aria-hidden="true"
+            />
+            <input
+              id="register-password"
+              type={showPassword ? "text" : "password"}
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Nhập mật khẩu (tối thiểu 8 ký tự)"
+              minLength={8}
+              maxLength={128}
+              disabled={busy}
+              className="w-full rounded-xl border border-[#e6d5c5] bg-white py-2.5 pl-10 pr-11 text-sm text-[#1e1b18] placeholder:text-[#9e8c80] transition-all focus:border-[#9e7656] focus:outline-none focus:ring-2 focus:ring-[#9e7656]/25 disabled:bg-[#faf5f0] disabled:opacity-70"
+              required
+            />
             <button
-              type="submit"
-              disabled={isPending}
-              className="w-full rounded-lg bg-[#3d2e24] py-2.5 text-sm font-semibold text-white transition hover:bg-[#1e1b18] disabled:opacity-50"
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+              disabled={busy}
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-[#6e5a4f] transition-colors hover:text-[#3d2e24] disabled:opacity-50"
             >
-              {isPending ? "Đang xử lý đăng ký..." : "ĐĂNG KÝ TÀI KHOẢN"}
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
-          </form>
-
-          <div className="mt-6 border-t border-gray-100 pt-4 text-center space-y-2">
-            <p className="text-sm text-gray-600">
-              Bạn đã có tài khoản?{" "}
-              <Link href="/dang-nhap" className="font-semibold text-[#b86b4b] hover:underline">
-                Đăng nhập ngay tại đây
-              </Link>
-            </p>
-            <p className="text-xs text-gray-500">
-              <Link href="/khoi-phuc-mat-khau" className="hover:underline">
-                Quên mật khẩu? Khôi phục qua email
-              </Link>
-            </p>
           </div>
         </div>
 
-        <div className="md:col-span-5 rounded-xl border border-gray-200 bg-[#fbf8f5] p-6 shadow-sm space-y-4">
-          <div className="flex items-center gap-2 border-b border-gray-200 pb-3">
-            <Sparkles className="h-5 w-5 text-[#b86b4b]" />
-            <h2 className="text-base font-bold text-[#3d2e24]">QUYỀN LỢI THÀNH VIÊN NARI HOME</h2>
-          </div>
-
-          <ul className="space-y-3 text-xs text-gray-700">
-            <li className="flex items-start gap-2.5 rounded-lg bg-white p-3 border border-gray-100">
-              <ShoppingBag className="h-4 w-4 shrink-0 text-[#3d2e24] mt-0.5" />
-              <div>
-                <p className="font-semibold text-gray-900">Theo dõi đơn hàng NariNow 2H</p>
-                <p className="text-gray-500 mt-0.5">
-                  Lưu địa chỉ nhận hàng mặc định và xem toàn bộ lịch sử đơn hàng trực tiếp tại Cổng Khách Hàng.
-                </p>
-              </div>
-            </li>
-            <li className="flex items-start gap-2.5 rounded-lg bg-white p-3 border border-gray-100">
-              <Calendar className="h-4 w-4 shrink-0 text-[#3d2e24] mt-0.5" />
-              <div>
-                <p className="font-semibold text-gray-900">Quản lý lịch hẹn Nari Clinic & Spa</p>
-                <p className="text-gray-500 mt-0.5">
-                  Xem lại lịch khám da liễu và liệu trình đã đặt theo từng chi nhánh phòng khám.
-                </p>
-              </div>
-            </li>
-            <li className="flex items-start gap-2.5 rounded-lg bg-white p-3 border border-gray-100">
-              <Award className="h-4 w-4 shrink-0 text-[#3d2e24] mt-0.5" />
-              <div>
-                <p className="font-semibold text-gray-900">Hạng thẻ & Nari Rewards</p>
-                <p className="text-gray-500 mt-0.5">
-                  Tích lũy điểm thưởng và nâng hạng Member, Silver, Gold, Diamond minh bạch từ máy chủ.
-                </p>
-              </div>
-            </li>
-          </ul>
-
-          <div className="rounded-lg bg-[#f6ece3] p-3 text-xs text-[#2a1f18]">
-            <div className="flex items-center gap-1.5 font-semibold">
-              <ShieldCheck className="h-4 w-4" />
-              <span>Bảo mật Supabase Auth & PostgreSQL</span>
-            </div>
-            <p className="mt-1 text-[11px] text-[#3d2e24]">
-              Tài khoản được xác thực qua Supabase Auth và hồ sơ được bảo vệ bằng Row-Level Security (RLS). Mọi người đăng ký công khai đều mang vai trò Thành viên chuẩn.
-            </p>
+        <div>
+          <label htmlFor="register-confirm-password" className="mb-1.5 block text-sm font-medium text-[#3d2e24]">
+            Xác nhận mật khẩu <span className="text-[#b86b4b]">*</span>
+          </label>
+          <div className="relative">
+            <Lock
+              className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9e7656]"
+              aria-hidden="true"
+            />
+            <input
+              id="register-confirm-password"
+              type={showPassword ? "text" : "password"}
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Nhập lại mật khẩu"
+              minLength={8}
+              maxLength={128}
+              disabled={busy}
+              className="w-full rounded-xl border border-[#e6d5c5] bg-white py-2.5 pl-10 pr-3.5 text-sm text-[#1e1b18] placeholder:text-[#9e8c80] transition-all focus:border-[#9e7656] focus:outline-none focus:ring-2 focus:ring-[#9e7656]/25 disabled:bg-[#faf5f0] disabled:opacity-70"
+              required
+            />
           </div>
         </div>
+
+        <button
+          type="submit"
+          disabled={busy}
+          className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#3d2e24] px-5 py-3 text-sm font-semibold text-[#faf5f0] transition-colors hover:bg-[#2a1f18] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+          <span>{busy ? "Đang xử lý đăng ký..." : "Đăng ký tài khoản"}</span>
+        </button>
+      </form>
+
+      <div className="mt-6 space-y-2 border-t border-[#efe3d7] pt-5 text-center">
+        <p className="text-sm text-[#6e5a4f]">
+          Bạn đã có tài khoản?{" "}
+          <Link href="/dang-nhap" className="font-semibold text-[#b86b4b] transition-colors hover:text-[#3d2e24] hover:underline">
+            Đăng nhập ngay
+          </Link>
+        </p>
+        <p className="text-xs text-[#6e5a4f]">
+          <Link href="/khoi-phuc-mat-khau" className="transition-colors hover:text-[#3d2e24] hover:underline">
+            Quên mật khẩu? Khôi phục qua email
+          </Link>
+        </p>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -334,9 +309,13 @@ export default function DangKyPage() {
   return (
     <>
       <Header />
-      <main className="min-h-[70vh] bg-[#faf5f0] py-8">
+      <AuthShell
+        breadcrumbLabel="Đăng ký tài khoản"
+        title="Đăng ký tài khoản Nari Home"
+        subtitle="Tạo tài khoản thành viên để theo dõi đơn hàng NariNow 2H, lưu địa chỉ giao nhận và tích điểm Nari Rewards."
+      >
         <RegisterForm />
-      </main>
+      </AuthShell>
       <Footer />
     </>
   );

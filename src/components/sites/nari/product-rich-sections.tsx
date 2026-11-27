@@ -122,7 +122,7 @@ export function ProductRichSections({
             ],
           },
         ],
-        sourceUrl: `https://Nari Home/san-pham/${catalogItem.slug}`,
+        sourceUrl: `https://narihome.io.vn/san-pham/${catalogItem.slug}`,
         isSample: false,
       };
     }
@@ -142,7 +142,7 @@ export function ProductRichSections({
         { label: "Danh mục", value: "Mỹ phẩm chính hãng" },
       ],
       description: `Sản phẩm ${cleanName} chính hãng phân phối tại Nari Home.`,
-      overviewHtml: `<p>Sản phẩm <strong>${cleanName}</strong> chính hãng phân phối tại hệ thống siêu thị và phòng khám Nari Home.</p>`,
+      overviewHtml: `<p>Sản phẩm <strong>${cleanName}</strong> chính hãng phân phối tại hệ thống mỹ phẩm chính hãng Nari Home.</p>`,
       ratingSummary: {
         average: 5.0,
         totalCount: 3,
@@ -164,13 +164,13 @@ export function ProductRichSections({
         ],
       },
       comments: [],
-      sourceUrl: `https://Nari Home/san-pham/${slug}`,
+      sourceUrl: `https://narihome.io.vn/san-pham/${slug}`,
       isSample: false,
     };
   })();
 
   const name = productName || detail.name;
-  const officialUrl = sourceUrl || detail.sourceUrl || `https://Nari Home/san-pham/${slug}`;
+  const officialUrl = sourceUrl || detail.sourceUrl || `https://narihome.io.vn/san-pham/${slug}`;
   const specs = detail.specs || [];
 
   // State

@@ -226,7 +226,7 @@ export function CampaignWowView({ campaignData, products: allCampaignProducts }:
                   <Zap size={14} color="#ff7800" /> NARINOW 2H TOÀN QUỐC
                 </span>
                 <a
-                  href="https://Nari Home/campaign/wow"
+                  href="https://narihome.io.vn/campaign/wow"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
@@ -240,7 +240,7 @@ export function CampaignWowView({ campaignData, products: allCampaignProducts }:
                     marginLeft: "8px",
                   }}
                 >
-                  Mở trang gốc Nari Home/campaign/wow
+                  narihome.io.vn/campaign/wow
                   <ExternalLink size={12} />
                 </a>
               </div>

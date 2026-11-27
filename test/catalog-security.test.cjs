@@ -87,7 +87,7 @@ test('authoritative catalog cards display managed English and suppress unsupport
   assert.doesNotMatch(legacy, /Bill Bioderma|Tặng/);
 });
 
-test('PostgreSQL home omits synthetic category sales and unverified clinic offers', () => {
+test('PostgreSQL home omits synthetic category sales and clinic sections', () => {
   const React = require('react');
   const { renderToStaticMarkup } = require('react-dom/server');
   const { HomeView } = load('src/components/sites/nari/home-view.tsx', {
@@ -99,11 +99,10 @@ test('PostgreSQL home omits synthetic category sales and unverified clinic offer
   });
   const state = { source:'postgres', products:{}, deletedSlugs:[], banners:{ heroSlides:[],sideBanners:[] },updatedAt:'' };
   const html = renderToStaticMarkup(React.createElement(HomeView,{ liveCatalog:state }));
-  assert.doesNotMatch(html,/8[.]4M đã bán|★ 5[.]0|href="\/booking"|href="\/dich-vu\//);
-  assert.match(html,/Dịch vụ Clinic, bảng giá và đặt hẹn chưa khả dụng/);
+  assert.doesNotMatch(html,/8[.]4M đã bán|★ 5[.]0|href="\/booking"|href="\/dich-vu\/|href="\/clinic"|Nari Clinic/);
   const legacy = renderToStaticMarkup(React.createElement(HomeView,{ liveCatalog:{ ...state,source:undefined } }));
   assert.match(legacy,/8[.]4M đã bán/);
-  assert.match(legacy,/★ 5[.]0/);
+  assert.doesNotMatch(legacy,/href="\/booking"|href="\/dich-vu\/|href="\/clinic"|Nari Clinic/);
 });
 
 test('public publication filter excludes demo/unverified references; nonowner runtime gets catalog only', { skip: !process.env.NARI_TEST_PGLITE_PATH }, async () => {

@@ -56,7 +56,6 @@ export interface FooterColumn {
 export interface FooterData {
   hotline: {
     shopping: string;
-    clinic: string;
     hours: string;
     email: string;
   };
@@ -105,7 +104,6 @@ export function filterStoreBranches(
   options: {
     city?: string;
     district?: string;
-    hasClinic?: boolean;
     query?: string;
   },
   branches: StoreBranchInfo[] = []
@@ -120,9 +118,6 @@ export function filterStoreBranches(
       if (branch.district.toLowerCase() !== options.district.toLowerCase()) {
         return false;
       }
-    }
-    if (options.hasClinic && !branch.hasClinic) {
-      return false;
     }
     if (options.query && options.query.trim()) {
       const q = options.query.toLowerCase().trim();
@@ -239,13 +234,13 @@ const supportTopics: SupportTopic[] = [
     title: "Hướng dẫn đăng ký và quản lý tài khoản",
     category: "Tài khoản & OTP",
     summary:
-      "Đăng ký thành viên Nari Home để tích điểm Nari Rewards, theo dõi đơn hàng và quản lý lịch hẹn Clinic.",
+      "Đăng ký thành viên Nari Home để tích điểm Nari Rewards, theo dõi đơn hàng và quản lý sổ địa chỉ nhận hàng.",
     sourceUrl: "https://narihome.io.vn/ho-tro/tai-khoan",
     sections: [
       {
         heading: "Quyền lợi thành viên Nari Rewards",
         body: [
-          "Tích điểm trên mọi hóa đơn mua sắm mỹ phẩm và sử dụng dịch vụ tại Nari Clinic & Spa.",
+          "Tích điểm trên mọi hóa đơn mua sắm mỹ phẩm chính hãng tại Nari Home.",
           "Nhận ưu đãi sinh nhật và miễn phí vận chuyển theo hạng thành viên.",
         ],
       },
@@ -273,7 +268,7 @@ const supportTopics: SupportTopic[] = [
     title: "Giới thiệu Nari Home — Chất lượng thật, Giá trị thật",
     category: "Giới thiệu & Liên hệ",
     summary:
-      "Nari Home Beauty & Clinic phân phối mỹ phẩm chính hãng 100% cùng hệ thống phòng khám da liễu chuẩn y khoa.",
+      "Nari Home phân phối mỹ phẩm và sản phẩm chăm sóc sắc đẹp chính hãng 100% trên toàn quốc.",
     sourceUrl: "https://narihome.io.vn/ho-tro/gioi-thieu",
     sections: [
       {
@@ -296,7 +291,7 @@ const supportTopics: SupportTopic[] = [
       {
         heading: "Phạm vi bảo vệ dữ liệu",
         body: [
-          "Thông tin cá nhân, địa chỉ giao hàng và hồ sơ liệu trình Clinic được bảo mật tuyệt đối và chỉ phục vụ xử lý đơn hàng, bảo hành và chăm sóc khách hàng.",
+          "Thông tin cá nhân, địa chỉ giao hàng và lịch sử đơn hàng được bảo mật tuyệt đối và chỉ phục vụ xử lý đơn hàng, bảo hành và chăm sóc khách hàng.",
         ],
       },
     ],
@@ -306,7 +301,7 @@ const supportTopics: SupportTopic[] = [
     title: "Điều khoản sử dụng và quy định giao dịch chung",
     category: "Chính sách & Bảo mật",
     summary:
-      "Các điều khoản chung áp dụng khi mua sắm sản phẩm và đặt lịch dịch vụ trên hệ thống Nari Home.",
+      "Các điều khoản chung áp dụng khi mua sắm sản phẩm trực tuyến trên hệ thống Nari Home.",
     sourceUrl: "https://narihome.io.vn/ho-tro/dieu-khoan-su-dung",
     sections: [
       {
@@ -323,14 +318,13 @@ const supportTopics: SupportTopic[] = [
     title: "Thông tin liên hệ & Tổng đài tư vấn",
     category: "Giới thiệu & Liên hệ",
     summary:
-      "Kênh liên hệ trực tiếp với bộ phận Chăm sóc khách hàng và Nari Clinic & Spa hoạt động từ 08:00 - 22:00 mỗi ngày.",
+      "Kênh liên hệ trực tiếp với bộ phận Chăm sóc khách hàng Nari Home hoạt động từ 08:00 - 22:00 mỗi ngày.",
     sourceUrl: "https://narihome.io.vn/ho-tro/lien-he",
     sections: [
       {
         heading: "Tổng đài miễn cước",
         body: [
-          "Tư vấn mua hàng & khiếu nại: 1800 6324 (Phím 1).",
-          "Tư vấn & đặt hẹn Nari Clinic & Spa: 1800 6324 (Phím 2).",
+          "Tư vấn mua hàng & khiếu nại: 1800 6324 (Miễn phí).",
           "Email hỗ trợ: hotro@narihome.io.vn.",
         ],
       },
@@ -462,8 +456,7 @@ export function lookupWarrantyDraft(query: string): WarrantyLookupResult {
 export function getFooterData(): FooterData {
   return {
     hotline: {
-      shopping: "1800 6324 (Phím 1)",
-      clinic: "1800 6324 (Phím 2)",
+      shopping: "1800 6324 (Miễn phí)",
       hours: "08:00 - 22:00 mỗi ngày",
       email: "hotro@narihome.io.vn",
     },
@@ -517,21 +510,18 @@ export function getFooterData(): FooterData {
       {
         title: "HỢP TÁC & DỊCH VỤ",
         links: [
-          { name: "Nari Clinic & Spa", href: "/danh-muc/nari-clinic-spa.html" },
-          { name: "Đặt hẹn khám da Clinic", href: "/booking" },
           { name: "Dermahair Chuyên sâu", href: "/danh-muc/dermahair-c2298.html" },
           { name: "Tra cứu hệ thống chi nhánh", href: "/he-thong-cua-hang" },
           { name: "Tra cứu kích hoạt bảo hành", href: "/bao-hanh" },
+          { name: "Tra cứu đơn hàng", href: "/tra-cuu-don-hang" },
         ],
       },
       {
         title: "KẾT NỐI VỚI NARI HOME",
         links: [
-          { name: "Hotline: 1800 6324 (Phím 1)", href: "tel:18006324" },
-          { name: "Đặt lịch Clinic: 1800 6324 (Phím 2)", href: "tel:18006324" },
+          { name: "Hotline CSKH: 1800 6324", href: "tel:18006324" },
           { name: "Trung tâm hỗ trợ trực tuyến", href: "/ho-tro" },
-          { name: "Fanpage Nari Home Beauty & Clinic", href: "https://www.facebook.com/narihome.vn", isExternal: true },
-          { name: "Kênh Nari Clinic & Spa", href: "https://www.facebook.com/nariclinic.vn", isExternal: true },
+          { name: "Fanpage Nari Home", href: "https://www.facebook.com/narihome.vn", isExternal: true },
         ],
       },
     ],
@@ -549,10 +539,10 @@ export function getFooterData(): FooterData {
       { name: "Anker", url: "/thuong-hieu/anker.html" },
     ],
     companyInfo: {
-      name: "CÔNG TY CỔ PHẦN NARI HOME BEAUTY & CLINIC",
+      name: "CÔNG TY CỔ PHẦN MỸ PHẨM NARI HOME",
       license: "Giấy chứng nhận ĐKKD số 0313612829 do Sở Kế hoạch và Đầu tư TP.HCM cấp ngày 13/01/2016",
       address: "Trụ sở chính: 71 Hoàng Hoa Thám, Phường Tân Bình, Thành phố Hồ Chí Minh",
-      copyright: "Bản quyền © 2016 - 2026 Nari Home Beauty & Clinic.",
+      copyright: "Bản quyền © 2016 - 2026 Nari Home.",
     },
   };
 }

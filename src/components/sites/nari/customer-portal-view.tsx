@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import {
   User,
   ShoppingBag,
-  Calendar,
   MapPin,
   Award,
   AlertCircle,
@@ -23,7 +22,6 @@ import { Footer } from "@/components/sites/nari/footer";
 import { LocationDialog } from "@/components/sites/nari/location-dialog";
 import type {
   CustomerLoyaltySummary,
-  CustomerPortalBooking,
   CustomerPortalOrder,
   CustomerProfileRecord,
 } from "@/lib/customer-types";
@@ -60,7 +58,9 @@ function formatDateTime(iso: string): string {
 
 export function CustomerPortalView({ initialSection = "tai-khoan", section }: CustomerPortalViewProps) {
   const router = useRouter();
-  const targetSection = (section === "dia-chi" ? "so-dia-chi" : section) || initialSection;
+  const normalizedSection =
+    section === "dia-chi" ? "so-dia-chi" : section === "lich-hen" ? "don-hang" : section;
+  const targetSection = normalizedSection || initialSection;
   const [activeSectionState, setActiveSectionState] = useState<string | null>(null);
   const [prevTargetSection, setPrevTargetSection] = useState(targetSection);
 
@@ -80,7 +80,7 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
   const [loadError, setLoadError] = useState("");
   const [profile, setProfile] = useState<CustomerProfileRecord | null>(null);
   const [orders, setOrders] = useState<CustomerPortalOrder[]>([]);
-  const [bookings, setBookings] = useState<CustomerPortalBooking[]>([]);
+  const [cancellingOrderCode, setCancellingOrderCode] = useState<string | null>(null);
   const [loyalty, setLoyalty] = useState<CustomerLoyaltySummary>({
     tier: "Member",
     points: 0,
@@ -103,10 +103,6 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
       {
         q: "Chính sách giao hàng siêu tốc NariNow 2H của Nari Home là gì?",
         a: "Dịch vụ NariNow 2H hỗ trợ giao nhanh trong vòng 2 giờ tại các khu vực nội thành có chi nhánh hỗ trợ. Đơn từ 90.000₫ được miễn phí vận chuyển NariNow 2H.",
-      },
-      {
-        q: "Làm thế nào để đặt lịch khám da liễu tại Nari Clinic & Spa?",
-        a: "Bạn có thể vào mục Đặt hẹn tại /booking để chọn chi nhánh có phòng khám, dịch vụ và khung giờ còn trống theo thời gian thực.",
       },
       {
         q: "Tôi có thể tra cứu đơn hàng chưa đăng nhập không?",
@@ -142,7 +138,6 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
         }
         setProfile(data.profile);
         setOrders(Array.isArray(data.orders) ? data.orders : []);
-        setBookings(Array.isArray(data.bookings) ? data.bookings : []);
         if (data.loyalty) setLoyalty(data.loyalty);
         if (data.profile) {
           setFullNameInput(data.profile.fullName || "");
@@ -242,6 +237,43 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
     });
   }
 
+  async function handleCancelOrder(order: CustomerPortalOrder) {
+    if (order.status !== "pending" || cancellingOrderCode) return;
+    if (!window.confirm(`Bạn có chắc chắn muốn hủy đơn hàng ${order.orderCode}?`)) return;
+
+    setCancellingOrderCode(order.orderCode);
+    setSaveSuccessMsg("");
+    setSaveErrorMsg("");
+    try {
+      const res = await fetch("/api/orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "cancel",
+          orderCode: order.orderCode,
+          phone: order.recipientPhone,
+        }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.ok) {
+        setSaveErrorMsg(data?.error || "Không thể hủy đơn hàng lúc này.");
+        return;
+      }
+      setOrders((prev) =>
+        prev.map((item) =>
+          item.orderCode === order.orderCode
+            ? { ...item, status: "cancelled", statusLabel: "Đã hủy đơn" }
+            : item,
+        ),
+      );
+      setSaveSuccessMsg(`Đã hủy đơn hàng ${order.orderCode} thành công.`);
+    } catch {
+      setSaveErrorMsg("Lỗi kết nối máy chủ khi hủy đơn hàng.");
+    } finally {
+      setCancellingOrderCode(null);
+    }
+  }
+
   return (
     <>
       <Header />
@@ -327,17 +359,15 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                           ? User
                           : item.key === "don-hang"
                             ? ShoppingBag
-                            : item.key === "lich-hen"
-                              ? Calendar
-                              : item.key === "so-dia-chi"
-                                ? MapPin
-                                : item.key === "uu-dai"
-                                  ? Tag
-                                  : item.key === "yeu-thich"
-                                    ? Heart
-                                    : item.key === "hoi-dap"
-                                      ? HelpCircle
-                                      : Award;
+                            : item.key === "so-dia-chi"
+                              ? MapPin
+                              : item.key === "uu-dai"
+                                ? Tag
+                                : item.key === "yeu-thich"
+                                  ? Heart
+                                  : item.key === "hoi-dap"
+                                    ? HelpCircle
+                                    : Award;
                       return (
                         <button
                           key={item.key}
@@ -519,61 +549,21 @@ export function CustomerPortalView({ initialSection = "tai-khoan", section }: Cu
                               <span>
                                 Giao đến: <b>{order.shippingAddress}</b> ({order.branchName})
                               </span>
-                              <span className="text-sm font-bold text-[#b86b4b]">
-                                Tổng: {money(order.totalAmount)}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {activeSection === "lich-hen" && (
-                  <div>
-                    <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                      <div>
-                        <h1 className="text-lg font-bold text-[#3d2e24]">Lịch hẹn Nari Clinic & Spa</h1>
-                        <p className="text-xs text-gray-500">
-                          Danh sách lịch hẹn đã xác nhận trên hệ thống ({bookings.length} lịch hẹn).
-                        </p>
-                      </div>
-                      <Link
-                        href="/booking"
-                        className="rounded-lg bg-[#3d2e24] px-3 py-1.5 text-xs font-semibold text-white"
-                      >
-                        + Đặt lịch hẹn mới
-                      </Link>
-                    </div>
-
-                    {bookings.length === 0 ? (
-                      <div className="rounded-lg border border-dashed border-gray-300 p-8 text-center text-sm text-gray-500 space-y-3">
-                        <Calendar className="w-8 h-8 mx-auto text-gray-400" />
-                        <p>Bạn chưa có lịch hẹn Clinic nào gắn với tài khoản này.</p>
-                        <Link
-                          href="/booking"
-                          className="inline-block rounded-lg bg-[#3d2e24] px-4 py-2 text-xs font-semibold text-white"
-                        >
-                          Đặt lịch khám ngay
-                        </Link>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        {bookings.map((bk) => (
-                          <div key={bk.id} className="rounded-lg border border-gray-200 p-4 text-xs space-y-1.5">
-                            <div className="flex flex-wrap items-center justify-between gap-2">
-                              <span className="font-mono font-bold text-sm text-[#3d2e24]">{bk.bookingCode}</span>
-                              <span className="rounded-full bg-[#f6ece3] px-2.5 py-0.5 font-semibold text-[#3d2e24]">
-                                {bk.status}
-                              </span>
-                            </div>
-                            <div className="font-semibold text-gray-900">{bk.serviceName}</div>
-                            <div className="text-gray-600">
-                              Thời gian: <b>{bk.date}</b> • <b>{bk.timeRange}</b> (Asia/Ho_Chi_Minh)
-                            </div>
-                            <div className="text-gray-600">
-                              Chi nhánh: <b>{bk.branchName}</b> — {bk.branchAddress}
+                              <div className="flex items-center gap-3">
+                                {order.status === "pending" && (
+                                  <button
+                                    type="button"
+                                    disabled={cancellingOrderCode === order.orderCode}
+                                    onClick={() => void handleCancelOrder(order)}
+                                    className="rounded border border-red-200 bg-white px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50"
+                                  >
+                                    {cancellingOrderCode === order.orderCode ? "Đang hủy..." : "Hủy đơn"}
+                                  </button>
+                                )}
+                                <span className="text-sm font-bold text-[#b86b4b]">
+                                  Tổng: {money(order.totalAmount)}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         ))}

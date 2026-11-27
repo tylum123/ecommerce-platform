@@ -33,8 +33,11 @@ test('expectedDatabaseSpec distinguishes baseline catalog from Wave 3 multi-sche
   assert.deepEqual(baseline.schemas, ['nari_catalog', 'nari_identity']);
   assert.equal(baseline.exactPolicies, 18);
   const wave3 = expectedDatabaseSpec(true);
-  assert.deepEqual(wave3.schemas, ['nari_catalog', 'nari_identity', 'nari_orders', 'nari_clinic']);
+  assert.deepEqual(wave3.schemas, ['nari_catalog', 'nari_identity', 'nari_orders']);
+  assert.equal(wave3.exactPolicies, 38);
   assert.deepEqual(wave3.expected['nari_identity.auth_rate_limits'], [false, false, false, false]);
   assert.deepEqual(wave3.expected['nari_orders.orders'], [true, true, true, false]);
-  assert.deepEqual(wave3.expected['nari_clinic.appointments'], [true, true, true, false]);
+  assert.deepEqual(wave3.expected['nari_catalog.branches'], [true, true, false, false]);
+  assert.equal(Object.hasOwn(wave3.expected, 'nari_clinic.services'), false);
+  assert.equal(Object.hasOwn(wave3.expected, 'nari_clinic.appointments'), false);
 });

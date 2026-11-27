@@ -67,12 +67,8 @@ export function SupportView() {
       a: "Khách hàng được đổi trả miễn phí trong vòng 30 ngày nếu sản phẩm có lỗi kỹ thuật từ nhà sản xuất hoặc kích ứng (có xác nhận y tế). Sản phẩm cần còn nguyên tem, bao bì và hóa đơn mua hàng tại Nari Home."
     },
     {
-      q: "Làm sao để đặt lịch hẹn khám da và điều trị tại Nari Clinic & Spa?",
-      a: "Quý khách có thể đặt lịch hẹn trực tiếp qua website tại trang /booking, chọn chi nhánh, dịch vụ và khung giờ mong muốn, hoặc gọi hotline 1800 6324 (Nhấn phím 2) để nhân viên hỗ trợ sắp xếp lịch khám với bác sĩ da liễu."
-    },
-    {
       q: "Mã OTP dùng để làm gì và nếu không nhận được OTP thì xử lý thế nào?",
-      a: "Mã OTP (One Time Password) gồm 6 chữ số dùng để xác minh đăng ký tài khoản, khôi phục mật khẩu hoặc xác nhận đặt hẹn dịch vụ. Hệ thống ưu tiên gửi OTP qua Zalo, sau đó là tin nhắn SMS. Nếu sau 60 giây không nhận được mã, vui lòng nhấn Gửi lại hoặc liên hệ tổng đài 1800 6324."
+      a: "Mã OTP (One Time Password) gồm 6 chữ số dùng để xác minh đăng ký tài khoản, khôi phục mật khẩu hoặc xác nhận đơn hàng. Hệ thống ưu tiên gửi OTP qua Zalo, sau đó là tin nhắn SMS. Nếu sau 60 giây không nhận được mã, vui lòng nhấn Gửi lại hoặc liên hệ tổng đài 1800 6324."
     }
   ];
 
@@ -129,7 +125,7 @@ export function SupportView() {
               <a href="tel:18006324" className="text-base font-bold text-[#3d2e24] hover:underline">
                 1800 6324
               </a>
-              <span className="text-[11px] text-gray-400 block">Phím 1: Bán hàng · Phím 2: Clinic</span>
+              <span className="text-[11px] text-gray-400 block">Hỗ trợ mua hàng &amp; CSKH</span>
             </div>
           </div>
 

@@ -23,7 +23,7 @@ function load(file, stubs = {}) {
 test('catalog authorization trusts verified provisioned admin only', async () => {
   const { catalogAdminStatus } = load('src/lib/server/catalog-admin-access.ts');
   const auth = { getUser: async () => ({ data: { user: { id: 'verified', user_metadata: { role: 'admin' } } }, error: null }) };
-  for (const [role, expected] of [['admin', 200], ['customer', 403], ['store_manager', 403], ['warehouse_staff', 403], ['clinic_doctor', 403], ['cs_agent', 403]]) {
+  for (const [role, expected] of [['admin', 200], ['customer', 403], ['store_manager', 403], ['warehouse_staff', 403], ['cs_agent', 403]]) {
     const identities = { findActiveIdentity: async () => ({ userId: 'verified', active: true, fullName: 'Provisioned', role, branchId: 'branch' }) };
     assert.equal(await catalogAdminStatus(auth, identities), expected);
   }

@@ -235,13 +235,13 @@ function buildMegaMenuTree(
                   ],
           },
           {
-            title: "Dịch vụ & Trải nghiệm Nari Home",
-            href: "/dich-vu-phong-kham.html",
+            title: "Tiện ích & Hỗ trợ Nari Home",
+            href: "/ho-tro",
             items: [
-              { label: "Phòng Khám Da Liễu Nari Clinic & Spa", href: "/dich-vu-phong-kham.html" },
-              { label: "Bảng Giá Dịch Vụ Điều Trị", href: "/bang-gia-dich-vu.html" },
-              { label: "Cẩm Nang Làm Đẹp Y Khoa", href: "/cam-nang.html" },
-              { label: "Đặt Lịch Khám Da Miễn Phí", href: "/dat-lich-kham" },
+              { label: "Giao Nhanh Miễn Phí 2H (NariNow)", href: "/ho-tro/giao-nhanh-2h" },
+              { label: "Hệ Thống Cửa Hàng Toàn Quốc", href: "/he-thong-cua-hang" },
+              { label: "Cẩm Nang Làm Đẹp", href: "/cam-nang.html" },
+              { label: "Tra Cứu Đơn Hàng", href: "/tra-cuu-don-hang" },
             ],
           },
         ],
@@ -286,13 +286,13 @@ function buildMegaMenuTree(
               ],
       },
       {
-        title: "Dịch vụ & Trải nghiệm Nari Home",
-        href: "/dich-vu-phong-kham.html",
+        title: "Tiện ích & Hỗ trợ Nari Home",
+        href: "/ho-tro",
         items: [
-          { label: "Phòng Khám Da Liễu Nari Clinic & Spa", href: "/dich-vu-phong-kham.html" },
-          { label: "Bảng Giá Dịch Vụ Điều Trị", href: "/bang-gia-dich-vu.html" },
-          { label: "Cẩm Nang Làm Đẹp Y Khoa", href: "/cam-nang.html" },
-          { label: "Đặt Lịch Khám Da Miễn Phí", href: "/dat-lich-kham" },
+          { label: "Giao Nhanh Miễn Phí 2H (NariNow)", href: "/ho-tro/giao-nhanh-2h" },
+          { label: "Hệ Thống Cửa Hàng Toàn Quốc", href: "/he-thong-cua-hang" },
+          { label: "Cẩm Nang Làm Đẹp", href: "/cam-nang.html" },
+          { label: "Tra Cứu Đơn Hàng", href: "/tra-cuu-don-hang" },
         ],
       },
     ];
@@ -380,7 +380,7 @@ export function getInteractiveUiData(
     scrapedAt: liveCatalog.updatedAt || "",
     source: "https://narihome.vn/",
     topBanner: {
-      alt: firstBanner?.alt || "Nari Home Beauty & Clinic — Mỹ phẩm chính hãng 100%",
+      alt: firstBanner?.alt || "Nari Home — Mỹ phẩm chính hãng 100%",
       src: firstBanner?.src || "/nari-home-banner.jpg",
       href: firstBanner?.href || "/campaign/wow",
     },

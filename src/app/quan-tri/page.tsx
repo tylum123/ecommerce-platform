@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
 import { NextRequest } from "next/server";
 import { redirect } from "next/navigation";
@@ -11,6 +12,11 @@ import {
 } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Quản trị hệ thống",
+  robots: { index: false, follow: false },
+};
 
 export default async function QuanTriPage() {
   if (process.env.NARI_ERP_ADMIN_ENABLED === "true") {

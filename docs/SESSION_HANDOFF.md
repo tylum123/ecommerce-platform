@@ -1,5 +1,22 @@
 # Session handoff — Hasaki clone
 
+## Checkpoint 27/11/2026 (Wave 1–3 Pure E-Commerce, Drop `nari_clinic`, SEO/Icons & Luxury Silk Auth Live) — Deploy `17eef233` lên `https://narihome.io.vn`
+
+- **Wave 1 & 1B — Gỡ bỏ hoàn toàn Clinic & Booking (App + Supabase DB):**
+  - Thực thi `DROP SCHEMA IF EXISTS nari_clinic CASCADE;` trực tiếp trên Supabase Cloud (`ywrzguhuzekkusoupehf`), tạo migration [`db/migrations/202611270001_drop_clinic_schema.sql`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/db/migrations/202611270001_drop_clinic_schema.sql), cập nhật `verify-supabase-live.mjs` (`3` schemas, `38` RLS policies), `push-supabase-schema.mjs`, `seed-starter-catalog.mjs`; `npm run db:verify` **PASS** (`ok: true`, giữ nguyên `nari_catalog.branches: 1`).
+  - Tách [`src/lib/server/postgres-branch-service.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/server/postgres-branch-service.ts) để bảo toàn 100% luồng `/he-thong-cua-hang`, `/api/stores`, `/thanh-toan`; xóa 14 thư mục/file Clinic & Booking (`booking`, `dat-lich-kham`, `clinic`, `bang-gia-dich-vu.html`, `dich-vu`, `api/bookings`, `booking-view.tsx`, `clinic-view.tsx`, `service-view.tsx`, `clinic-services.ts`, `postgres-clinic-service.ts`).
+- **Wave 2 — Tối ưu SEO, Icon, Metadata & JSON-LD:**
+  - Tạo bộ nhận diện mới [`src/app/icon.svg`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/app/icon.svg), [`src/app/apple-icon.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/app/apple-icon.tsx), [`src/app/manifest.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/app/manifest.ts) (xóa `favicon.ico` mẫu cũ).
+  - Nâng cấp [`src/app/layout.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/app/layout.tsx) (`metadataBase`, `title.template`, OpenGraph, Twitter, Canonical, `Organization` JSON-LD), thêm `generateMetadata()` + `Product` JSON-LD cho `/san-pham/[slug]`, `/danh-muc/[slug]`, `/thuong-hieu/[slug]`, `noindex` cho trang riêng tư, sửa 4 URL hỏng và đồng bộ `robots.txt` / `sitemap.xml` chuẩn `https://narihome.io.vn`.
+- **Wave 3 — Core E2E, Hủy đơn ACID, Admin ERP sạch & Keep-Alive DB:**
+  - Tạo [`src/app/api/health/route.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/app/api/health/route.ts) + [`.github/workflows/keep-alive.yml`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/.github/workflows/keep-alive.yml) (ping 3 ngày/lần chống Supabase Free ngủ đông).
+  - Sửa bug Mini Cart Drawer >20 SKU, bỏ giá giả 150K trong `cart-view.tsx`, nối chi nhánh thật cho `/api/cart/quote` và tồn kho chi nhánh thật cho PDP (`/api/ui-config`), thêm `PATCH /api/orders` + `cancelPostgresOrder()` (hủy đơn `pending` hoàn kho ACID) trên `/tra-cuu-don-hang` và `/khach-hang/don-hang`, gỡ `simulateMcpToolExecution()` giả lập & thêm nút Hủy/Hoàn đơn trong `admin-erp-view.tsx`.
+- **Nâng cấp bộ trang & Modal Đăng nhập (Luxury Silk & Pearl Champagne):**
+  - Tạo [`src/components/sites/nari/auth-shell.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/nari/auth-shell.tsx), làm đẹp đồng bộ `/dang-nhap`, `/dang-ky`, `/khoi-phuc-mat-khau`, [`supabase-login-form.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/nari/supabase-login-form.tsx), [`password-recovery-view.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/nari/password-recovery-view.tsx), và [`account-dialog.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/nari/account-dialog.tsx) (form đăng nhập nhanh trực tiếp trong modal).
+- **Kiểm chứng & Production Live (`https://narihome.io.vn`):**
+  - `node --test test/*.mjs test/*.cjs`: **`93` passed, `0` failed** (`11` PGlite skipped); `npm run typecheck`: **PASS** (`0` errors); `npm run lint`: **PASS** (`0` errors, `0` warnings).
+  - `npm run cf:build` & `npx wrangler deploy`: **PASS**, Version ID `17eef233-56af-48f5-8184-9de23eaccdb9`, `Worker Startup Time: 209 ms`, `51/51` static assets uploaded.
+
 ## Checkpoint 27/11/2026 (Custom Domain `narihome.io.vn` Live & README Kiến Trúc) — Khôi Phục Supabase, Gắn Tên Miền Chính Thức & Deploy Bản 23/11
 
 - **Khắc phục sự cố Server & Kết nối Tên miền chính thức `https://narihome.io.vn`:**

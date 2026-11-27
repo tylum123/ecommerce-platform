@@ -16,18 +16,11 @@ export const STAFF_WORKSPACES = [
     tasks: ["Tồn kho chi nhánh", "Danh sách cần soạn", "Bàn giao vận chuyển"],
   },
   {
-    slug: "clinic",
-    role: "clinic_doctor",
-    title: "Bác sĩ Clinic",
-    description: "Quản lý lịch hẹn và công việc chuyên môn được phân công.",
-    tasks: ["Lịch hẹn được phân công", "Hồ sơ điều trị", "Chỉ định chuyên môn"],
-  },
-  {
     slug: "cskh",
     role: "cs_agent",
     title: "Chăm sóc khách hàng",
     description: "Tiếp nhận yêu cầu và hỗ trợ tra cứu đơn hàng của khách.",
-    tasks: ["Yêu cầu hỗ trợ", "Tra cứu đơn hàng", "Hỗ trợ lịch hẹn"],
+    tasks: ["Yêu cầu hỗ trợ", "Tra cứu đơn hàng", "Hỗ trợ đổi trả & bảo hành"],
   },
 ] as const;
 

@@ -16,7 +16,6 @@ import {
   lookupWarrantyDraft,
   type WarrantyLookupResult,
 } from "@/lib/support-stores";
-import { clinicServices } from "@/lib/clinic-services";
 import {
   getInteractiveUiData,
   computeGiftBillPromo,
@@ -771,7 +770,7 @@ export function getDatabaseStats(): {
     totalOrders: store.orders.length,
     totalAppointments: store.appointments.length,
     totalStoreBranches: getStoreBranches().length,
-    totalClinicServices: clinicServices.length,
+    totalClinicServices: 0,
     totalWarrantyClaims: store.warrantyClaims.length,
   };
 }

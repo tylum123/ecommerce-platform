@@ -751,7 +751,6 @@ export function Header() {
           <Link href="/thuong-hieu">THƯƠNG HIỆU</Link>
           <Link href="/hang-moi-ve.html?sort=position">HÀNG MỚI VỀ</Link>
           <Link href="/san-pham-ban-chay.html?sort=topsale">BÁN CHẠY</Link>
-          <Link href="/clinic">CLINIC &amp; SPA</Link>
           <Link href="/danh-muc/dermahair-c2298.html">DERMAHAIR</Link>
           <div
             style={{

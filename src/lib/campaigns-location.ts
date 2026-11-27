@@ -631,7 +631,6 @@ export interface CustomerMenuLink {
   key:
     | "tai-khoan"
     | "don-hang"
-    | "lich-hen"
     | "so-dia-chi"
     | "uu-dai"
     | "yeu-thich"
@@ -646,7 +645,6 @@ export function getCustomerMenuLinks(): CustomerMenuLink[] {
   return [
     { key: "tai-khoan", label: "Thông tin tài khoản", href: "/khach-hang/tai-khoan", icon: "user" },
     { key: "don-hang", label: "Đơn hàng của tôi", href: "/khach-hang/don-hang", icon: "shopping-bag" },
-    { key: "lich-hen", label: `Lịch hẹn ${BRAND_CONFIG.shortName} Clinic`, href: "/khach-hang/lich-hen", icon: "calendar" },
     { key: "so-dia-chi", label: "Sổ địa chỉ nhận hàng", href: "/khach-hang/so-dia-chi", icon: "map-pin" },
     { key: "uu-dai", label: "Mã giảm giá & Khuyến mãi", href: "/khach-hang/uu-dai", icon: "tag" },
     { key: "yeu-thich", label: "Sản phẩm yêu thích", href: "/khach-hang/yeu-thich", icon: "heart" },

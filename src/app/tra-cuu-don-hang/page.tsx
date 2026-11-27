@@ -69,6 +69,8 @@ export default function OrderLookupPage() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [orderResult, setOrderResult] = useState<LookupOrderSummary | null>(null);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelFeedback, setCancelFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,6 +80,7 @@ export default function OrderLookupPage() {
 
     setLoading(true);
     setErrorMessage("");
+    setCancelFeedback(null);
     setOrderResult(null);
 
     try {
@@ -115,6 +118,38 @@ export default function OrderLookupPage() {
       setErrorMessage("Không thể kết nối đến hệ thống tra cứu đơn hàng. Vui lòng thử lại sau.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCancelOrder = async () => {
+    if (!orderResult || orderResult.status !== "pending" || cancelling) return;
+    if (!window.confirm(`Bạn có chắc chắn muốn hủy đơn hàng ${orderResult.orderCode}?`)) return;
+
+    setCancelling(true);
+    setCancelFeedback(null);
+    try {
+      const response = await fetch("/api/orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "cancel",
+          orderCode: orderResult.orderCode,
+          phone: orderResult.recipientPhone,
+        }),
+      });
+      const payload: unknown = await response.json().catch(() => null);
+      const record = payload && typeof payload === "object" ? (payload as Record<string, unknown>) : null;
+      if (!response.ok || !record?.order) {
+        const msg = record && typeof record.error === "string" && record.error ? record.error : "Không thể hủy đơn hàng lúc này.";
+        setCancelFeedback({ type: "error", text: msg });
+        return;
+      }
+      setOrderResult(record.order as LookupOrderSummary);
+      setCancelFeedback({ type: "success", text: `Đơn hàng ${orderResult.orderCode} đã được hủy thành công.` });
+    } catch {
+      setCancelFeedback({ type: "error", text: "Lỗi kết nối máy chủ khi hủy đơn hàng." });
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -339,6 +374,46 @@ export default function OrderLookupPage() {
                   <span>{formatVnd(orderResult.totalAmount)}</span>
                 </div>
               </div>
+
+              {cancelFeedback && (
+                <div
+                  role={cancelFeedback.type === "error" ? "alert" : "status"}
+                  style={{
+                    marginTop: "12px",
+                    padding: "10px 12px",
+                    borderRadius: "4px",
+                    fontSize: "12.5px",
+                    backgroundColor: cancelFeedback.type === "error" ? "#fef2f2" : "#f0fdf4",
+                    border: `1px solid ${cancelFeedback.type === "error" ? "#fecaca" : "#bbf7d0"}`,
+                    color: cancelFeedback.type === "error" ? "#991b1b" : "#166534",
+                  }}
+                >
+                  {cancelFeedback.text}
+                </div>
+              )}
+
+              {orderResult.status === "pending" && (
+                <div style={{ marginTop: "14px", paddingTop: "12px", borderTop: "1px solid #e5e7eb", display: "flex", justifyContent: "flex-end" }}>
+                  <button
+                    type="button"
+                    disabled={cancelling}
+                    onClick={() => void handleCancelOrder()}
+                    style={{
+                      backgroundColor: "#ffffff",
+                      color: "#b91c1c",
+                      border: "1px solid #fca5a5",
+                      borderRadius: "4px",
+                      padding: "8px 14px",
+                      fontSize: "12.5px",
+                      fontWeight: 700,
+                      cursor: cancelling ? "wait" : "pointer",
+                      opacity: cancelling ? 0.65 : 1,
+                    }}
+                  >
+                    {cancelling ? "Đang hủy đơn..." : "Hủy đơn hàng"}
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

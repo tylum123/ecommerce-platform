@@ -115,8 +115,7 @@ test("HomeView adapts PostgreSQL layout without side-banner gap or dead snapshot
   assert.match(html, /Sản phẩm nổi bật Nari Home/);
   assert.match(html, /data-card="nari-calm-gel\.html"/);
   assert.match(html, /Nari Lab/);
-  assert.doesNotMatch(html, /hero-side|VICHY|CERAVE|LA ROCHE-POSAY|Phụ Kiện Điện Thoại|href="\/booking"|href="\/dich-vu\//);
-  assert.match(html, /Dịch vụ Clinic, bảng giá và đặt hẹn chưa khả dụng/);
+  assert.doesNotMatch(html, /hero-side|VICHY|CERAVE|LA ROCHE-POSAY|Phụ Kiện Điện Thoại|href="\/booking"|href="\/dich-vu\/|href="\/clinic"|Nari Clinic/);
 });
 
 test("CartView omits sample wording and renders NariNow 2H freeship threshold", () => {
@@ -152,7 +151,6 @@ test("ui-skeletons renders Luxury Silk shimmer, aria-busy, and ModalLoadingOverl
     ["ProductDetailSkeleton", skeletons.ProductDetailSkeleton],
     ["CatalogPageSkeleton", skeletons.CatalogPageSkeleton],
     ["CheckoutPageSkeleton", skeletons.CheckoutPageSkeleton],
-    ["BookingPageSkeleton", skeletons.BookingPageSkeleton],
     ["OrderResultSkeleton", skeletons.OrderResultSkeleton],
     ["CustomerPortalSkeleton", skeletons.CustomerPortalSkeleton],
     ["AdminErpSkeleton", skeletons.AdminErpSkeleton],
@@ -175,7 +173,7 @@ test("ui-skeletons renders Luxury Silk shimmer, aria-busy, and ModalLoadingOverl
   assert.match(modalHtml, /aria-busy="true"/);
 });
 
-test("all 8 route loading.tsx files exist and render Luxury Silk skeleton markup", () => {
+test("all 7 route loading.tsx files exist and render Luxury Silk skeleton markup", () => {
   const React = require("react");
   const { renderToStaticMarkup } = require("react-dom/server");
 
@@ -184,7 +182,6 @@ test("all 8 route loading.tsx files exist and render Luxury Silk skeleton markup
     "src/app/san-pham/[slug]/loading.tsx",
     "src/app/danh-muc/[slug]/loading.tsx",
     "src/app/thanh-toan/loading.tsx",
-    "src/app/booking/loading.tsx",
     "src/app/tra-cuu-don-hang/loading.tsx",
     "src/app/khach-hang/[section]/loading.tsx",
     "src/app/quan-tri/loading.tsx",

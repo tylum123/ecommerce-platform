@@ -99,6 +99,13 @@ export interface TransitionPostgresOrderStatusInput {
   note?: string;
 }
 
+export interface CancelPostgresOrderInput {
+  orderCode: string;
+  userId?: string | null;
+  phone?: string | null;
+  reason?: string;
+}
+
 /** Domain validation or state-conflict error mapped directly to HTTP status codes. */
 export class OrderInputError extends Error {
   readonly status: OrderErrorStatus;
@@ -125,7 +132,7 @@ const ALLOWED_STATUS_TRANSITIONS: Readonly<Record<OrderStatus, readonly OrderSta
   confirmed: ["packing", "cancelled"],
   packing: ["shipping", "cancelled"],
   shipping: ["delivered", "returned"],
-  delivered: [],
+  delivered: ["returned"],
   cancelled: [],
   returned: [],
 };
@@ -903,5 +910,127 @@ export async function transitionPostgresOrderStatus(
     );
 
     return updatedOrder;
+  });
+}
+
+/** Allow a customer (by logged-in userId or matching orderCode + phone) to cancel a pending order atomically. */
+export async function cancelPostgresOrder(
+  database: CatalogSqlDatabase,
+  input: CancelPostgresOrderInput,
+): Promise<PostgresOrderWithItems> {
+  const orderCode = typeof input.orderCode === "string" ? input.orderCode.trim() : "";
+  if (!orderCode) {
+    throw new OrderInputError("ORDER_CODE_REQUIRED", 400);
+  }
+
+  let userId: string | null = null;
+  if (typeof input.userId === "string" && input.userId.trim()) {
+    const candidate = input.userId.trim();
+    if (!UUID_REGEX.test(candidate)) {
+      throw new OrderInputError("ORDER_USER_ID_INVALID", 400);
+    }
+    userId = candidate;
+  }
+
+  let phone: string | null = null;
+  if (typeof input.phone === "string" && input.phone.trim()) {
+    const candidate = input.phone.trim();
+    if (!PHONE_REGEX.test(candidate)) {
+      throw new OrderInputError("ORDER_RECIPIENT_PHONE_INVALID", 400);
+    }
+    phone = candidate;
+  }
+
+  if (!userId && !phone) {
+    throw new OrderInputError("ORDER_CANCEL_IDENTITY_REQUIRED", 400);
+  }
+
+  const reason =
+    typeof input.reason === "string" && input.reason.trim()
+      ? input.reason.trim().slice(0, 500)
+      : "Khách hàng yêu cầu hủy đơn";
+
+  return database.transaction(async (conn) => {
+    const whereOwnership =
+      userId && phone
+        ? "(user_id = $2::uuid OR recipient_phone = $3)"
+        : userId
+          ? "user_id = $2::uuid"
+          : "recipient_phone = $2";
+    const queryValues: unknown[] =
+      userId && phone ? [orderCode, userId, phone] : userId ? [orderCode, userId] : [orderCode, phone];
+
+    const existingRes = await conn.query(
+      `SELECT id, order_code, user_id, branch_id, recipient_name, recipient_phone,
+              shipping_address, delivery_type, payment_method, payment_status,
+              status, subtotal, shipping_fee, discount_amount, total_amount,
+              notes, version, created_at, updated_at
+       FROM nari_orders.orders
+       WHERE lower(order_code) = lower($1)
+         AND ${whereOwnership}
+       LIMIT 1
+       FOR UPDATE`,
+      queryValues,
+    );
+
+    if (existingRes.rows.length === 0) {
+      throw new OrderInputError("ORDER_NOT_FOUND", 404);
+    }
+
+    const current = mapOrderRow(existingRes.rows[0]);
+    if (current.status !== "pending") {
+      throw new OrderInputError("ORDER_NOT_CANCELLABLE", 409);
+    }
+
+    const updatedRes = await conn.query(
+      `UPDATE nari_orders.orders
+       SET status = 'cancelled',
+           version = version + 1,
+           updated_at = clock_timestamp()
+       WHERE id = $1
+         AND version = $2
+         AND status = 'pending'
+       RETURNING id, order_code, user_id, branch_id, recipient_name, recipient_phone,
+                 shipping_address, delivery_type, payment_method, payment_status,
+                 status, subtotal, shipping_fee, discount_amount, total_amount,
+                 notes, version, created_at, updated_at`,
+      [current.id, current.version],
+    );
+    if (updatedRes.rows.length === 0) {
+      throw new OrderInputError("ORDER_VERSION_CONFLICT", 409);
+    }
+    const updatedOrder = mapOrderRow(updatedRes.rows[0]);
+    const actorId = userId ?? `customer:${current.recipientPhone}`;
+
+    if (updatedOrder.branchId) {
+      await releaseBranchInventory(conn, {
+        orderId: updatedOrder.id,
+        orderCode: updatedOrder.orderCode,
+        branchId: updatedOrder.branchId,
+        expectedVersion: current.version,
+        actorId,
+      });
+    }
+
+    await conn.query(
+      `INSERT INTO nari_orders.order_events (
+         id, order_id, from_status, to_status, actor_id, note
+       )
+       VALUES ($1, $2, 'pending', 'cancelled', $3, $4)`,
+      [randomUUID(), updatedOrder.id, actorId, reason],
+    );
+
+    const itemsRes = await conn.query(
+      `SELECT id, order_id, product_id, sku, product_name, unit_price, quantity, line_total
+       FROM nari_orders.order_items
+       WHERE order_id = $1
+       ORDER BY sku ASC, id ASC`,
+      [updatedOrder.id],
+    );
+
+    return {
+      ...updatedOrder,
+      items: itemsRes.rows.map(mapOrderItemRow),
+    };
   });
 }

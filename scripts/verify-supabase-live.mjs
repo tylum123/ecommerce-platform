@@ -69,7 +69,7 @@ export function expectedDatabaseSpec(wave3Applied) {
     };
   }
   return {
-    schemas: ['nari_catalog', 'nari_identity', 'nari_orders', 'nari_clinic'],
+    schemas: ['nari_catalog', 'nari_identity', 'nari_orders'],
     expected: {
       ...baseTables,
       'nari_catalog.branches': [true, true, false, false],
@@ -81,11 +81,9 @@ export function expectedDatabaseSpec(wave3Applied) {
       'nari_orders.orders': [true, true, true, false],
       'nari_orders.order_items': [true, true, false, false],
       'nari_orders.order_events': [true, true, false, false],
-      'nari_clinic.services': [true, true, true, false],
-      'nari_clinic.appointments': [true, true, true, false],
     },
     minPolicies: 35,
-    exactPolicies: null,
+    exactPolicies: 38,
     deniedUpdateTargets: [
       'UPDATE nari_identity.provisioned_identities SET active=active WHERE false',
       'DELETE FROM nari_catalog.inventory_movements WHERE false',
@@ -106,8 +104,8 @@ export async function verifyDatabase() {
       current_setting('row_security') AS row_security
       FROM pg_roles r WHERE r.rolname=current_user`);
     requireCheck(role && !role.rolsuper && !role.rolbypassrls && !role.rolcreatedb && !role.rolcreaterole && !role.rolreplication && role.runtime_member && role.row_security === 'on', 'RUNTIME_ROLE_UNSAFE');
-    const { rows: wave3Schemas } = await client.query("SELECT nspname FROM pg_namespace WHERE nspname IN ('nari_orders', 'nari_clinic')");
-    const wave3Applied = wave3Schemas.length === 2;
+    const { rows: wave3Schemas } = await client.query("SELECT nspname FROM pg_namespace WHERE nspname = 'nari_orders'");
+    const wave3Applied = wave3Schemas.length === 1;
     const spec = expectedDatabaseSpec(wave3Applied);
     const schemaPlaceholders = spec.schemas.map((_, i) => `$${i + 1}`).join(',');
     const { rows: tables } = await client.query(`SELECT n.nspname AS schema, c.relname AS name, c.relrowsecurity AS rls,

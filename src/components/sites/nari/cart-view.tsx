@@ -31,6 +31,7 @@ export interface CartRowItem {
     name: string;
     price: number;
     image?: string;
+    unavailable?: boolean;
   };
 }
 
@@ -74,7 +75,7 @@ export function CartView({ checkout = false, liveCatalog }: { checkout?: boolean
       ];
     }
 
-    // Graceful fallback for any other valid slug
+    // Product no longer exists in catalog — never fabricate a fallback price
     const cleanName = item.slug.replace(/\.html$/, "").replace(/-/g, " ");
     return [
       {
@@ -83,14 +84,18 @@ export function CartView({ checkout = false, liveCatalog }: { checkout?: boolean
           slug: item.slug,
           brand: "Nari Home",
           name: cleanName,
-          price: 150000,
+          price: 0,
           image: undefined,
+          unavailable: true,
         },
       },
     ];
   });
 
-  const total = rows.reduce((sum, row) => sum + row.product.price * row.quantity, 0);
+  const total = rows.reduce(
+    (sum, row) => sum + (row.product.unavailable ? 0 : row.product.price * row.quantity),
+    0,
+  );
 
   const update = (slug: string, quantity: number) => {
     const next =
@@ -195,9 +200,26 @@ export function CartView({ checkout = false, liveCatalog }: { checkout?: boolean
                             <b>{product.brand}</b>
                             <br />
                             {product.name}
+                            {product.unavailable && (
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  marginTop: 4,
+                                  padding: "2px 6px",
+                                  fontSize: 11,
+                                  fontWeight: 600,
+                                  color: "#991b1b",
+                                  backgroundColor: "#fef2f2",
+                                  border: "1px solid #fecaca",
+                                  borderRadius: 4,
+                                }}
+                              >
+                                Sản phẩm tạm ngừng bán
+                              </span>
+                            )}
                           </span>
                         </Link>
-                        <strong>{money(product.price)}</strong>
+                        <strong>{product.unavailable ? "Tạm ngừng bán" : money(product.price)}</strong>
                         <div className="cart-quantity">
                           <button
                             type="button"
@@ -210,12 +232,13 @@ export function CartView({ checkout = false, liveCatalog }: { checkout?: boolean
                           <button
                             type="button"
                             aria-label="Tăng số lượng"
+                            disabled={product.unavailable}
                             onClick={() => update(product.slug, quantity + 1)}
                           >
                             +
                           </button>
                         </div>
-                        <b>{money(product.price * quantity)}</b>
+                        <b>{product.unavailable ? "—" : money(product.price * quantity)}</b>
                         <button
                           type="button"
                           className="cart-delete"

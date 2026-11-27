@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Idempotent starter catalog, flagship branch, inventory & clinic service seed for Nari Home.
+// Idempotent starter catalog, flagship branch & inventory seed for Nari Home.
 // Load credentials via `node --env-file=.env scripts/seed-starter-catalog.mjs [--dry-run | --apply --image1 <path> --image2 <path>]`.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -171,25 +171,10 @@ function buildStarterDataset(image1Meta, image2Meta) {
     district: 'Quận 1',
     phone: '18006324',
     supportsNowfree2h: true,
-    supportsClinic: true,
+    supportsClinic: false,
   };
 
-  const clinicService = {
-    id: 'svc-nari-glow-hydration',
-    sku: 'NARI-SVC-001',
-    slug: 'lieu-trinh-phuc-hoi-cap-am-nari-glow-60p.html',
-    name: 'Liệu Trình Phục Hồi & Cấp Ẩm Chuyên Sâu Nari Glow (60 Phút)',
-    category: 'Chăm sóc da chuyên sâu',
-    price: 590000,
-    marketPrice: 790000,
-    durationMinutes: 60,
-    description:
-      'Liệu trình cấp ẩm sâu đa tầng kết hợp phục hồi hàng rào bảo vệ da dành cho da khô, thiếu nước và nhạy cảm tại Nari Clinic & Spa.',
-    imageUrl:
-      'https://ywrzguhuzekkusoupehf.supabase.co/storage/v1/object/public/nari-catalog/catalog/fab021f0-89ae-4124-823f-a64805dfa744.jpg',
-  };
-
-  return { brands, categories, products, branch, clinicService };
+  return { brands, categories, products, branch };
 }
 
 async function uploadImageAsset(storageClient, bucket, publicOrigin, filePath, objectBaseName) {
@@ -246,7 +231,6 @@ async function main() {
             products: dataset.products.length,
             branches: 1,
             inventoryBalances: dataset.products.length,
-            clinicServices: 1,
           },
           productSlugs: dataset.products.map((p) => p.slug),
         },
@@ -387,26 +371,6 @@ async function main() {
       }
     }
 
-    const svc = dataset.clinicService;
-    await client.query(
-      `INSERT INTO nari_clinic.services (
-        id, sku, slug, name, category, price, market_price, duration_minutes, description, image_url, is_active
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,true)
-      ON CONFLICT (sku) DO NOTHING`,
-      [
-        svc.id,
-        svc.sku,
-        svc.slug,
-        svc.name,
-        svc.category,
-        svc.price,
-        svc.marketPrice,
-        svc.durationMinutes,
-        svc.description,
-        svc.imageUrl,
-      ]
-    );
-
     await client.query('COMMIT');
     console.log(
       JSON.stringify(
@@ -414,7 +378,6 @@ async function main() {
           ok: true,
           mode: 'apply',
           branchId,
-          clinicServiceSlug: svc.slug,
           products: seededProducts,
         },
         null,

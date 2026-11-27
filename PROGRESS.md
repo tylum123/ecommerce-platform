@@ -1,5 +1,13 @@
 # Tiến độ dự án E-Commerce Platform (Nari Home) & Quản Trị Doanh Nghiệp
 
+## Checkpoint 27/11/2026 (Wave 1–3 Pure E-Commerce, Drop `nari_clinic`, SEO/Icons & Auth UI Live) — Deploy `17eef233` lên `https://narihome.io.vn`
+
+- **Wave 1 & 1B (Pure E-Commerce):** Xóa hoàn toàn schema `nari_clinic` trên Supabase Cloud (`202611270001_drop_clinic_schema.sql`, `db:verify` PASS `38` RLS policies), tách `postgres-branch-service.ts` giữ nguyên hệ thống cửa hàng/thanh toán, xóa 14 thư mục/file Clinic & Booking.
+- **Wave 2 (SEO & Icons):** Tạo `icon.svg`, `apple-icon.tsx`, `manifest.ts`, nâng cấp `layout.tsx` (`metadataBase`, OG/Twitter/Canonical, Organization JSON-LD), thêm `generateMetadata()` + Product JSON-LD cho sản phẩm/danh mục/thương hiệu, đồng bộ `robots.txt` & `sitemap.xml` chuẩn `https://narihome.io.vn`.
+- **Wave 3 (Core E2E & Ops):** Tạo `/api/health` + `.github/workflows/keep-alive.yml` (3 ngày/lần chống Supabase ngủ đông), sửa Mini Cart >20 SKU, nối tồn kho PDP & `/api/cart/quote` thật, thêm `PATCH /api/orders` (hủy đơn `pending` hoàn kho ACID), gỡ mock MCP & thêm Hủy/Hoàn đơn trong Admin ERP.
+- **Auth UI Luxury Silk:** Làm đẹp đồng bộ `/dang-nhap`, `/dang-ky`, `/khoi-phuc-mat-khau` (`auth-shell.tsx`) và Modal Đăng nhập nhanh (`account-dialog.tsx`).
+- **Kiểm chứng & Deploy Live:** `node --test` (**93 pass, 0 fail**), `typecheck` (`0` lỗi), `lint` (`0` lỗi), `cf:build` + `wrangler deploy` **PASS** (`Version ID: 17eef233-56af-48f5-8184-9de23eaccdb9`) trên `https://narihome.io.vn`.
+
 ## Checkpoint 27/11/2026 (Custom Domain `narihome.io.vn` Live & README Kiến Trúc) — Triển Khai Chính Thức Tên Miền Riêng & Tài Liệu Hệ Thống
 
 - **Khôi phục Supabase & Gắn Tên Miền Chính Thức `https://narihome.io.vn`:**

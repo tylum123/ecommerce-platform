@@ -100,28 +100,6 @@ test("/api/customer/portal enforces authentication, CSRF, and blocks tier/loyalt
           ],
         };
       }
-      if (sql.includes("FROM nari_clinic.appointments")) {
-        return {
-          rows: [
-            {
-              id: "bk-1",
-              booking_code: "BK-20261125-ABCD",
-              branch_id: "br-1",
-              service_id: "svc-1",
-              service_name: "Chăm sóc da chuyên sâu",
-              customer_name: "Khách A",
-              customer_phone: "0901234567",
-              start_at: "2026-11-25T03:00:00.000Z",
-              end_at: "2026-11-25T04:00:00.000Z",
-              status: "booked",
-              notes: "",
-              created_at: new Date().toISOString(),
-              branch_name: "Nari Home Q1",
-              branch_address: "123 Lê Lợi",
-            },
-          ],
-        };
-      }
       return { rows: [] };
     },
   };
@@ -149,19 +127,17 @@ test("/api/customer/portal enforces authentication, CSRF, and blocks tier/loyalt
     "@/lib/server/supabase-session": sessionStub,
   });
 
-  // GET authenticated returns scoped profile, orders, bookings, loyalty
+  // GET authenticated returns scoped profile, orders, loyalty
   const getRes = await route.GET(new NextRequest("https://narihome.test/api/customer/portal"));
   assert.equal(getRes.status, 200);
   const getJson = await getRes.json();
   assert.equal(getJson.profile.userId, CUST_UUID);
   assert.equal(getJson.orders.length, 1);
-  assert.equal(getJson.bookings.length, 1);
-  assert.equal(getJson.bookings[0].timeRange, "10:00 - 11:00");
+  assert.equal(getJson.bookings, undefined);
   assert.equal(getJson.loyalty.totalSpent, 390000);
 
-  // Orders & appointments queries both scoped strictly by user_id
+  // Orders query scoped strictly by user_id
   assert.ok(seenQueries.some((q) => q.sql.includes("WHERE o.user_id = $1::uuid") && q.values[0] === CUST_UUID));
-  assert.ok(seenQueries.some((q) => q.sql.includes("WHERE a.user_id = $1::uuid") && q.values[0] === CUST_UUID));
 
   // PATCH rejects untrusted origin -> 403
   const badOriginRes = await route.PATCH(
@@ -434,7 +410,7 @@ test("/api/auth/register, /api/auth/recovery, and /auth/callback enforce CSRF, r
 });
 
 test(
-  "PGlite integration: postgres-customer-service reads/writes profile and isolates orders/bookings under nari_catalog_runtime",
+  "PGlite integration: postgres-customer-service reads/writes profile and isolates orders under nari_catalog_runtime",
   { skip: !process.env.NARI_TEST_PGLITE_PATH },
   async () => {
     const { PGlite } = require(process.env.NARI_TEST_PGLITE_PATH);
@@ -450,14 +426,13 @@ test(
       await pg.exec(sqlFile("202611170003_catalog_reference_authoring.sql"));
       await pg.exec(sqlFile("202611180001_auth_ratelimit_customers.sql"));
       await pg.exec(sqlFile("202611180002_orders_fulfillment.sql"));
-      await pg.exec(sqlFile("202611180003_clinic_bookings.sql"));
 
       await pg.query("INSERT INTO auth.users(id) VALUES ($1), ($2)", [CUST_UUID, OTHER_UUID]);
       await pg.exec(`
         INSERT INTO nari_catalog.brands (id, slug, name) VALUES ('b1', 'nari-lab', 'Nari Lab');
         INSERT INTO nari_catalog.categories (id, slug, name) VALUES ('c1', 'cham-soc-da.html', 'Chăm sóc da');
         INSERT INTO nari_catalog.branches (id, code, name, address, city, district, phone, supports_nowfree_2h, supports_clinic, is_active, is_demo)
-        VALUES ('br-1', 'HCMQ1', 'Nari Home Q1', '123 Lê Lợi', 'TP. Hồ Chí Minh', 'Quận 1', '18006324', true, true, true, false);
+        VALUES ('br-1', 'HCMQ1', 'Nari Home Q1', '123 Lê Lợi', 'TP. Hồ Chí Minh', 'Quận 1', '18006324', true, false, true, false);
         INSERT INTO nari_catalog.products (id, sku, slug, name, brand_id, category_id, price, market_price)
         VALUES ('p1', 'NARI-001', 'serum-ha.html', 'Serum HA', 'b1', 'c1', 390000, 450000);
       `);
@@ -478,7 +453,6 @@ test(
       };
 
       const orderService = loadTs("src/lib/server/postgres-order-service.ts");
-      const clinicService = loadTs("src/lib/server/postgres-clinic-service.ts");
       const erpTypes = loadTs("src/lib/erp-types.ts");
       const customerService = loadTs("src/lib/server/postgres-customer-service.ts", { "@/lib/erp-types": erpTypes });
 
@@ -498,15 +472,6 @@ test(
         shippingAddress: "Q3",
         items: [{ sku: "NARI-001", quantity: 2 }],
       });
-      await clinicService.createPostgresBooking(db, {
-        customerName: "Khách A",
-        customerPhone: "0901234567",
-        branchId: "br-1",
-        serviceName: "Soi da",
-        date: "2026-11-28",
-        time: "10:00",
-        userId: CUST_UUID,
-      });
 
       const portal = await customerService.getCustomerPortalData(db, {
         id: CUST_UUID,
@@ -515,7 +480,6 @@ test(
       });
       assert.equal(portal.orders.length, 1);
       assert.equal(portal.orders[0].recipientName, "Khách A");
-      assert.equal(portal.bookings.length, 1);
       assert.equal(portal.loyalty.totalSpent, 390000);
 
       const updated = await customerService.updateCustomerProfile(db, CUST_UUID, {

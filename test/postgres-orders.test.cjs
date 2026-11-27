@@ -546,6 +546,85 @@ test("orders route enforces disabled boundary and enabled origin/idempotency/loo
         new Request(`https://narihome.vn/api/orders?code=${encodeURIComponent(createdJson.orderCode)}`),
       );
       assert.equal(missingParamsLookup.status, 400);
+
+      // 6. PATCH cancel rejects wrong phone (404), cancels pending order (200) and restores stock,
+      //    then rejects cancelling an already-cancelled (non-pending) order (409)
+      const badOriginPatch = await route.PATCH(
+        new Request("https://narihome.vn/api/orders", {
+          method: "PATCH",
+          headers: {
+            "content-type": "application/json",
+            origin: "https://evil.example",
+          },
+          body: JSON.stringify({
+            action: "cancel",
+            orderCode: createdJson.orderCode,
+            phone: "0918181818",
+          }),
+        }),
+      );
+      assert.equal(badOriginPatch.status, 403);
+
+      const wrongPhoneCancel = await route.PATCH(
+        new Request("https://narihome.vn/api/orders", {
+          method: "PATCH",
+          headers: {
+            "content-type": "application/json",
+            origin: "https://narihome.vn",
+          },
+          body: JSON.stringify({
+            action: "cancel",
+            orderCode: createdJson.orderCode,
+            phone: "0900000000",
+          }),
+        }),
+      );
+      assert.equal(wrongPhoneCancel.status, 404);
+
+      const okCancel = await route.PATCH(
+        new Request("https://narihome.vn/api/orders", {
+          method: "PATCH",
+          headers: {
+            "content-type": "application/json",
+            origin: "https://narihome.vn",
+          },
+          body: JSON.stringify({
+            action: "cancel",
+            orderCode: createdJson.orderCode,
+            phone: "0918181818",
+            reason: "Khach doi y",
+          }),
+        }),
+      );
+      assert.equal(okCancel.status, 200);
+      const okCancelJson = await okCancel.json();
+      assert.equal(okCancelJson.ok, true);
+      assert.equal(okCancelJson.order.status, "cancelled");
+      assert.equal(okCancelJson.order.version, 2);
+
+      const restoredBalance = await pg.query(
+        "SELECT reserved_stock, available_stock FROM nari_catalog.inventory_balances WHERE branch_id = 'branch-hcm-01' AND product_id = 'prod-1'",
+      );
+      assert.equal(restoredBalance.rows[0].reserved_stock, 0);
+      assert.equal(restoredBalance.rows[0].available_stock, 10);
+
+      const cancelNonPending = await route.PATCH(
+        new Request("https://narihome.vn/api/orders", {
+          method: "PATCH",
+          headers: {
+            "content-type": "application/json",
+            origin: "https://narihome.vn",
+          },
+          body: JSON.stringify({
+            action: "cancel",
+            orderCode: createdJson.orderCode,
+            phone: "0918181818",
+          }),
+        }),
+      );
+      assert.equal(cancelNonPending.status, 409);
+      const cancelNonPendingJson = await cancelNonPending.json();
+      assert.equal(cancelNonPendingJson.code, "ORDER_NOT_CANCELLABLE");
     } finally {
       await pg.close();
     }

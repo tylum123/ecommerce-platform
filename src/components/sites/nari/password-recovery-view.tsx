@@ -2,12 +2,13 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { Mail, Lock, CheckCircle2, AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
 
 export function PasswordRecoveryClient({ isResetMode }: { isResetMode: boolean }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -71,39 +72,41 @@ export function PasswordRecoveryClient({ isResetMode }: { isResetMode: boolean }
   }
 
   return (
-    <div className="mx-auto max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-      <h1 className="text-xl font-bold text-[#3d2e24]">
-        {isResetMode ? "ĐẶT LẠI MẬT KHẨU MỚI" : "KHÔI PHỤC MẬT KHẨU"}
-      </h1>
-      <p className="mt-1 text-xs text-gray-500">
-        {isResetMode
-          ? "Nhập mật khẩu mới cho tài khoản Nari Home của bạn."
-          : "Nhập email đã đăng ký để nhận liên kết đặt lại mật khẩu từ hệ thống."}
-      </p>
-
+    <div>
       {error && (
-        <div role="alert" className="mt-4 flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-700">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+        <div
+          role="alert"
+          className="mb-5 flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50/90 p-3.5 text-sm text-red-700"
+        >
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
           <span>{error}</span>
         </div>
       )}
 
       {message && (
-        <div role="status" className="mt-4 rounded-lg bg-green-50 p-3 text-sm text-green-800">
-          <div className="flex items-center gap-2 font-medium">
-            <CheckCircle2 className="h-4 w-4 shrink-0" />
-            <span>{message}</span>
-          </div>
+        <div
+          role="status"
+          className="mb-5 flex items-start gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50/80 p-3.5 text-sm text-emerald-900"
+        >
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" aria-hidden="true" />
+          <span className="font-medium">{message}</span>
         </div>
       )}
 
       {isResetMode ? (
-        <form onSubmit={(e) => void handleUpdatePassword(e)} className="mt-5 space-y-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Mật khẩu mới
-            <div className="relative mt-1">
+        <form onSubmit={(e) => void handleUpdatePassword(e)} className="space-y-4">
+          <div>
+            <label htmlFor="recovery-password" className="mb-1.5 block text-sm font-medium text-[#3d2e24]">
+              Mật khẩu mới
+            </label>
+            <div className="relative">
+              <Lock
+                className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9e7656]"
+                aria-hidden="true"
+              />
               <input
-                type="password"
+                id="recovery-password"
+                type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 required
                 minLength={8}
@@ -112,16 +115,32 @@ export function PasswordRecoveryClient({ isResetMode }: { isResetMode: boolean }
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={busy}
                 placeholder="Tối thiểu 8 ký tự"
-                className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm"
+                className="w-full rounded-xl border border-[#e6d5c5] bg-white py-2.5 pl-10 pr-11 text-sm text-[#1e1b18] placeholder:text-[#9e8c80] transition-all focus:border-[#9e7656] focus:outline-none focus:ring-2 focus:ring-[#9e7656]/25 disabled:bg-[#faf5f0] disabled:opacity-70"
               />
-              <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                disabled={busy}
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-[#6e5a4f] transition-colors hover:text-[#3d2e24] disabled:opacity-50"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
             </div>
-          </label>
-          <label className="block text-sm font-medium text-gray-700">
-            Xác nhận mật khẩu mới
-            <div className="relative mt-1">
+          </div>
+
+          <div>
+            <label htmlFor="recovery-confirm-password" className="mb-1.5 block text-sm font-medium text-[#3d2e24]">
+              Xác nhận mật khẩu mới
+            </label>
+            <div className="relative">
+              <Lock
+                className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9e7656]"
+                aria-hidden="true"
+              />
               <input
-                type="password"
+                id="recovery-confirm-password"
+                type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 required
                 minLength={8}
@@ -130,25 +149,33 @@ export function PasswordRecoveryClient({ isResetMode }: { isResetMode: boolean }
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={busy}
                 placeholder="Nhập lại mật khẩu mới"
-                className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm"
+                className="w-full rounded-xl border border-[#e6d5c5] bg-white py-2.5 pl-10 pr-3.5 text-sm text-[#1e1b18] placeholder:text-[#9e8c80] transition-all focus:border-[#9e7656] focus:outline-none focus:ring-2 focus:ring-[#9e7656]/25 disabled:bg-[#faf5f0] disabled:opacity-70"
               />
-              <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
-          </label>
+          </div>
+
           <button
             type="submit"
             disabled={busy}
-            className="w-full rounded-lg bg-[#3d2e24] py-2.5 text-sm font-semibold text-white hover:bg-[#1e1b18] disabled:opacity-50"
+            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#3d2e24] px-5 py-3 text-sm font-semibold text-[#faf5f0] transition-colors hover:bg-[#2a1f18] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {busy ? "Đang cập nhật..." : "CẬP NHẬT MẬT KHẨU"}
+            {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+            <span>{busy ? "Đang cập nhật..." : "Cập nhật mật khẩu"}</span>
           </button>
         </form>
       ) : (
-        <form onSubmit={(e) => void handleRequestReset(e)} className="mt-5 space-y-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Email tài khoản
-            <div className="relative mt-1">
+        <form onSubmit={(e) => void handleRequestReset(e)} className="space-y-4">
+          <div>
+            <label htmlFor="recovery-email" className="mb-1.5 block text-sm font-medium text-[#3d2e24]">
+              Email tài khoản
+            </label>
+            <div className="relative">
+              <Mail
+                className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9e7656]"
+                aria-hidden="true"
+              />
               <input
+                id="recovery-email"
                 type="email"
                 autoComplete="email"
                 required
@@ -157,26 +184,27 @@ export function PasswordRecoveryClient({ isResetMode }: { isResetMode: boolean }
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={busy}
                 placeholder="ten-cua-ban@email.com"
-                className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm"
+                className="w-full rounded-xl border border-[#e6d5c5] bg-white py-2.5 pl-10 pr-3.5 text-sm text-[#1e1b18] placeholder:text-[#9e8c80] transition-all focus:border-[#9e7656] focus:outline-none focus:ring-2 focus:ring-[#9e7656]/25 disabled:bg-[#faf5f0] disabled:opacity-70"
               />
-              <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
-          </label>
+          </div>
+
           <button
             type="submit"
             disabled={busy}
-            className="w-full rounded-lg bg-[#3d2e24] py-2.5 text-sm font-semibold text-white hover:bg-[#1e1b18] disabled:opacity-50"
+            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#3d2e24] px-5 py-3 text-sm font-semibold text-[#faf5f0] transition-colors hover:bg-[#2a1f18] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {busy ? "Đang gửi liên kết..." : "GỬI LIÊN KẾT KHÔI PHỤC"}
+            {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+            <span>{busy ? "Đang gửi liên kết..." : "Gửi liên kết khôi phục"}</span>
           </button>
         </form>
       )}
 
-      <div className="mt-6 border-t border-gray-100 pt-4 flex items-center justify-between text-xs">
-        <Link href="/dang-nhap" className="font-semibold text-[#b86b4b] hover:underline">
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[#efe3d7] pt-5 text-sm">
+        <Link href="/dang-nhap" className="font-semibold text-[#b86b4b] transition-colors hover:text-[#3d2e24] hover:underline">
           ← Quay lại đăng nhập
         </Link>
-        <Link href="/dang-ky" className="text-gray-600 hover:underline">
+        <Link href="/dang-ky" className="text-[#6e5a4f] transition-colors hover:text-[#3d2e24] hover:underline">
           Đăng ký tài khoản mới
         </Link>
       </div>

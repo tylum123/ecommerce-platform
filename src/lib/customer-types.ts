@@ -32,25 +32,6 @@ export interface CustomerPortalOrder {
   items: ErpOrderItem[];
 }
 
-export interface CustomerPortalBooking {
-  id: string;
-  bookingCode: string;
-  branchId: string;
-  branchName: string;
-  branchAddress: string;
-  serviceId: string | null;
-  serviceName: string;
-  customerName: string;
-  customerPhone: string;
-  date: string;
-  timeRange: string;
-  startAt: string;
-  endAt: string;
-  status: string;
-  notes: string;
-  createdAt: string;
-}
-
 export interface CustomerLoyaltySummary {
   tier: UserTier;
   points: number;
@@ -63,6 +44,5 @@ export interface CustomerLoyaltySummary {
 export interface CustomerPortalPayload {
   profile: CustomerProfileRecord;
   orders: CustomerPortalOrder[];
-  bookings: CustomerPortalBooking[];
   loyalty: CustomerLoyaltySummary;
 }

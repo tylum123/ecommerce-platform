@@ -1,19 +1,17 @@
 import type { MetadataRoute } from "next";
 import { categories, getAllCatalogProducts } from "@/lib/catalog";
-import { clinicServices } from "@/lib/clinic-services";
 import { getSupportTopics } from "@/lib/support-stores";
 import { readStorefrontCatalog } from "@/lib/server/live-catalog-store";
-import { BRAND_CONFIG } from "@/lib/brand-config";
 
 export const dynamic = "force-dynamic";
 
-const BASE_URL = `https://${BRAND_CONFIG.domain}`;
+const BASE_URL = "https://narihome.io.vn";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const liveCatalog = await readStorefrontCatalog();
   const currentDate = new Date().toISOString();
 
-  // 1. Core Storefront Pages
+  // 1. Core Storefront Pages (Pure E-Commerce)
   const coreRoutes: MetadataRoute.Sitemap = [
     {
       url: `${BASE_URL}/`,
@@ -52,12 +50,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
-      url: `${BASE_URL}/bang-gia-dich-vu.html`,
-      lastModified: currentDate,
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
       url: `${BASE_URL}/cam-nang.html`,
       lastModified: currentDate,
       changeFrequency: "daily",
@@ -80,12 +72,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: currentDate,
       changeFrequency: "monthly",
       priority: 0.7,
-    },
-    {
-      url: `${BASE_URL}/booking`,
-      lastModified: currentDate,
-      changeFrequency: "weekly",
-      priority: 0.8,
     },
   ];
 
@@ -112,22 +98,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // 4. All Clinic Services
-  const seenServiceSlugs = new Set<string>();
-  const clinicRoutes: MetadataRoute.Sitemap = [];
-  for (const service of clinicServices) {
-    if (service.slug && !seenServiceSlugs.has(service.slug)) {
-      seenServiceSlugs.add(service.slug);
-      clinicRoutes.push({
-        url: `${BASE_URL}/dich-vu/${service.slug}`,
-        lastModified: currentDate,
-        changeFrequency: "weekly",
-        priority: 0.7,
-      });
-    }
-  }
-
-  // 5. All Support Topics
+  // 4. All Support Topics
   const seenTopicSlugs = new Set<string>();
   const supportRoutes: MetadataRoute.Sitemap = [];
   for (const topic of getSupportTopics()) {
@@ -146,7 +117,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...coreRoutes,
     ...categoryRoutes,
     ...productRoutes,
-    ...clinicRoutes,
     ...supportRoutes,
   ];
 }

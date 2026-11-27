@@ -9,7 +9,6 @@ import {
   Crown,
   Store,
   Truck,
-  Stethoscope,
   Headphones,
   UserRound,
   ChevronLeft,
@@ -176,22 +175,6 @@ export function AdminAccessDenied({ user }: AdminAccessDeniedProps) {
                     </span>
                   </td>
                   <td className="py-2.5 px-3 text-gray-600">Chi nhánh phân bổ</td>
-                </tr>
-
-                <tr className="hover:bg-gray-50/60">
-                  <td className="py-2.5 px-3 font-bold text-[#1e1b18] flex items-center gap-1.5">
-                    <Stethoscope className="h-3.5 w-3.5 text-[#3d2e24]" /> Bác sĩ Clinic
-                  </td>
-                  <td className="py-2.5 px-3 font-mono text-[11px] text-gray-600">clinic_doctor</td>
-                  <td className="py-2.5 px-3 text-[#3d2e24] font-semibold">
-                    <span className="inline-flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5" /> Cho phép</span>
-                  </td>
-                  <td className="py-2.5 px-3 text-[#3d2e24] font-semibold">
-                    <span className="rounded bg-[#f6ece3] px-2 py-0.5 text-[#2a1f18]">
-                      Cổng Clinic (/nhan-vien/clinic)
-                    </span>
-                  </td>
-                  <td className="py-2.5 px-3 text-gray-600">Chi nhánh phòng khám</td>
                 </tr>
 
                 <tr className="hover:bg-gray-50/60">

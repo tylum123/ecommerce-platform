@@ -29,11 +29,10 @@ import {
   Headphones,
   Home as HomeIcon,
   ShoppingBag,
-  CalendarCheck,
   ArrowUp,
 } from "lucide-react";
 
-const quick = ["Bán Chạy", "Sản Phẩm Cao Cấp", "Phụ Kiện Điện Thoại", "Thiết Bị Âm Thanh", "Vệ Sinh Nhà Cửa", "Balo & Túi Xách", "Sản Phẩm Cho Bé", "Đặt Hẹn"];
+const quick = ["Bán Chạy", "Sản Phẩm Cao Cấp", "Phụ Kiện Điện Thoại", "Thiết Bị Âm Thanh", "Vệ Sinh Nhà Cửa", "Balo & Túi Xách", "Sản Phẩm Cho Bé", "Ưu Đãi"];
 const quickIcons = [
   <TrendingUp key="0" size={24} />,
   <Crown key="1" size={24} />,
@@ -42,7 +41,7 @@ const quickIcons = [
   <HomeIcon key="4" size={24} />,
   <ShoppingBag key="5" size={24} />,
   <Heart key="6" size={24} />,
-  <CalendarCheck key="7" size={24} />,
+  <Gift key="7" size={24} />,
 ];
 const quickDestinations = [
   "/san-pham-ban-chay.html?sort=topsale",
@@ -52,7 +51,7 @@ const quickDestinations = [
   "/danh-muc/ve-sinh-nha-cua-c2462.html",
   "/danh-muc/balo-tui-xach-c2749.html",
   "/danh-muc/san-pham-cho-be-c2497.html",
-  "/booking",
+  "/deals-dang-dien-ra.html",
 ];
 const best = ["Sữa Rửa Mặt", "Tẩy Trang Mặt", "Kem / Gel / Dầu Dưỡng", "Serum / Tinh Chất", "Mặt Nạ Giấy", "Toner / Nước Cân Bằng Da", "Bông Tẩy Trang", "Dầu Gội", "Bộ Gội Xả", "Son Kem / Tint"];
 const brandItems: Array<[string, string]> = [
@@ -75,32 +74,6 @@ const topSearches: Array<[string, string]> = [
   ["Sữa Rửa Mặt", "/danh-muc/sua-rua-mat-c19.html"],
   ["Kem Dưỡng Da", "/danh-muc/kem-duong-dau-duong-c9.html"],
 ];
-const clinicHighlights = [
-  {
-    name: "Trải Nghiệm Triệt Lông Nách Diode Laser (Nữ) 1 Lần",
-    price: 49000,
-    slug: "triet-long-nach-1-buoi-nu-94461.html",
-    image: "https://media.hcdn.vn/catalog/product/t/r/triet-long-nach-1-buoi-nu-94461_img_380x380_622873_fit_center.jpg",
-  },
-  {
-    name: "Lấy Nhân Mụn Chuẩn Y Khoa Bằng Tăm Bông 1 Lần",
-    price: 150000,
-    slug: "lay-nhan-mun-bang-tam-bong-69244.html",
-    image: "https://media.hcdn.vn/catalog/product/l/a/lay-nhan-mun-bang-tam-bong-69244_img_380x380_622873_fit_center.jpg",
-  },
-  {
-    name: "Aqua Mesoderm Điện Di Tinh Chất Trắng Sáng Da 1 Lần",
-    price: 400000,
-    slug: "aqua-mesoderm-dien-di-tinh-chat-trang-sang-da-1-lan-86875.html",
-    image: "https://media.hcdn.vn/catalog/product/a/q/aqua-mesoderm-dien-di-tinh-chat-trang-sang-da-1-lan-86875_img_380x380_622873_fit_center.jpg",
-  },
-  {
-    name: "Peel Da Ngừa Mụn BHA Salicylic Acid 20% 1 Lần",
-    price: 500000,
-    slug: "peel-bha-1-lan-101781.html",
-    image: "https://media.hcdn.vn/catalog/product/p/e/peel-bha-1-lan-101781_img_380x380_622873_fit_center.jpg",
-  },
-];
 
 const defaultHeroSlides = [
   {
@@ -116,14 +89,6 @@ const defaultHeroSlides = [
     subtitle: "Khơi nguồn vẻ đẹp - Kiến tạo khí chất",
     href: "#flash",
     themeClass: "hero-1",
-  },
-  {
-    type: "editorial" as const,
-    badge: "NARI CLINIC & SPA",
-    title: "GIỜ VÀNG LÀM ĐẸP CHUẨN Y KHOA",
-    subtitle: "Trải nghiệm liệu trình phục hồi & trẻ hóa da cao cấp",
-    href: "/clinic",
-    themeClass: "hero-2",
   },
   {
     type: "editorial" as const,
@@ -150,7 +115,6 @@ export function HomeView({ liveCatalog }: { liveCatalog: LiveCatalogOverridesSta
   const [panel, setPanel] = useState<"cart" | "account" | "location" | null>(null);
   const [slide, setSlide] = useState(0);
   const [tab, setTab] = useState(0);
-  const [clinic, setClinic] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
@@ -200,7 +164,7 @@ export function HomeView({ liveCatalog }: { liveCatalog: LiveCatalogOverridesSta
     { label: "Tra Cứu Đơn", href: "/tra-cuu-don-hang", qClass: "q4", icon: <TrendingUp key="pg-lookup" size={24} /> },
     { label: "Giỏ Hàng", href: "/gio-hang", qClass: "q5", icon: <ShoppingCart key="pg-cart" size={24} /> },
     { label: "Hỗ Trợ", href: "/ho-tro", qClass: "q6", icon: <Headphones key="pg-support" size={24} /> },
-    { label: "Dịch Vụ Clinic", href: "#clinic", qClass: "q7", icon: <CalendarCheck key="pg-clinic" size={24} /> },
+    { label: "Ưu Đãi", href: "/deals-dang-dien-ra.html", qClass: "q7", icon: <Gift key="pg-deals" size={24} /> },
   ];
 
   const visibleTopSearches: ReadonlyArray<readonly [string, string]> = isPostgres
@@ -594,60 +558,6 @@ export function HomeView({ liveCatalog }: { liveCatalog: LiveCatalogOverridesSta
               </Link>
             ))}
           </div>
-        </section>
-
-        <section className="section" id="clinic">
-          <div className="section-title clinic-tabs">
-            <div>
-              <button className={!clinic ? "selected" : ""} onClick={() => setClinic(false)}>
-                Nari Clinic
-              </button>
-              <button disabled={liveCatalog.source === "postgres"} className={clinic ? "selected" : ""} onClick={() => setClinic(true)}>
-                Bảng giá
-              </button>
-            </div>
-            {liveCatalog.source !== "postgres" && <Link href={clinic ? "/bang-gia-dich-vu.html" : "/clinic"}>Xem tất cả ›</Link>}
-          </div>
-          {liveCatalog.source === "postgres" ? (
-            <div className="clinic-grid"><p role="status">Dịch vụ Clinic, bảng giá và đặt hẹn chưa khả dụng. Chưa có dữ liệu được xác minh để hiển thị.</p></div>
-          ) : clinic ? (
-            <div className="clinic-info" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-              <div>
-                <strong>Bảng giá dịch vụ Nari Clinic chuẩn Y Khoa</strong>
-                <p style={{ margin: "6px 0 0" }}>Khám da miễn phí 100% với Bác sĩ Da liễu · Cam kết hiệu quả &amp; minh bạch chi phí.</p>
-              </div>
-              <Link href="/bang-gia-dich-vu.html" style={{ background: "#3d2e24", color: "#fff", padding: "10px 18px", borderRadius: 4, fontWeight: 700 }}>
-                Xem bảng giá chi tiết →
-              </Link>
-            </div>
-          ) : (
-            <div className="clinic-grid">
-              {clinicHighlights.map((item, i) => (
-                <article key={item.slug}>
-                  <Link href={`/dich-vu/${item.slug}`}>
-                    <div className={`clinic-image nari-img-frame q${i}`} data-img-frame="true" style={{ position: "relative", overflow: "hidden" }}>
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        width={300}
-                        height={150}
-                        loading="lazy"
-                        unoptimized
-                        className="nari-smooth-img"
-                        ref={syncCachedImageRef}
-                        onLoad={handleSmoothImageLoad}
-                        onError={handleSmoothImageError}
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                      />
-                    </div>
-                    <b>{money(item.price)}</b>
-                    <p>{item.name}</p>
-                    <span>★ 5.0　 |　Đặt hẹn ngay</span>
-                  </Link>
-                </article>
-              ))}
-            </div>
-          )}
         </section>
 
         <section className="section" id="suggestions">

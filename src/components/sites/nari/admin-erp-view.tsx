@@ -26,7 +26,6 @@ import {
   History,
   X,
   Lock,
-  Unlock,
   Phone,
   Mail,
   LogOut,
@@ -34,7 +33,6 @@ import {
 import type {
   UserRecord,
   UserTier,
-  UserStatus,
   StaffRecord,
   InventoryRecord,
   InventoryAuditLog,
@@ -118,103 +116,15 @@ interface SeoRouteAudit {
 const DEFAULT_SEO_ROUTES: SeoRouteAudit[] = [
   { route: "/", name: "Trang chủ Nari Home", score: 100, schemaType: "WebSite, Organization", ogImage: true, status: "Pass" },
   { route: "/thuong-hieu", name: "Danh mục Thương hiệu", score: 98, schemaType: "CollectionPage, Brand", ogImage: true, status: "Pass" },
-  { route: "/clinic", name: "Nari Clinic & Spa", score: 100, schemaType: "MedicalBusiness, Service", ogImage: true, status: "Pass" },
   { route: "/quan-tri", name: "Hệ thống Quản trị ERP", score: 95, schemaType: "WebPage, AdminApp", ogImage: true, status: "Pass" },
   { route: "/gio-hang", name: "Giỏ hàng & Checkout", score: 96, schemaType: "CheckoutPage", ogImage: false, status: "Warn" },
   { route: "/san-pham/sua-rua-mat-cerave-sach-sau-cho-da-thuong-den-da-dau-473ml-102959.html", name: "Chi tiết Sữa Rửa Mặt CeraVe", score: 100, schemaType: "Product, BreadcrumbList", ogImage: true, status: "Pass" },
 ];
 
-// Helper simulation if MCP route is returning 404/500 during build
-function simulateMcpToolExecution(
-  toolName: string,
-  args: Record<string, unknown>,
-  data: { inventory: InventoryRecord[]; orders: ErpOrderRecord[]; users: UserRecord[] }
-) {
-  if (toolName === "nari_search_products") {
-    const q = String(args.query || "").toLowerCase();
-    const items = data.inventory
-      .filter((i) => i.productName.toLowerCase().includes(q) || i.brand.toLowerCase().includes(q))
-      .slice(0, Number(args.limit) || 5);
-    return {
-      jsonrpc: "2.0",
-      result: {
-        totalMatches: items.length,
-        products: items.map((i) => ({
-          sku: i.sku,
-          name: i.productName,
-          brand: i.brand,
-          price: i.price,
-          stock: i.totalStock,
-          status: i.warehouseStatus,
-        })),
-      },
-    };
-  }
-  if (toolName === "nari_check_inventory") {
-    const sku = String(args.sku || "");
-    const item = data.inventory.find((i) => i.sku === sku) || data.inventory[0];
-    return {
-      jsonrpc: "2.0",
-      result: {
-        sku: item.sku,
-        name: item.productName,
-        totalStock: item.totalStock,
-        availableStock: item.availableStock,
-        warehouseStatus: item.warehouseStatus,
-        branchBreakdown: item.branchStock,
-      },
-    };
-  }
-  if (toolName === "nari_list_orders") {
-    const status = args.status ? String(args.status) : undefined;
-    const list = status ? data.orders.filter((o) => o.status === status) : data.orders;
-    return {
-      jsonrpc: "2.0",
-      result: {
-        totalOrders: list.length,
-        orders: list.slice(0, Number(args.limit) || 5).map((o) => ({
-          code: o.orderCode,
-          customer: o.customerName,
-          total: o.total,
-          status: o.statusLabel,
-          deliveryType: o.deliveryType,
-          branch: o.branchName,
-        })),
-      },
-    };
-  }
-  if (toolName === "nari_manage_users") {
-    return {
-      jsonrpc: "2.0",
-      result: {
-        totalUsers: data.users.length,
-        users: data.users.slice(0, 5).map((u) => ({
-          id: u.id,
-          name: u.fullName,
-          tier: u.tier,
-          points: u.loyaltyPoints,
-          totalSpent: u.totalSpent,
-        })),
-      },
-    };
-  }
-  return {
-    jsonrpc: "2.0",
-    result: {
-      tool: toolName,
-      status: "success",
-      timestamp: new Date().toISOString(),
-      message: "Thực thi thành công qua Nari Home AI Agent Protocol",
-      receivedArgs: args,
-    },
-  };
-}
-
 async function executeMcpToolCall(
   selectedMcpTool: string,
-  mcpToolArgs: string,
-  fallbackData: { inventory: InventoryRecord[]; orders: ErpOrderRecord[]; users: UserRecord[] }
-): Promise<{ elapsed: number; responseJson: string; succeeded: boolean }> {
+  mcpToolArgs: string
+): Promise<{ elapsed: number; responseJson: string; succeeded: boolean; statusCode: number | null }> {
   const startTime = performance.now();
   try {
     let parsedArgs: Record<string, unknown> = {};
@@ -241,19 +151,38 @@ async function executeMcpToolCall(
     });
 
     const elapsed = Math.round(performance.now() - startTime);
-    if (res.ok) {
-      const json = await res.json();
-      return { elapsed, responseJson: JSON.stringify(json, null, 2), succeeded: true };
+    const rawText = await res.text();
+    let formattedBody = rawText;
+    try {
+      formattedBody = JSON.stringify(JSON.parse(rawText), null, 2);
+    } catch {
+      formattedBody = JSON.stringify(
+        {
+          jsonrpc: "2.0",
+          error: {
+            code: res.status,
+            message: rawText || `Máy chủ MCP trả về lỗi HTTP ${res.status}`,
+          },
+          id: payload.id,
+        },
+        null,
+        2
+      );
     }
 
-    const mockResult = simulateMcpToolExecution(selectedMcpTool, parsedArgs, fallbackData);
-    return { elapsed, responseJson: JSON.stringify(mockResult, null, 2), succeeded: true };
+    return {
+      elapsed,
+      responseJson: formattedBody,
+      succeeded: res.ok,
+      statusCode: res.status,
+    };
   } catch (err) {
     const elapsed = Math.round(performance.now() - startTime);
     const errMsg = err instanceof Error ? err.message : String(err);
     return {
       elapsed,
       succeeded: false,
+      statusCode: null,
       responseJson: JSON.stringify(
         {
           jsonrpc: "2.0",
@@ -311,6 +240,7 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
   const [mcpExecuting, setMcpExecuting] = useState(false);
   const [mcpResponse, setMcpResponse] = useState<string | null>(null);
   const [mcpLatency, setMcpLatency] = useState<number | null>(null);
+  const [mcpStatus, setMcpStatus] = useState<{ succeeded: boolean; statusCode: number | null } | null>(null);
 
   // Show Toast
   const showToast = useCallback((msg: string) => {
@@ -423,20 +353,27 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
     }
     setMcpResponse(null);
     setMcpLatency(null);
+    setMcpStatus(null);
   };
 
   // Execute MCP Tool
   const handleExecuteMcpTool = async () => {
     setMcpExecuting(true);
-    const { elapsed, responseJson, succeeded } = await executeMcpToolCall(selectedMcpTool, mcpToolArgs, {
-      inventory,
-      orders,
-      users,
-    });
+    const { elapsed, responseJson, succeeded, statusCode } = await executeMcpToolCall(
+      selectedMcpTool,
+      mcpToolArgs
+    );
     setMcpLatency(elapsed);
     setMcpResponse(responseJson);
+    setMcpStatus({ succeeded, statusCode });
     if (succeeded) {
       showToast(`Đã thực thi tool [${selectedMcpTool}] thành công`);
+    } else {
+      showToast(
+        statusCode
+          ? `Lỗi thực thi [${selectedMcpTool}] (HTTP ${statusCode})`
+          : `Không thể thực thi [${selectedMcpTool}]`
+      );
     }
     setMcpExecuting(false);
   };
@@ -458,30 +395,6 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
       }
     } catch {
       showToast("Lỗi kết nối khi cập nhật điểm");
-    }
-  };
-
-  const handleToggleUserStatus = async (userId: string, currentStatus: UserStatus) => {
-    const nextStatus: UserStatus = currentStatus === "active" ? "locked" : "active";
-    try {
-      const res = await fetch("/api/admin/users", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: userId, patch: { status: nextStatus } }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setUsers((prev) => prev.map((u) => (u.id === userId ? data.user : u)));
-        showToast(
-          nextStatus === "locked"
-            ? `Đã khóa tài khoản khách hàng ${data.user.fullName}`
-            : `Đã mở khóa tài khoản khách hàng ${data.user.fullName}`
-        );
-      } else {
-        showToast(data.error || "Chức năng khóa tài khoản khách hàng chưa khả dụng.");
-      }
-    } catch {
-      showToast("Lỗi kết nối khi thay đổi trạng thái tài khoản");
     }
   };
 
@@ -510,6 +423,15 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
     nextStatus: ErpOrderStatus
   ) => {
     const currentOrder = orders.find((o) => o.id === orderId) || selectedOrder;
+    if (nextStatus === "cancelled") {
+      if (!window.confirm(`Xác nhận hủy đơn hàng ${currentOrder?.orderCode || orderId} và hoàn lại tồn kho?`)) {
+        return;
+      }
+    } else if (nextStatus === "returned") {
+      if (!window.confirm(`Xác nhận chuyển đơn hàng ${currentOrder?.orderCode || orderId} sang trạng thái Hoàn đơn?`)) {
+        return;
+      }
+    }
     try {
       const res = await fetch("/api/admin/orders", {
         method: "PATCH",
@@ -722,8 +644,6 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
                         ? "Admin ERP"
                         : authSession.role === "warehouse_staff"
                         ? "Quản lý Kho"
-                        : authSession.role === "clinic_doctor"
-                        ? "Bác sĩ Clinic"
                         : authSession.role === "customer"
                         ? "Khách hàng"
                         : authSession.roleLabel
@@ -771,8 +691,6 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
                     ? "Admin ERP"
                     : authSession?.role === "warehouse_staff"
                     ? "Quản lý Kho"
-                    : authSession?.role === "clinic_doctor"
-                    ? "Bác sĩ Clinic"
                     : authSession?.role === "customer"
                     ? "Khách hàng"
                     : authSession?.roleLabel || "Khách"}
@@ -1294,21 +1212,6 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
                             <option value="Gold">Gold</option>
                             <option value="Diamond">Diamond</option>
                           </select>
-                          <button
-                            onClick={() => handleToggleUserStatus(u.id, u.status)}
-                            title={u.status === "active" ? "Khóa tài khoản" : "Mở khóa"}
-                            className={`p-1 rounded transition-colors ${
-                              u.status === "active"
-                                ? "text-gray-400 hover:text-red-600 hover:bg-red-50"
-                                : "text-[#3d2e24] hover:bg-[#faf5f0]"
-                            }`}
-                          >
-                            {u.status === "active" ? (
-                              <Lock className="w-3.5 h-3.5" />
-                            ) : (
-                              <Unlock className="w-3.5 h-3.5" />
-                            )}
-                          </button>
                         </div>
                       </td>
                     </tr>
@@ -1346,7 +1249,6 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
                   { key: "admin", label: "Admin HQ" },
                   { key: "store_manager", label: "Quản lý CH" },
                   { key: "warehouse_staff", label: "Nhân viên kho" },
-                  { key: "clinic_doctor", label: "Bác sĩ Clinic" },
                   { key: "cs_agent", label: "CSKH" },
                 ].map((item) => (
                   <button
@@ -1470,6 +1372,7 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
                 { key: "shipping", label: "Đang giao NariNow 2H" },
                 { key: "delivered", label: "Đã giao thành công" },
                 { key: "cancelled", label: "Đã hủy" },
+                { key: "returned", label: "Hoàn trả" },
               ].map((item) => (
                 <button
                   key={item.key}
@@ -1595,9 +1498,25 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
                           {o.status === "shipping" && (
                             <button
                               onClick={() => handleAdvanceOrderStatus(o.id, "delivered")}
-                              className="bg-[#3d2e24] hover:bg-[#3d2e24] text-white px-2.5 py-1 rounded text-[11px] font-semibold transition-colors"
+                              className="bg-[#3d2e24] hover:bg-[#1e1b18] text-white px-2.5 py-1 rounded text-[11px] font-semibold transition-colors"
                             >
                               Hoàn tất
+                            </button>
+                          )}
+                          {(o.status === "pending" || o.status === "confirmed") && (
+                            <button
+                              onClick={() => handleAdvanceOrderStatus(o.id, "cancelled")}
+                              className="border border-red-200 bg-white hover:bg-red-50 text-red-700 px-2.5 py-1 rounded text-[11px] font-semibold transition-colors"
+                            >
+                              Hủy đơn
+                            </button>
+                          )}
+                          {(o.status === "shipping" || o.status === "delivered") && (
+                            <button
+                              onClick={() => handleAdvanceOrderStatus(o.id, "returned")}
+                              className="border border-amber-300 bg-white hover:bg-amber-50 text-amber-800 px-2.5 py-1 rounded text-[11px] font-semibold transition-colors"
+                            >
+                              Hoàn đơn
                             </button>
                           )}
                           <button
@@ -1932,8 +1851,18 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
                     <label className="text-xs font-semibold text-gray-700">
                       Kết quả phản hồi JSON-RPC 2.0:
                     </label>
-                    <span className="text-[11px] text-[#3d2e24] font-mono font-bold">
-                      {mcpResponse ? "Status 200 OK" : "Waiting for execute"}
+                    <span
+                      className={`text-[11px] font-mono font-bold ${
+                        mcpStatus && !mcpStatus.succeeded ? "text-red-600" : "text-[#3d2e24]"
+                      }`}
+                    >
+                      {mcpStatus
+                        ? mcpStatus.succeeded
+                          ? `Status ${mcpStatus.statusCode ?? 200} OK`
+                          : mcpStatus.statusCode
+                            ? `Status ${mcpStatus.statusCode} Error`
+                            : "Request Failed"
+                        : "Waiting for execute"}
                     </span>
                   </div>
                   <pre className="h-[210px] overflow-auto font-mono text-xs bg-slate-950 text-[#d4beaa] p-3 rounded-lg border border-slate-800 no-scrollbar">
@@ -1989,7 +1918,7 @@ export function AdminErpView({ initialSession = null }: { initialSession?: AuthS
                     <span className="text-xl font-black text-blue-700">8 Thực thể</span>
                   </div>
                   <p className="text-[11px] text-blue-600 mt-1">
-                    Organization, Product, AggregateRating, MedicalBusiness, BreadcrumbList.
+                    Organization, Product, AggregateRating, BreadcrumbList.
                   </p>
                 </div>
 

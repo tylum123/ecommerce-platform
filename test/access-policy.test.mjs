@@ -182,6 +182,10 @@ test("public catalog GET remains available and UI config never loads operational
   const ui = loadModule("src/app/api/ui-config/route.ts", {
     "next/server": { NextResponse: Response },
     "@/lib/server/live-catalog-store": { readStorefrontCatalog: () => publicCatalog },
+    "@/lib/server/postgres-database": {
+      getPostgresDatabase: () => ({ query: async () => ({ rows: [] }) }),
+      readHyperdriveConnectionString: () => null,
+    },
     "@/lib/interactive-ui": {
       getInteractiveUiData: () => ({ source: "snapshot", productDetailPageUi: {} }),
       searchCatalogLive: (query, limit, state) => {

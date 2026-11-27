@@ -2,7 +2,7 @@
  * Centralized White-Label Brand Configuration & Dynamic Token System.
  *
  * Change the environment variables (`NEXT_PUBLIC_BRAND_*`) or default values here
- * to configure the E-Commerce & Clinic platform in one place.
+ * to configure the E-Commerce platform in one place.
  */
 
 export interface BrandConfig {
@@ -24,8 +24,6 @@ export interface BrandConfig {
   dealsLabel: string;
   /** Uppercase flash deal program name, e.g. "NARI DEALS" */
   dealsUpper: string;
-  /** Clinic & Spa division name, e.g. "Nari Clinic & Spa" */
-  clinicName: string;
   /** Express delivery service name, e.g. "NariNow 2H" */
   deliveryName: string;
   /** Loyalty program name, e.g. "Nari Rewards" */
@@ -71,15 +69,13 @@ export const BRAND_CONFIG: BrandConfig = {
   domain: process.env.NEXT_PUBLIC_BRAND_DOMAIN?.trim() || emailDomain,
   companyName: sanitizeBrandString(
     process.env.NEXT_PUBLIC_BRAND_COMPANY,
-    `CÔNG TY CỔ PHẦN ${fullName.toUpperCase()} BEAUTY & CLINIC`,
+    `CÔNG TY CỔ PHẦN MỸ PHẨM ${fullName.toUpperCase()}`,
   ),
   dealsLabel:
     process.env.NEXT_PUBLIC_BRAND_DEALS?.trim() || `${shortName} Deals`,
   dealsUpper:
     process.env.NEXT_PUBLIC_BRAND_DEALS_UPPER?.trim() ||
     `${shortName.toUpperCase()} DEALS`,
-  clinicName:
-    process.env.NEXT_PUBLIC_BRAND_CLINIC?.trim() || `${shortName} Clinic & Spa`,
   deliveryName:
     process.env.NEXT_PUBLIC_BRAND_DELIVERY?.trim() || `${shortName}Now 2H`,
   loyaltyName:

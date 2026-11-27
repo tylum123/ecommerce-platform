@@ -249,63 +249,6 @@ export function CheckoutPageSkeleton() {
   );
 }
 
-/** Clinic booking route skeleton with clinic nav, contact form, branch rail, and time slots. */
-export function BookingPageSkeleton() {
-  return (
-    <div className="min-h-screen bg-[#faf5f0]" aria-busy="true" aria-label="Đang tải trang đặt lịch">
-      <StorefrontHeaderSkeleton />
-      <div className="booking-clinic-nav">
-        <div className="wrap flex gap-6 overflow-hidden py-3">
-          <SkeletonBlock className="h-4 w-28 shrink-0" />
-          <SkeletonBlock className="h-4 w-32 shrink-0" />
-          <SkeletonBlock className="h-4 w-24 shrink-0" />
-          <SkeletonBlock className="hidden h-4 w-28 shrink-0 sm:block" />
-        </div>
-      </div>
-
-      <div className="booking-page">
-        <div className="wrap space-y-4">
-          <div className="booking-steps flex justify-end">
-            <SkeletonBlock className="h-4 w-60 max-w-full" />
-          </div>
-
-          <section className="booking-box space-y-3">
-            <SkeletonBlock className="h-5 w-44" />
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <SkeletonBlock className="h-10 w-full" />
-              <SkeletonBlock className="h-10 w-full" />
-            </div>
-          </section>
-
-          <section className="booking-box space-y-3">
-            <SkeletonBlock className="h-5 w-40" />
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <SkeletonBlock className="h-44 w-full rounded-md" />
-              <SkeletonBlock className="hidden h-44 w-full rounded-md sm:block" />
-              <SkeletonBlock className="hidden h-44 w-full rounded-md lg:block" />
-              <SkeletonBlock className="hidden h-44 w-full rounded-md lg:block" />
-            </div>
-          </section>
-
-          <section className="booking-box space-y-3">
-            <SkeletonBlock className="h-5 w-44" />
-            <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
-              {Array.from({ length: 7 }).map((_, index) => (
-                <SkeletonBlock key={index} className="h-14 w-full" />
-              ))}
-            </div>
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-10">
-              {Array.from({ length: 10 }).map((_, index) => (
-                <SkeletonBlock key={index} className="h-11 w-full" />
-              ))}
-            </div>
-          </section>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /** Order lookup route skeleton with storefront header and centered lookup form card. */
 export function OrderLookupSkeleton() {
   return (

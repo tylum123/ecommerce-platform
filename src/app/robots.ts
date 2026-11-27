@@ -1,27 +1,36 @@
 import type { MetadataRoute } from "next";
-import { BRAND_CONFIG } from "@/lib/brand-config";
+
+const SITE_URL = "https://narihome.io.vn";
+const DISALLOW_PATHS = [
+  "/api/",
+  "/quan-tri",
+  "/quan-tri/",
+  "/nhan-vien",
+  "/nhan-vien/",
+  "/khach-hang",
+  "/khach-hang/",
+];
 
 export default function robots(): MetadataRoute.Robots {
-  const siteUrl = `https://${BRAND_CONFIG.domain}`;
   return {
     rules: [
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/quan-tri", "/quan-tri/"],
+        disallow: DISALLOW_PATHS,
       },
       {
         userAgent: "Googlebot",
         allow: "/",
-        disallow: ["/api/", "/quan-tri", "/quan-tri/"],
+        disallow: DISALLOW_PATHS,
       },
       {
         userAgent: "Bingbot",
         allow: "/",
-        disallow: ["/api/", "/quan-tri", "/quan-tri/"],
+        disallow: DISALLOW_PATHS,
       },
     ],
-    sitemap: `${siteUrl}/sitemap.xml`,
-    host: siteUrl,
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
 }
