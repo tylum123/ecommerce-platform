@@ -1,5 +1,18 @@
 # Session handoff — Hasaki clone
 
+## Checkpoint 27/11/2026 (Custom Domain `narihome.io.vn` Live & README Kiến Trúc) — Khôi Phục Supabase, Gắn Tên Miền Chính Thức & Deploy Bản 23/11
+
+- **Khắc phục sự cố Server & Kết nối Tên miền chính thức `https://narihome.io.vn`:**
+  - Khôi phục Supabase project `ywrzguhuzekkusoupehf` (sau 7 ngày ngủ đông gói Free); xác nhận `npm run db:verify` **PASS** (`ok: true`, `wave3Applied: true`, `currentUser: "nari_catalog_app"`, `verifiedTls: true`, `rls: true`, `runtimePolicies: 44`, `deniedWrites: true`).
+  - Đăng ký tên miền **`narihome.io.vn`** (iNET), trỏ Nameserver về Cloudflare (`alec.ns.cloudflare.com`, `gene.ns.cloudflare.com`, Zone ID `ef8e488c2ada886687ce5b615e867ca2`), và cấu hình Supabase Auth Redirect URLs cho `https://narihome.io.vn/auth/callback` & `https://narihome.io.vn/khoi-phuc-mat-khau`.
+  - Cập nhật Custom Domain & domain references sang `narihome.io.vn` trong [`wrangler.jsonc`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/wrangler.jsonc), [`src/lib/brand-config.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/brand-config.ts), [`src/app/sitemap.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/app/sitemap.ts), [`src/app/robots.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/app/robots.ts), [`src/lib/seo/seo-engine.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/seo/seo-engine.ts), [`src/components/sites/nari/footer.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/nari/footer.tsx), [`src/components/sites/nari/customer-portal-view.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/nari/customer-portal-view.tsx), [`src/lib/support-stores.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/support-stores.ts).
+  - Viết lại hoàn chỉnh [`README.md`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/README.md) trình bày đầy đủ kiến trúc hệ thống (Mermaid diagram), tech stack, cấu trúc thư mục, 4 schemas/18 bảng/44 RLS policies PostgreSQL, bảo mật RBAC, hướng dẫn cài đặt & deploy Cloudflare Workers.
+- **Kiểm chứng & Triển khai Production (`https://narihome.io.vn`):**
+  - `node --test test/*.mjs test/*.cjs`: **`92` passed, `0` failed** (`13` PGlite skipped khi `NARI_TEST_PGLITE_PATH` unset); `npm run typecheck`: **PASS** (`0` errors); `npm run lint`: **PASS** (`0` errors, `0` warnings).
+  - `npm run cf:build`: **PASS** (exit `0`, `22/22` static pages + `ƒ Proxy (Middleware)`).
+  - `npx wrangler deploy`: **PASS**, Version ID `02c7fb11-5b3e-4501-b5f2-3d3496fddefb`, gắn Custom Domains `narihome.io.vn` & `www.narihome.io.vn` (đồng thời đẩy live luôn bản nâng cấp Skeleton & Lazy Load ngày 23/11).
+  - Live HTTPS Probes (`https://narihome.io.vn`): `GET /` → HTTP `200` (`71.126` bytes), `GET /api/products` → HTTP `200`, `GET /api/stores` → HTTP `200`.
+
 ## Checkpoint 23/11/2026 (Frontend Loader, Skeleton & Lazy Load) — Tối Ưu Tải Mượt Chuyển Trang, Code-Splitting & Shimmer UI
 
 - **Tài nguyên mới & sửa đổi (đã xác minh):**

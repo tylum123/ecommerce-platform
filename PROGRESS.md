@@ -1,5 +1,15 @@
 # Tiến độ dự án E-Commerce Platform (Nari Home) & Quản Trị Doanh Nghiệp
 
+## Checkpoint 27/11/2026 (Custom Domain `narihome.io.vn` Live & README Kiến Trúc) — Triển Khai Chính Thức Tên Miền Riêng & Tài Liệu Hệ Thống
+
+- **Khôi phục Supabase & Gắn Tên Miền Chính Thức `https://narihome.io.vn`:**
+  - Khôi phục Supabase project `ywrzguhuzekkusoupehf` (`npm run db:verify` PASS: `ok: true`, `wave3Applied: true`, `runtimePolicies: 44`).
+  - Hoàn tất trỏ DNS `narihome.io.vn` về Cloudflare (`alec.ns.cloudflare.com`, `gene.ns.cloudflare.com`), thêm Redirect URLs trên Supabase Auth (`/auth/callback`, `/khoi-phuc-mat-khau`), và cập nhật cấu hình domain trong [`wrangler.jsonc`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/wrangler.jsonc), [`sitemap.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/app/sitemap.ts), [`robots.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/app/robots.ts), [`seo-engine.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/seo/seo-engine.ts), [`brand-config.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/brand-config.ts), [`footer.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/nari/footer.tsx), [`customer-portal-view.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/nari/customer-portal-view.tsx) & [`support-stores.ts`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/lib/support-stores.ts).
+  - Tạo mới hoàn chỉnh [`README.md`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/README.md) mô tả kiến trúc hệ thống, công nghệ, 4 schemas PostgreSQL, bảo mật RBAC và hướng dẫn deploy.
+- **Kiểm chứng & Deploy Live (`https://narihome.io.vn`):**
+  - `node --test test/*.mjs test/*.cjs` (**92 passed, 0 failed**, `13` PGlite skipped), `npm run typecheck` (`0` errors), `npm run lint` (`0` errors, `0` warnings), `npm run cf:build` (`exit 0`).
+  - `npx wrangler deploy`: Version ID `02c7fb11-5b3e-4501-b5f2-3d3496fddefb`, Custom Domains `narihome.io.vn` & `www.narihome.io.vn`; Live HTTPS probes `/`, `/api/products`, `/api/stores` đều trả **HTTP 200**.
+
 ## Checkpoint 23/11/2026 (Frontend Loader, Skeleton & Lazy Load) — Tối Ưu Tải Mượt Chuyển Trang, Code-Splitting & Shimmer UI
 
 - **Global Route Loader & CSS Shimmer:** Thêm `@keyframes nari-shimmer`, `.nari-shimmer`, `.nari-route-progress`, `.nari-img-frame`, `.nari-smooth-img` (tôn trọng `prefers-reduced-motion`) vào [`globals.css`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/app/globals.css); triển khai [`route-progress-bar.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/components/sites/nari/route-progress-bar.tsx) dùng ref thuần (không `setState` trong `useEffect`) và bọc trong `<Suspense>` tại [`src/app/layout.tsx`](file:///C:/Users/MyPC/OneDrive/M%C3%A1y%20t%C3%ADnh/hasaki-clone/src/app/layout.tsx).

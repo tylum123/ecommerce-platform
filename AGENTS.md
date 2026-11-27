@@ -37,10 +37,13 @@ A reusable template for reverse-engineering any website into a clean, modern Nex
 - Tailwind utilities or scoped CSS; avoid inline styles unless behavior needs dynamic values
 - 2-space indentation
 - Responsive: mobile-first
+- **DRY & Component Reuse:** Shared UI primitives belong in `src/components/ui/` (and brand/site components in `src/components/sites/nari/`). Search the codebase before creating new UI or helpers. Keep `page.tsx` focused on composing components and managing data flow—never inline shared UI, styles, or shared business logic directly inside pages.
+- **Clean Code & Zero Dead Imports:** Remove all unused imports (especially `lucide-react` icons), dead variables, and temporary comments before handoff. Never use raw emojis or ad-hoc images in place of system icons.
 
 ## Design Principles
 - **Pixel-perfect emulation** — match the target's spacing, colors, typography exactly
 - **No personal aesthetic changes during emulation phase** — match 1:1 first, customize later
+- **Strict UI/UX Consistency:** All pages in the product must follow the shared design system (layout, spacing, typography, CSS/Tailwind tokens, and consistent `h1` page headers without ad-hoc icons or bloated subtitles). Inherit existing page patterns.
 - **Real content** — use actual text and assets from the target site, not placeholders
 - **Beauty-first** — every pixel matters
 
@@ -72,10 +75,16 @@ scripts/            # Asset download scripts
 ## Agent Workflow
 - Always operate as a **Senior Fullstack Engineer & Professional Business Analyst (BA)**, following `.agents/skills/nari-fullstack-ba/SKILL.md` for architecture, BA traceability, security, and database transaction standards.
 - **Plan-First:** For implementation tasks, first write a short plan with BA scope/rules, priority, file ownership, dependencies, acceptance checks and rollback. Explain it to the user and then execute within the authorized scope.
-- **CodeGraph-First:** Always query `.codegraph/codegraph.db` to locate relevant symbols, callers and affected boundaries before reading application code. Do not read the entire codebase; read additional files only when the graph is stale, omits necessary details, or does not index them.
-- Keep costs low: run at most one implementation subagent at a time. Use a lightweight model for documentation and narrow tasks; use a workhorse model at medium reasoning for ordinary coding. A highest-capability commander reviews architecture/security only at important checkpoints, does not write application code, and must stop after its bounded review instead of running continuously.
-- Preserve existing changes, keep unrelated functionality unchanged, and validate the affected authorization, persistence and user flows. Run focused tests first; run integration lint/typecheck/build once when application changes are stable, repeating only for actual failures or subsequent changes.
-- **Continuous Git Delivery & Handoff:** After every completed and verified feature/step, update `docs/SESSION_HANDOFF.md`, `PROGRESS.md` and the relevant gap report, commit clean logical changes (never `.env`, `temp/`, `*.db`, or local artifacts), and push continuously to `origin/main`. Never label local mocks or SQL preparation as live cloud acceptance. Do not enable a dependent business capability before its own authorization/data checks are ready.
+- **CodeGraph-First & Blast Radius:**
+  - Always query `.codegraph/codegraph.db` (`codegraph_explore` / `codegraph_node` or `codegraph explore` / `codegraph node`) to locate relevant symbols, callers, and affected boundaries before reading application code.
+  - Before modifying or deleting functions, DTOs, API contracts, or core services, run `codegraph impact <symbol>` or `codegraph callers <symbol>` to assess cross-module blast radius.
+  - After creating or restructuring multiple files, run `npx @colbymchenry/codegraph sync`. Never commit `.codegraph/` or `*.db` files.
+- **Right-Sized Subagents & Models (No Artificial Cost Cap):** Do not restrict yourself to a single subagent or force low-cost models when quality requires more. Choose the appropriate model for each task's complexity and risk: lightweight/fast models for documentation and narrow tasks, workhorse/medium models for ordinary coding, and highest-capability models for complex architecture, deep debugging, security audits, and critical checkpoint reviews. Run independent subagents in parallel when helpful.
+- **Professional Rigor & Quality Gate:** Read existing code carefully before editing—never guess file names, APIs, or schemas. Report exact file paths and line numbers as evidence. Before declaring any task complete, run focused tests plus `npm run typecheck` and `npm run lint` with **0 errors** (and `npm run build` / `npm run cf:build` when application structure or deployment bundle is affected).
+- **Always Sync Git & Continuous Delivery (No Conflicts):**
+  - **Before starting work** and **before pushing**, always fetch and integrate the latest remote changes (`git fetch origin` and `git pull --rebase origin main`, or sync the current tracking branch) to prevent merge conflicts. Resolve any conflicts cleanly and report exact git errors if blocked—never ignore them silently.
+  - After every completed and verified feature/step, update `docs/SESSION_HANDOFF.md`, `PROGRESS.md`, and the relevant gap report.
+  - Commit clean logical changes using **Vietnamese Conventional Commits** (e.g., `feat: ...`, `fix: ...`)—never commit `.env`, `temp/`, `*.db`, or local artifacts—and push continuously to `origin/main`. Never label local mocks or SQL preparation as live cloud acceptance, and do not enable a dependent business capability before its own authorization/data checks are ready.
 - Follow `docs/ENGINEERING_RULES.md` for architecture, data ownership, authentication, delivery priorities, and acceptance gates. These are target requirements, not claims that the current implementation already satisfies them.
 - Edit `.agents/skills/clone-website/` for cloning-workflow changes and `.agents/skills/nari-fullstack-ba/` for Fullstack/BA delivery practices. They are canonical skills used across agents.
 - Keep `.claude/commands/clone-website.md` as a thin Claude Code bridge to the canonical skill; do not duplicate the workflow there.
