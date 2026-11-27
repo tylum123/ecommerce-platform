@@ -165,7 +165,7 @@ function extractSuggestedBrands(liveCatalog: LiveCatalogOverridesState): Suggest
   if (brandRefs.length > 0) {
     return brandRefs.slice(0, 24).map((b) => ({
       name: b.label,
-      href: `/thuong-hieu/${b.slug.endsWith(".html") ? b.slug : `${b.slug}.html`}`,
+      href: `/thuong-hieu/${b.slug}`,
       logo: "",
     }));
   }
@@ -231,7 +231,7 @@ function buildMegaMenuTree(
                     { label: "Sản Phẩm Bán Chạy Nhất", href: "/san-pham-ban-chay.html" },
                     { label: "Hàng Mới Về Chính Hãng", href: "/hang-moi-ve.html" },
                     { label: "Flash Deal Giảm Sâu", href: "/deals-dang-dien-ra.html" },
-                    { label: "Dược Mỹ Phẩm Cao Cấp", href: "/danh-muc/my-pham-high-end-c1907.html" },
+                    { label: "Thương Hiệu Chính Hãng", href: "/thuong-hieu" },
                   ],
           },
           {
@@ -445,7 +445,7 @@ export function searchCatalogLive(
     .filter((b) => b.label.toLowerCase().includes(q))
     .map((b) => ({
       name: b.label,
-      href: `/thuong-hieu/${b.slug.endsWith(".html") ? b.slug : `${b.slug}.html`}`,
+      href: `/thuong-hieu/${b.slug}`,
     }));
 
   const brandNamesFromProducts = Array.from(new Set(matched.map((p) => p.brand))).map((name) => ({

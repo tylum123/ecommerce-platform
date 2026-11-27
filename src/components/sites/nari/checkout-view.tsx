@@ -432,7 +432,7 @@ export function CheckoutView({
 
                 <fieldset className="checkout-options">
                   <legend>Phương thức vận chuyển</legend>
-                  <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+                  <label>
                     <input
                       type="radio"
                       name="deliveryType"
@@ -440,13 +440,13 @@ export function CheckoutView({
                       checked={deliveryType === "NariNow 2H"}
                       onChange={() => setDeliveryType("NariNow 2H")}
                     />
-                    <Truck size={16} className="text-[#3d2e24]" />
+                    <Truck size={16} className="shrink-0 text-[#3d2e24]" />
                     <strong>Giao hàng NariNow 2H</strong>
-                    <span style={{ color: "#b86b4b", marginLeft: "auto", fontWeight: 600 }}>
+                    <span style={{ color: "#b86b4b", marginLeft: "auto", fontWeight: 600, whiteSpace: "nowrap" }}>
                       {subtotal >= 90000 ? "Miễn phí" : money(25000)}
                     </span>
                   </label>
-                  <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, marginTop: 6 }}>
+                  <label>
                     <input
                       type="radio"
                       name="deliveryType"
@@ -455,11 +455,11 @@ export function CheckoutView({
                       onChange={() => setDeliveryType("Tiêu chuẩn")}
                     />
                     <span>Giao hàng tiêu chuẩn (2 - 4 ngày)</span>
-                    <span style={{ color: "#b86b4b", marginLeft: "auto", fontWeight: 600 }}>
+                    <span style={{ color: "#b86b4b", marginLeft: "auto", fontWeight: 600, whiteSpace: "nowrap" }}>
                       {money(25000)}
                     </span>
                   </label>
-                  <p style={{ margin: "6px 0 0 0", fontSize: 12, color: "#6b7280" }}>
+                  <p>
                     Miễn phí vận chuyển NariNow 2H cho đơn từ {money(90000)}.
                   </p>
                 </fieldset>

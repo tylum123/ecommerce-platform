@@ -76,7 +76,7 @@ export function Footer() {
         {/* Column 3: Services & Utilities */}
         <div>
           <b>HỢP TÁC &amp; TIỆN ÍCH</b>
-          <p><Link href="/danh-muc/dermahair-c2298.html" className="hover:text-[#b86b4b]">Dermahair chuyên sâu</Link></p>
+          <p><Link href="/danh-muc/cham-soc-da-mat-c4.html" className="hover:text-[#b86b4b]">Chăm sóc da mặt</Link></p>
           <p><Link href="/he-thong-cua-hang" className="hover:text-[#b86b4b]">Hệ thống chi nhánh toàn quốc</Link></p>
           <p><Link href="/bao-hanh" className="hover:text-[#b86b4b]">Tra cứu bảo hành thiết bị</Link></p>
           <p><Link href="/tra-cuu-don-hang" className="hover:text-[#b86b4b]">Tra cứu đơn hàng</Link></p>

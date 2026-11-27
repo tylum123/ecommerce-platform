@@ -71,12 +71,12 @@ const ARTICLES: GuideArticle[] = [
     `,
     relatedService: {
       name: "Combo Lấy Mụn + Mặt Nạ Jean D'Arcel + Chiếu ASSH",
-      url: "/dich-vu/combo-lay-mun-dap-mat-na-nam-den-anh-sang-66654.html",
+      url: "/danh-muc/cham-soc-da-mat-c4.html",
       price: "249.000 ₫",
     },
     relatedProduct: {
       name: "Dung Dịch Tẩy Trang Bioderma Sébium H2O Cho Da Dầu Mụn 500ml",
-      url: "/danh-muc/my-pham-c3.html",
+      url: "/danh-muc/sua-rua-mat-c19.html",
       price: "385.000 ₫",
     },
   },
@@ -107,12 +107,12 @@ const ARTICLES: GuideArticle[] = [
     `,
     relatedService: {
       name: "Triệt Lông Nách Nữ Diode Laser (8 Buổi) (Bảo Hành 5 Năm)",
-      url: "/dich-vu/triet-long-diode-laser-vung-nach-13887.html",
+      url: "/danh-muc/cham-soc-da-mat-c4.html",
       price: "800.000 ₫",
     },
     relatedProduct: {
       name: "Gel Tẩy Tế Bào Chết Toàn Thân Cocoon Cà Phê Đắk Lắk 200ml",
-      url: "/danh-muc/my-pham-c3.html",
+      url: "/danh-muc/sua-rua-mat-c19.html",
       price: "115.000 ₫",
     },
   },
@@ -141,7 +141,7 @@ const ARTICLES: GuideArticle[] = [
     `,
     relatedService: {
       name: "Mesoderm Trị Mụn",
-      url: "/dich-vu/aqua-mesoderm-meso-tri-mun-16374.html",
+      url: "/danh-muc/cham-soc-da-mat-c4.html",
       price: "400.000 ₫",
     },
   },
@@ -171,7 +171,7 @@ const ARTICLES: GuideArticle[] = [
     `,
     relatedService: {
       name: "Xóa Nốt Ruồi Công Nghệ Laser Fractional CO2",
-      url: "/dich-vu/xoa-not-ruoi-cong-nghe-laser-co2-fractional-33051.html",
+      url: "/danh-muc/cham-soc-da-mat-c4.html",
       price: "100.000 ₫",
     },
   },
@@ -198,12 +198,12 @@ const ARTICLES: GuideArticle[] = [
     `,
     relatedService: {
       name: "Combo Lấy Mụn + Mặt Nạ Kháng Khuẩn + Chiếu ASSH (Trải nghiệm)",
-      url: "/dich-vu/trai-nghiem-combo-lay-mun-vung-chieu-assh-mat-na-khang-khuan-105375.html",
+      url: "/danh-muc/sua-rua-mat-c19.html",
       price: "149.000 ₫",
     },
     relatedProduct: {
       name: "Kem Dưỡng La Roche-Posay Cicaplast Baume B5+ Làm Dịu & Phục Hồi Da 40ml",
-      url: "/danh-muc/my-pham-c3.html",
+      url: "/danh-muc/sua-rua-mat-c19.html",
       price: "360.000 ₫",
     },
   },
@@ -233,7 +233,7 @@ const ARTICLES: GuideArticle[] = [
     `,
     relatedService: {
       name: "Nâng Cơ - Thon Gọn Mặt Công Nghệ Exilis Ultra 360",
-      url: "/dich-vu/nang-co-cong-nghe-exilis-vung-mat-54604.html",
+      url: "/danh-muc/cham-soc-da-mat-c4.html",
       price: "1.700.000 ₫",
     },
   },
@@ -257,7 +257,7 @@ const ARTICLES: GuideArticle[] = [
     `,
     relatedService: {
       name: "Điện Di Lạnh Vitamin C (20%) Trắng Sáng Vùng Nách",
-      url: "/dich-vu/dien-di-vitamin-c-tri-tham-vung-nach-59149.html",
+      url: "/danh-muc/cham-soc-da-mat-c4.html",
       price: "400.000 ₫",
     },
   },
@@ -286,12 +286,12 @@ const ARTICLES: GuideArticle[] = [
     `,
     relatedService: {
       name: "Điều Trị Mụn, Trẻ Hóa Da Bằng BHA 7% + LAC 7% + Res 7% (Image USA) ( Vùng Mặt)",
-      url: "/dich-vu/peel-bha-7-lac-7-res-7-image-usa-94941.html",
+      url: "/danh-muc/cham-soc-da-mat-c4.html",
       price: "660.000 ₫",
     },
     relatedProduct: {
       name: "Kem Chống Nắng La Roche-Posay Anthelios UVMune 400 Oil Control 50ml",
-      url: "/danh-muc/my-pham-c3.html",
+      url: "/danh-muc/sua-rua-mat-c19.html",
       price: "435.000 ₫",
     },
   },
@@ -309,30 +309,15 @@ export default function CamNangPage() {
   return (
     <>
       <Header />
-      <nav className="booking-clinic-nav" aria-label="Nari Clinic & Spa">
-        <div className="wrap">
-          <Link href="/danh-muc/nari-clinic-spa.html">Nari Clinic & Spa &amp; SPA</Link>
-          <Link href="/ho-tro/gioi-thieu">GIỚI THIỆU</Link>
-          <Link href="/danh-muc/nari-clinic-spa.html">DỊCH VỤ</Link>
-          <Link href="/bang-gia-dich-vu.html">BẢNG GIÁ</Link>
-          <Link href="/cam-nang.html" style={{ fontWeight: "bold", color: "#f47722" }}>
-            CẨM NANG
-          </Link>
-          <Link href="/ho-tro/lien-he">LIÊN HỆ</Link>
-          <Link href="/booking">ĐẶT HẸN</Link>
-        </div>
-      </nav>
-
-      <main className="wrap clinic-page" style={{ paddingTop: "14px" }}>
+      <main className="wrap" style={{ paddingTop: "14px" }}>
         <div className="breadcrumbs">
-          <Link href="/">Trang chủ</Link> ›{" "}
-          <Link href="/danh-muc/nari-clinic-spa.html">Nari Clinic & Spa &amp; Spa</Link> › Cẩm nang làm đẹp &amp; Da liễu
+          <Link href="/">Trang chủ</Link> › Cẩm nang làm đẹp &amp; Chăm sóc da
         </div>
 
         {/* Hero Banner Header */}
         <div
           style={{
-            background: "linear-gradient(135deg, #184230 0%, #296849 100%)",
+            background: "linear-gradient(135deg, #3d2e24 0%, #1e1b18 100%)",
             color: "white",
             padding: "32px 24px",
             borderRadius: "8px",
@@ -712,12 +697,12 @@ export default function CamNangPage() {
                     }}
                     onClick={() => setActiveArticle(null)}
                   >
-                    Xem chi tiết dịch vụ
+                    Xem danh mục gợi ý
                   </Link>
                   <Link
-                    href="/booking"
+                    href="/san-pham-ban-chay.html"
                     style={{
-                      background: "#f47722",
+                      background: "#b86b4b",
                       color: "white",
                       padding: "8px 14px",
                       borderRadius: "4px",
@@ -726,7 +711,7 @@ export default function CamNangPage() {
                     }}
                     onClick={() => setActiveArticle(null)}
                   >
-                    Đặt hẹn khám
+                    Sản phẩm bán chạy
                   </Link>
                 </div>
               </div>
